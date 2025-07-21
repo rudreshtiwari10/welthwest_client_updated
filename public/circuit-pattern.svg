@@ -1,0 +1,24 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="circuit" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+      <!-- Horizontal Lines -->
+      <line x1="0" y1="20" x2="100" y2="20" stroke="rgba(59, 130, 246, 0.1)" stroke-width="1" />
+      <line x1="0" y1="60" x2="100" y2="60" stroke="rgba(59, 130, 246, 0.1)" stroke-width="1" />
+      
+      <!-- Vertical Lines -->
+      <line x1="30" y1="0" x2="30" y2="100" stroke="rgba(59, 130, 246, 0.1)" stroke-width="1" />
+      <line x1="70" y1="0" x2="70" y2="100" stroke="rgba(59, 130, 246, 0.1)" stroke-width="1" />
+      
+      <!-- Nodes -->
+      <circle cx="30" cy="20" r="3" fill="rgba(139, 92, 246, 0.15)" />
+      <circle cx="70" cy="20" r="3" fill="rgba(139, 92, 246, 0.15)" />
+      <circle cx="30" cy="60" r="3" fill="rgba(139, 92, 246, 0.15)" />
+      <circle cx="70" cy="60" r="3" fill="rgba(139, 92, 246, 0.15)" />
+      
+      <!-- Diagonal Connections -->
+      <line x1="30" y1="20" x2="70" y2="60" stroke="rgba(59, 130, 246, 0.1)" stroke-width="1" />
+      <line x1="70" y1="20" x2="30" y2="60" stroke="rgba(59, 130, 246, 0.1)" stroke-width="1" />
+    </pattern>
+  </defs>
+  <rect x="0" y="0" width="100" height="100" fill="url(#circuit)" />
+</svg> 

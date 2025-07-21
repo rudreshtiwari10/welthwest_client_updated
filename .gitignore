@@ -1,0 +1,55 @@
+# Dependency directories
+node_modules/
+.pnpm/
+.cache/
+.npm/
+dist/
+build/
+out/
+
+# Build output
+*.log
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# Editor folders and system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Lock files (optional, if using one preferred)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Testing coverage
+coverage/
+
+# Next.js
+.next/
+out/
+
+# Nuxt.js
+.nuxt/
+
+# Vue
+/dist
+/.vitepress/dist
+/.output/
+
+# SvelteKit
+/.svelte-kit/
+.svelte-kit/output/
+
+# Storybook
+.storybook-out/
+.storybook-static/
+
+# Netlify/Vercel deployments
+.netlify/
+.vercel/

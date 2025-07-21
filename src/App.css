@@ -1,0 +1,22 @@
+/* App-specific styles */
+.App {
+  text-align: center;
+}
+
+/* Chat container styles */
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Stock card styles */
+.stock-card {
+  transition: transform 0.2s;
+}
+
+.stock-card:hover {
+  transform: translateY(-5px);
+} 

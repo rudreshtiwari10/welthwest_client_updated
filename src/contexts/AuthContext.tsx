@@ -1,0 +1,156 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { authService } from '../services/api';
+
+// Define interfaces
+interface User {
+  id: string;
+  username: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (username: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (profileData: any) => Promise<void>;
+  getToken: () => Promise<string | null>;
+}
+
+// Create context with default values
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isAuthenticated: false,
+  isLoading: true,
+  login: async () => {},
+  register: async () => {},
+  logout: async () => {},
+  updateProfile: async () => {},
+  getToken: async () => null,
+});
+
+// Custom hook to use the auth context
+export const useAuth = () => useContext(AuthContext);
+
+// Provider component
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        try {
+          const userData = await authService.getCurrentUser();
+          setUser(userData.user);
+        } catch (error) {
+          console.error('Error fetching user data:', error);
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+        }
+      }
+      setIsLoading(false);
+    };
+    
+    checkLoggedIn();
+  }, []);
+  
+  // Login function
+  const login = async (usernameOrEmail: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.login(usernameOrEmail, password);
+      
+      if (response.user) {
+        setUser(response.user);
+      } else {
+        throw new Error('Login failed: No user data returned');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Register function
+  const register = async (username: string, email: string, password: string, confirmPassword: string) => {
+    try {
+      setIsLoading(true);
+      await authService.register(email, username, password, confirmPassword);
+      // Auto-login after registration
+      await login(email, password);
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Logout function
+  const logout = async () => {
+    try {
+      setIsLoading(true);
+      await authService.logout();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear user state even if API call fails
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Update profile function
+  const updateProfile = async (profileData: any) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.updateProfile(profileData);
+      if (response.user) {
+        setUser(response.user);
+      }
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Get token function
+  const getToken = async (): Promise<string | null> => {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      return null;
+    }
+    // TODO: Add token refresh logic here if needed
+    return token;
+  };
+  
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        login,
+        register,
+        logout,
+        updateProfile,
+        getToken,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}; 
