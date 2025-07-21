@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Modal Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-step {
+            margin: 10px 0;
+            padding: 10px;
+            border-left: 4px solid #3b82f6;
+            background: #eff6ff;
+        }
+        .expected {
+            background: #f0f9ff;
+            border-left: 4px solid #06b6d4;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-instructions">
+        <h1>🔐 Login Modal Integration Test</h1>
+        
+        <h2>Test Scenario: Free User Chat Limit Reached</h2>
+        
+        <div class="test-step">
+            <h3>Step 1: Start Chat as Anonymous User</h3>
+            <p>• Open the chat interface without logging in</p>
+            <p>• Send your first message</p>
+            <div class="expected">
+                <strong>Expected:</strong> Message counter should show "Free messages remaining: 4"
+            </div>
+        </div>
+        
+        <div class="test-step">
+            <h3>Step 2: Use Up Free Messages</h3>
+            <p>• Continue sending messages (5 total)</p>
+            <p>• Watch the counter decrease: 4 → 3 → 2 → 1 → 0</p>
+            <div class="expected">
+                <strong>Expected:</strong> When remaining = 2 or less, show "Sign in for unlimited access" hint
+            </div>
+        </div>
+        
+        <div class="test-step">
+            <h3>Step 3: Trigger Login Modal</h3>
+            <p>• Send the 6th message (should exceed limit)</p>
+            <div class="expected">
+                <strong>Expected:</strong> 
+                <ul>
+                    <li>❌ NO upgrade modal should appear</li>
+                    <li>✅ LOGIN MODAL should appear with:</li>
+                    <li>&nbsp;&nbsp;&nbsp;• Title: "Continue Chatting"</li>
+                    <li>&nbsp;&nbsp;&nbsp;• Message: "You've used all your free messages! Sign in or create an account..."</li>
+                    <li>&nbsp;&nbsp;&nbsp;• Toggle between "Sign In" and "Register" tabs</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="test-step">
+            <h3>Step 4: Test Login Functionality</h3>
+            <p>• Try logging in with valid credentials</p>
+            <div class="expected">
+                <strong>Expected:</strong> 
+                <ul>
+                    <li>✅ Modal should close automatically</li>
+                    <li>✅ User should now be authenticated</li>
+                    <li>✅ Chat should work with unlimited access</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="test-step">
+            <h3>Step 5: Test Registration</h3>
+            <p>• Close modal and trigger limit again</p>
+            <p>• Click "Register" tab in modal</p>
+            <p>• Fill out registration form</p>
+            <div class="expected">
+                <strong>Expected:</strong> 
+                <ul>
+                    <li>✅ Registration form should have: email, username, password, confirm password</li>
+                    <li>✅ Form validation should work</li>
+                    <li>✅ Successful registration should close modal and authenticate user</li>
+                </ul>
+            </div>
+        </div>
+
+        <h2>🚀 How to Run This Test</h2>
+        <ol>
+            <li>Start the backend server: <code>cd WelthWestServer2 && python run.py</code></li>
+            <li>Start the frontend server: <code>cd WelthWestClientSharing && npm start</code></li>
+            <li>Open browser and navigate to the AI chat page</li>
+            <li>Follow the test steps above</li>
+        </ol>
+
+        <h2>✅ Success Criteria</h2>
+        <ul>
+            <li>Free users see login modal (not upgrade modal) when limit reached</li>
+            <li>Modal has both login and registration functionality</li>
+            <li>Successful authentication closes modal and enables unlimited chat</li>
+            <li>UI shows proper messaging and counter for free users</li>
+        </ul>
+    </div>
+</body>
+</html>

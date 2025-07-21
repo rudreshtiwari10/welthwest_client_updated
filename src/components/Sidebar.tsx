@@ -119,6 +119,7 @@ const marketSectors = [
 const mainNavigation = [
   { name: 'Dashboard', path: '/dashboard', icon: 'chart-line' },
   { name: 'Markets', path: '/markets', icon: 'globe' },
+  { name: 'Stocks', path: '/stock/RELIANCE', icon: 'search-dollar' },
   { name: 'Backtesting', path: '/backtesting', icon: 'chart-bar' },
   { name: 'Profile', path: '/profile', icon: 'user' },
 ];

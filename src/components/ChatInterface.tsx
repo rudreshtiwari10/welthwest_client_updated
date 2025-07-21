@@ -5,6 +5,7 @@ import { marketService } from '../services/api';
 import SubscriptionBanner from './subscription/SubscriptionBanner';
 import UsageTracker from './subscription/UsageTracker';
 import LimitExceededModal from './subscription/LimitExceededModal';
+import LoginModal from './LoginModal';
 
 interface Message {
   id: string;
@@ -18,6 +19,12 @@ interface ChatSession {
   title: string;
   timestamp: Date;
   preview: string;
+}
+
+interface AnonymousSessionState {
+  sessionId: string | null;
+  remainingMessages: number;
+  loginRequired: boolean;
 }
 
 const ChatInterface: React.FC = () => {
@@ -58,6 +65,12 @@ const ChatInterface: React.FC = () => {
   const [activeSession, setActiveSession] = useState<string>('current');
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [anonymousSession, setAnonymousSession] = useState<AnonymousSessionState>({
+    sessionId: null,
+    remainingMessages: 5,
+    loginRequired: false
+  });
   const placeholders = [
     "Ask about investment strategies...",
     "Inquire about stock market trends...",
@@ -79,17 +92,44 @@ const ChatInterface: React.FC = () => {
     
     return () => clearInterval(intervalId);
   }, []);
+
+  // Initialize anonymous session for non-authenticated users
+  useEffect(() => {
+    const initializeSession = async () => {
+      if (!user && !anonymousSession.sessionId) {
+        try {
+          const response = await marketService.anonymousChatWithAI('', undefined, selectedModel);
+          if (response.session_id) {
+            setAnonymousSession({
+              sessionId: response.session_id,
+              remainingMessages: response.remaining_messages || 5,
+              loginRequired: response.login_required || false
+            });
+          }
+        } catch (error) {
+          console.error('Failed to initialize session:', error);
+          // Don't show error to user, they can still try to chat
+        }
+      }
+    };
+
+    initializeSession();
+  }, [user, anonymousSession.sessionId, selectedModel]);
+
+  // Handle successful login - reset session state
+  const handleLoginSuccess = () => {
+    setAnonymousSession({
+      sessionId: null,
+      remainingMessages: 5,
+      loginRequired: false
+    });
+    setShowLoginModal(false);
+  };
   
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!input.trim()) return;
-
-    // Check if user can use LLM
-    if (!canUseLLM()) {
-      setShowLimitModal(true);
-      return;
-    }
     
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -103,27 +143,114 @@ const ChatInterface: React.FC = () => {
     setIsLoading(true);
     
     try {
-      // Use the new AI chat service
-      const response = await marketService.chatWithAI(
-        input.trim(),
-        selectedModel,
-        user?.id
-      );
+      let response: any;
+      let shouldUseMarketChat = false;
       
-      // Increment usage after successful response
-      await incrementLLMUsage();
+      // Determine which API to use
+      if (!user) {
+        // Not logged in - use free anonymous chat
+        if (anonymousSession.loginRequired) {
+          // Anonymous limit exceeded, show login modal
+          setShowLoginModal(true);
+          setIsLoading(false);
+          return;
+        }
+        
+        try {
+          response = await marketService.anonymousChatWithAI(
+            input.trim(),
+            anonymousSession.sessionId || undefined,
+            selectedModel
+          );
+          
+          // Update session state from response
+          if (response.session_id) {
+            setAnonymousSession(prev => ({
+              sessionId: response.session_id,
+              remainingMessages: response.remaining_messages || 0,
+              loginRequired: response.login_required || false
+            }));
+          }
+        } catch (error: any) {
+          // If anonymous chat fails due to limits, suggest login
+          if (error.response?.status === 403) {
+            setAnonymousSession(prev => ({
+              ...prev,
+              loginRequired: true,
+              remainingMessages: 0
+            }));
+            setShowLoginModal(true);
+            setIsLoading(false);
+            return;
+          }
+          throw error;
+        }
+      } else {
+        // User is logged in
+        if (anonymousSession.loginRequired || !canUseLLM()) {
+          // Use market chat API for authenticated users
+          shouldUseMarketChat = true;
+          response = await marketService.chatWithAI(
+            input.trim(),
+            selectedModel,
+            user?.id
+          );
+          
+          // Increment usage after successful response
+          await incrementLLMUsage();
+        } else {
+          // Still have free messages, use anonymous chat
+          try {
+            response = await marketService.anonymousChatWithAI(
+              input.trim(),
+              anonymousSession.sessionId || undefined,
+              selectedModel
+            );
+            
+            // Update session state from response
+            if (response.session_id) {
+              setAnonymousSession(prev => ({
+                sessionId: response.session_id,
+                remainingMessages: response.remaining_messages || 0,
+                loginRequired: response.login_required || false
+              }));
+            }
+          } catch (error: any) {
+            // If anonymous chat fails, fall back to market chat
+            if (error.response?.status === 403) {
+              shouldUseMarketChat = true;
+              response = await marketService.chatWithAI(
+                input.trim(),
+                selectedModel,
+                user?.id
+              );
+              
+              await incrementLLMUsage();
+              
+              // Update session to require market chat from now on
+              setAnonymousSession(prev => ({
+                ...prev,
+                loginRequired: true,
+                remainingMessages: 0
+              }));
+            } else {
+              throw error;
+            }
+          }
+        }
+      }
       
-      // Create response message
+      // Create response message - handle different response formats
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: response.analysis,
+        text: shouldUseMarketChat ? response.analysis : response.response,
         sender: 'assistant',
         timestamp: new Date(),
       };
       
       setMessages(prev => [...prev, assistantMessage]);
       
-      // If there's stock data, add it as a separate message
+      // If there's stock data (from market chat), add it as a separate message
       if (response.stock_data && Object.keys(response.stock_data).length > 0) {
         const symbol = Object.keys(response.stock_data)[0];
         const stockData = response.stock_data[symbol];
@@ -256,6 +383,20 @@ const ChatInterface: React.FC = () => {
           
           {/* Input Area */}
           <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            {/* Free Messages Indicator for non-authenticated users */}
+            {!user && anonymousSession.sessionId && (
+              <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center justify-between">
+                  <span>Free messages remaining: {anonymousSession.remainingMessages}</span>
+                  {anonymousSession.remainingMessages <= 2 && (
+                    <span className="text-primary-600 dark:text-primary-400 font-medium">
+                      Sign in for unlimited access
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+            
             <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
               <input
                 type="text"
@@ -313,13 +454,24 @@ const ChatInterface: React.FC = () => {
         </div>
       </div>
 
-      {/* Limit Exceeded Modal */}
-      <LimitExceededModal
-        isOpen={showLimitModal}
-        onClose={() => setShowLimitModal(false)}
-        featureType="llm"
-        message="You have reached your daily limit for AI queries. Please upgrade your plan to continue using the AI assistant."
+      {/* Login Modal for Free Users */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={handleLoginSuccess}
+        title="Continue Chatting"
+        message="You've used all your free messages! Sign in or create an account to continue with unlimited AI chat access."
       />
+
+      {/* Limit Exceeded Modal for Authenticated Users Only */}
+      {user && (
+        <LimitExceededModal
+          isOpen={showLimitModal}
+          onClose={() => setShowLimitModal(false)}
+          featureType="llm"
+          message="You have reached your daily limit for AI queries. Please upgrade your plan to continue using the AI assistant."
+        />
+      )}
     </div>
   );
 };

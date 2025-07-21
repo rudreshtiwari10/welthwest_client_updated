@@ -19,6 +19,10 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 import UsageTracker from '../components/subscription/UsageTracker';
 import LimitExceededModal from '../components/subscription/LimitExceededModal';
+import AIAnalysisToggle from '../components/AIAnalysisToggle';
+import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
+import AIAnalysisResults from '../components/AIAnalysisResults';
+import { marketRegimeService } from '../services/api';
 
 // Extended interface for form state to handle string inputs
 interface FormData extends Omit<BacktestRequest, 'stop_loss' | 'take_profit'> {
@@ -100,6 +104,14 @@ const BacktestingPage: React.FC = () => {
   const [results, setResults] = useState<BacktestResponse | null>(null);
   const [showLimitModal, setShowLimitModal] = useState(false);
 
+  // AI Analysis state
+  const [aiModeEnabled, setAiModeEnabled] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [aiPrediction, setAiPrediction] = useState(null);
+  const [aiAnalysis, setAiAnalysis] = useState(null);
+  const [aiRecommendations, setAiRecommendations] = useState(null);
+
   // Form state with default values
   const [formData, setFormData] = useState<FormData>({
     ticker: '',
@@ -122,6 +134,38 @@ const BacktestingPage: React.FC = () => {
 
   // Available indicators from the service
   const availableIndicators = backtestingService.getAvailableIndicators();
+
+  // AI Analysis handler
+  const handleAIAnalysis = async (config: AIAnalysisConfig) => {
+    setAiLoading(true);
+    setAiError(null);
+
+    try {
+      // If retrain is requested, train the model first
+      if (config.retrain) {
+        await marketRegimeService.trainModel(config.ticker, config.period, true);
+      }
+
+      // Get prediction
+      const predictionResponse = await marketRegimeService.predictRegime(config.ticker);
+      setAiPrediction(predictionResponse);
+
+      // Get comprehensive analysis
+      const analysisResponse = await marketRegimeService.getAnalysis(config.ticker);
+      setAiAnalysis(analysisResponse);
+
+      // Get recommendations
+      const recommendationsResponse = await marketRegimeService.getRecommendations(config.ticker);
+      setAiRecommendations(recommendationsResponse);
+
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
+      setAiError(errorMessage);
+      console.error('AI Analysis error:', err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

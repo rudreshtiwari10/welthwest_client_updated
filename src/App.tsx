@@ -13,6 +13,7 @@ import MarketsPage from './pages/MarketsPage';
 import BacktestingPage from './pages/BacktestingPage';
 import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
+import StockPage from './pages/StockPage';
 
 // Components
 import Header from './components/Header';
@@ -67,12 +68,16 @@ const App: React.FC = () => {
                   <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
                   <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
                   <Route path="/markets" element={<PrivateRoute><MarketsPage /></PrivateRoute>} />
+                  <Route path="/stock/:symbol" element={<PrivateRoute><StockPage /></PrivateRoute>} />
                   <Route path="/backtesting" element={<PrivateRoute><BacktestingPage /></PrivateRoute>} />
                   <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
                   <Route path="/about" element={<AboutPage />} />
                   <Route path="/pricing" element={<PricingPage />} />
                 </Routes>
               </main>
+
+              {/* Footer */}
+              <Footer />
 
               {/* Mobile Navigation */}
               <MobileFooterNav />

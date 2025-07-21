@@ -207,22 +207,107 @@ const ProfilePage: React.FC = () => {
               </button>
             </form>
             
+            {/* Account Actions */}
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
-              <h3 className="font-medium text-lg mb-2">Privacy Settings</h3>
-              <div className="flex items-center justify-between py-2">
-                <div>
-                  <p className="font-medium">Save watchlist history</p>
-                  <p className="text-sm text-gray-500">Store your watchlist data</p>
+              <h3 className="font-medium text-lg mb-4">Account Actions</h3>
+              
+              <div className="space-y-3">
+                <button 
+                  className="w-full bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 font-medium py-2 px-4 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+                  onClick={() => console.log('Change password')}
+                >
+                  Change Password
+                </button>
+                
+                <button 
+                  className="w-full bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700 font-medium py-2 px-4 rounded-md hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
+                  onClick={() => console.log('Export data')}
+                >
+                  Export My Data
+                </button>
+                
+                <button 
+                  className="w-full bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-700 font-medium py-2 px-4 rounded-md hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition-colors"
+                  onClick={() => console.log('Two-factor auth')}
+                >
+                  Two-Factor Authentication
+                </button>
+              </div>
+            </div>
+
+            {/* Privacy Settings */}
+            <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+              <h3 className="font-medium text-lg mb-4">Privacy Settings</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="font-medium">Save watchlist history</p>
+                    <p className="text-sm text-gray-500">Store your watchlist data for future reference</p>
+                  </div>
+                  <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                    <input type="checkbox" id="save-history" className="sr-only" defaultChecked />
+                    <label
+                      htmlFor="save-history"
+                      className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                    >
+                      <span className="block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out"></span>
+                    </label>
+                  </div>
                 </div>
-                <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                  <input type="checkbox" id="save-history" className="sr-only" defaultChecked />
-                  <label
-                    htmlFor="save-history"
-                    className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-                  >
-                    <span className="block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out"></span>
-                  </label>
+                
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="font-medium">Email notifications</p>
+                    <p className="text-sm text-gray-500">Receive market updates via email</p>
+                  </div>
+                  <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                    <input type="checkbox" id="email-notif" className="sr-only" defaultChecked />
+                    <label
+                      htmlFor="email-notif"
+                      className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                    >
+                      <span className="block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out"></span>
+                    </label>
+                  </div>
                 </div>
+                
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <p className="font-medium">Share analytics data</p>
+                    <p className="text-sm text-gray-500">Help improve our platform with anonymous usage data</p>
+                  </div>
+                  <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                    <input type="checkbox" id="share-analytics" className="sr-only" />
+                    <label
+                      htmlFor="share-analytics"
+                      className="block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                    >
+                      <span className="block h-6 w-6 rounded-full bg-white shadow transform transition-transform duration-200 ease-in-out"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Danger Zone */}
+            <div className="mt-6 pt-6 border-t border-red-200 dark:border-red-800">
+              <h3 className="font-medium text-lg mb-4 text-red-700 dark:text-red-400">Danger Zone</h3>
+              
+              <div className="space-y-3">
+                <button 
+                  className="w-full bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-700 font-medium py-2 px-4 rounded-md hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                  onClick={() => window.confirm('Are you sure you want to deactivate your account?')}
+                >
+                  Deactivate Account
+                </button>
+                
+                <button 
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                  onClick={() => window.confirm('This action cannot be undone. Are you sure you want to delete your account?')}
+                >
+                  Delete Account
+                </button>
               </div>
             </div>
           </div>

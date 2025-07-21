@@ -209,7 +209,7 @@ export const marketService = {
     }
   },
   
-  // AI chat function
+  // AI chat function for authenticated users
   chatWithAI: async (query: string, model?: string, userId?: string) => {
     try {
       const response = await api.post('/market/chat', {
@@ -223,6 +223,21 @@ export const marketService = {
       throw error;
     }
   },
+
+  // Anonymous/Free AI chat function with session limits
+  anonymousChatWithAI: async (message: string, sessionId?: string, model?: string) => {
+    try {
+      const response = await api.post('/chat', {
+        message,
+        session_id: sessionId,
+        model: model || 'openrouter'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with anonymous AI chat:', error);
+      throw error;
+    }
+  },
   
   // Get trending stocks (top gainers and losers)
   getTrendingStocks: async (limit?: number) => {
@@ -231,6 +246,90 @@ export const marketService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching trending stocks:', error);
+      throw error;
+    }
+  }
+};
+
+// Market Regime AI Analysis Service
+export const marketRegimeService = {
+  // Get market regime definitions
+  getDefinitions: async () => {
+    try {
+      const response = await api.get('/market-regime/definitions');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching market regime definitions:', error);
+      throw error;
+    }
+  },
+
+  // Train market regime model (admin only)
+  trainModel: async (ticker: string, period: string = '2y', retrain: boolean = false) => {
+    try {
+      const response = await api.post('/market-regime/train', {
+        ticker,
+        period,
+        retrain
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error training market regime model:', error);
+      throw error;
+    }
+  },
+
+  // Predict market regime for a ticker
+  predictRegime: async (ticker: string) => {
+    try {
+      const response = await api.get(`/market-regime/predict?ticker=${ticker}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error predicting market regime:', error);
+      throw error;
+    }
+  },
+
+  // Get comprehensive market regime analysis
+  getAnalysis: async (ticker: string) => {
+    try {
+      const response = await api.get(`/market-regime/analysis?ticker=${ticker}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting market regime analysis:', error);
+      throw error;
+    }
+  },
+
+  // Get trading recommendations based on market regime
+  getRecommendations: async (ticker: string) => {
+    try {
+      const response = await api.get(`/market-regime/recommendations?ticker=${ticker}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting market regime recommendations:', error);
+      throw error;
+    }
+  },
+
+  // Get model information
+  getModelInfo: async () => {
+    try {
+      const response = await api.get('/market-regime/model-info');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting model info:', error);
+      throw error;
+    }
+  },
+
+  // Evaluate model performance
+  evaluateModel: async (ticker: string, testPeriod: string = '6mo') => {
+    try {
+      const response = await api.get(`/market-regime/evaluate?ticker=${ticker}&test_period=${testPeriod}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error evaluating model:', error);
       throw error;
     }
   }

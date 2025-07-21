@@ -5,6 +5,7 @@ const MobileFooterNav: React.FC = () => {
   const location = useLocation();
 
   const isActive = (path: string) => location.pathname === path;
+  const isStockActive = () => location.pathname.startsWith('/stock');
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-[#1a1f2e] border-t border-gray-700 md:hidden z-50">
@@ -45,13 +46,13 @@ const MobileFooterNav: React.FC = () => {
         </Link>
 
         <Link
-          to="/news"
+          to="/stock/RELIANCE"
           className={`flex flex-col items-center justify-center ${
-            isActive('/news') ? 'text-primary-400' : 'text-gray-400'
+            isStockActive() ? 'text-primary-400' : 'text-gray-400'
           }`}
         >
-          <i className="fas fa-newspaper text-lg mb-1"></i>
-          <span className="text-xs">News</span>
+          <i className="fas fa-search-dollar text-lg mb-1"></i>
+          <span className="text-xs">Stocks</span>
         </Link>
 
         <Link

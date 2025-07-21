@@ -47,12 +47,50 @@ code {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Animation for AI analysis components */
+@keyframes pulse-width {
+  0%, 100% {
+    width: 30%;
+  }
+  50% {
+    width: 70%;
+  }
+}
+
+.animate-pulse-width {
+  animation: pulse-width 2s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* Staggered animation delays */
 .delay-100 {
   animation-delay: 0.1s;
+  transition-delay: 0.1s;
 }
 
 .delay-200 {
   animation-delay: 0.2s;
+  transition-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+  transition-delay: 0.3s;
+}
+
+.delay-400 {
+  animation-delay: 0.4s;
+  transition-delay: 0.4s;
+}
+
+.delay-500 {
+  animation-delay: 0.5s;
+  transition-delay: 0.5s;
 }
 
 /* Glow effects */

@@ -11,15 +11,20 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showStocksMenu, setShowStocksMenu] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
+  const stocksRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Handle click outside to close dropdown
+  // Handle click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
+      }
+      if (stocksRef.current && !stocksRef.current.contains(event.target as Node)) {
+        setShowStocksMenu(false);
       }
     };
 
@@ -28,6 +33,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const popularStocks = [
+    { symbol: 'RELIANCE', name: 'Reliance Industries' },
+    { symbol: 'TCS', name: 'Tata Consultancy Services' },
+    { symbol: 'INFY', name: 'Infosys' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank' },
+    { symbol: 'ICICIBANK', name: 'ICICI Bank' },
+  ];
 
   const searchPlaceholders = [
     "Search stocks...",
@@ -79,6 +92,46 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               >
                 Markets
               </Link>
+              
+              {/* Stocks Dropdown */}
+              <div className="relative" ref={stocksRef}>
+                <button
+                  onClick={() => setShowStocksMenu(!showStocksMenu)}
+                  className={`flex items-center text-sm ${
+                    location.pathname.startsWith('/stock')
+                      ? 'text-primary-400 font-medium'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <span>Stocks</span>
+                  <i className={`fas fa-chevron-down text-xs ml-1 transition-transform ${showStocksMenu ? 'rotate-180' : ''}`}></i>
+                </button>
+                
+                {showStocksMenu && (
+                  <div className="absolute left-0 mt-2 w-48 bg-[#1a1f2e] rounded-md shadow-lg py-1 border border-gray-700">
+                    {popularStocks.map((stock) => (
+                      <Link
+                        key={stock.symbol}
+                        to={`/stock/${stock.symbol}`}
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowStocksMenu(false)}
+                      >
+                        <span className="font-medium">{stock.symbol}</span>
+                        <span className="text-xs text-gray-400 ml-2">{stock.name}</span>
+                      </Link>
+                    ))}
+                    <div className="border-t border-gray-700 my-1"></div>
+                    <Link
+                      to="/markets"
+                      className="block px-4 py-2 text-sm text-primary-400 hover:bg-gray-700"
+                      onClick={() => setShowStocksMenu(false)}
+                    >
+                      View All Stocks
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
               <Link
                 to="/dashboard"
                 className={`text-sm ${

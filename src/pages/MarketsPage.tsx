@@ -238,12 +238,14 @@ const MarketsPage: React.FC = () => {
                     <div className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <div>
-                          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                            {index_data.name || key}
-                          </h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
-                          </p>
+                          <Link to={`/stock/${key}`} className="group">
+                            <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                              {index_data.name || key}
+                            </h3>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
+                            </p>
+                          </Link>
                         </div>
                         <div className="text-right">
                           <div className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -349,8 +351,12 @@ const MarketsPage: React.FC = () => {
                     trendingStocks?.gainers?.map((stock: any, index: number) => (
                       <tr key={index} className="hover:bg-gray-50 dark:hover:bg-dark-400 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-900 dark:text-white">{stock.symbol.replace('.NS', '')}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          <Link to={`/stock/${stock.symbol.replace('.NS', '')}`} className="group">
+                            <div className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                              {stock.symbol.replace('.NS', '')}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          </Link>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
                           ₹{typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}
@@ -402,8 +408,12 @@ const MarketsPage: React.FC = () => {
                     trendingStocks?.losers?.map((stock: any, index: number) => (
                       <tr key={index} className="hover:bg-gray-50 dark:hover:bg-dark-400 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-900 dark:text-white">{stock.symbol.replace('.NS', '')}</div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          <Link to={`/stock/${stock.symbol.replace('.NS', '')}`} className="group">
+                            <div className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                              {stock.symbol.replace('.NS', '')}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          </Link>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
                           ₹{typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}
