@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -16,6 +17,16 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const stocksRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
+  const isStockActive = () => location.pathname.startsWith('/stock');
+
+  // Popular Indian stocks for quick access
+  const popularStocks = [
+    { symbol: 'RELIANCE', name: 'Reliance Industries' },
+    { symbol: 'TCS', name: 'Tata Consultancy Services' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank' },
+    { symbol: 'INFY', name: 'Infosys' },
+    { symbol: 'ICICIBANK', name: 'ICICI Bank' }
+  ];
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -33,14 +44,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const popularStocks = [
-    { symbol: 'RELIANCE', name: 'Reliance Industries' },
-    { symbol: 'TCS', name: 'Tata Consultancy Services' },
-    { symbol: 'INFY', name: 'Infosys' },
-    { symbol: 'HDFCBANK', name: 'HDFC Bank' },
-    { symbol: 'ICICIBANK', name: 'ICICI Bank' },
-  ];
 
   const searchPlaceholders = [
     "Search stocks...",
@@ -92,38 +95,60 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               >
                 Markets
               </Link>
-              
+
               {/* Stocks Dropdown */}
               <div className="relative" ref={stocksRef}>
-                <button
+                <button 
                   onClick={() => setShowStocksMenu(!showStocksMenu)}
-                  className={`flex items-center text-sm ${
-                    location.pathname.startsWith('/stock')
+                  className={`flex items-center text-sm space-x-1 ${
+                    isStockActive()
                       ? 'text-primary-400 font-medium'
                       : 'text-gray-300 hover:text-white'
                   }`}
                 >
                   <span>Stocks</span>
-                  <i className={`fas fa-chevron-down text-xs ml-1 transition-transform ${showStocksMenu ? 'rotate-180' : ''}`}></i>
+                  <i className={`fas fa-chevron-down text-xs transition-transform ${showStocksMenu ? 'rotate-180' : ''}`}></i>
                 </button>
-                
+
                 {showStocksMenu && (
-                  <div className="absolute left-0 mt-2 w-48 bg-[#1a1f2e] rounded-md shadow-lg py-1 border border-gray-700">
-                    {popularStocks.map((stock) => (
-                      <Link
-                        key={stock.symbol}
-                        to={`/stock/${stock.symbol}`}
-                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                        onClick={() => setShowStocksMenu(false)}
-                      >
-                        <span className="font-medium">{stock.symbol}</span>
-                        <span className="text-xs text-gray-400 ml-2">{stock.name}</span>
-                      </Link>
-                    ))}
+                  <div className="absolute left-0 mt-2 w-64 bg-[#1a1f2e] rounded-md shadow-lg py-1 border border-gray-700 z-50">
+                    {/* AI-Powered Stock Analysis - Featured Option */}
+                    <Link
+                      to="/stock/RELIANCE"
+                      className="block px-4 py-3 text-sm border-b border-gray-700 bg-gradient-to-r from-purple-900/30 to-blue-900/30 hover:from-purple-900/40 hover:to-blue-900/40"
+                      onClick={() => setShowStocksMenu(false)}
+                    >
+                      <div className="flex items-center space-x-2 mb-1">
+                        <SparklesIcon className="h-4 w-4 text-purple-400" />
+                        <span className="font-medium text-purple-400">AI-Powered Stock Analysis</span>
+                      </div>
+                      <p className="text-xs text-gray-400 pl-6">
+                        Get ML-based market regime predictions
+                      </p>
+                    </Link>
+                    
+                    {/* Popular Stocks */}
+                    <div className="py-1">
+                      <h3 className="px-4 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Popular Stocks
+                      </h3>
+                      {popularStocks.map((stock) => (
+                        <Link
+                          key={stock.symbol}
+                          to={`/stock/${stock.symbol}`}
+                          className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                          onClick={() => setShowStocksMenu(false)}
+                        >
+                          <span className="font-medium">{stock.symbol}</span>
+                          <span className="text-xs text-gray-400 ml-2">{stock.name}</span>
+                        </Link>
+                      ))}
+                    </div>
+                    
                     <div className="border-t border-gray-700 my-1"></div>
                     <Link
                       to="/markets"
-                      className="block px-4 py-2 text-sm text-primary-400 hover:bg-gray-700"
+                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                       onClick={() => setShowStocksMenu(false)}
                     >
                       View All Stocks
@@ -131,7 +156,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                   </div>
                 )}
               </div>
-              
+
               <Link
                 to="/dashboard"
                 className={`text-sm ${

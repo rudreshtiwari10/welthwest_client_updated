@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { SparklesIcon } from '@heroicons/react/24/outline';
 
 const MobileFooterNav: React.FC = () => {
   const location = useLocation();
@@ -45,14 +46,21 @@ const MobileFooterNav: React.FC = () => {
           <span className="text-xs mt-1 text-gray-400">WelthAI</span>
         </Link>
 
+        {/* AI-Powered Stock Analysis */}
         <Link
           to="/stock/RELIANCE"
           className={`flex flex-col items-center justify-center ${
             isStockActive() ? 'text-primary-400' : 'text-gray-400'
           }`}
         >
-          <i className="fas fa-search-dollar text-lg mb-1"></i>
-          <span className="text-xs">Stocks</span>
+          <div className="relative">
+            <i className="fas fa-search-dollar text-lg mb-1"></i>
+            <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full"></div>
+          </div>
+          <div className="flex items-center">
+            <span className="text-xs">Stocks</span>
+            <SparklesIcon className="h-3 w-3 ml-0.5 text-purple-500" />
+          </div>
         </Link>
 
         <Link

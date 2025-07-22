@@ -240,11 +240,11 @@ const MarketsPage: React.FC = () => {
                         <div>
                           <Link to={`/stock/${key}`} className="group">
                             <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                              {index_data.name || key}
-                            </h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
-                            </p>
+                            {index_data.name || key}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
+                          </p>
                           </Link>
                         </div>
                         <div className="text-right">
@@ -355,7 +355,7 @@ const MarketsPage: React.FC = () => {
                             <div className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
                               {stock.symbol.replace('.NS', '')}
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
                           </Link>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
@@ -412,7 +412,7 @@ const MarketsPage: React.FC = () => {
                             <div className="font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
                               {stock.symbol.replace('.NS', '')}
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
                           </Link>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">

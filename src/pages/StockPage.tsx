@@ -54,6 +54,22 @@ interface MarketRegimeAnalysis {
   };
 }
 
+// New interface for AI training results
+interface AITrainingResult {
+  status: string;
+  accuracy: number;
+  cv_mean: number;
+  cv_std: number;
+  feature_importance: Array<{
+    feature: string;
+    importance: number;
+  }>;
+  classification_report: any;
+  regime_distribution: { [key: string]: number };
+  training_samples: number;
+  test_samples: number;
+}
+
 const StockPage: React.FC = () => {
   const { symbol = '' } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
@@ -61,13 +77,17 @@ const StockPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // AI Analysis state with proper typing
-  const [aiModeEnabled, setAiModeEnabled] = useState(false);
+  // AI Analysis state with proper typing - Set to true by default
+  const [aiModeEnabled, setAiModeEnabled] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiPrediction, setAiPrediction] = useState<MarketRegimeResult | undefined>(undefined);
   const [aiAnalysis, setAiAnalysis] = useState<MarketRegimeAnalysis | undefined>(undefined);
   const [aiRecommendations, setAiRecommendations] = useState<any>(undefined);
+  
+  // New state for AI training results
+  const [aiTrainingResult, setAiTrainingResult] = useState<AITrainingResult | undefined>(undefined);
+  const [aiTrainingLoading, setAiTrainingLoading] = useState(false);
 
   // Fetch stock data
   useEffect(() => {
@@ -102,6 +122,17 @@ const StockPage: React.FC = () => {
     fetchStockData();
   }, [symbol]);
 
+  // Run AI analysis automatically when the page loads
+  useEffect(() => {
+    if (symbol && !isLoading && !error && aiModeEnabled && !aiPrediction && !aiLoading) {
+      handleAIAnalysis({
+        ticker: symbol,
+        period: '2y',
+        retrain: false
+      });
+    }
+  }, [symbol, isLoading, error, aiModeEnabled]);
+
   // AI Analysis handler
   const handleAIAnalysis = async (config: AIAnalysisConfig) => {
     setAiLoading(true);
@@ -110,7 +141,33 @@ const StockPage: React.FC = () => {
     try {
       // If retrain is requested, train the model first
       if (config.retrain) {
-        await marketRegimeService.trainModel(config.ticker || symbol, config.period, true);
+        setAiTrainingLoading(true);
+        const trainingResponse = await marketRegimeService.trainModel(config.ticker || symbol, config.period, true);
+        setAiTrainingResult(trainingResponse);
+        setAiTrainingLoading(false);
+      } else {
+        // Try to get model info even if not retraining
+        try {
+          setAiTrainingLoading(true);
+          const modelInfo = await marketRegimeService.getModelInfo();
+          if (modelInfo.status === 'trained' && modelInfo.feature_importance) {
+            setAiTrainingResult({
+              status: 'success',
+              accuracy: modelInfo.accuracy || 0,
+              cv_mean: modelInfo.cv_mean || 0,
+              cv_std: modelInfo.cv_std || 0,
+              feature_importance: modelInfo.feature_importance || [],
+              classification_report: modelInfo.classification_report || {},
+              regime_distribution: modelInfo.regime_distribution || {},
+              training_samples: modelInfo.training_samples || 0,
+              test_samples: modelInfo.test_samples || 0
+            });
+          }
+        } catch (modelInfoErr) {
+          console.error('Error fetching model info:', modelInfoErr);
+        } finally {
+          setAiTrainingLoading(false);
+        }
       }
 
       // Get prediction
@@ -146,6 +203,98 @@ const StockPage: React.FC = () => {
         retrain: false
       });
     }
+  };
+
+  // Render feature importance chart
+  const renderFeatureImportance = () => {
+    if (!aiTrainingResult || !aiTrainingResult.feature_importance || aiTrainingResult.feature_importance.length === 0) {
+      return null;
+    }
+
+    // Sort features by importance
+    const sortedFeatures = [...aiTrainingResult.feature_importance]
+      .sort((a, b) => b.importance - a.importance)
+      .slice(0, 10); // Show top 10 features
+
+    const maxImportance = Math.max(...sortedFeatures.map(f => f.importance));
+
+    return (
+      <div className="mt-6 bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <ChartBarIcon className="h-5 w-5 text-purple-500 mr-2" />
+          Feature Importance
+        </h3>
+        <div className="space-y-3">
+          {sortedFeatures.map((feature, index) => (
+            <div key={feature.feature} className="relative">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  {feature.feature}
+                </span>
+                <span className="text-xs font-semibold text-gray-900 dark:text-white">
+                  {(feature.importance * 100).toFixed(2)}%
+                </span>
+              </div>
+              <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full ${
+                    index === 0 ? 'bg-gradient-to-r from-purple-500 to-blue-500' : 
+                    index < 3 ? 'bg-purple-500' : 'bg-blue-500'
+                  }`}
+                  style={{ width: `${(feature.importance / maxImportance) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  // Render model metrics
+  const renderModelMetrics = () => {
+    if (!aiTrainingResult) return null;
+
+    return (
+      <div className="mt-6 bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+          <BeakerIcon className="h-5 w-5 text-purple-500 mr-2" />
+          Model Performance
+        </h3>
+        
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+            <div className="text-sm text-purple-600 dark:text-purple-400 mb-1">Accuracy</div>
+            <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+              {(aiTrainingResult.accuracy * 100).toFixed(2)}%
+            </div>
+          </div>
+          
+          <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+            <div className="text-sm text-blue-600 dark:text-blue-400 mb-1">Cross-Validation</div>
+            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              {(aiTrainingResult.cv_mean * 100).toFixed(2)}%
+            </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Training Samples</div>
+            <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+              {aiTrainingResult.training_samples.toLocaleString()}
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Test Samples</div>
+            <div className="text-lg font-semibold text-gray-700 dark:text-gray-300">
+              {aiTrainingResult.test_samples.toLocaleString()}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -313,6 +462,14 @@ const StockPage: React.FC = () => {
               )}
             </div>
           </div>
+          
+          {/* AI Model Performance - Show in left column when available */}
+          {aiModeEnabled && aiTrainingResult && (
+            <>
+              {renderModelMetrics()}
+              {renderFeatureImportance()}
+            </>
+          )}
         </div>
 
         {/* AI Analysis - Right Column */}
@@ -333,7 +490,7 @@ const StockPage: React.FC = () => {
                 {/* AI Analysis Form */}
                 <AIAnalysisForm 
                   onAnalyze={handleAIAnalysis}
-                  isLoading={aiLoading}
+                  isLoading={aiLoading || aiTrainingLoading}
                   disabled={false}
                   defaultTicker={symbol}
                 />
