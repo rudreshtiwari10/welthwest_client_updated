@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
-import { SparklesIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon } from '@heroicons/react/24/outline';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -13,11 +13,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showStocksMenu, setShowStocksMenu] = useState(false);
+  const [showFeaturesMenu, setShowFeaturesMenu] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const stocksRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
   const isStockActive = () => location.pathname.startsWith('/stock');
+  const isFeatureActive = () => {
+    const path = location.pathname;
+    return path.startsWith('/welthai') || path.startsWith('/backtesting');
+  };
 
   // Popular Indian stocks for quick access
   const popularStocks = [
@@ -36,6 +42,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       }
       if (stocksRef.current && !stocksRef.current.contains(event.target as Node)) {
         setShowStocksMenu(false);
+      }
+      if (featuresRef.current && !featuresRef.current.contains(event.target as Node)) {
+        setShowFeaturesMenu(false);
       }
     };
 
@@ -73,17 +82,102 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
-              {/* WelthAI Button - Desktop */}
-              <Link
-                to="/welthai"
-                className={`hidden md:flex items-center px-4 py-1.5 rounded-full ${
-                  isActive('/welthai')
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-purple-600/90 text-white hover:bg-purple-600'
-                }`}
-              >
-                <span className="text-sm font-medium">Welth AI</span>
-              </Link>
+              {/* Features Dropdown */}
+              <div className="relative" ref={featuresRef}>
+                <button 
+                  onClick={() => setShowFeaturesMenu(!showFeaturesMenu)}
+                  className={`flex items-center text-sm space-x-1 ${
+                    isFeatureActive()
+                      ? 'text-primary-400 font-medium'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <span>Features</span>
+                  <i className={`fas fa-chevron-down text-xs transition-transform ${showFeaturesMenu ? 'rotate-180' : ''}`}></i>
+                </button>
+
+                {showFeaturesMenu && (
+                  <div className="absolute left-0 mt-2 w-72 bg-[#1a1f2e] rounded-md shadow-lg py-1 border border-gray-700 z-50">
+                    {/* WelthAI Services Category */}
+                    <div className="py-1">
+                      <h3 className="px-4 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        WelthAI Services
+                      </h3>
+                      
+                      {/* WelthAI Chat Assistant */}
+                      <Link
+                        to="/welthai"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowFeaturesMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-purple-400">
+                            <ChatBubbleLeftRightIcon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <div className="font-medium">WelthAI Chat Assistant</div>
+                            <div className="text-xs text-gray-400">AI-powered conversational assistant</div>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      {/* WelthAI Market Analysis */}
+                      <Link
+                        to="/welthai"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowFeaturesMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-purple-400">
+                            <SparklesIcon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <div className="font-medium">WelthAI Market Analysis</div>
+                            <div className="text-xs text-gray-400">ML-based market regime detection</div>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                    
+                    {/* Trading Tools Category */}
+                    <div className="py-1 border-t border-gray-700 mt-1">
+                      <h3 className="px-4 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Trading Tools
+                      </h3>
+                      
+                      {/* Backtesting */}
+                      <Link
+                        to="/backtesting"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowFeaturesMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-blue-400">
+                            <ChartBarIcon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <div className="font-medium">Backtesting</div>
+                            <div className="text-xs text-gray-400">Test trading strategies with historical data</div>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      {/* Coming Soon - Placeholder for future features */}
+                      <div className="block px-4 py-2 text-sm">
+                        <div className="flex items-center">
+                          <div className="mr-3 text-gray-500">
+                            <BeakerIcon className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-500">More Features Coming Soon</div>
+                            <div className="text-xs text-gray-500">Stay tuned for updates</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <Link
                 to="/markets"
@@ -167,21 +261,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               >
                 Dashboard
               </Link>
-              <Link
-                to="/backtesting"
-                className={`text-sm ${
-                  isActive('/backtesting')
-                    ? 'text-primary-400 font-medium'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                Backtesting
-              </Link>
             </nav>
           </div>
 
           {/* Center - Search Bar */}
-          <div className="hidden md:block flex-1 max-w-xl mx-8">
+          <div className="hidden md:block flex-1 max-w-md mx-8">
             <SearchBarWithSuggestions
               placeholders={searchPlaceholders}
               className="w-full pl-10 pr-12 py-2 bg-[#2a2f3e] border border-gray-600 
@@ -192,6 +276,15 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
           {/* Right side - Auth buttons */}
           <div className="flex items-center space-x-4">
+            {/* Pro Button */}
+            <Link
+              to="/pricing"
+              className="hidden md:flex items-center px-4 py-1.5 rounded-md bg-gradient-to-r from-primary-600 to-secondary-600 text-white text-sm font-medium hover:from-primary-500 hover:to-secondary-500 transition-all"
+            >
+              <SparklesIcon className="h-4 w-4 mr-1" />
+              Pro
+            </Link>
+            
             {isAuthenticated ? (
               <div className="relative" ref={profileRef}>
                 <button

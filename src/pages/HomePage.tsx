@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import ChatInterface from '../components/ChatInterface';
 import AnimatedText from '../components/AnimatedText';
 import { marketService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -14,9 +14,49 @@ const HomePage: React.FC = () => {
   const [trendingStocks, setTrendingStocks] = useState<any>({ gainers: [], losers: [] });
   const [isLoading, setIsLoading] = useState(true);
   const indicesSliderRef = useRef<HTMLDivElement>(null);
+  const [dynamicWord, setDynamicWord] = useState('Trading');
+  const [isTyping, setIsTyping] = useState(false);
+  const [displayText, setDisplayText] = useState('Trading');
   
   // Words to animate through
   const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
+  const dynamicWords = ['Trading', 'Backtesting', 'Analysis'];
+  
+  // Get the longest word to set a fixed width
+  const longestWord = dynamicWords.reduce((a, b) => a.length > b.length ? a : b, '');
+  
+  // Dynamic word typing effect
+  useEffect(() => {
+    const typingInterval = 150; // ms per character
+    const wordChangeInterval = 4000; // ms between word changes
+    
+    // Function to handle the typing effect
+    const typeWord = (word: string, index: number = 0) => {
+      if (index <= word.length) {
+        setDisplayText(word.substring(0, index));
+        setTimeout(() => typeWord(word, index + 1), typingInterval);
+      } else {
+        setIsTyping(false);
+      }
+    };
+    
+    // Change word periodically
+    const interval = setInterval(() => {
+      setIsTyping(true);
+      const currentIndex = dynamicWords.indexOf(dynamicWord);
+      const nextWord = dynamicWords[(currentIndex + 1) % dynamicWords.length];
+      setDynamicWord(nextWord);
+      typeWord(nextWord);
+    }, wordChangeInterval);
+    
+    // Initial typing
+    if (displayText === '') {
+      setIsTyping(true);
+      typeWord(dynamicWord);
+    }
+    
+    return () => clearInterval(interval);
+  }, [dynamicWord]);
   
   useEffect(() => {
     const fetchMarketData = async () => {
@@ -109,21 +149,77 @@ const HomePage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       
-      
-      {/* Chat Interface */}
-      <section className="mb-12 bg-white dark:bg-dark-300 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700" id="ai-assistant">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Welth AI Assistant        </h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Ask questions about stocks, market trends, or get investment insights
-          </p>
-        </div>
-        <div className="p-6">
-          <ChatInterface />
+      {/* Elegant Hero Section with AI Feature Buttons */}
+      <section className="mb-12 max-w-4xl mx-auto">
+        <div className="relative overflow-hidden rounded-xl bg-white dark:bg-dark-300 shadow-md border border-gray-100 dark:border-gray-700">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute inset-0" style={{ 
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23000000\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+              backgroundSize: '20px 20px'
+            }}></div>
+          </div>
+          
+          {/* Content */}
+          <div className="relative py-10 px-6 text-center">
+            <h1 className="text-3xl font-bold mb-3 flex flex-col sm:flex-row items-center justify-center gap-2 text-gray-900 dark:text-white">
+              <span>Discover the Power of AI in</span>
+              <div className="relative inline-block" style={{ minWidth: `${longestWord.length}ch` }}>
+                <span className={`bg-gradient-to-r from-primary-500 to-secondary-500 text-transparent bg-clip-text font-bold ${isTyping ? 'border-r-2 border-primary-500 animate-cursor' : ''}`}>
+                  {displayText}
+                </span>
+              </div>
+            </h1>
+            
+            {/* AI Feature Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 max-w-2xl mx-auto">
+              {/* AI Market Analysis Button */}
+              <Link 
+                to="/welthai" 
+                className="group flex items-center justify-center sm:justify-between bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
+              >
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                    <ChartBarIcon className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">AI Market Analysis</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Predict market regimes</p>
+                  </div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+              
+              {/* WelthAI Chat Bot Button */}
+              <Link 
+                to="/welthai" 
+                className="group flex items-center justify-center sm:justify-between bg-secondary-50 dark:bg-secondary-900/20 hover:bg-secondary-100 dark:hover:bg-secondary-900/30 backdrop-blur-sm border border-secondary-200 dark:border-secondary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
+              >
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-secondary-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                    <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-gray-900 dark:text-white">WelthAI Chat Bot</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Get investment insights</p>
+                  </div>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-secondary-600 dark:text-secondary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </Link>
+            </div>
+            
+            {/* Small sparkle decoration */}
+            <div className="absolute top-4 right-4 opacity-30">
+              <SparklesIcon className="h-5 w-5 text-primary-500 dark:text-primary-400 animate-pulse-slow" />
+            </div>
+          </div>
         </div>
       </section>
-
+      
       {/* Market Overview - Horizontal Slider */}
       <section className="mb-12">
         <div className="flex justify-between items-center mb-6">

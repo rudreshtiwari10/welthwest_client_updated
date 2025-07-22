@@ -3,6 +3,7 @@ import ChatInterface from '../components/ChatInterface';
 import AIAnalysisToggle from '../components/AIAnalysisToggle';
 import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
 import AIAnalysisResults from '../components/AIAnalysisResults';
+import StockChart from '../components/StockChart';
 import { marketService, marketRegimeService } from '../services/api';
 import { 
   ArrowTrendingUpIcon, 
@@ -62,6 +63,14 @@ interface AITrainingResult {
   test_samples: number;
 }
 
+// Interface for stock data
+interface StockData {
+  symbol: string;
+  data: any[];
+  period: string;
+  interval: string;
+}
+
 const WelthAIPage: React.FC = () => {
   // Default stock symbol
   const defaultSymbol = 'RELIANCE';
@@ -78,6 +87,10 @@ const WelthAIPage: React.FC = () => {
   // AI Training results state
   const [aiTrainingResult, setAiTrainingResult] = useState<AITrainingResult | undefined>(undefined);
   const [aiTrainingLoading, setAiTrainingLoading] = useState(false);
+  
+  // Stock chart data state
+  const [stockData, setStockData] = useState<StockData | null>(null);
+  const [stockLoading, setStockLoading] = useState(true);
 
   // Popular Indian stocks for quick selection
   const popularStocks = [
@@ -111,6 +124,23 @@ const WelthAIPage: React.FC = () => {
     // Run analysis on component mount
     runInitialAnalysis();
   }, []); // Empty dependency array to run only on mount
+
+  // Fetch stock data when symbol changes
+  useEffect(() => {
+    const fetchStockData = async () => {
+      setStockLoading(true);
+      try {
+        const response = await marketService.getStockInfo(selectedSymbol, '1y', '1d');
+        setStockData(response);
+      } catch (error) {
+        console.error("Error fetching stock data:", error);
+      } finally {
+        setStockLoading(false);
+      }
+    };
+
+    fetchStockData();
+  }, [selectedSymbol]);
 
   // AI Analysis handler
   const handleAIAnalysis = async (config: AIAnalysisConfig) => {
@@ -406,9 +436,44 @@ const WelthAIPage: React.FC = () => {
           )}
         </div>
         
-        {/* Right Column - AI Assistant */}
+        {/* Right Column - Stock Chart and AI Assistant */}
         <div className="lg:col-span-1">
           <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden sticky top-20">
+            {/* Stock Chart */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-gray-900 dark:text-white flex items-center">
+                  <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
+                  {selectedSymbol} Price Chart
+                </h3>
+                {stockData && stockData.data && stockData.data.length > 0 && (
+                  <div className="text-sm font-medium">
+                    <span className={`${
+                      stockData.data[stockData.data.length - 1].Close > stockData.data[0].Close
+                        ? 'text-green-500'
+                        : 'text-red-500'
+                    }`}>
+                      ₹{stockData.data[stockData.data.length - 1].Close?.toFixed(2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="h-40">
+                {stockLoading ? (
+                  <div className="h-full flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+                  </div>
+                ) : stockData ? (
+                  <StockChart stockData={stockData} height={150} />
+                ) : (
+                  <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+                    No data available
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            {/* AI Assistant */}
             <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                 <i className="fas fa-robot text-purple-500 mr-2"></i>

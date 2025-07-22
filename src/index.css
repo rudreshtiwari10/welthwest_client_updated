@@ -47,6 +47,20 @@ code {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
+/* Animation for cursor in typing effect */
+@keyframes blink {
+  0%, 100% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: currentColor;
+  }
+}
+
+.animate-cursor {
+  animation: blink 0.7s step-end infinite;
+}
+
 /* Animation for AI analysis components */
 @keyframes pulse-width {
   0%, 100% {
@@ -59,6 +73,36 @@ code {
 
 .animate-pulse-width {
   animation: pulse-width 2s ease-in-out infinite;
+}
+
+/* Animation for floating chat button */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Animation for floating chat popup */
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
 }
 
 .animate-fade-in {

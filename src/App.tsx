@@ -20,6 +20,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
 import MobileFooterNav from './components/MobileFooterNav';
+import FloatingChatButton from './components/FloatingChatButton';
 import { SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 // Contexts
@@ -92,6 +93,18 @@ const AIFeatureBanner: React.FC = () => {
   );
 };
 
+// Floating Chat Button with location awareness
+const FloatingChatWithLocation: React.FC = () => {
+  const location = useLocation();
+  
+  // Don't show the floating chat on the WelthAI page
+  const isWelthAIPage = location.pathname === '/welthai';
+  
+  if (isWelthAIPage) return null;
+  
+  return <FloatingChatButton />;
+};
+
 // App with Router
 const AppWithRouter: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -143,6 +156,9 @@ const AppWithRouter: React.FC = () => {
 
             {/* AI Feature Banner */}
             <AIFeatureBanner />
+            
+            {/* Floating Chat Button */}
+            <FloatingChatWithLocation />
 
             {/* Footer */}
             <Footer />

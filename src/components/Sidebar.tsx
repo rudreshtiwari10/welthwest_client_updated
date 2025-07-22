@@ -120,8 +120,23 @@ const mainNavigation = [
   { name: 'Dashboard', path: '/dashboard', icon: 'chart-line' },
   { name: 'Markets', path: '/markets', icon: 'globe' },
   { name: 'Stocks', path: '/stock/RELIANCE', icon: 'search-dollar' },
-  { name: 'Backtesting', path: '/backtesting', icon: 'chart-bar' },
-  { name: 'Profile', path: '/profile', icon: 'user' },
+];
+
+// New Features section with categories
+const featureNavigation = [
+  { 
+    category: 'WelthAI Services',
+    items: [
+      { name: 'WelthAI Chat Assistant', path: '/welthai', icon: 'comment' },
+      { name: 'WelthAI Market Analysis', path: '/welthai', icon: 'sparkles' },
+    ]
+  },
+  {
+    category: 'Trading Tools',
+    items: [
+      { name: 'Backtesting', path: '/backtesting', icon: 'chart-bar' },
+    ]
+  }
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }) => {
@@ -379,6 +394,42 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Features Section */}
+              <div className="mt-6">
+                <h3 className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Features
+                </h3>
+                
+                {featureNavigation.map((section, index) => (
+                  <div key={section.category} className={index > 0 ? "mt-4" : ""}>
+                    <h4 className="px-4 py-1 text-xs font-medium text-gray-400">
+                      {section.category}
+                    </h4>
+                    {section.items.map((item) => (
+                      <Link
+                        key={item.path + item.name}
+                        to={item.path}
+                        onClick={handleNavClick}
+                        className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
+                      >
+                        <i className={`fas fa-${item.icon} mr-3`}></i>
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Profile Link */}
+              <Link
+                to="/profile"
+                onClick={handleNavClick}
+                className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50 mt-4"
+              >
+                <i className="fas fa-user mr-3"></i>
+                Profile
+              </Link>
             </nav>
           </div>
           
