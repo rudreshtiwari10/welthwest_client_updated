@@ -9,7 +9,6 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
-import MarketsPage from './pages/MarketsPage';
 import BacktestingPage from './pages/BacktestingPage';
 import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
@@ -145,7 +144,6 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
                 <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-                <Route path="/markets" element={<PrivateRoute><MarketsPage /></PrivateRoute>} />
                 <Route path="/stock/:symbol" element={<PrivateRoute><StockPage /></PrivateRoute>} />
                 <Route path="/backtesting" element={<PrivateRoute><BacktestingPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />

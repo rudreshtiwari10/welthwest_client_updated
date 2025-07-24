@@ -189,16 +189,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 )}
               </div>
 
-              <Link
-                to="/markets"
-                className={`text-sm ${
-                  isActive('/markets')
-                    ? 'text-primary-400 font-medium'
-                    : 'text-gray-300 hover:text-white'
-                }`}
-              >
-                Markets
-              </Link>
 
               {/* Stocks Dropdown */}
               <div 
@@ -254,14 +244,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       ))}
                     </div>
                     
-                    <div className="border-t border-gray-700 my-1"></div>
-                    <Link
-                      to="/markets"
-                      className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                      onClick={() => setShowStocksMenu(false)}
-                    >
-                      View All Stocks
-                    </Link>
                   </div>
                 )}
               </div>
@@ -341,21 +323,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                         </div>
                       </Link>
                       
-                      <Link
-                        to="/markets"
-                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
-                        onClick={() => setShowDashboardMenu(false)}
-                      >
-                        <div className="flex items-center">
-                          <div className="mr-3 text-orange-400">
-                            <i className="fas fa-filter text-sm"></i>
-                          </div>
-                          <div>
-                            <div className="font-medium">Screener</div>
-                            <div className="text-xs text-gray-400">Find stocks</div>
-                          </div>
-                        </div>
-                      </Link>
                     </div>
                   </div>
                 )}
