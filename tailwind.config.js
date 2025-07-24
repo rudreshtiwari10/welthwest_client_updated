@@ -48,13 +48,14 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'circuit-pattern': "url('./public/circuit-pattern.svg')",
+        'circuit-pattern': "url('/circuit-pattern.svg')",
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-slow': 'pulseSlow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
         'typing': 'typing 1.5s steps(3, end) infinite',
         'tech-flow': 'techFlow 3s infinite linear',
+        'cursor': 'cursor 1s step-end infinite',
       },
       keyframes: {
         glow: {
@@ -68,7 +69,21 @@ module.exports = {
         techFlow: {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(calc(100% - 12px))' },
+        },
+        pulseSlow: {
+          '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(1.05)' },
+        },
+        cursor: {
+          '0%, 100%': { borderColor: 'transparent' },
+          '50%': { borderColor: 'currentColor' },
         }
+      },
+      zIndex: {
+        '-10': '-10',
+      },
+      backdropBlur: {
+        xs: '2px',
       },
     },
   },

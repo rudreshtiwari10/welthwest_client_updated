@@ -14,9 +14,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showStocksMenu, setShowStocksMenu] = useState(false);
   const [showFeaturesMenu, setShowFeaturesMenu] = useState(false);
+  const [showDashboardMenu, setShowDashboardMenu] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const stocksRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
+  const dashboardRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
   const isStockActive = () => location.pathname.startsWith('/stock');
@@ -45,6 +47,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       }
       if (featuresRef.current && !featuresRef.current.contains(event.target as Node)) {
         setShowFeaturesMenu(false);
+      }
+      if (dashboardRef.current && !dashboardRef.current.contains(event.target as Node)) {
+        setShowDashboardMenu(false);
       }
     };
 
@@ -83,7 +88,12 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               {/* Features Dropdown */}
-              <div className="relative" ref={featuresRef}>
+              <div 
+                className="relative" 
+                ref={featuresRef}
+                onMouseEnter={() => setShowFeaturesMenu(true)}
+                onMouseLeave={() => setShowFeaturesMenu(false)}
+              >
                 <button 
                   onClick={() => setShowFeaturesMenu(!showFeaturesMenu)}
                   className={`flex items-center text-sm space-x-1 ${
@@ -191,7 +201,12 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               </Link>
 
               {/* Stocks Dropdown */}
-              <div className="relative" ref={stocksRef}>
+              <div 
+                className="relative" 
+                ref={stocksRef}
+                onMouseEnter={() => setShowStocksMenu(true)}
+                onMouseLeave={() => setShowStocksMenu(false)}
+              >
                 <button 
                   onClick={() => setShowStocksMenu(!showStocksMenu)}
                   className={`flex items-center text-sm space-x-1 ${
@@ -251,16 +266,100 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 )}
               </div>
 
-              <Link
-                to="/dashboard"
-                className={`text-sm ${
-                  isActive('/dashboard')
-                    ? 'text-primary-400 font-medium'
-                    : 'text-gray-300 hover:text-white'
-                }`}
+              {/* Dashboard Dropdown */}
+              <div 
+                className="relative" 
+                ref={dashboardRef}
+                onMouseEnter={() => setShowDashboardMenu(true)}
+                onMouseLeave={() => setShowDashboardMenu(false)}
               >
-                Dashboard
-              </Link>
+                <button 
+                  onClick={() => setShowDashboardMenu(!showDashboardMenu)}
+                  className={`flex items-center text-sm space-x-1 ${
+                    isActive('/dashboard')
+                      ? 'text-primary-400 font-medium'
+                      : 'text-gray-300 hover:text-white'
+                  }`}
+                >
+                  <span>Dashboard</span>
+                  <i className={`fas fa-chevron-down text-xs transition-transform ${showDashboardMenu ? 'rotate-180' : ''}`}></i>
+                </button>
+
+                {showDashboardMenu && (
+                  <div className="absolute left-0 mt-2 w-64 bg-[#1a1f2e] rounded-md shadow-lg py-1 border border-gray-700 z-50">
+                    {/* Dashboard Options */}
+                    <div className="py-1">
+                      <h3 className="px-4 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Quick Access
+                      </h3>
+                      
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowDashboardMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-blue-400">
+                            <i className="fas fa-heart text-sm"></i>
+                          </div>
+                          <div>
+                            <div className="font-medium">Watchlist</div>
+                            <div className="text-xs text-gray-400">View tracked stocks</div>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      <Link
+                        to="/backtesting"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowDashboardMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-green-400">
+                            <i className="fas fa-chart-bar text-sm"></i>
+                          </div>
+                          <div>
+                            <div className="font-medium">Reports</div>
+                            <div className="text-xs text-gray-400">View backtesting reports</div>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      <Link
+                        to="/welthai"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowDashboardMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-purple-400">
+                            <i className="fas fa-brain text-sm"></i>
+                          </div>
+                          <div>
+                            <div className="font-medium">AI Analysis</div>
+                            <div className="text-xs text-gray-400">Get AI insights</div>
+                          </div>
+                        </div>
+                      </Link>
+                      
+                      <Link
+                        to="/markets"
+                        className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
+                        onClick={() => setShowDashboardMenu(false)}
+                      >
+                        <div className="flex items-center">
+                          <div className="mr-3 text-orange-400">
+                            <i className="fas fa-filter text-sm"></i>
+                          </div>
+                          <div>
+                            <div className="font-medium">Screener</div>
+                            <div className="text-xs text-gray-400">Find stocks</div>
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
 

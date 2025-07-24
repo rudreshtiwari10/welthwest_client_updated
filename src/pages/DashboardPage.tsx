@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import ChatInterface from '../components/ChatInterface';
 import StockChart from '../components/StockChart';
 import Sidebar from '../components/Sidebar';
 import { marketService, watchlistService } from '../services/api';
@@ -181,102 +180,126 @@ const DashboardPage: React.FC = () => {
         <div className="container mx-auto px-4 py-8 text-gray-800 dark:text-gray-200">
           <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Dashboard</h1>
           
-          <div className="grid grid-cols-1 gap-8">
-            {/* Main content */}
-            <div>
-              {/* Chat interface */}
-              <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6 mb-6 transition-colors" id="ai-assistant">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Chat with AI Assistant</h2>
-                <ChatInterface />
+          {/* Quick Access Buttons */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <button className="text-left p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+              <div className="font-medium text-gray-900 dark:text-white">Watchlist</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">View tracked stocks</div>
+            </button>
+            <button className="text-left p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+              <div className="font-medium text-gray-900 dark:text-white">Backtest</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Test strategies</div>
+            </button>
+            <button className="text-left p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+              <div className="font-medium text-gray-900 dark:text-white">AI Analysis</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Get insights</div>
+            </button>
+            <button className="text-left p-3 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+              <div className="font-medium text-gray-900 dark:text-white">Screener</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">Find stocks</div>
+            </button>
+          </div>
+
+          {/* Quick Stats Section */}
+          <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Quick Overview</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{watchlistSymbols.length}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Watchlist Items</div>
               </div>
-              
-              {/* Stock data section */}
-              {selectedStock && stockData ? (
-                <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6 transition-colors">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{stockData.name} ({stockData.symbol})</h2>
-                    <span className="text-lg font-bold text-gray-900 dark:text-white">
-                      {stockData.data && stockData.data.length > 0 ? 
-                        `₹${stockData.data[stockData.data.length - 1].Close?.toFixed(2) || 'N/A'}` : 
-                        'N/A'}
-                    </span>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <StockChart stockData={{
-                      symbol: stockData.symbol,
-                      name: stockData.name,
-                      data: stockData.data || []
-                    }} height={300} />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {stockData.data && stockData.data.length > 0 ? (
-                      <>
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Open</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">
-                            ₹{stockData.data[stockData.data.length - 1].Open?.toFixed(2) || 'N/A'}
-                          </p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">High</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">
-                            ₹{stockData.data[stockData.data.length - 1].High?.toFixed(2) || 'N/A'}
-                          </p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Low</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">
-                            ₹{stockData.data[stockData.data.length - 1].Low?.toFixed(2) || 'N/A'}
-                          </p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Volume</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">
-                            {stockData.data[stockData.data.length - 1].Volume?.toLocaleString() || 'N/A'}
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Open</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">High</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Low</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
-                          <p className="text-gray-500 dark:text-gray-400 text-sm">Volume</p>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6 text-center transition-colors">
-                  <p className="text-gray-500 dark:text-gray-400">
-                    {isLoading
-                      ? 'Loading stock data...'
-                      : 'Select a stock from your watchlist or search for a stock to view details.'}
-                  </p>
-                </div>
-              )}
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">5</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Active Strategies</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">12</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">AI Insights</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">8.2%</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Avg Return</div>
+              </div>
             </div>
           </div>
+
+          {/* Selected Stock Section */}
+          {selectedStock && stockData && (
+            <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{stockData.name} ({stockData.symbol})</h2>
+                <span className="text-lg font-bold text-gray-900 dark:text-white">
+                  {stockData.data && stockData.data.length > 0 ? 
+                    `₹${stockData.data[stockData.data.length - 1].Close?.toFixed(2) || 'N/A'}` : 
+                    'N/A'}
+                </span>
+              </div>
+              
+              <div className="mb-6">
+                <StockChart stockData={{
+                  symbol: stockData.symbol,
+                  name: stockData.name,
+                  data: stockData.data || []
+                }} height={300} />
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {stockData.data && stockData.data.length > 0 ? (
+                  <>
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Open</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">
+                        ₹{stockData.data[stockData.data.length - 1].Open?.toFixed(2) || 'N/A'}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">High</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">
+                        ₹{stockData.data[stockData.data.length - 1].High?.toFixed(2) || 'N/A'}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Low</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">
+                        ₹{stockData.data[stockData.data.length - 1].Low?.toFixed(2) || 'N/A'}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Volume</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">
+                        {stockData.data[stockData.data.length - 1].Volume?.toLocaleString() || 'N/A'}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Open</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">High</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Low</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 dark:bg-dark-400 p-3 rounded-md transition-colors">
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">Volume</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
