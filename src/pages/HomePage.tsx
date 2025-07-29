@@ -202,7 +202,7 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 max-w-3xl mx-auto">
                 {/* AI Market Analysis Button */}
                 <Link 
-                  to="/ai" 
+                  to="/welthai" 
                   className="group flex items-center justify-center sm:justify-between bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
                 >
                   <div className="flex items-center">
@@ -221,7 +221,7 @@ const HomePage: React.FC = () => {
                 
                 {/* WelthAI Chat Bot Button */}
                 <Link 
-                  to="/welthai" 
+                  to="/welthchatbot" 
                   className="group flex items-center justify-center sm:justify-between bg-secondary-50/90 dark:bg-secondary-900/30 hover:bg-secondary-100 dark:hover:bg-secondary-900/40 backdrop-blur-sm border border-secondary-200 dark:border-secondary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
                 >
                   <div className="flex items-center">
@@ -561,7 +561,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link 
-                    to="/ai" 
+                    to="/welthai" 
                     className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors w-fit"
                   >
                     Explore AI Analysis
@@ -630,7 +630,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link 
-                    to="/welthai" 
+                    to="/welthchatbot" 
                     className="inline-flex items-center px-4 py-2 bg-secondary-600 text-white text-sm font-medium rounded-lg hover:bg-secondary-700 transition-colors w-fit"
                   >
                     Chat with WelthAI

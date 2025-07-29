@@ -10,15 +10,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  // Check if user has a theme preference in localStorage or prefers dark mode
+  // Check if user has a theme preference in localStorage, default to dark if not set
   const getInitialTheme = (): Theme => {
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
       return savedTheme;
     }
-    
-    // Always default to dark mode
-    return 'dark';
+    return 'dark'; // Default to dark theme
   };
   
   const [theme, setTheme] = useState<Theme>(getInitialTheme);
@@ -27,17 +25,18 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children 
   useEffect(() => {
     const root = window.document.documentElement;
     
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    // Remove both classes first to ensure clean state
+    root.classList.remove('light', 'dark');
     
+    // Add the current theme class
+    root.classList.add(theme);
+    
+    // Store in localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
   
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
   };
   
   return (

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ChatInterface from '../components/ChatInterface';
 import AIAnalysisToggle from '../components/AIAnalysisToggle';
 import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
 import AIAnalysisResults from '../components/AIAnalysisResults';
@@ -338,9 +337,9 @@ const WelthAIPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-gray-50 dark:bg-[#1a1f2e] min-h-screen">
       {/* Page Header */}
-      <div className="mb-8">
+      <div className="mb-8 bg-white dark:bg-gray-800/50 p-6 rounded-xl shadow-lg">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center">
           <BeakerIcon className="h-8 w-8 text-purple-500 mr-3" />
           Welth AI Hub
@@ -355,7 +354,7 @@ const WelthAIPage: React.FC = () => {
         {/* Left Column - AI Analysis */}
         <div className="lg:col-span-2">
           {/* Stock Selection */}
-          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
               <SparklesIcon className="h-5 w-5 text-purple-500 mr-2" />
               AI Market Regime Analysis
@@ -371,10 +370,10 @@ const WelthAIPage: React.FC = () => {
                   <button
                     key={stock.symbol}
                     onClick={() => handleStockSelect(stock.symbol)}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors shadow-md ${
                       selectedSymbol === stock.symbol
-                        ? 'bg-purple-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                        ? 'bg-purple-600 text-white shadow-purple-500/25'
+                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
                     }`}
                   >
                     {stock.symbol}
@@ -393,7 +392,7 @@ const WelthAIPage: React.FC = () => {
           </div>
           
           {/* AI Analysis Results */}
-          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
             {/* Show loading state separately from AIAnalysisResults for better UX */}
             {aiLoading && (
               <div className="flex flex-col items-center justify-center py-8">
@@ -430,17 +429,21 @@ const WelthAIPage: React.FC = () => {
           {/* Model Metrics & Feature Importance */}
           {aiTrainingResult && (
             <>
-              {renderModelMetrics()}
-              {renderFeatureImportance()}
+              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                {renderModelMetrics()}
+              </div>
+              <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-100 dark:border-gray-700">
+                {renderFeatureImportance()}
+              </div>
             </>
           )}
         </div>
         
         {/* Right Column - Stock Chart and AI Assistant */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden sticky top-20">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden sticky top-20">
             {/* Stock Chart */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="p-4 border-b border-gray-100 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-gray-900 dark:text-white flex items-center">
                   <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
@@ -473,58 +476,35 @@ const WelthAIPage: React.FC = () => {
               </div>
             </div>
             
-            {/* AI Assistant */}
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-purple-500/10 to-blue-500/10">
+            {/* AI Assistant Info */}
+            <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-500/10 dark:to-blue-500/10">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
                 <i className="fas fa-robot text-purple-500 mr-2"></i>
-                AI Assistant
+                Market Insights
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Ask questions about stocks, market trends, or get investment insights
+                Get AI-powered analysis and market regime predictions
               </p>
             </div>
-            <div className="p-4">
-              <div className="bg-gray-50 dark:bg-dark-400 rounded-lg p-4 mb-4">
-                <h3 className="font-medium text-gray-900 dark:text-white mb-2">Suggested Questions:</h3>
-                <ul className="space-y-2 text-sm">
-                  <li className="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
-                    What are the key indicators for a bull market?
+            <div className="p-4 bg-white dark:bg-gray-800">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-inner p-4 mb-4">
+                <h3 className="font-medium text-gray-900 dark:text-white mb-2">Key Features:</h3>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                  <li className="flex items-center">
+                    <SparklesIcon className="h-4 w-4 mr-2 text-purple-500" />
+                    Market Regime Detection
                   </li>
-                  <li className="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
-                    How to interpret RSI values above 70?
+                  <li className="flex items-center">
+                    <ChartBarIcon className="h-4 w-4 mr-2 text-blue-500" />
+                    Technical Analysis
                   </li>
-                  <li className="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
-                    Explain the concept of market regimes
-                  </li>
-                  <li className="hover:bg-gray-100 dark:hover:bg-gray-700 p-2 rounded cursor-pointer transition-colors">
-                    What is the best strategy for a bear market?
+                  <li className="flex items-center">
+                    <LightBulbIcon className="h-4 w-4 mr-2 text-yellow-500" />
+                    Trading Recommendations
                   </li>
                 </ul>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Chat Interface - Full Width at Bottom */}
-      <div className="mt-8">
-        <div className="bg-[#1a1f2e] rounded-lg shadow-lg overflow-hidden">
-          {/* Chat Header */}
-          <div className="p-6 border-b border-gray-700">
-            <h2 className="text-2xl font-bold text-white flex items-center space-x-3">
-              <div className="bg-primary-600 rounded-full p-2">
-                <i className="fas fa-comment-dots text-white text-xl"></i>
-              </div>
-              <span>AI Chat Assistant</span>
-            </h2>
-            <p className="mt-2 text-gray-400">
-              Have a conversation with our AI assistant about markets, stocks, and investment strategies
-            </p>
-          </div>
-
-          {/* Chat Interface */}
-          <div className="p-6">
-            <ChatInterface />
           </div>
         </div>
       </div>

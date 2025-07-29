@@ -322,11 +322,11 @@ const ChatInterface: React.FC = () => {
     <div className="flex flex-col h-full">
       <SubscriptionBanner />
       
-      <div className="flex flex-grow h-[500px] bg-gray-50 dark:bg-dark-400 rounded-lg">
+      <div className="flex flex-grow h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         {/* Main Chat Area */}
-        <div className="flex flex-col flex-grow w-3/4 border-r border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col flex-grow w-3/4 border-r border-gray-100 dark:border-gray-700">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -335,10 +335,10 @@ const ChatInterface: React.FC = () => {
                 }`}
               >
                 <div
-                  className={`inline-block max-w-[80%] rounded-lg px-4 py-2 ${
+                  className={`inline-block max-w-[80%] rounded-xl px-4 py-2 shadow-md ${
                     message.sender === 'user'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white dark:bg-dark-300 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-700'
+                      ? 'bg-primary-600 text-white shadow-primary-500/25'
+                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700'
                   }`}
                 >
                   {message.sender === 'assistant' && (
@@ -382,8 +382,8 @@ const ChatInterface: React.FC = () => {
           </div>
           
           {/* Input Area */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            {/* Free Messages Indicator for non-authenticated users */}
+          <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+            {/* Free Messages Indicator */}
             {!user && anonymousSession.sessionId && (
               <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
                 <div className="flex items-center justify-between">
@@ -403,16 +403,16 @@ const ChatInterface: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder={placeholders[placeholderIndex]}
-                className="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-dark-300 dark:text-white"
+                className="flex-grow p-2 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                 disabled={isLoading}
               />
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
-                className={`px-4 py-2 rounded-lg ${
+                className={`px-4 py-2 rounded-lg shadow-md ${
                   isLoading || !input.trim()
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-primary-600 hover:bg-primary-700'
+                    ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed'
+                    : 'bg-primary-600 hover:bg-primary-700 shadow-primary-500/25'
                 } text-white transition-colors duration-200`}
               >
                 {isLoading ? 'Sending...' : 'Send'}
@@ -422,7 +422,7 @@ const ChatInterface: React.FC = () => {
         </div>
         
         {/* Right Sidebar */}
-        <div className="w-1/4 p-4 bg-white dark:bg-dark-300 rounded-r-lg">
+        <div className="w-1/4 p-4 bg-white dark:bg-gray-800 rounded-r-xl">
           <UsageTracker />
           
           <div className="mt-6">
@@ -432,16 +432,16 @@ const ChatInterface: React.FC = () => {
                 <button
                   key={session.id}
                   onClick={() => handleSelectSession(session.id)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors duration-200 ${
+                  className={`w-full text-left p-3 rounded-lg transition-colors duration-200 shadow-md ${
                     activeSession === session.id
-                      ? 'bg-primary-50 dark:bg-primary-900'
-                      : 'hover:bg-gray-50 dark:hover:bg-dark-400'
+                      ? 'bg-primary-50 dark:bg-primary-900/50 shadow-primary-500/10'
+                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 shadow-gray-500/10'
                   }`}
                 >
                   <div className="font-medium text-gray-900 dark:text-white">
                     {session.title}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
                     {session.preview}
                   </div>
                   <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">

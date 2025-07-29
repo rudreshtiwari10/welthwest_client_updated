@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/images/singlelogo.png" />
@@ -12,8 +12,19 @@
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/images/singlelogo.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>WelthWest - AI Powered Financial Platform</title>
+    <script>
+      // Prevent flash of unstyled content (FOUC)
+      (function() {
+        // Get saved theme or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        // Remove any existing theme classes
+        document.documentElement.classList.remove('light', 'dark');
+        // Add the correct theme class
+        document.documentElement.classList.add(savedTheme);
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-white dark:bg-[#1a1f2e] text-gray-900 dark:text-white">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
   </body>

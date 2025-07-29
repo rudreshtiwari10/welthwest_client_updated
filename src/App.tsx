@@ -13,6 +13,7 @@ import BacktestingPage from './pages/BacktestingPage';
 import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
 import StockPage from './pages/StockPage';
+import WelthChatbotPage from './pages/WelthChatbotPage';
 
 // Components
 import Header from './components/Header';
@@ -120,7 +121,7 @@ const AppWithRouter: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <div className="min-h-screen bg-[#0d1117] text-white">
+          <div className="min-h-screen bg-[#f8f4ef] dark:bg-[#0d1117] text-gray-900 dark:text-white bg-opacity-50 dark:bg-opacity-100">
             <Header toggleSidebar={toggleSidebar} />
             
             {/* Desktop Sidebar */}
@@ -147,6 +148,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/stock/:symbol" element={<PrivateRoute><StockPage /></PrivateRoute>} />
                 <Route path="/backtesting" element={<PrivateRoute><BacktestingPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
+                <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
               </Routes>
