@@ -98,149 +98,188 @@ const BacktestingPage: React.FC = () => {
   const formatDateForInput = (date: Date): string => {
     return date.toISOString().split('T')[0];
   };
-
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [results, setResults] = useState<BacktestResponse | null>(null);
-  const [showLimitModal, setShowLimitModal] = useState(false);
-
-  // AI Analysis state
-  const [aiModeEnabled, setAiModeEnabled] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [aiPrediction, setAiPrediction] = useState(null);
-  const [aiAnalysis, setAiAnalysis] = useState(null);
-  const [aiRecommendations, setAiRecommendations] = useState(null);
-
-  // Form state with default values
+  
+  // Form state
   const [formData, setFormData] = useState<FormData>({
     ticker: '',
     start_date: formatDateForInput(oneYearAgo),
     end_date: formatDateForInput(today),
-    initial_capital: 100000,
+    initial_capital: 10000,
     position_size: 10,
     stop_loss: '',
     take_profit: '',
-    timeframe: '1d',
-    indicators: [],
-    position_sizing_method: 'fixed',
-    max_drawdown: 20,
-    max_positions: 5,
-    daily_loss_limit: 5,
-    weekly_loss_limit: 10,
-    min_cash_reserve: 20,
-    kelly_fraction: 0.5
+    indicators: []
   });
+  
+  // Results state
+  const [results, setResults] = useState<BacktestResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Limit exceeded modal
+  const [showLimitModal, setShowLimitModal] = useState<boolean>(false);
+  
+  // AI Analysis state
+  const [showAIAnalysis, setShowAIAnalysis] = useState<boolean>(false);
+  const [aiAnalysisResults, setAIAnalysisResults] = useState<any>(null);
+  const [aiLoading, setAILoading] = useState<boolean>(false);
+  
+  // Save state
+  const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
 
-  // Available indicators from the service
-  const availableIndicators = backtestingService.getAvailableIndicators();
-
-  // AI Analysis handler
   const handleAIAnalysis = async (config: AIAnalysisConfig) => {
-    setAiLoading(true);
-    setAiError(null);
-
     try {
-      // If retrain is requested, train the model first
-      if (config.retrain) {
-        await marketRegimeService.trainModel(config.ticker, config.period, true);
-      }
-
-      // Get prediction
-      const predictionResponse = await marketRegimeService.predictRegime(config.ticker);
-      setAiPrediction(predictionResponse);
-
-      // Get comprehensive analysis
-      const analysisResponse = await marketRegimeService.getAnalysis(config.ticker);
-      setAiAnalysis(analysisResponse);
-
-      // Get recommendations
-      const recommendationsResponse = await marketRegimeService.getRecommendations(config.ticker);
-      setAiRecommendations(recommendationsResponse);
-
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
-      setAiError(errorMessage);
-      console.error('AI Analysis error:', err);
+      setAILoading(true);
+      
+      // Call the market regime service to get AI analysis
+      const response = await marketRegimeService.getMarketRegimeAnalysis({
+        ticker: formData.ticker,
+        timeframe: formData.timeframe || '1d'
+      });
+      
+      setAIAnalysisResults(response);
+    } catch (error) {
+      console.error('Error getting AI analysis:', error);
+      setError('Failed to get AI analysis. Please try again.');
     } finally {
-      setAiLoading(false);
+      setAILoading(false);
+    }
+  };
+  
+  // Handle saving backtest results
+  const handleSaveBacktest = async () => {
+    if (!results) return;
+    
+    try {
+      setSaveStatus({ saving: true });
+      
+      // Prepare backtest data to save with all relevant parameters
+      const backtest_data = {
+        ticker: formData.ticker,
+        start_date: formData.start_date,
+        end_date: formData.end_date,
+        initial_capital: formData.initial_capital,
+        position_size: formData.position_size,
+        stop_loss: formData.stop_loss,
+        take_profit: formData.take_profit,
+        timeframe: formData.timeframe || '1d',
+        indicators: formData.indicators,
+        position_sizing_method: formData.position_sizing_method || 'fixed',
+        kelly_fraction: formData.kelly_fraction,
+        max_drawdown: formData.max_drawdown,
+        max_positions: formData.max_positions,
+        sector_exposure_limit: formData.sector_exposure_limit,
+        consecutive_loss_limit: formData.consecutive_loss_limit,
+        daily_loss_limit: formData.daily_loss_limit,
+        weekly_loss_limit: formData.weekly_loss_limit,
+        max_allocation: formData.max_allocation,
+        margin_requirement: formData.margin_requirement,
+        margin_interest: formData.margin_interest,
+        min_cash_reserve: formData.min_cash_reserve,
+        correlation_threshold: formData.correlation_threshold,
+        benchmark_symbol: formData.benchmark_symbol,
+        results: results,
+        performance: (results as ExtendedBacktestResponse).performance,
+        summary: results.summary,
+        timestamp: new Date().toISOString(),
+        name: `${formData.ticker} Strategy - ${new Date().toLocaleDateString()}`
+      };
+      
+      // Save backtest result
+      const response = await backtestingService.saveBacktestResult(backtest_data);
+      
+      setSaveStatus({ 
+        saving: false, 
+        success: response.success, 
+        message: response.message 
+      });
+      
+      // Clear status after 3 seconds
+      setTimeout(() => {
+        setSaveStatus({ saving: false });
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error saving backtest:', error);
+      setSaveStatus({ 
+        saving: false, 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to save backtest' 
+      });
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Check if user can run backtest
+    // Reset states
+    setError(null);
+    setResults(null);
+    
+    // Check subscription
     if (!canUseBacktest()) {
       setShowLimitModal(true);
       return;
     }
     
-    // Validate required fields
-    if (!formData.ticker.trim()) {
-      setError('Stock symbol is required');
-      return;
-    }
-    
-    if (formData.indicators.length === 0) {
-      setError('At least one technical indicator is required');
-      return;
-    }
-    
-    setLoading(true);
-    setError(null);
-
     try {
+      setLoading(true);
+      
       // Helper function to safely convert to number or undefined
       const safeNumber = (value: any): number | undefined => {
-        if (value === '' || value === undefined || value === null) return undefined;
+        if (value === '' || value === null || value === undefined) return undefined;
         const num = Number(value);
-        if (isNaN(num) || !isFinite(num)) return undefined;
-        return num;
-      };
-
-      // Prepare data for API call, converting string values to numbers or undefined
-      const apiData: BacktestRequest = {
-        ...formData,
-        ticker: formData.ticker.trim().toUpperCase(),
-        stop_loss: safeNumber(formData.stop_loss),
-        take_profit: safeNumber(formData.take_profit),
+        return isNaN(num) ? undefined : num;
       };
       
-      console.log('Submitting backtest request:', apiData);
-      const results = await backtestingService.runBacktest(apiData);
-      await incrementBacktestUsage();
-      setResults(results);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      // Clean the form data for API submission
+      const cleanedData: BacktestRequest = {
+        ...formData,
+        initial_capital: Number(formData.initial_capital),
+        position_size: Number(formData.position_size),
+        stop_loss: safeNumber(formData.stop_loss),
+        take_profit: safeNumber(formData.take_profit)
+      };
+      
+      // Run backtest
+      const response = await backtestingService.runBacktest(cleanedData);
+      
+      // Increment usage counter
+      incrementBacktestUsage();
+      
+      // Process and set results
+      const extendedResponse: ExtendedBacktestResponse = {
+        ...response,
+        performance: {
+          total_return: 0,
+          win_rate: 0,
+          sharpe_ratio: 0,
+          max_drawdown: 0
+        },
+        dates: response.price_data.map(d => d.Date)
+      };
+      
+      // Calculate performance metrics
+      if (response.metrics) {
+        extendedResponse.performance = {
+          total_return: (response.metrics.total_pnl / formData.initial_capital) * 100,
+          win_rate: (response.metrics.winning_trades / response.metrics.total_trades) * 100 || 0,
+          sharpe_ratio: response.monte_carlo?.metrics.sharpe_ratio.mean || 0,
+          max_drawdown: response.metrics.max_drawdown
+        };
+      }
+      
+      setResults(extendedResponse);
+    } catch (error) {
+      console.error('Backtest error:', error);
+      setError(error instanceof Error ? error.message : 'An error occurred while running the backtest');
     } finally {
       setLoading(false);
     }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    
-    // Special handling for number inputs
-    if (type === 'number') {
-      // For optional fields like stop_loss and take_profit, allow empty string
-      if (name === 'stop_loss' || name === 'take_profit') {
-        setFormData(prev => ({
-          ...prev,
-          [name]: value
-        }));
-        return;
-      }
-      
-      // For required number fields, convert to number
-      const newValue = value === '' ? '' : Number(value);
-      setFormData(prev => ({
-        ...prev,
-        [name]: newValue
-      }));
-      return;
-    }
-
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -248,16 +287,20 @@ const BacktestingPage: React.FC = () => {
   };
 
   const handleAddIndicator = () => {
-    if (availableIndicators.length > 0) {
-      const newIndicator: BacktestIndicator = {
-        type: availableIndicators[0].type,
-        parameters: { ...availableIndicators[0].defaultParams }
-      };
-      setFormData(prev => ({
-        ...prev,
-        indicators: [...prev.indicators, newIndicator]
-      }));
-    }
+    const availableIndicators = backtestingService.getAvailableIndicators();
+    const defaultIndicator = availableIndicators[0]; // RSI as default
+    
+    setFormData(prev => ({
+      ...prev,
+      indicators: [
+        ...prev.indicators,
+        {
+          type: defaultIndicator.type,
+          parameters: { ...defaultIndicator.defaultParams },
+          conditions: {}
+        }
+      ]
+    }));
   };
 
   const handleRemoveIndicator = (index: number) => {
@@ -268,49 +311,65 @@ const BacktestingPage: React.FC = () => {
   };
 
   const handleIndicatorChange = (index: number, field: string, value: string | number) => {
-    setFormData(prev => ({
-      ...prev,
-      indicators: prev.indicators.map((indicator, i) => {
-        if (i === index) {
-          if (field === 'type') {
-            const defaultParams = availableIndicators.find(ind => ind.type === value)?.defaultParams || {};
-            return {
-              type: value as string,
-              parameters: defaultParams
-            };
-          } else {
-            return {
-              ...indicator,
-              parameters: {
-                ...indicator.parameters,
-                [field]: typeof value === 'string' ? parseFloat(value) : value
-              }
-            };
-          }
+    if (field === 'type') {
+      // When indicator type changes, update parameters to defaults
+      const availableIndicators = backtestingService.getAvailableIndicators();
+      const selectedIndicator = availableIndicators.find(i => i.type === value);
+      
+      if (selectedIndicator) {
+        setFormData(prev => {
+          const updatedIndicators = [...prev.indicators];
+          updatedIndicators[index] = {
+            type: value as string,
+            parameters: { ...selectedIndicator.defaultParams },
+            conditions: {}
+          };
+          return {
+            ...prev,
+            indicators: updatedIndicators
+          };
+        });
+      }
+    } else {
+      // For parameter changes
+      const [paramType, paramName] = field.split('.');
+      
+      setFormData(prev => {
+        const updatedIndicators = [...prev.indicators];
+        if (paramType === 'param') {
+          updatedIndicators[index].parameters = {
+            ...updatedIndicators[index].parameters,
+            [paramName]: Number(value)
+          };
+        } else if (paramType === 'condition') {
+          updatedIndicators[index].conditions = {
+            ...updatedIndicators[index].conditions,
+            [paramName]: Number(value)
+          };
         }
-        return indicator;
-      })
-    }));
+        return {
+          ...prev,
+          indicators: updatedIndicators
+        };
+      });
+    }
   };
 
-  // Format trade data for display
   const formatTradeData = (trades: Trade[]): FormattedTrade[] => {
     return trades.map(trade => ({
-      ...trade,
-      entry_date: new Date(trade.entry_date).toLocaleString(),
-      exit_date: new Date(trade.exit_date).toLocaleString(),
+      entry_date: new Date(trade.entry_date).toLocaleDateString(),
+      exit_date: trade.exit_date ? new Date(trade.exit_date).toLocaleDateString() : 'Open',
       entry_price: trade.entry_price.toFixed(2),
-      exit_price: trade.exit_price.toFixed(2),
+      exit_price: trade.exit_price ? trade.exit_price.toFixed(2) : '-',
+      size: trade.size,
       pnl: trade.pnl.toFixed(2),
-      pnl_pct: trade.pnl_pct.toFixed(2)
+      pnl_pct: `${trade.pnl_pct.toFixed(2)}%`
     }));
   };
 
-  // Format price data for chart
   const formatPriceData = (priceData: PriceData[]) => {
     return priceData.map(data => ({
-      ...data,
-      Date: new Date(data.Date).toISOString(),
+      Date: new Date(data.Date).toLocaleDateString(),
       Open: data.Open,
       High: data.High,
       Low: data.Low,
@@ -434,6 +493,31 @@ const BacktestingPage: React.FC = () => {
 
     return (
       <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-bold">Backtest Results</h2>
+          <button
+            onClick={handleSaveBacktest}
+            disabled={saveStatus.saving}
+            className={`px-4 py-2 rounded-md ${
+              saveStatus.saving ? 'bg-gray-400' : 
+              saveStatus.success === true ? 'bg-green-500' : 
+              saveStatus.success === false ? 'bg-red-500' : 
+              'bg-blue-600 hover:bg-blue-700'
+            } text-white transition-colors`}
+          >
+            {saveStatus.saving ? 'Saving...' : 
+             saveStatus.success === true ? 'Saved!' : 
+             saveStatus.success === false ? 'Failed to Save' : 
+             'Save Strategy'}
+          </button>
+        </div>
+        
+        {saveStatus.message && (
+          <div className={`p-3 rounded-md ${saveStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            {saveStatus.message}
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="Total Return"
@@ -517,46 +601,50 @@ const BacktestingPage: React.FC = () => {
   const getParameterDescription = (param: string): string => {
     const descriptions: Record<string, string> = {
       period: 'Number of periods to calculate the indicator',
-      fastperiod: 'Number of periods for the fast moving average',
-      slowperiod: 'Number of periods for the slow moving average',
-      signalperiod: 'Number of periods for the signal line',
-      num_std: 'Number of standard deviations for Bollinger Bands',
-      k_period: 'Number of periods for the %K line',
-      d_period: 'Number of periods for the %D line'
+      fastperiod: 'Number of periods for fast moving average',
+      slowperiod: 'Number of periods for slow moving average',
+      signalperiod: 'Number of periods for signal line',
+      num_std: 'Number of standard deviations for bands',
+      k_period: 'Number of periods for %K line',
+      d_period: 'Number of periods for %D line'
     };
+    
     return descriptions[param] || 'Parameter value';
   };
 
   const getParameterMin = (param: string): number => {
     const mins: Record<string, number> = {
-      period: 1,
-      fastperiod: 1,
-      slowperiod: 2,
-      signalperiod: 1,
-      num_std: 1,
-      k_period: 1,
+      period: 2,
+      fastperiod: 3,
+      slowperiod: 5,
+      signalperiod: 3,
+      num_std: 0.5,
+      k_period: 3,
       d_period: 1
     };
+    
     return mins[param] || 1;
   };
 
   const getParameterMax = (param: string): number => {
-    const maxs: Record<string, number> = {
+    const maxes: Record<string, number> = {
       period: 200,
-      fastperiod: 100,
+      fastperiod: 50,
       slowperiod: 100,
       signalperiod: 50,
-      num_std: 4,
-      k_period: 100,
-      d_period: 50
+      num_std: 5,
+      k_period: 50,
+      d_period: 20
     };
-    return maxs[param] || 100;
+    
+    return maxes[param] || 100;
   };
 
   const getParameterStep = (param: string): number => {
     const steps: Record<string, number> = {
       num_std: 0.1
     };
+    
     return steps[param] || 1;
   };
 
@@ -878,14 +966,14 @@ const BacktestingPage: React.FC = () => {
                         <label className="block text-sm font-medium dark:text-gray-200 text-gray-700">
                           Indicator Type
                           <i className="fas fa-info-circle ml-1 text-gray-500" 
-                             title={availableIndicators.find(ind => ind.type === indicator.type)?.description || ''}></i>
+                             title={backtestingService.getAvailableIndicators().find(ind => ind.type === indicator.type)?.description || ''}></i>
                         </label>
                         <select
                           value={indicator.type}
                           onChange={(e) => handleIndicatorChange(index, 'type', e.target.value)}
                           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                         >
-                          {availableIndicators.map(ind => (
+                          {backtestingService.getAvailableIndicators().map(ind => (
                             <option key={ind.type} value={ind.type}>
                               {ind.type}
                             </option>
@@ -895,7 +983,7 @@ const BacktestingPage: React.FC = () => {
 
                       {/* Render parameters based on indicator type */}
                       {Object.entries(
-                        availableIndicators.find(ind => ind.type === indicator.type)?.defaultParams || {}
+                        backtestingService.getAvailableIndicators().find(ind => ind.type === indicator.type)?.defaultParams || {}
                       ).map(([param, defaultValue]) => (
                         <div key={param}>
                           <label className="block text-sm font-medium dark:text-gray-200 text-gray-700">
@@ -905,7 +993,7 @@ const BacktestingPage: React.FC = () => {
                           <input
                             type="number"
                             value={indicator.parameters[param] || defaultValue}
-                            onChange={(e) => handleIndicatorChange(index, param, e.target.value)}
+                            onChange={(e) => handleIndicatorChange(index, `param.${param}`, e.target.value)}
                             className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                             min={getParameterMin(param)}
                             max={getParameterMax(param)}

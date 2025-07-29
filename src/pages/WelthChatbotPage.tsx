@@ -1,8 +1,11 @@
 import React from 'react';
 import ChatInterface from '../components/ChatInterface';
 import { SparklesIcon, BeakerIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../contexts/AuthContext';
 
 const WelthChatbotPage: React.FC = () => {
+  const { user } = useAuth();
+  
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
@@ -14,6 +17,16 @@ const WelthChatbotPage: React.FC = () => {
         <p className="text-gray-600 dark:text-gray-400 max-w-3xl">
           Your AI-powered financial assistant. Ask questions about stocks, market trends, or get investment insights.
         </p>
+        {user && (
+          <div className="mt-3 text-sm bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
+            <div className="flex items-start">
+              <SparklesIcon className="h-5 w-5 text-blue-500 mr-2 mt-0.5" />
+              <p className="text-blue-700 dark:text-blue-300">
+                New! You can now save your chat conversations for future reference. Look for the "Save Chat" button after you start chatting.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Chat Interface */}

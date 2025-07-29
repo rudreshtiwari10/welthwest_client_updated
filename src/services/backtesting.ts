@@ -1,4 +1,4 @@
-import { API_URL } from './api';
+import { API_URL, userDataService } from './api';
 
 export interface BacktestIndicator {
   type: string;
@@ -155,6 +155,20 @@ class BacktestingService {
       return data as BacktestResponse;
     } catch (error) {
       console.error('Backtest error:', error);
+      throw error;
+    }
+  }
+
+  async saveBacktestResult(backtest_data: any): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await userDataService.saveBacktestResult(backtest_data);
+      
+      return {
+        success: response.success,
+        message: response.message
+      };
+    } catch (error) {
+      console.error('Save backtest error:', error);
       throw error;
     }
   }

@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { marketService } from '../services/api';
+import { marketService, userDataService } from '../services/api';
 import SubscriptionBanner from './subscription/SubscriptionBanner';
 import UsageTracker from './subscription/UsageTracker';
 import LimitExceededModal from './subscription/LimitExceededModal';
 import LoginModal from './LoginModal';
+import ChatHistorySidebar from './ChatHistorySidebar';
 
 interface Message {
   id: string;
@@ -71,6 +72,8 @@ const ChatInterface: React.FC = () => {
     remainingMessages: 5,
     loginRequired: false
   });
+  const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
+  
   const placeholders = [
     "Ask about investment strategies...",
     "Inquire about stock market trends...",
@@ -93,34 +96,108 @@ const ChatInterface: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Save chat history function
+  const handleSaveChat = async () => {
+    if (!user || messages.length <= 1) return;
+    
+    try {
+      setSaveStatus({ saving: true });
+      
+      // Extract conversation for saving
+      const conversation = messages.map(msg => ({
+        text: msg.text,
+        sender: msg.sender,
+        timestamp: msg.timestamp.toISOString()
+      }));
+      
+      // Prepare chat data to save
+      const chat_data = {
+        title: `Chat - ${new Date().toLocaleDateString()}`,
+        timestamp: new Date().toISOString(),
+        conversation: conversation,
+        model: selectedModel
+      };
+      
+      // Save chat history
+      const response = await userDataService.saveChatHistory(chat_data);
+      
+      setSaveStatus({ 
+        saving: false, 
+        success: response.success, 
+        message: response.message 
+      });
+      
+      // Clear status after 3 seconds
+      setTimeout(() => {
+        setSaveStatus({ saving: false });
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+      setSaveStatus({ 
+        saving: false, 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to save chat history' 
+      });
+    }
+  };
+
+  // Function to load a conversation from chat history
+  const handleLoadConversation = (conversation: Array<{text: string; sender: 'user' | 'assistant'; timestamp: string}>) => {
+    // Convert the string timestamps to Date objects
+    const formattedConversation = conversation.map(msg => ({
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
+      text: msg.text,
+      sender: msg.sender,
+      timestamp: new Date(msg.timestamp)
+    }));
+    
+    setMessages(formattedConversation);
+  };
+
   // Initialize anonymous session for non-authenticated users
   useEffect(() => {
     const initializeSession = async () => {
       if (!user && !anonymousSession.sessionId) {
         try {
-          const response = await marketService.anonymousChatWithAI('', undefined, selectedModel);
+          // Make initial request to get session ID
+          const response = await marketService.anonymousChatWithAI(
+            "Hello",
+            undefined,
+            selectedModel
+          );
+          
           if (response.session_id) {
             setAnonymousSession({
               sessionId: response.session_id,
               remainingMessages: response.remaining_messages || 5,
-              loginRequired: response.login_required || false
+              loginRequired: false
             });
+            
+            // Replace initial message with response
+            setMessages([
+              {
+                id: '1',
+                text: response.response || 'Hello! I\'m your Welth AI assistant. Ask me anything about stocks, market trends, or investment strategies.',
+                sender: 'assistant',
+                timestamp: new Date(),
+              }
+            ]);
           }
         } catch (error) {
-          console.error('Failed to initialize session:', error);
-          // Don't show error to user, they can still try to chat
+          console.error('Error initializing anonymous session:', error);
         }
       }
     };
-
+    
     initializeSession();
-  }, [user, anonymousSession.sessionId, selectedModel]);
-
-  // Handle successful login - reset session state
+  }, [user]);
+  
   const handleLoginSuccess = () => {
+    // Reset session state after login
     setAnonymousSession({
       sessionId: null,
-      remainingMessages: 5,
+      remainingMessages: 0,
       loginRequired: false
     });
     setShowLoginModal(false);
@@ -284,194 +361,179 @@ const ChatInterface: React.FC = () => {
   };
   
   const handleNewChat = () => {
-    // Save current chat as a session if it has messages from user
-    if (messages.some(m => m.sender === 'user')) {
-      const newSession: ChatSession = {
-        id: `session-${Date.now()}`,
-        title: `Chat ${chatSessions.length + 1}`,
-        timestamp: new Date(),
-        preview: messages.find(m => m.sender === 'user')?.text.substring(0, 30) + '...' || 'New chat'
-      };
-      
-      setChatSessions(prev => [newSession, ...prev]);
-    }
+    // Save current chat if needed
     
-    // Reset current chat
-    setMessages([{
-      id: '1',
-      text: 'Hello! I\'m your Welth AI assistant. Ask me anything about stocks, market trends, or investment strategies.',
-      sender: 'assistant',
-      timestamp: new Date(),
-    }]);
+    // Reset to new chat
+    setMessages([
+      {
+        id: '1',
+        text: 'Hello! I\'m your Welth AI assistant. Ask me anything about stocks, market trends, or investment strategies.',
+        sender: 'assistant',
+        timestamp: new Date(),
+      },
+    ]);
     setActiveSession('current');
+    
+    // Reset anonymous session if needed
+    if (!user && anonymousSession.remainingMessages <= 0) {
+      setAnonymousSession(prev => ({
+        ...prev,
+        remainingMessages: 5,
+        loginRequired: false
+      }));
+    }
   };
   
   const handleSelectSession = (sessionId: string) => {
-    // In a real app, you would load the messages for this session from backend
+    // In a real app, we would load the selected session from the server
     setActiveSession(sessionId);
-    // For now, just show a placeholder message
-    setMessages([{
-      id: '1',
-      text: `This is a previous chat session (${sessionId}). In a real app, these messages would be loaded from the database.`,
-      sender: 'assistant',
-      timestamp: new Date(),
-    }]);
+    
+    // Mock loading a session
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (session) {
+      setMessages([
+        {
+          id: '1',
+          text: `This is a mock conversation for session "${session.title}". In a real app, we would load the actual conversation history.`,
+          sender: 'assistant',
+          timestamp: new Date(),
+        },
+      ]);
+    }
   };
-  
+
   return (
     <div className="flex flex-col h-full">
-      <SubscriptionBanner />
-      
-      <div className="flex flex-grow h-[500px] bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-        {/* Main Chat Area */}
-        <div className="flex flex-col flex-grow w-3/4 border-r border-gray-100 dark:border-gray-700">
-          {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900">
-            {messages.map((message) => (
+      {/* Main Chat Area */}
+      <div className="flex-grow overflow-y-auto p-4">
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`mb-4 flex ${
+              message.sender === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            <div
+              className={`rounded-lg px-4 py-2 max-w-[80%] ${
+                message.sender === 'user'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
+              }`}
+            >
+              <div className="whitespace-pre-wrap">{message.text}</div>
               <div
-                key={message.id}
-                className={`mb-4 ${
-                  message.sender === 'user' ? 'text-right' : 'text-left'
+                className={`text-xs mt-1 ${
+                  message.sender === 'user'
+                    ? 'text-blue-200'
+                    : 'text-gray-500 dark:text-gray-400'
                 }`}
               >
-                <div
-                  className={`inline-block max-w-[80%] rounded-xl px-4 py-2 shadow-md ${
-                    message.sender === 'user'
-                      ? 'bg-primary-600 text-white shadow-primary-500/25'
-                      : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-700'
-                  }`}
-                >
-                  {message.sender === 'assistant' && (
-                    <div className="flex items-center mb-1">
-                      <div className="w-6 h-6 mr-2">
-                        <div className="flex items-center justify-center w-full h-full bg-primary-600 rounded-full">
-                          <span className="text-xs font-bold text-white">W</span>
-                        </div>
-                      </div>
-                      <span className="font-medium text-sm text-primary-600 dark:text-primary-400">Welth AI</span>
-                    </div>
-                  )}
-                  {message.sender === 'user' && (
-                    <div className="flex items-center justify-end mb-1">
-                      <span className="font-medium text-sm text-primary-100">You</span>
-                      <div className="w-5 h-5 ml-2 text-primary-100">
-                        <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="currentColor"/>
-                          <path d="M12.0002 14.5C6.99016 14.5 2.91016 17.86 2.91016 22C2.91016 22.28 3.13016 22.5 3.41016 22.5H20.5902C20.8702 22.5 21.0902 22.28 21.0902 22C21.0902 17.86 17.0102 14.5 12.0002 14.5Z" fill="currentColor"/>
-                        </svg>
-                      </div>
-                    </div>
-                  )}
-                  <div className="whitespace-pre-wrap">{message.text}</div>
-                  <div
-                    className={`text-xs mt-1 ${
-                      message.sender === 'user'
-                        ? 'text-primary-100'
-                        : 'text-gray-500 dark:text-gray-400'
-                    }`}
-                  >
-                    {message.timestamp.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </div>
-                </div>
+                {message.timestamp.toLocaleTimeString()}
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-          
-          {/* Input Area */}
-          <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
-            {/* Free Messages Indicator */}
-            {!user && anonymousSession.sessionId && (
-              <div className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                <div className="flex items-center justify-between">
-                  <span>Free messages remaining: {anonymousSession.remainingMessages}</span>
-                  {anonymousSession.remainingMessages <= 2 && (
-                    <span className="text-primary-600 dark:text-primary-400 font-medium">
-                      Sign in for unlimited access
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            <form onSubmit={handleSendMessage} className="flex items-center space-x-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={placeholders[placeholderIndex]}
-                className="flex-grow p-2 border border-gray-200 dark:border-gray-600 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                className={`px-4 py-2 rounded-lg shadow-md ${
-                  isLoading || !input.trim()
-                    ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed'
-                    : 'bg-primary-600 hover:bg-primary-700 shadow-primary-500/25'
-                } text-white transition-colors duration-200`}
-              >
-                {isLoading ? 'Sending...' : 'Send'}
-              </button>
-            </form>
-          </div>
-        </div>
-        
-        {/* Right Sidebar */}
-        <div className="w-1/4 p-4 bg-white dark:bg-gray-800 rounded-r-xl">
-          <UsageTracker />
-          
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Previous Chats</h3>
-            <div className="space-y-4">
-              {chatSessions.map((session) => (
-                <button
-                  key={session.id}
-                  onClick={() => handleSelectSession(session.id)}
-                  className={`w-full text-left p-3 rounded-lg transition-colors duration-200 shadow-md ${
-                    activeSession === session.id
-                      ? 'bg-primary-50 dark:bg-primary-900/50 shadow-primary-500/10'
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700 shadow-gray-500/10'
-                  }`}
-                >
-                  <div className="font-medium text-gray-900 dark:text-white">
-                    {session.title}
-                  </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    {session.preview}
-                  </div>
-                  <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                    {session.timestamp.toLocaleDateString()}
-                  </div>
-                </button>
-              ))}
             </div>
           </div>
-        </div>
+        ))}
+        {isLoading && (
+          <div className="flex justify-start mb-4">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-4 py-2">
+              <div className="flex space-x-2">
+                <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '600ms' }}></div>
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
       </div>
-
-      {/* Login Modal for Free Users */}
+      
+      {/* Save Chat Button - Only show for logged in users with messages */}
+      {user && messages.length > 1 && (
+        <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              {saveStatus.message && (
+                <span className={saveStatus.success ? "text-green-500" : "text-red-500"}>
+                  {saveStatus.message}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={handleSaveChat}
+              disabled={saveStatus.saving}
+              className={`px-3 py-1 rounded-md text-sm ${
+                saveStatus.saving ? 'bg-gray-400' : 
+                saveStatus.success === true ? 'bg-green-500' : 
+                'bg-blue-600 hover:bg-blue-700'
+              } text-white transition-colors`}
+            >
+              {saveStatus.saving ? 'Saving...' : 
+               saveStatus.success === true ? 'Saved!' : 
+               'Save Chat'}
+            </button>
+          </div>
+        </div>
+      )}
+      
+      {/* Input Area */}
+      <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+        {!user && anonymousSession.remainingMessages <= 5 && (
+          <div className="mb-2 text-xs text-gray-500 dark:text-gray-400 flex justify-between items-center">
+            <span>
+              {anonymousSession.remainingMessages > 0 
+                ? `${anonymousSession.remainingMessages} free messages remaining` 
+                : 'Free messages used up'}
+            </span>
+            <button 
+              onClick={() => setShowLoginModal(true)}
+              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            >
+              Log in for unlimited access
+            </button>
+          </div>
+        )}
+        <form onSubmit={handleSendMessage} className="flex space-x-2">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            disabled={isLoading}
+            placeholder={placeholders[placeholderIndex]}
+            className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            Send
+          </button>
+        </form>
+      </div>
+      
+      {/* Chat History Sidebar - Only show for logged in users */}
+      {user && <ChatHistorySidebar onSelectChat={handleLoadConversation} />}
+      
+      {/* Subscription Banner for authenticated users */}
+      {user && <SubscriptionBanner />}
+      
+      {/* Usage Tracker for authenticated users */}
+      {user && <UsageTracker />}
+      
+      {/* Modals */}
+      <LimitExceededModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        featureType="llm"
+        message="You have reached your daily limit for AI queries. Please upgrade your plan to continue using the AI assistant."
+      />
+      
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={handleLoginSuccess}
-        title="Continue Chatting"
-        message="You've used all your free messages! Sign in or create an account to continue with unlimited AI chat access."
+        message="Log in to continue chatting with our AI assistant"
       />
-
-      {/* Limit Exceeded Modal for Authenticated Users Only */}
-      {user && (
-        <LimitExceededModal
-          isOpen={showLimitModal}
-          onClose={() => setShowLimitModal(false)}
-          featureType="llm"
-          message="You have reached your daily limit for AI queries. Please upgrade your plan to continue using the AI assistant."
-        />
-      )}
     </div>
   );
 };

@@ -332,6 +332,16 @@ export const marketRegimeService = {
       console.error('Error evaluating model:', error);
       throw error;
     }
+  },
+  
+  getMarketRegimeAnalysis: async ({ ticker, timeframe }: { ticker: string, timeframe?: string }) => {
+    try {
+      const response = await api.get(`/market-regime/analysis?ticker=${ticker}${timeframe ? `&timeframe=${timeframe}` : ''}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting market regime analysis:', error);
+      throw error;
+    }
   }
 };
 
@@ -591,6 +601,75 @@ export const userService = {
       return { success: true };
     } catch (error) {
       console.error('Error adding favorite stock:', error);
+      throw error;
+    }
+  }
+};
+
+// User Data Service for saving and retrieving user-specific data
+export const userDataService = {
+  // Save backtest result
+  saveBacktestResult: async (backtest_data: any) => {
+    try {
+      const response = await api.post('/user/save-backtest', { backtest_data });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving backtest result:', error);
+      throw error;
+    }
+  },
+  
+  // Save AI analysis result
+  saveAIAnalysisResult: async (analysis_data: any) => {
+    try {
+      const response = await api.post('/user/save-ai-analysis', { analysis_data });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving AI analysis result:', error);
+      throw error;
+    }
+  },
+  
+  // Save chat history
+  saveChatHistory: async (chat_data: any) => {
+    try {
+      const response = await api.post('/user/save-chat', { chat_data });
+      return response.data;
+    } catch (error) {
+      console.error('Error saving chat history:', error);
+      throw error;
+    }
+  },
+  
+  // Get user's saved backtest results
+  getUserBacktests: async () => {
+    try {
+      const response = await api.get('/user/backtests');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting user backtests:', error);
+      throw error;
+    }
+  },
+  
+  // Get user's saved AI analysis results
+  getUserAIAnalyses: async () => {
+    try {
+      const response = await api.get('/user/ai-analyses');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting user AI analyses:', error);
+      throw error;
+    }
+  },
+  
+  // Get user's saved chat history
+  getUserChatHistory: async () => {
+    try {
+      const response = await api.get('/user/chat-history');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting user chat history:', error);
       throw error;
     }
   }
