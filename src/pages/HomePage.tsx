@@ -202,7 +202,7 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 max-w-3xl mx-auto">
                 {/* AI Market Analysis Button */}
                 <Link 
-                  to="/welthai" 
+                  to="/ai" 
                   className="group flex items-center justify-center sm:justify-between bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
                 >
                   <div className="flex items-center">

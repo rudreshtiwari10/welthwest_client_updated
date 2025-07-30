@@ -14,11 +14,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showStocksMenu, setShowStocksMenu] = useState(false);
-  const [showFeaturesMenu, setShowFeaturesMenu] = useState(false);
+  const [showWelthAIMenu, setShowWelthAIMenu] = useState(false);
   const [showDashboardMenu, setShowDashboardMenu] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
   const stocksRef = useRef<HTMLDivElement>(null);
-  const featuresRef = useRef<HTMLDivElement>(null);
+  const welthAIRef = useRef<HTMLDivElement>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
@@ -46,8 +46,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
       if (stocksRef.current && !stocksRef.current.contains(event.target as Node)) {
         setShowStocksMenu(false);
       }
-      if (featuresRef.current && !featuresRef.current.contains(event.target as Node)) {
-        setShowFeaturesMenu(false);
+      if (welthAIRef.current && !welthAIRef.current.contains(event.target as Node)) {
+        setShowWelthAIMenu(false);
       }
       if (dashboardRef.current && !dashboardRef.current.contains(event.target as Node)) {
         setShowDashboardMenu(false);
@@ -88,50 +88,64 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
-              {/* Features Dropdown */}
+              {/* WelthAI Button with Dropdown */}
               <div 
                 className="relative" 
-                ref={featuresRef}
-                onMouseEnter={() => setShowFeaturesMenu(true)}
-                onMouseLeave={() => setShowFeaturesMenu(false)}
+                ref={welthAIRef}
+                onMouseEnter={() => setShowWelthAIMenu(true)}
+                onMouseLeave={() => setShowWelthAIMenu(false)}
               >
                 <button 
-                  onClick={() => setShowFeaturesMenu(!showFeaturesMenu)}
-                  className={`flex items-center text-sm space-x-1 font-medium ${
-                    isFeatureActive()
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
+                  onClick={() => setShowWelthAIMenu(!showWelthAIMenu)}
+                  className="flex items-center px-4 py-1.5 bg-[#7e22ce] hover:bg-[#6b21a8] text-white rounded-full font-medium transition-colors shadow-md"
                 >
-                  <span>Features</span>
-                  <i className={`fas fa-chevron-down text-xs transition-transform ${showFeaturesMenu ? 'rotate-180' : ''}`}></i>
+                  <span className="mr-1">Welth AI</span>
+                  <i className={`fas fa-chevron-down text-xs transition-transform ${showWelthAIMenu ? 'rotate-180' : ''}`}></i>
                 </button>
 
-                {showFeaturesMenu && (
-                  <div className="absolute left-0 mt-2 w-72 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50">
-                    {/* Menu content */}
-                    <div className="py-1">
-                      <h3 className="px-4 py-1 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        WelthAI Services
-                      </h3>
-                      
-                      {/* Menu items */}
-                      <Link
-                        to="/welthai"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
-                        onClick={() => setShowFeaturesMenu(false)}
-                      >
-                        <div className="flex items-center">
-                          <div className="mr-3 text-purple-600 dark:text-purple-400">
-                            <ChatBubbleLeftRightIcon className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <div className="font-medium">WelthAI Chat Assistant</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-300">AI-powered conversational assistant</div>
-                          </div>
+                {showWelthAIMenu && (
+                  <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50">
+                    <Link
+                      to="/WelthAIPage"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                      onClick={() => setShowWelthAIMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <SparklesIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
+                        <div>
+                          <div className="font-medium">WelthAI Analysis</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">AI-powered market analysis</div>
                         </div>
-                      </Link>
-                    </div>
+                      </div>
+                    </Link>
+
+                    <Link
+                      to="/WelthChatbotPage"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                      onClick={() => setShowWelthAIMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <ChatBubbleLeftRightIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
+                        <div>
+                          <div className="font-medium">WelthAI Chatbot</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Interactive AI assistant</div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <Link
+                      to="/backtesting"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                      onClick={() => setShowWelthAIMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <ChartBarIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
+                        <div>
+                          <div className="font-medium">Backtesting</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Test trading strategies</div>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
                 )}
               </div>

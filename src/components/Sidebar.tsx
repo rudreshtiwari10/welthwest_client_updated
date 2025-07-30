@@ -140,7 +140,7 @@ const featureNavigation = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }) => {
-  const { isAuthenticated, getToken, user } = useAuth();
+  const { isAuthenticated, logout, getToken, user } = useAuth();
   const [selectedStock, setSelectedStock] = useState('RELIANCE.NS');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'market' | 'filters' | 'watchlist'>('market');
@@ -348,6 +348,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
   // Handle navigation click
   const handleNavClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    closeSidebar();
+  };
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    logout();
     closeSidebar();
   };
 
@@ -724,14 +730,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
             )}
           </div>
           
-          {/* Sidebar Footer */}
-          <div className="p-4 border-t border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">StockInsight v1.0</span>
-              <a href="#" className="text-xs text-primary-400 hover:text-primary-300">
-                Help
-              </a>
-            </div>
+          {/* Sidebar Footer with Logout */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+            {isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-all shadow-md hover:shadow-lg"
+              >
+                <i className="fas fa-sign-out-alt mr-2"></i>
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>
