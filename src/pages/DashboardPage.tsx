@@ -3,8 +3,8 @@ import { useAuth } from '../contexts/AuthContext';
 import StockChart from '../components/StockChart';
 import Sidebar from '../components/Sidebar';
 import { marketService, watchlistService, userDataService } from '../services/api';
-import SavedBacktests from '../components/SavedBacktests';
-import SavedAIAnalyses from '../components/SavedAIAnalyses';
+import DashboardBacktests from '../components/DashboardBacktests';
+import DashboardAIAnalyses from '../components/DashboardAIAnalyses';
 
 type ActiveView = 'watchlist' | 'backtests' | 'ai-analyses' | 'screener';
 
@@ -30,6 +30,41 @@ const DashboardPage: React.FC = () => {
 
   const closeSidebar = () => {
     setIsSidebarOpen(false);
+  };
+
+  // Fetch saved data for quick stats
+  const fetchSavedData = async () => {
+    if (!user) return;
+    
+    try {
+      setSavedDataLoading(true);
+      
+      // Fetch saved backtests and AI analyses for stats
+      const [backtestsResponse, analysesResponse] = await Promise.all([
+        userDataService.getUserBacktests(),
+        userDataService.getUserAIAnalyses()
+      ]);
+      
+      if (backtestsResponse.success && backtestsResponse.backtests) {
+        setSavedBacktests(backtestsResponse.backtests);
+      }
+      
+      if (analysesResponse.success && analysesResponse.analyses) {
+        setSavedAIAnalyses(analysesResponse.analyses);
+      }
+    } catch (error) {
+      console.error('Error fetching saved data for stats:', error);
+    } finally {
+      setSavedDataLoading(false);
+    }
+  };
+  
+  const handleSetActiveView = (view: ActiveView) => {
+    setActiveView(view);
+    // Refresh saved data when switching to backtest or AI analysis views
+    if (view === 'backtests' || view === 'ai-analyses') {
+      fetchSavedData();
+    }
   };
 
   // Fetch user's watchlists and first stock data
@@ -179,49 +214,13 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  // Set active view
-  // Fetch saved data for quick stats
-  const fetchSavedData = async () => {
-    if (!user) return;
-    
-    try {
-      setSavedDataLoading(true);
-      
-      // Fetch saved backtests and AI analyses for stats
-      const [backtestsResponse, analysesResponse] = await Promise.all([
-        userDataService.getUserBacktests(),
-        userDataService.getUserAIAnalyses()
-      ]);
-      
-      if (backtestsResponse.success && backtestsResponse.backtests) {
-        setSavedBacktests(backtestsResponse.backtests);
-      }
-      
-      if (analysesResponse.success && analysesResponse.analyses) {
-        setSavedAIAnalyses(analysesResponse.analyses);
-      }
-    } catch (error) {
-      console.error('Error fetching saved data for stats:', error);
-    } finally {
-      setSavedDataLoading(false);
-    }
-  };
-  
-  const handleSetActiveView = (view: ActiveView) => {
-    setActiveView(view);
-    // Refresh saved data when switching to backtest or AI analysis views
-    if (view === 'backtests' || view === 'ai-analyses') {
-      fetchSavedData();
-    }
-  };
-
   // Render content based on active view
   const renderContent = () => {
     switch (activeView) {
       case 'backtests':
-        return <SavedBacktests key={`backtests-${Date.now()}`} />;
+        return <DashboardBacktests />;
       case 'ai-analyses':
-        return <SavedAIAnalyses key={`ai-analyses-${Date.now()}`} />;
+        return <DashboardAIAnalyses />;
       case 'screener':
         return (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
@@ -377,33 +376,31 @@ const DashboardPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Quick Stats Section - Only show on watchlist view */}
-          {activeView === 'watchlist' && (
-            <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6 mb-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Quick Overview</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{watchlistSymbols.length}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Watchlist Items</div>
+          {/* Quick Stats Section - Show on all views */}
+          <div className="bg-white dark:bg-dark-500 rounded-lg shadow-md p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Quick Overview</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{watchlistSymbols.length}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Watchlist Items</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">                    {savedDataLoading ? '...' : savedBacktests.length}
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">                    {savedDataLoading ? '...' : savedBacktests.length}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Saved Strategies</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Saved Strategies</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                  {savedDataLoading ? '...' : savedAIAnalyses.length}
                 </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {savedDataLoading ? '...' : savedAIAnalyses.length}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">AI Insights</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">8.2%</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Avg Return</div>
-                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">AI Insights</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">8.2%</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">Avg Return</div>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Main Content Area */}
           {renderContent()}
@@ -413,4 +410,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage; 
+export default DashboardPage;

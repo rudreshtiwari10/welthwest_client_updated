@@ -15,8 +15,20 @@ so when i checkd in AI analysis and backtesting page and saed strategy so its sa
 @WelthWestClientSharing i saw in console that its fetching backtesitng result and AI analysis but some fitlering is working on that i want all backtested strategy saved by user to be shown no filter on that just show whatever data is available on that user id for AI analysis and backtesitng
 ```
 
+## Fourth Follow-up Instructions
+```
+@WelthWestClientSharing\ so now i am getting issue in graph of market overview section like its changing or shaking in periods so i dont want that to be dynmaic it should be fixed graph so can you find out problem and fix it.
+```
+
+## Fifth Follow-up Instructions (Current)
+```
+@WelthWestClientSharing\ now can you remove all those APi calling from frontend for backtest and Analayis section in /dashboard and make a new connection of this and this time first analyse how many and which parameter are coming from both saved API adn make a new element to show case thos values then put those value in that places and the  show data now this time evertthing should be perfect and working.
+```
+
 ## Project Context
 - Frontend: React TypeScript application in WelthWestClientSharing
 - Backend: Python Flask API in WelthWestServer2
 - Goal: Implement complete save/fetch workflow for backtesting strategies and AI analysis results
 - Dashboard should display saved data in organized sections
+- Fixed market overview graph shaking issue
+- Created comprehensive dashboard components with all API parameters
