@@ -462,6 +462,7 @@ const WelthAIPage: React.FC = () => {
                   prediction={aiPrediction}
                   analysis={aiAnalysis}
                   recommendations={aiRecommendations}
+                  ticker={selectedSymbol}
                 />
               ) : (
                 <div className="text-center py-12 text-gray-500">

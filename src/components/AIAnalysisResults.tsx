@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   ArrowTrendingUpIcon, 
   ArrowTrendingDownIcon, 
@@ -6,8 +6,10 @@ import {
   ExclamationTriangleIcon,
   ArrowPathIcon,
   SparklesIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  BookmarkIcon
 } from '@heroicons/react/24/outline';
+import { userDataService } from '../services/api';
 
 interface MarketRegimeResult {
   status: string;
@@ -44,6 +46,7 @@ interface AIAnalysisResultsProps {
   prediction?: MarketRegimeResult;
   analysis?: MarketRegimeAnalysis;
   recommendations?: any;
+  ticker?: string;
   isLoading?: boolean;
   error?: string | null;
 }
@@ -52,9 +55,73 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
   prediction,
   analysis,
   recommendations,
+  ticker,
   isLoading = false,
   error = null
 }) => {
+  // Save state
+  const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
+  const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
+  const [analysisName, setAnalysisName] = useState<string>('');
+
+  // Handle opening save modal
+  const handleSaveAnalysis = () => {
+    if (!prediction && !analysis) return;
+    setShowSaveModal(true);
+    setAnalysisName(`${ticker || 'Market'} AI Analysis - ${new Date().toLocaleDateString()}`);
+  };
+
+  // Handle confirming save with analysis name
+  const handleConfirmSave = async () => {
+    if ((!prediction && !analysis) || !analysisName.trim()) return;
+    
+    try {
+      setSaveStatus({ saving: true });
+      setShowSaveModal(false);
+      
+      // Prepare analysis data to save
+      const analysis_data = {
+        ticker: ticker || 'UNKNOWN',
+        timestamp: new Date().toISOString(),
+        name: analysisName.trim(),
+        prediction: prediction ? {
+          regime: prediction.regime,
+          regime_name: prediction.regime_name,
+          confidence: prediction.confidence,
+          probabilities: prediction.probabilities || {}
+        } : undefined,
+        analysis: analysis ? {
+          current_regime: analysis.current_regime,
+          technical_indicators: analysis.technical_indicators || {},
+          market_conditions: analysis.market_conditions,
+          recommendations: analysis.recommendations
+        } : undefined
+      };
+      
+      // Save AI analysis result
+      const response = await userDataService.saveAIAnalysisResult(analysis_data);
+      
+      setSaveStatus({ 
+        saving: false, 
+        success: response.success, 
+        message: response.message 
+      });
+      
+      // Clear status after 3 seconds
+      setTimeout(() => {
+        setSaveStatus({ saving: false });
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error saving AI analysis:', error);
+      setSaveStatus({ 
+        saving: false, 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to save analysis' 
+      });
+    }
+  };
+
   // Add animation class when results load
   useEffect(() => {
     if (prediction || analysis) {
@@ -197,10 +264,36 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Current Market Regime
             </h3>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              AI Confidence: {(currentResult.confidence * 100).toFixed(1)}%
+            <div className="flex items-center space-x-3">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                AI Confidence: {(currentResult.confidence * 100).toFixed(1)}%
+              </div>
+              <button
+                onClick={handleSaveAnalysis}
+                disabled={saveStatus.saving}
+                className={`px-3 py-1 rounded-md text-sm flex items-center space-x-1 ${
+                  saveStatus.saving ? 'bg-gray-400' : 
+                  saveStatus.success === true ? 'bg-green-500' : 
+                  saveStatus.success === false ? 'bg-red-500' : 
+                  'bg-purple-600 hover:bg-purple-700'
+                } text-white transition-colors`}
+              >
+                <BookmarkIcon className="h-4 w-4" />
+                <span>
+                  {saveStatus.saving ? 'Saving...' : 
+                   saveStatus.success === true ? 'Saved!' : 
+                   saveStatus.success === false ? 'Failed' : 
+                   'Save'}
+                </span>
+              </button>
             </div>
           </div>
+          
+          {saveStatus.message && (
+            <div className={`mb-4 p-3 rounded-md text-sm ${saveStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {saveStatus.message}
+            </div>
+          )}
           
           <div className={`flex items-center space-x-4 mb-4 p-3 rounded-lg ${getRegimeColor(currentResult.regime_name)}`}>
             <div className="p-3 bg-white dark:bg-dark-400 rounded-full shadow-md">
@@ -384,6 +477,50 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
       {prediction?.timestamp && (
         <div className="animate-fade-in text-center text-sm text-gray-500 dark:text-gray-400 opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '750ms'}}>
           Analysis generated on {new Date(prediction.timestamp).toLocaleString()}
+        </div>
+      )}
+
+      {/* Save AI Analysis Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Save AI Analysis
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Enter a name for your AI analysis to save all results and insights.
+            </p>
+            <input
+              type="text"
+              value={analysisName}
+              onChange={(e) => setAnalysisName(e.target.value)}
+              placeholder="Enter analysis name..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              autoFocus
+            />
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setAnalysisName('');
+                }}
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSave}
+                disabled={!analysisName.trim()}
+                className={`px-4 py-2 rounded-md text-white transition-colors ${
+                  analysisName.trim()
+                    ? 'bg-purple-600 hover:bg-purple-700'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Save Analysis
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

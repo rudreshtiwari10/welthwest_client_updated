@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import AnimatedText from '../components/AnimatedText';
 import { marketService } from '../services/api';
@@ -80,35 +80,38 @@ const HomePage: React.FC = () => {
     fetchMarketData();
   }, []);
   
-  // Generate mock chart data
-  const generateChartData = (isPositive: boolean) => {
-    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-    
-    let baseData = [65, 59, 80, 81, 56, 55, 40, 60, 70];
-    
-    // Add some randomness and trend based on positive/negative
-    const data = baseData.map((value, index) => {
-      const randomFactor = Math.random() * 10 - 5;
-      const trendFactor = isPositive ? index * 0.5 : -index * 0.5;
-      return value + randomFactor + trendFactor;
-    });
-    
-    return {
-      labels,
-      datasets: [
-        {
-          label: 'Price',
-          data,
-          borderColor: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
-          backgroundColor: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-          tension: 0.4,
-          fill: true,
-        },
-      ],
+  // Memoized chart data generator to prevent unnecessary re-renders
+  const generateChartData = useMemo(() => {
+    return (isPositive: boolean) => {
+      const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+      
+      // Use fixed base data for consistent charts
+      let baseData = [65, 59, 80, 81, 56, 55, 40, 60, 70];
+      
+      // Only apply trend factor, no random values to prevent shaking
+      const data = baseData.map((value, index) => {
+        const trendFactor = isPositive ? index * 1.2 : -index * 0.8;
+        return value + trendFactor;
+      });
+      
+      return {
+        labels,
+        datasets: [
+          {
+            label: 'Price',
+            data,
+            borderColor: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
+            backgroundColor: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+            tension: 0.4,
+            fill: true,
+          },
+        ],
+      };
     };
-  };
+  }, []);
   
-  const chartOptions = {
+  // Memoized chart options to prevent re-renders
+  const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -133,7 +136,18 @@ const HomePage: React.FC = () => {
         radius: 0,
       },
     },
-  };
+    // Add animation options to prevent jarring changes
+    animation: {
+      duration: 0, // Disable animations to prevent shaking
+    },
+    transitions: {
+      active: {
+        animation: {
+          duration: 0,
+        },
+      },
+    },
+  }), []);
   
   const scrollIndices = (direction: 'left' | 'right') => {
     if (indicesSliderRef.current) {
@@ -367,7 +381,7 @@ const HomePage: React.FC = () => {
                         </div>
                         
                         <div className="h-32 w-full" style={{ minHeight: '128px', maxHeight: '128px' }}>
-                          <Line data={generateChartData(isPositive)} options={chartOptions} />
+                          <Line data={generateChartData(isPositive)} options={chartOptions} key={`chart-${key}-${isPositive}`} />
                         </div>
                         
                         <div className="grid grid-cols-3 gap-4 mt-4 text-sm">

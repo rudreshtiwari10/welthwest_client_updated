@@ -501,6 +501,7 @@ const StockPage: React.FC = () => {
                     prediction={aiPrediction}
                     analysis={aiAnalysis}
                     recommendations={aiRecommendations}
+                    ticker={symbol}
                     isLoading={aiLoading}
                     error={aiError}
                   />

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import StockChart from '../components/StockChart';
 import Sidebar from '../components/Sidebar';
-import { marketService, watchlistService } from '../services/api';
+import { marketService, watchlistService, userDataService } from '../services/api';
 import SavedBacktests from '../components/SavedBacktests';
 import SavedAIAnalyses from '../components/SavedAIAnalyses';
 
@@ -20,6 +20,9 @@ const DashboardPage: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [activeView, setActiveView] = useState<ActiveView>('watchlist');
+  const [savedBacktests, setSavedBacktests] = useState<any[]>([]);
+  const [savedAIAnalyses, setSavedAIAnalyses] = useState<any[]>([]);
+  const [savedDataLoading, setSavedDataLoading] = useState(false);
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -64,6 +67,9 @@ const DashboardPage: React.FC = () => {
             });
           }
         }
+        
+        // Also fetch saved data for stats
+        await fetchSavedData();
       } catch (error) {
         console.error('Error fetching user data:', error);
       } finally {
@@ -174,17 +180,48 @@ const DashboardPage: React.FC = () => {
   };
 
   // Set active view
+  // Fetch saved data for quick stats
+  const fetchSavedData = async () => {
+    if (!user) return;
+    
+    try {
+      setSavedDataLoading(true);
+      
+      // Fetch saved backtests and AI analyses for stats
+      const [backtestsResponse, analysesResponse] = await Promise.all([
+        userDataService.getUserBacktests(),
+        userDataService.getUserAIAnalyses()
+      ]);
+      
+      if (backtestsResponse.success && backtestsResponse.backtests) {
+        setSavedBacktests(backtestsResponse.backtests);
+      }
+      
+      if (analysesResponse.success && analysesResponse.analyses) {
+        setSavedAIAnalyses(analysesResponse.analyses);
+      }
+    } catch (error) {
+      console.error('Error fetching saved data for stats:', error);
+    } finally {
+      setSavedDataLoading(false);
+    }
+  };
+  
   const handleSetActiveView = (view: ActiveView) => {
     setActiveView(view);
+    // Refresh saved data when switching to backtest or AI analysis views
+    if (view === 'backtests' || view === 'ai-analyses') {
+      fetchSavedData();
+    }
   };
 
   // Render content based on active view
   const renderContent = () => {
     switch (activeView) {
       case 'backtests':
-        return <SavedBacktests />;
+        return <SavedBacktests key={`backtests-${Date.now()}`} />;
       case 'ai-analyses':
-        return <SavedAIAnalyses />;
+        return <SavedAIAnalyses key={`ai-analyses-${Date.now()}`} />;
       case 'screener':
         return (
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 text-center">
@@ -350,11 +387,14 @@ const DashboardPage: React.FC = () => {
                   <div className="text-sm text-gray-500 dark:text-gray-400">Watchlist Items</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">5</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Active Strategies</div>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">                    {savedDataLoading ? '...' : savedBacktests.length}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">Saved Strategies</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">12</div>
+                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {savedDataLoading ? '...' : savedAIAnalyses.length}
+                  </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">AI Insights</div>
                 </div>
                 <div className="text-center">

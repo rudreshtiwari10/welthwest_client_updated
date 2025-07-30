@@ -126,6 +126,8 @@ const BacktestingPage: React.FC = () => {
   
   // Save state
   const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
+  const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
+  const [strategyName, setStrategyName] = useState<string>('');
 
   const handleAIAnalysis = async (config: AIAnalysisConfig) => {
     try {
@@ -146,12 +148,20 @@ const BacktestingPage: React.FC = () => {
     }
   };
   
-  // Handle saving backtest results
-  const handleSaveBacktest = async () => {
+  // Handle opening save modal
+  const handleSaveBacktest = () => {
     if (!results) return;
+    setShowSaveModal(true);
+    setStrategyName(`${formData.ticker} Strategy - ${new Date().toLocaleDateString()}`);
+  };
+
+  // Handle confirming save with strategy name
+  const handleConfirmSave = async () => {
+    if (!results || !strategyName.trim()) return;
     
     try {
       setSaveStatus({ saving: true });
+      setShowSaveModal(false);
       
       // Prepare backtest data to save with all relevant parameters
       const backtest_data = {
@@ -182,7 +192,7 @@ const BacktestingPage: React.FC = () => {
         performance: (results as ExtendedBacktestResponse).performance,
         summary: results.summary,
         timestamp: new Date().toISOString(),
-        name: `${formData.ticker} Strategy - ${new Date().toLocaleDateString()}`
+        name: strategyName.trim()
       };
       
       // Save backtest result
@@ -1056,6 +1066,50 @@ const BacktestingPage: React.FC = () => {
         featureType="backtest"
         message="You have reached your daily backtest limit. Please upgrade your plan to run more backtests."
       />
+
+      {/* Save Strategy Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Save Strategy
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Enter a name for your strategy to save all backtest results and parameters.
+            </p>
+            <input
+              type="text"
+              value={strategyName}
+              onChange={(e) => setStrategyName(e.target.value)}
+              placeholder="Enter strategy name..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+              autoFocus
+            />
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setStrategyName('');
+                }}
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSave}
+                disabled={!strategyName.trim()}
+                className={`px-4 py-2 rounded-md text-white transition-colors ${
+                  strategyName.trim()
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Save Strategy
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
