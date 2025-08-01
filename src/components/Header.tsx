@@ -18,10 +18,47 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const [showStocksMenu, setShowStocksMenu] = useState(false);
   const [showWelthAIMenu, setShowWelthAIMenu] = useState(false);
   const [showDashboardMenu, setShowDashboardMenu] = useState(false);
+
+  // Refs for dropdown containers
   const profileRef = useRef<HTMLDivElement>(null);
   const stocksRef = useRef<HTMLDivElement>(null);
   const welthAIRef = useRef<HTMLDivElement>(null);
   const dashboardRef = useRef<HTMLDivElement>(null);
+
+  // Refs for timeouts
+  const profileTimeoutRef = useRef<NodeJS.Timeout>();
+  const stocksTimeoutRef = useRef<NodeJS.Timeout>();
+  const welthAITimeoutRef = useRef<NodeJS.Timeout>();
+  const dashboardTimeoutRef = useRef<NodeJS.Timeout>();
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (profileTimeoutRef.current) clearTimeout(profileTimeoutRef.current);
+      if (stocksTimeoutRef.current) clearTimeout(stocksTimeoutRef.current);
+      if (welthAITimeoutRef.current) clearTimeout(welthAITimeoutRef.current);
+      if (dashboardTimeoutRef.current) clearTimeout(dashboardTimeoutRef.current);
+    };
+  }, []);
+
+  // Generic function to handle dropdown hover
+  const handleDropdownHover = (
+    isEntering: boolean,
+    setState: React.Dispatch<React.SetStateAction<boolean>>,
+    timeoutRef: React.MutableRefObject<NodeJS.Timeout | undefined>
+  ) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    if (isEntering) {
+      setState(true);
+    } else {
+      timeoutRef.current = setTimeout(() => {
+        setState(false);
+      }, 150); // 150ms delay before closing
+    }
+  };
 
   const isActive = (path: string) => location.pathname === path;
   const isStockActive = () => location.pathname.startsWith('/stock');
@@ -94,8 +131,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               <div 
                 className="relative" 
                 ref={welthAIRef}
-                onMouseEnter={() => setShowWelthAIMenu(true)}
-                onMouseLeave={() => setShowWelthAIMenu(false)}
+                onMouseEnter={() => handleDropdownHover(true, setShowWelthAIMenu, welthAITimeoutRef)}
+                onMouseLeave={() => handleDropdownHover(false, setShowWelthAIMenu, welthAITimeoutRef)}
               >
                 <button 
                   onClick={() => setShowWelthAIMenu(!showWelthAIMenu)}
@@ -106,7 +143,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 </button>
 
                 {showWelthAIMenu && (
-                  <div className="absolute left-0 mt-2 w-56 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50">
+                  <div 
+                    className="absolute left-0 mt-2 w-56 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50"
+                  >
                     <Link
                       to="/welthai"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
@@ -156,8 +195,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               <div 
                 className="relative" 
                 ref={stocksRef}
-                onMouseEnter={() => setShowStocksMenu(true)}
-                onMouseLeave={() => setShowStocksMenu(false)}
+                onMouseEnter={() => handleDropdownHover(true, setShowStocksMenu, stocksTimeoutRef)}
+                onMouseLeave={() => handleDropdownHover(false, setShowStocksMenu, stocksTimeoutRef)}
               >
                 <button 
                   onClick={() => setShowStocksMenu(!showStocksMenu)}
@@ -198,8 +237,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               <div 
                 className="relative" 
                 ref={dashboardRef}
-                onMouseEnter={() => setShowDashboardMenu(true)}
-                onMouseLeave={() => setShowDashboardMenu(false)}
+                onMouseEnter={() => handleDropdownHover(true, setShowDashboardMenu, dashboardTimeoutRef)}
+                onMouseLeave={() => handleDropdownHover(false, setShowDashboardMenu, dashboardTimeoutRef)}
               >
                 <button 
                   onClick={() => setShowDashboardMenu(!showDashboardMenu)}
@@ -265,7 +304,12 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             
             {/* Auth buttons */}
             {isAuthenticated ? (
-              <div className="relative" ref={profileRef}>
+              <div 
+                className="relative" 
+                ref={profileRef}
+                onMouseEnter={() => handleDropdownHover(true, setShowProfileMenu, profileTimeoutRef)}
+                onMouseLeave={() => handleDropdownHover(false, setShowProfileMenu, profileTimeoutRef)}
+              >
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
                   className="flex items-center space-x-2 text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400"
