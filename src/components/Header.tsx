@@ -112,14 +112,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Navigation */}
           <div className="flex items-center space-x-8">
-            {/* Hamburger Menu - Desktop Only */}
-            <button
-              onClick={toggleSidebar}
-              className="hidden md:flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-700 rounded-lg transition-colors shadow-md"
-            >
-              <i className="fas fa-bars text-xl"></i>
-            </button>
-
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <span className="font-bold text-lg text-gray-900 dark:text-white">WelthWest</span>

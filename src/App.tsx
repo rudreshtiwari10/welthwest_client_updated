@@ -21,6 +21,7 @@ import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
 import MobileFooterNav from './components/MobileFooterNav';
 import FloatingChatButton from './components/FloatingChatButton';
+import HamburgerButton from './components/HamburgerButton';
 import { SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
 
 // Contexts
@@ -121,8 +122,11 @@ const AppWithRouter: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <div className="min-h-screen bg-[#f8f4ef] dark:bg-[#0d1117] text-gray-900 dark:text-white bg-opacity-50 dark:bg-opacity-100">
+          <div className="min-h-screen bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-white">
             <Header toggleSidebar={toggleSidebar} />
+            
+            {/* Hamburger Button */}
+            <HamburgerButton isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
             
             {/* Desktop Sidebar */}
             <div className="hidden md:block">
