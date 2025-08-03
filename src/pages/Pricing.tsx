@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSubscription, SubscriptionTier } from '../contexts/SubscriptionContext';
 import BillingToggle from '../components/subscription/BillingToggle';
 import PricingCard from '../components/subscription/PricingCard';
@@ -98,6 +99,7 @@ const FEATURES = [
 ];
 
 const PricingPage: React.FC = () => {
+  const navigate = useNavigate();
   const { subscriptionDetails, upgradeSubscription } = useSubscription();
   const [isAnnual, setIsAnnual] = useState(false);
   const [upgradeModalData, setUpgradeModalData] = useState<{
@@ -109,10 +111,9 @@ const PricingPage: React.FC = () => {
   });
 
   const handleUpgradeClick = (tier: SubscriptionTier) => {
-    setUpgradeModalData({
-      isOpen: true,
-      tier,
-    });
+    // Navigate to plan details page instead of showing modal
+    const billing = isAnnual ? 'annual' : 'monthly';
+    navigate(`/plan-details/${tier.toLowerCase()}/${billing}`);
   };
 
   const handleModalClose = () => {

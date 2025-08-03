@@ -15,6 +15,9 @@ import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
 import StockPage from './pages/StockPage';
 import WelthChatbotPage from './pages/WelthChatbotPage';
+import PlanDetailsPage from './pages/PlanDetailsPage';
+import ReviewPaymentPage from './pages/ReviewPaymentPage';
+import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 
 // Components
 import Header from './components/Header';
@@ -157,6 +160,9 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/plan-details/:tier/:billing" element={<PrivateRoute><PlanDetailsPage /></PrivateRoute>} />
+                <Route path="/review-payment" element={<PrivateRoute><ReviewPaymentPage /></PrivateRoute>} />
+                <Route path="/payment-confirmation" element={<PrivateRoute><PaymentConfirmationPage /></PrivateRoute>} />
               </Routes>
             </main>
 

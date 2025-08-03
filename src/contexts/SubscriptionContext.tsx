@@ -39,6 +39,7 @@ interface SubscriptionContextType {
   getUsagePercentage: (feature: 'backtest' | 'llm') => number;
   getTimeUntilReset: () => string;
   upgradeSubscription: (newTier: SubscriptionTier) => Promise<void>;
+  updateSubscriptionAfterPayment: (paymentData: any, planDetails: any, userInfo: any) => Promise<void>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
@@ -209,6 +210,19 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     }
   };
 
+  const updateSubscriptionAfterPayment = async (paymentData: any, planDetails: any, userInfo: any) => {
+    try {
+      // Since the backend automatically activates subscription after successful payment verification,
+      // we just need to refresh the subscription details
+      await refreshSubscription();
+      
+      console.log('Subscription updated after payment verification');
+    } catch (err) {
+      console.error('Failed to refresh subscription after payment:', err);
+      throw err;
+    }
+  };
+
   const value = {
     subscriptionDetails,
     isLoading,
@@ -220,7 +234,8 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
     incrementLLMUsage,
     getUsagePercentage,
     getTimeUntilReset,
-    upgradeSubscription
+    upgradeSubscription,
+    updateSubscriptionAfterPayment
   };
 
   return (

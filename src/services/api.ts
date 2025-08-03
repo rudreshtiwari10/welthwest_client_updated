@@ -681,4 +681,75 @@ export const userDataService = {
       throw error;
     }
   }
+};
+
+// Payment service for subscription handling
+export const paymentService = {
+  // Create Razorpay order
+  createOrder: async (orderData: {
+    plan_tier: string;
+    billing_cycle?: string;
+    billing_details: {
+      full_name: string;
+      email: string;
+      phone: string;
+      role?: string;
+      country?: string;
+    };
+  }) => {
+    try {
+      const response = await api.post('/payment/create-order', orderData);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating payment order:', error);
+      throw error;
+    }
+  },
+
+  // Verify payment signature
+  verifyPayment: async (paymentData: {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+  }) => {
+    try {
+      const response = await api.post('/payment/verify', paymentData);
+      return response.data;
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      throw error;
+    }
+  },
+
+  // Get invoice (TODO: Implement when backend endpoint is ready)
+  getInvoice: async (paymentId: string) => {
+    try {
+      // TODO: Uncomment when backend endpoint is implemented
+      // const response = await api.get(`/payment/invoice/${paymentId}`, {
+      //   responseType: 'blob'
+      // });
+      // return response.data;
+      
+      // Temporary: Return a promise that resolves to simulate invoice download
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject(new Error('Invoice endpoint not yet implemented on backend'));
+        }, 1000);
+      });
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+      throw error;
+    }
+  },
+
+  // Get payment history
+  getPaymentHistory: async () => {
+    try {
+      const response = await api.get('/payment/history');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching payment history:', error);
+      throw error;
+    }
+  }
 }; 
