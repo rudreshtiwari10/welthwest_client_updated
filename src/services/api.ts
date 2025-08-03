@@ -174,9 +174,17 @@ export const marketService = {
   },
 
   // Get technical analysis
-  getTechnicalAnalysis: async (symbol: string) => {
+  getTechnicalAnalysis: async (symbol: string, params?: any) => {
     try {
-      const response = await api.get(`/technical-analysis?ticker=${symbol}`);
+      let url = `/technical-analysis?ticker=${symbol}`;
+      if (params) {
+        // Add indicator parameters to URL
+        const paramString = Object.entries(params)
+          .map(([key, value]) => `&${key}=${value}`)
+          .join('');
+        url += paramString;
+      }
+      const response = await api.get(url);
       return response.data;
     } catch (error) {
       console.error(`Error fetching technical analysis for ${symbol}:`, error);

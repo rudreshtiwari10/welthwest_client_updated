@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import BacktestingPage from './pages/BacktestingPage';
+import BacktestingBetaPage from './pages/BacktestingBetaPage';
 import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
 import StockPage from './pages/StockPage';
@@ -151,6 +152,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
                 <Route path="/stock/:symbol" element={<PrivateRoute><StockPage /></PrivateRoute>} />
                 <Route path="/backtesting" element={<PrivateRoute><BacktestingPage /></PrivateRoute>} />
+                <Route path="/backtesting-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/about" element={<AboutPage />} />

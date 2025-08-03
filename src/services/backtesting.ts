@@ -159,6 +159,27 @@ class BacktestingService {
     }
   }
 
+  async runNewBacktest(params: any): Promise<any> {
+    try {
+      const response = await fetch(`${API_URL}/backtesting/newrun`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(),
+        body: JSON.stringify(params)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to run backtest');
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('New backtest error:', error);
+      throw error;
+    }
+  }
+
   async saveBacktestResult(backtest_data: any): Promise<{ success: boolean; message: string }> {
     try {
       const response = await userDataService.saveBacktestResult(backtest_data);

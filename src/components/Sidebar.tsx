@@ -135,6 +135,7 @@ const featureNavigation = [
     category: 'Trading Tools',
     items: [
       { name: 'Backtesting', path: '/backtesting', icon: 'chart-bar' },
+      { name: 'Backtest (Beta)', path: '/backtesting-beta', icon: 'chart-line' },
     ]
   }
 ];
@@ -278,7 +279,22 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
     try {
       setIsLoading(true);
       setError(null);
-      const response = await marketService.getTechnicalAnalysis(selectedStock);
+      
+      // Define default parameters for indicators
+      const params = {
+        rsi_period: 14,
+        macd_fastperiod: 12,
+        macd_slowperiod: 26,
+        macd_signalperiod: 9,
+        bb_period: 20,
+        sma_period: 20,
+        ema_period: 20,
+        stoch_k_period: 14,
+        stoch_d_period: 3,
+        atr_period: 14
+      };
+
+      const response = await marketService.getTechnicalAnalysis(selectedStock, params);
       if (response.indicators) {
         setTechnicalData(response.indicators);
       } else {
