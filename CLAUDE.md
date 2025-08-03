@@ -20,9 +20,14 @@ so when i checkd in AI analysis and backtesting page and saed strategy so its sa
 @WelthWestClientSharing\ so now i am getting issue in graph of market overview section like its changing or shaking in periods so i dont want that to be dynmaic it should be fixed graph so can you find out problem and fix it.
 ```
 
-## Fifth Follow-up Instructions (Current)
+## Fifth Follow-up Instructions
 ```
 @WelthWestClientSharing\ now can you remove all those APi calling from frontend for backtest and Analayis section in /dashboard and make a new connection of this and this time first analyse how many and which parameter are coming from both saved API adn make a new element to show case thos values then put those value in that places and the  show data now this time evertthing should be perfect and working.
+```
+
+## Sixth Follow-up Instructions (Current)
+```
+@WelthWestClientSharing\ i want to fix this navbar search bar suggestion feature like when user start typing word then automatically it should show all available stocks related and starting with that word typed and so on when continue typeing. so can you check in @WelthWestServer2\ and client what all will be needed to make this happend and make it working.
 ```
 
 ## Project Context

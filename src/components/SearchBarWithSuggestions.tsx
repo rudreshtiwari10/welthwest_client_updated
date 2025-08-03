@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, ChangeEvent } from 're
 import { useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 import TypewriterInput from './TypewriterInput';
+import { API_URL } from '../services/api';
 
 interface SearchSuggestion {
   symbol: string;
@@ -50,7 +51,7 @@ const useStockSuggestions = (initialQuery: string = '') => {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:8000/api/yahoo-suggest?q=${encodeURIComponent(searchQuery)}`, {
+        const response = await fetch(`${API_URL}/yahoo-suggest?q=${encodeURIComponent(searchQuery)}`, {
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
