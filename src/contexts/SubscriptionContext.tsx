@@ -95,6 +95,10 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   useEffect(() => {
     if (auth.isAuthenticated) {
       fetchSubscriptionDetails();
+    } else {
+      setSubscriptionDetails(null);
+      setIsLoading(false);
+      setError(null);
     }
   }, [auth.isAuthenticated]);
 
@@ -130,7 +134,21 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       await axios.post(`${API_URL}/user/usage/increment`, { feature: 'backtest' }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      await refreshSubscription();
+      
+      // Update local state immediately to prevent unnecessary API calls
+      setSubscriptionDetails(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          usage: {
+            ...prev.usage,
+            daily: {
+              ...prev.usage.daily,
+              backtest_count: prev.usage.daily.backtest_count + 1
+            }
+          }
+        };
+      });
     } catch (err) {
       console.error('Failed to increment backtest usage:', err);
       throw err;
@@ -146,7 +164,21 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       await axios.post(`${API_URL}/user/usage/increment`, { feature: 'llm_query' }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      await refreshSubscription();
+      
+      // Update local state immediately to prevent unnecessary API calls
+      setSubscriptionDetails(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          usage: {
+            ...prev.usage,
+            daily: {
+              ...prev.usage.daily,
+              llm_query_count: prev.usage.daily.llm_query_count + 1
+            }
+          }
+        };
+      });
     } catch (err) {
       console.error('Failed to increment LLM usage:', err);
       throw err;

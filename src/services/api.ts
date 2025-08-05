@@ -765,4 +765,31 @@ export const paymentService = {
       throw error;
     }
   }
+};
+
+// Subscription service
+export const subscriptionService = {
+  // Cancel subscription
+  cancelSubscription: async (reason?: string) => {
+    try {
+      const response = await api.post('/user/subscription/cancel', {
+        reason: reason || 'User requested cancellation'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error cancelling subscription:', error);
+      throw error;
+    }
+  },
+
+  // Get cancellation info
+  getCancellationInfo: async () => {
+    try {
+      const response = await api.get('/user/subscription/cancellation-info');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting cancellation info:', error);
+      throw error;
+    }
+  }
 }; 
