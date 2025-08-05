@@ -216,7 +216,7 @@ const HomePage: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 max-w-3xl mx-auto">
                 {/* AI Market Analysis Button */}
                 <Link 
-                  to="/ai" 
+                  to="/welthai" 
                   className="group flex items-center justify-center sm:justify-between bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
                 >
                   <div className="flex items-center">
@@ -712,20 +712,7 @@ const HomePage: React.FC = () => {
           </div>
         </section>
         
-        <section className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Ready to Start?</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
-            Create an account to get personalized stock recommendations, create watchlists, and access all premium features.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/register" className="px-6 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors">
-              Create Account
-            </Link>
-            <Link to="/login" className="px-6 py-3 bg-white/80 dark:bg-dark-400/80 backdrop-blur-sm text-gray-800 dark:text-gray-200 font-medium rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-dark-300 transition-colors">
-              Sign In
-            </Link>
-          </div>
-        </section>
+
       </div>
     </div>
   );

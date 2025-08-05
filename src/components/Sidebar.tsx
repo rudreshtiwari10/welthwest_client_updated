@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { marketService } from '../services/api';
 
@@ -141,7 +141,8 @@ const featureNavigation = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }) => {
-  const { isAuthenticated, getToken, user } = useAuth();
+  const { isAuthenticated, getToken, user, logout } = useAuth();
+  const navigate = useNavigate();
   const [selectedStock, setSelectedStock] = useState('RELIANCE.NS');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'market' | 'filters' | 'watchlist'>('market');
@@ -449,305 +450,38 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
             </nav>
           </div>
           
-          {/* Tabs */}
-          <div className="flex border-b border-gray-700">
-            <button
-              className={`flex-1 py-3 text-sm font-medium text-center transition-all hover:bg-gray-700/30 ${
-                activeTab === 'market'
-                  ? 'text-purple-500 border-b-2 border-purple-500'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-              onClick={() => setActiveTab('market')}
-            >
-              Market
-            </button>
-            <button
-              className={`flex-1 py-3 text-sm font-medium text-center transition-all hover:bg-gray-700/30 ${
-                activeTab === 'filters'
-                  ? 'text-purple-500 border-b-2 border-purple-500'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-              onClick={() => setActiveTab('filters')}
-            >
-              Filters
-            </button>
-            <button
-              className={`flex-1 py-3 text-sm font-medium text-center transition-all hover:bg-gray-700/30 ${
-                activeTab === 'watchlist'
-                  ? 'text-purple-500 border-b-2 border-purple-500'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-              onClick={() => setActiveTab('watchlist')}
-            >
-              Watchlist
-            </button>
-          </div>
 
-          {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto">
-            {activeTab === 'market' && (
-              <div>
-                {isAuthenticated ? (
-                  <>
-                    {/* Stock Selector */}
-                    <div className="p-4 border-b border-gray-700">
-                      <select
-                        value={selectedStock}
-                        onChange={(e) => setSelectedStock(e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2 bg-[#2a2f3e] border border-gray-600
-                          focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                          rounded-md text-white transition-shadow hover:shadow-lg"
-                      >
-                        <option value="RELIANCE.NS">Reliance Industries</option>
-                        <option value="TCS.NS">Tata Consultancy Services</option>
-                        <option value="HDFCBANK.NS">HDFC Bank</option>
-                        <option value="INFY.NS">Infosys</option>
-                      </select>
-                    </div>
-
-                    {/* Technical Analysis */}
-                    <div className="p-4 border-b border-gray-700">
-                      <h3 className="text-sm font-semibold text-gray-300 mb-3">Technical Analysis</h3>
-                      {isLoading ? (
-                        <div className="flex justify-center items-center py-4">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                        </div>
-                      ) : error ? (
-                        <div className="text-red-500 text-center py-4 text-xs">{error}</div>
-                      ) : technicalData && (
-                        <div className="space-y-2">
-                          {calculateSignals(technicalData).map(renderSignalIndicator)}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Technical Indicators Summary */}
-                    {technicalData && !isLoading && !error && (
-                      <div className="p-4 border-b border-gray-700">
-                        <h3 className="text-sm font-semibold text-gray-300 mb-3">Indicators Summary</h3>
-                        <div className="space-y-2">
-                          {/* RSI */}
-                          {technicalData.rsi && (
-                            <div className="flex justify-between items-center hover:bg-gray-700/30 p-2 rounded-md transition-all">
-                              <span className="text-xs text-gray-400">RSI (14)</span>
-                              <span className={`text-xs font-medium ${
-                                technicalData.rsi.current < 30 ? 'text-green-400' :
-                                technicalData.rsi.current > 70 ? 'text-red-400' : 'text-gray-300'
-                              }`}>
-                                {technicalData.rsi.current.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* MACD */}
-                          {technicalData.macd && (
-                            <div className="flex justify-between items-center hover:bg-gray-700/30 p-2 rounded-md transition-all">
-                              <span className="text-xs text-gray-400">MACD</span>
-                              <span className={`text-xs font-medium ${
-                                technicalData.macd.current.histogram > 0 ? 'text-green-400' : 'text-red-400'
-                              }`}>
-                                {technicalData.macd.current.histogram.toFixed(4)}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* Bollinger Bands */}
-                          {technicalData.bollinger && (
-                            <div className="flex justify-between items-center hover:bg-gray-700/30 p-2 rounded-md transition-all">
-                              <span className="text-xs text-gray-400">BB Position</span>
-                              <span className="text-xs text-gray-300">
-                                {((technicalData.bollinger.current.price - technicalData.bollinger.current.lower) / 
-                                  (technicalData.bollinger.current.upper - technicalData.bollinger.current.lower) * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* Stochastic */}
-                          {technicalData.stochastic && (
-                            <div className="flex justify-between items-center hover:bg-gray-700/30 p-2 rounded-md transition-all">
-                              <span className="text-xs text-gray-400">Stochastic</span>
-                              <span className={`text-xs font-medium ${
-                                technicalData.stochastic.current.k < 20 ? 'text-green-400' :
-                                technicalData.stochastic.current.k > 80 ? 'text-red-400' : 'text-gray-300'
-                              }`}>
-                                {technicalData.stochastic.current.k.toFixed(1)}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* ATR */}
-                          {technicalData.atr && (
-                            <div className="flex justify-between items-center hover:bg-gray-700/30 p-2 rounded-md transition-all">
-                              <span className="text-xs text-gray-400">ATR (14)</span>
-                              <span className="text-xs text-gray-300">
-                                {technicalData.atr.current.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* VWAP */}
-                          {technicalData.vwap && (
-                            <div className="flex justify-between items-center hover:bg-gray-700/30 p-2 rounded-md transition-all">
-                              <span className="text-xs text-gray-400">VWAP</span>
-                              <span className="text-xs text-gray-300">
-                                {technicalData.vwap.current.toFixed(2)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Market Sectors */}
-                    <div className="p-4">
-                      <h3 className="text-sm font-semibold text-gray-300 mb-3">Market Sectors</h3>
-                      <div className="space-y-2">
-                        {marketSectors.map((sector) => (
-                          <Link
-                            key={sector.name}
-                            to={sector.path}
-                            className="block px-4 py-2 rounded-md text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-all hover:shadow-lg hover:shadow-gray-900/50"
-                          >
-                            {sector.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-gray-400 mb-4">Sign in to view market analysis</p>
-                    <Link
-                      to="/login"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 transition-all hover:shadow-lg hover:shadow-purple-900/50"
-                    >
-                      Sign In
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {activeTab === 'filters' && (
-              <div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Market Cap
-                  </label>
-                  <div className="space-y-2">
-                    <div className="flex items-center">
-                      <input type="checkbox" id="large-cap" className="h-4 w-4 text-primary-600 focus:ring-primary-500" />
-                      <label htmlFor="large-cap" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                        Large Cap
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="checkbox" id="mid-cap" className="h-4 w-4 text-primary-600 focus:ring-primary-500" />
-                      <label htmlFor="mid-cap" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                        Mid Cap
-                      </label>
-                    </div>
-                    <div className="flex items-center">
-                      <input type="checkbox" id="small-cap" className="h-4 w-4 text-primary-600 focus:ring-primary-500" />
-                      <label htmlFor="small-cap" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
-                        Small Cap
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Sector
-                  </label>
-                  <select
-                    className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600
-                      focus:outline-none focus:ring-primary-500 focus:border-primary-500
-                      bg-white dark:bg-dark-400 rounded-md dark:text-white"
-                  >
-                    <option value="">All Sectors</option>
-                    <option value="technology">Technology</option>
-                    <option value="healthcare">Healthcare</option>
-                    <option value="financials">Financials</option>
-                    <option value="consumer">Consumer</option>
-                    <option value="industrials">Industrials</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Price Range
-                  </label>
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="number"
-                      placeholder="Min"
-                      className="w-full pl-3 pr-3 py-2 text-base border-gray-300 dark:border-gray-600
-                        focus:outline-none focus:ring-primary-500 focus:border-primary-500
-                        bg-white dark:bg-dark-400 rounded-md dark:text-white"
-                    />
-                    <span className="text-gray-500 dark:text-gray-400">to</span>
-                    <input
-                      type="number"
-                      placeholder="Max"
-                      className="w-full pl-3 pr-3 py-2 text-base border-gray-300 dark:border-gray-600
-                        focus:outline-none focus:ring-primary-500 focus:border-primary-500
-                        bg-white dark:bg-dark-400 rounded-md dark:text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {activeTab === 'watchlist' && (
-              <div>
-                {isAuthenticated ? (
-                  <>
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-medium text-gray-900 dark:text-white">My Watchlist</h3>
-                      <button className="text-primary-600 hover:text-primary-700 text-sm">
-                        + Add
-                      </button>
-                    </div>
-                    <ul className="space-y-2">
-                      {watchlistItems.map((item) => (
-                        <li key={item.id} className="flex items-center justify-between p-2 hover:bg-gray-100 dark:hover:bg-dark-200 rounded-md">
-                          <div>
-                            <span className="font-medium text-gray-900 dark:text-white">{item.symbol}</span>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">{item.name}</p>
-                          </div>
-                          <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                              <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                            </svg>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">Sign in to create and manage your watchlist</p>
-                    <Link
-                      to="/login"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 transition-all hover:shadow-lg hover:shadow-purple-900/50"
-                    >
-                      Sign In
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
           
-          {/* Sidebar Footer */}
+          {/* Sidebar Footer - Auth Button */}
           <div className="p-4 border-t border-gray-700">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-400">StockInsight v1.0</span>
-              <a href="#" className="text-xs text-primary-400 hover:text-primary-300">
-                Help
-              </a>
-            </div>
+            {isAuthenticated ? (
+              <button
+                onClick={async () => {
+                  try {
+                    await logout();
+                    closeSidebar();
+                    navigate('/login');
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                  }
+                }}
+                className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+              >
+                <i className="fas fa-sign-out-alt mr-2"></i>
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  closeSidebar();
+                  navigate('/login');
+                }}
+                className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
+              >
+                <i className="fas fa-sign-in-alt mr-2"></i>
+                Login
+              </button>
+            )}
           </div>
         </div>
       </div>

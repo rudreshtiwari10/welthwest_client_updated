@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import AIAnalysisToggle from '../components/AIAnalysisToggle';
 import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
 import AIAnalysisResults from '../components/AIAnalysisResults';
 import StockChart from '../components/StockChart';
@@ -23,6 +22,7 @@ interface MarketRegimeResult {
   confidence: number;
   probabilities: { [key: string]: number };
   timestamp: string;
+  processing_time?: number;  // Optional processing time in seconds
 }
 
 interface MarketRegimeAnalysis {
@@ -60,6 +60,7 @@ interface AITrainingResult {
   regime_distribution: { [key: string]: number };
   training_samples: number;
   test_samples: number;
+  model_version?: string;  // Optional model version string
 }
 
 // Interface for stock data
@@ -75,7 +76,6 @@ const WelthAIPage: React.FC = () => {
   const defaultSymbol = 'RELIANCE';
   
   // AI Analysis state
-  const [aiModeEnabled, setAiModeEnabled] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiPrediction, setAiPrediction] = useState<MarketRegimeResult | undefined>(undefined);
@@ -110,16 +110,40 @@ const WelthAIPage: React.FC = () => {
     try {
       setSaveStatus({ saving: true });
       
+      // Calculate processing time (if not already set)
+      const processingTime = aiPrediction?.processing_time || (aiPrediction?.timestamp ? 
+        (new Date().getTime() - new Date(aiPrediction.timestamp).getTime()) / 1000 : undefined);
+
+      // Get features count from training result
+      const featuresCount = aiTrainingResult?.feature_importance?.length;
+
       // Prepare analysis data to save
       const analysis_data = {
         ticker: selectedSymbol,
         timestamp: new Date().toISOString(),
         name: `${selectedSymbol} Analysis - ${new Date().toLocaleDateString()}`,
+        
+        // Core analysis data
         prediction: aiPrediction,
         analysis: aiAnalysis,
         recommendations: aiRecommendations,
         training_result: aiTrainingResult,
-        stock_data: stockData
+        stock_data: stockData,
+        
+        // Additional metadata
+        model_version: aiTrainingResult?.model_version || "1.0.0",
+        analysis_type: "Market Regime Analysis",
+        timeframe: stockData?.period || "1y",
+        model_confidence: aiPrediction?.confidence || aiAnalysis?.current_regime?.confidence,
+        processing_time: processingTime,
+        features_count: featuresCount,
+        
+        // Technical metadata
+        status: "completed",
+        features: aiTrainingResult?.feature_importance?.reduce((acc, feat) => ({
+          ...acc,
+          [feat.feature]: feat.importance
+        }), {}) || {}
       };
       
       // Save analysis result
@@ -146,45 +170,10 @@ const WelthAIPage: React.FC = () => {
     }
   };
 
-  // Effect to load initial data
+  // Effect to load initial stock data
   useEffect(() => {
-    const runInitialAnalysis = async () => {
-      try {
-        setAiError(null);
-        setStockLoading(true);
-        setAiLoading(true);
-        
-        // Fetch stock data
-        await fetchStockData();
-        
-        // Get prediction
-        const predictionResponse = await marketRegimeService.predictRegime(selectedSymbol);
-        setAiPrediction(predictionResponse);
-        
-        // Get comprehensive analysis
-        const analysisResponse = await marketRegimeService.getAnalysis(selectedSymbol);
-        setAiAnalysis(analysisResponse);
-        
-        // Get recommendations
-        const recommendationsResponse = await marketRegimeService.getRecommendations(selectedSymbol);
-        setAiRecommendations(recommendationsResponse);
-        
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
-        setAiError(errorMessage);
-        console.error('AI Analysis error:', err);
-      } finally {
-        setAiLoading(false);
-        setStockLoading(false);
-      }
-    };
-    
-    if (aiModeEnabled) {
-      runInitialAnalysis();
-    } else {
-      fetchStockData();
-    }
-  }, [selectedSymbol, aiModeEnabled]);
+    fetchStockData();
+  }, [selectedSymbol]);
   
   const fetchStockData = async () => {
     try {
@@ -260,20 +249,7 @@ const WelthAIPage: React.FC = () => {
     }
   };
   
-  const handleToggleAI = (enabled: boolean) => {
-    setAiModeEnabled(enabled);
-    
-    // Clear AI results if disabled
-    if (!enabled) {
-      setAiPrediction(undefined);
-      setAiAnalysis(undefined);
-      setAiRecommendations(undefined);
-      setAiTrainingResult(undefined);
-    } else {
-      // Run analysis if enabled
-      handleAIAnalysis({ ticker: selectedSymbol, period: '1y', retrain: false });
-    }
-  };
+
   
   // Render feature importance chart
   const renderFeatureImportance = () => {
@@ -364,117 +340,109 @@ const WelthAIPage: React.FC = () => {
         </p>
       </div>
       
-      <div className="mb-6">
-        <AIAnalysisToggle isEnabled={aiModeEnabled} onToggle={handleToggleAI} />
-      </div>
-      
-      {aiModeEnabled && (
-        <div className="mb-8 bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+      {/* Two-column layout for Analysis Settings and Results */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* AI Analysis Settings */}
+        <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">AI Analysis Settings</h2>
           <AIAnalysisForm onAnalyze={handleAIAnalysis} defaultTicker={selectedSymbol} />
         </div>
-      )}
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Stock Price Chart</h2>
-              <div className="flex space-x-2">
-                {popularStocks.map(stock => (
-                  <button
-                    key={stock.symbol}
-                    className={`px-2 py-1 text-xs rounded-md ${
-                      selectedSymbol === stock.symbol
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-gray-200 dark:bg-dark-300 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-200'
-                    }`}
-                    onClick={() => handleStockSelect(stock.symbol)}
-                  >
-                    {stock.symbol}
-                  </button>
-                ))}
-              </div>
-            </div>
-            
-            {stockLoading ? (
-              <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-              </div>
-            ) : stockData ? (
-              <div className="h-96">
-                <StockChart
-                  stockData={{
-                    symbol: stockData.symbol,
-                    data: stockData.data
-                  }}
-                  height={384}
-                />
-              </div>
-            ) : (
-              <div className="text-center py-12 text-gray-500">
-                No stock data available
-              </div>
+        
+        {/* AI Analysis Results */}
+        <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">AI Analysis Results</h2>
+            {(aiPrediction && aiAnalysis) && (
+              <button
+                onClick={handleSaveAnalysis}
+                disabled={saveStatus.saving}
+                className={`px-4 py-2 text-sm rounded-md ${
+                  saveStatus.saving ? 'bg-gray-400' : 
+                  saveStatus.success === true ? 'bg-green-500' : 
+                  saveStatus.success === false ? 'bg-red-500' : 
+                  'bg-indigo-600 hover:bg-indigo-700'
+                } text-white transition-colors`}
+              >
+                {saveStatus.saving ? 'Saving...' : 
+                 saveStatus.success === true ? 'Saved!' : 
+                 saveStatus.success === false ? 'Failed' : 
+                 'Save Analysis'}
+              </button>
             )}
           </div>
-        </div>
-        
-        <div>
-          {aiModeEnabled && (
-            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">AI Analysis Results</h2>
-                {(aiPrediction && aiAnalysis) && (
-                  <button
-                    onClick={handleSaveAnalysis}
-                    disabled={saveStatus.saving}
-                    className={`px-4 py-2 text-sm rounded-md ${
-                      saveStatus.saving ? 'bg-gray-400' : 
-                      saveStatus.success === true ? 'bg-green-500' : 
-                      saveStatus.success === false ? 'bg-red-500' : 
-                      'bg-indigo-600 hover:bg-indigo-700'
-                    } text-white transition-colors`}
-                  >
-                    {saveStatus.saving ? 'Saving...' : 
-                     saveStatus.success === true ? 'Saved!' : 
-                     saveStatus.success === false ? 'Failed' : 
-                     'Save Analysis'}
-                  </button>
-                )}
-              </div>
-              
-              {saveStatus.message && (
-                <div className={`p-3 mb-4 rounded-md ${saveStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {saveStatus.message}
-                </div>
-              )}
-              
-              {aiLoading ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-                </div>
-              ) : aiError ? (
-                <div className="bg-red-100 text-red-700 p-4 rounded-md">
-                  {aiError}
-                </div>
-              ) : aiPrediction && aiAnalysis ? (
-                <AIAnalysisResults
-                  prediction={aiPrediction}
-                  analysis={aiAnalysis}
-                  recommendations={aiRecommendations}
-                  ticker={selectedSymbol}
-                />
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  No analysis results available
-                </div>
-              )}
+          
+          {saveStatus.message && (
+            <div className={`p-3 mb-4 rounded-md ${saveStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+              {saveStatus.message}
+            </div>
+          )}
+          
+          {aiLoading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            </div>
+          ) : aiError ? (
+            <div className="bg-red-100 text-red-700 p-4 rounded-md">
+              {aiError}
+            </div>
+          ) : aiPrediction && aiAnalysis ? (
+            <AIAnalysisResults
+              prediction={aiPrediction}
+              analysis={aiAnalysis}
+              recommendations={aiRecommendations}
+              ticker={selectedSymbol}
+            />
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              No analysis results available
             </div>
           )}
         </div>
       </div>
       
-      {aiModeEnabled && aiTrainingResult && (
+      {/* Full-width Stock Price Chart */}
+      <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Stock Price Chart</h2>
+          <div className="flex space-x-2">
+            {popularStocks.map(stock => (
+              <button
+                key={stock.symbol}
+                className={`px-2 py-1 text-xs rounded-md ${
+                  selectedSymbol === stock.symbol
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-200 dark:bg-dark-300 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-200'
+                }`}
+                onClick={() => handleStockSelect(stock.symbol)}
+              >
+                {stock.symbol}
+              </button>
+            ))}
+          </div>
+        </div>
+        
+        {stockLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        ) : stockData ? (
+          <div className="h-96">
+            <StockChart
+              stockData={{
+                symbol: stockData.symbol,
+                data: stockData.data
+              }}
+              height={384}
+            />
+          </div>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            No stock data available
+          </div>
+        )}
+      </div>
+      
+      {aiTrainingResult && (
         <div className="mt-8">
           <h2 className="text-2xl font-semibold mb-4">Model Training Results</h2>
           {renderModelMetrics()}
