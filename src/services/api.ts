@@ -713,10 +713,23 @@ export const paymentService = {
     razorpay_signature: string;
   }) => {
     try {
+      console.log('API: Sending payment verification request to:', `${API_URL}/payment/verify`);
+      console.log('API: Payment data being sent:', paymentData);
+      
       const response = await api.post('/payment/verify', paymentData);
+      console.log('API: Payment verification response:', response.data);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error verifying payment:', error);
+      if (error.response) {
+        console.error('API Error Response Status:', error.response.status);
+        console.error('API Error Response Data:', error.response.data);
+        console.error('API Error Response Headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('API No Response Received:', error.request);
+      } else {
+        console.error('API Request Setup Error:', error.message);
+      }
       throw error;
     }
   },

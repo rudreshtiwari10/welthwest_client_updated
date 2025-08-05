@@ -97,14 +97,25 @@ const ReviewPaymentPage: React.FC = () => {
 
       const orderData = await createRazorpayOrder();
       
+      // Use key from backend response if not available in environment
+      const razorpayKey = process.env.REACT_APP_RAZORPAY_KEY_ID || orderData.key_id;
+      
+      if (!razorpayKey) {
+        setError('Payment gateway not configured properly. Please contact support.');
+        setIsProcessing(false);
+        return;
+      }
+      
+      console.log('Order data received from backend:', orderData);
+      
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        key: razorpayKey,
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'WelthWest',
         description: `${planDetails.tier} Plan - ${isAnnual ? 'Annual' : 'Monthly'}`,
         image: '/images/logo.png',
-        order_id: orderData.id,
+        order_id: orderData.order_id || orderData.id,  // Try both field names
         prefill: {
           name: userInfo.fullName,
           email: userInfo.email,
@@ -121,12 +132,73 @@ const ReviewPaymentPage: React.FC = () => {
         },
         handler: async function (response: any) {
           try {
+            console.log('Razorpay response received:', response);
+            console.log('All response keys:', Object.keys(response));
+            console.log('Response object structure:', JSON.stringify(response, null, 2));
+            
+            // Extract the payment details - Razorpay might return them in different formats
+            const paymentId = response.razorpay_payment_id;
+            const orderId = response.razorpay_order_id || orderData.order_id || orderData.id;
+            const signature = response.razorpay_signature;
+            
+            console.log('Extracted values:');
+            console.log('- Payment ID:', paymentId);
+            console.log('- Order ID:', orderId);
+            console.log('- Signature:', signature);
+            
+            // Check if we have payment ID (minimum requirement)
+            if (!paymentId) {
+              console.error('Payment ID is missing from Razorpay response');
+              setError('Invalid payment response - no payment ID received.');
+              setIsProcessing(false);
+              return;
+            }
+            
+            // For signature and order_id, provide fallbacks and warnings
+            if (!signature) {
+              console.warn('Signature missing from Razorpay response. This might be a test environment issue.');
+              // In test mode, Razorpay might not always provide signature
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('Development mode: proceeding without signature verification');
+              } else {
+                setError('Payment signature missing. Please try again or contact support.');
+                setIsProcessing(false);
+                return;
+              }
+            }
+            
+            if (!orderId) {
+              console.error('Order ID is missing from both Razorpay response and original order data');
+              setError('Order ID missing from payment response. Please try again.');
+              setIsProcessing(false);
+              return;
+            }
+
+            // Validate signature format (basic check) - only if signature exists
+            if (signature && (typeof signature !== 'string' || signature.length < 10)) {
+              console.error('Invalid signature format:', signature);
+              setError('Invalid payment signature received. Please try again.');
+              setIsProcessing(false);
+              return;
+            }
+
+            const paymentData = {
+              razorpay_payment_id: paymentId,
+              razorpay_order_id: orderId,
+              razorpay_signature: signature || 'missing_signature',
+            };
+            
+            console.log('Sending payment verification to backend...');
+            console.log('Payment data:', paymentData);
+            
+            // Show processing state
+            setIsProcessing(true);
+            setError(null);
+            
             // Verify payment on backend
-            const verifyData = await paymentService.verifyPayment({
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_signature: response.razorpay_signature,
-            });
+            const verifyData = await paymentService.verifyPayment(paymentData);
+            
+            console.log('Payment verification successful:', verifyData);
             
             // Navigate to confirmation page
             navigate('/payment-confirmation', {
@@ -136,9 +208,19 @@ const ReviewPaymentPage: React.FC = () => {
                 userInfo,
               },
             });
-          } catch (error) {
+          } catch (error: any) {
             console.error('Payment verification error:', error);
-            setError('Payment verification failed. Please contact support.');
+            setIsProcessing(false);
+            
+            if (error.response && error.response.data) {
+              console.error('Backend error details:', error.response.data);
+              const errorMsg = error.response.data.message || error.response.data.error || 'Unknown error';
+              setError(`Payment verification failed: ${errorMsg}`);
+            } else if (error.message) {
+              setError(`Payment verification failed: ${error.message}`);
+            } else {
+              setError('Payment verification failed. Please contact support or try again.');
+            }
           }
         },
         modal: {
@@ -289,7 +371,7 @@ const ReviewPaymentPage: React.FC = () => {
 
               <div className="bg-yellow-50 p-4 rounded-md">
                 <div className="flex">
-                  <svg className="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-yellow-400 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20" width="20" height="20">
                     <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   <div>
