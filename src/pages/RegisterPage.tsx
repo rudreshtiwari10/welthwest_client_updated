@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -10,7 +11,7 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { register } = useAuth();
+  const { register, handleGoogleLogin } = useAuth();
   const navigate = useNavigate();
   
   // Force dark mode for register page
@@ -143,7 +144,7 @@ const RegisterPage: React.FC = () => {
             </div>
           </div>
           
-          <div>
+          <div className="space-y-4">
             <button
               type="submit"
               disabled={isLoading}
@@ -159,6 +160,31 @@ const RegisterPage: React.FC = () => {
               ) : null}
               Create account
             </button>
+            
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-gray-800 text-gray-300">Or continue with</span>
+              </div>
+            </div>
+            
+            <div className="mt-4">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  if (credentialResponse.credential) {
+                    handleGoogleLogin(credentialResponse.credential)
+                      .then(() => navigate('/dashboard'))
+                      .catch((err) => setError(err.message || 'Failed to register with Google'));
+                  }
+                }}
+                onError={() => {
+                  setError('Google registration failed');
+                }}
+                useOneTap
+              />
+            </div>
           </div>
         </form>
       </div>

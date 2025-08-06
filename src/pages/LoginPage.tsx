@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 
 const LoginPage: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
@@ -8,7 +9,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { login } = useAuth();
+  const { login, handleGoogleLogin } = useAuth();
   const navigate = useNavigate();
   
   // Force dark mode for login page
@@ -117,7 +118,7 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
           
-          <div>
+          <div className="space-y-4">
             <button
               type="submit"
               disabled={isLoading}
@@ -133,6 +134,31 @@ const LoginPage: React.FC = () => {
               ) : null}
               Sign in
             </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-600"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-gray-800 text-gray-300">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  if (credentialResponse.credential) {
+                    handleGoogleLogin(credentialResponse.credential)
+                      .then(() => navigate('/dashboard'))
+                      .catch((err) => setError(err.message || 'Failed to log in with Google'));
+                  }
+                }}
+                onError={() => {
+                  setError('Google login failed');
+                }}
+                useOneTap
+              />
+            </div>
           </div>
         </form>
       </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import './App.css';
 
 // Pages
@@ -187,9 +188,11 @@ const AppWithRouter: React.FC = () => {
 // Main App component
 const App: React.FC = () => {
   return (
-    <Router>
-      <AppWithRouter />
-    </Router>
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ''}>
+      <Router>
+        <AppWithRouter />
+      </Router>
+    </GoogleOAuthProvider>
   );
 };
 

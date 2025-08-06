@@ -98,6 +98,23 @@ export const authService = {
       console.error('Update profile error:', error);
       throw error;
     }
+  },
+
+  googleLogin: async (token: string) => {
+    try {
+      const response = await api.post('/auth/google', { token });
+      
+      // Store tokens
+      if (response.data.access_token) {
+        localStorage.setItem('access_token', response.data.access_token);
+        localStorage.setItem('refresh_token', response.data.refresh_token);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    }
   }
 };
 

@@ -20,6 +20,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateProfile: (profileData: any) => Promise<void>;
   getToken: () => Promise<string | null>;
+  handleGoogleLogin: (token: string) => Promise<void>;
 }
 
 // Create context with default values
@@ -32,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
   updateProfile: async () => {},
   getToken: async () => null,
+  handleGoogleLogin: async () => {},
 });
 
 // Custom hook to use the auth context
@@ -137,6 +139,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return token;
   };
   
+  // Handle Google login
+  const handleGoogleLogin = async (token: string) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.googleLogin(token);
+      
+      if (response.user) {
+        setUser(response.user);
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('refresh_token', response.refresh_token);
+      } else {
+        throw new Error('Google login failed: No user data returned');
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -148,6 +171,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         logout,
         updateProfile,
         getToken,
+        handleGoogleLogin,
       }}
     >
       {children}

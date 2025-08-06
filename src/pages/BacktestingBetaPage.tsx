@@ -135,9 +135,6 @@ const BacktestingBetaPage: React.FC = () => {
       },
       SMA: {
         periods: [20, 50]
-      },
-      EMA: {
-        periods: [12, 26]
       }
     },
     voting_threshold: 0.6,
@@ -157,12 +154,8 @@ const BacktestingBetaPage: React.FC = () => {
     Bollinger_Bands: { name: 'Bollinger Bands', hasParams: true },
     Stochastic: { name: 'Stochastic Oscillator', hasParams: true },
     SMA: { name: 'Simple Moving Average', hasParams: true },
-    EMA: { name: 'Exponential Moving Average', hasParams: true },
     ADX: { name: 'Average Directional Index', hasParams: true },
-    Williams_R: { name: 'Williams %R', hasParams: true },
-    CCI: { name: 'Commodity Channel Index', hasParams: true },
-    ATR: { name: 'Average True Range', hasParams: true },
-    OBV: { name: 'On Balance Volume', hasParams: false }
+    Williams_R: { name: 'Williams %R', hasParams: true }
   };
 
   const stockOptions = [
@@ -230,12 +223,8 @@ const BacktestingBetaPage: React.FC = () => {
       Bollinger_Bands: { period: 20, std_dev: 2 },
       Stochastic: { k_period: 14, d_period: 3, oversold: 20, overbought: 80 },
       SMA: { periods: [20, 50] },
-      EMA: { periods: [12, 26] },
       ADX: { period: 14, threshold: 25 },
-      Williams_R: { period: 14, oversold: -80, overbought: -20 },
-      CCI: { period: 20 },
-      ATR: { period: 14 },
-      OBV: {}
+      Williams_R: { period: 14, oversold: -80, overbought: -20 }
     };
     return defaults[indicator] || {};
   };
@@ -324,7 +313,7 @@ const BacktestingBetaPage: React.FC = () => {
       );
     }
 
-    if (indicator === 'SMA' || indicator === 'EMA') {
+    if (indicator === 'SMA') {
       return (
         <div className="space-y-3">
           <div>
@@ -350,7 +339,7 @@ const BacktestingBetaPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -366,8 +355,8 @@ const BacktestingBetaPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-8">
-          <nav className="flex space-x-8" aria-label="Tabs">
+        <div className="flex justify-center mb-10">
+          <nav className="flex space-x-10 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2" aria-label="Tabs">
             {[
               { id: 'parameters', name: 'Parameters', icon: CogIcon },
               { id: 'results', name: 'Results', icon: DocumentTextIcon },
@@ -378,11 +367,11 @@ const BacktestingBetaPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center`}
+                    ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+                } whitespace-nowrap py-3 px-6 rounded-md font-medium text-sm flex items-center transition-colors duration-200`}
               >
-                <tab.icon className="w-5 h-5 mr-2" />
+                <tab.icon className="w-5 h-5 mr-3" />
                 {tab.name}
               </button>
             ))}
@@ -396,63 +385,93 @@ const BacktestingBetaPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 
                 {/* Basic Parameters */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Parameters</h3>
+                  <div className="flex items-center space-x-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                    <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Parameters</h3>
+                  </div>
                   
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Stock Symbol
                     </label>
-                    <select
-                      value={params.stock_symbol}
-                      onChange={(e) => setParams(prev => ({ ...prev, stock_symbol: e.target.value }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    >
-                      {stockOptions.map(option => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        value={params.stock_symbol}
+                        onChange={(e) => setParams(prev => ({ ...prev, stock_symbol: e.target.value }))}
+                        className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white pl-4 pr-10 py-2.5 appearance-none"
+                      >
+                        {stockOptions.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                        <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Select the stock you want to backtest</p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Period
                       </label>
-                      <select
-                        value={params.period}
-                        onChange={(e) => setParams(prev => ({ ...prev, period: e.target.value }))}
-                        className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="1mo">1 Month</option>
-                        <option value="3mo">3 Months</option>
-                        <option value="6mo">6 Months</option>
-                        <option value="1y">1 Year</option>
-                        <option value="2y">2 Years</option>
-                        <option value="5y">5 Years</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={params.period}
+                          onChange={(e) => setParams(prev => ({ ...prev, period: e.target.value }))}
+                          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white pl-4 pr-10 py-2.5 appearance-none"
+                        >
+                          <option value="1mo">1 Month</option>
+                          <option value="3mo">3 Months</option>
+                          <option value="6mo">6 Months</option>
+                          <option value="1y">1 Year</option>
+                          <option value="2y">2 Years</option>
+                          <option value="5y">5 Years</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Historical data timespan</p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Timeframe
                       </label>
-                      <select
-                        value={params.timeframe}
-                        onChange={(e) => setParams(prev => ({ ...prev, timeframe: e.target.value }))}
-                        className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="1d">1 Day</option>
-                        <option value="1h">1 Hour</option>
-                        <option value="30m">30 Minutes</option>
-                        <option value="15m">15 Minutes</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={params.timeframe}
+                          onChange={(e) => setParams(prev => ({ ...prev, timeframe: e.target.value }))}
+                          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white pl-4 pr-10 py-2.5 appearance-none"
+                        >
+                          <option value="1d">1 Day</option>
+                          <option value="1h">1 Hour</option>
+                          <option value="30m">30 Minutes</option>
+                          <option value="15m">15 Minutes</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
+                          <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Candle interval</p>
                     </div>
                   </div>
 
@@ -460,68 +479,98 @@ const BacktestingBetaPage: React.FC = () => {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Initial Capital (₹)
                     </label>
-                    <input
-                      type="number"
-                      value={params.initial_capital}
-                      onChange={(e) => setParams(prev => ({ ...prev, initial_capital: parseFloat(e.target.value) }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
+                    <div className="relative rounded-md shadow-sm">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 dark:text-gray-400 sm:text-sm">₹</span>
+                      </div>
+                      <input
+                        type="number"
+                        value={params.initial_capital}
+                        onChange={(e) => setParams(prev => ({ ...prev, initial_capital: parseFloat(e.target.value) }))}
+                        className="block w-full pl-8 pr-4 py-2.5 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        min="1000"
+                        step="1000"
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Starting amount for backtesting</p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Position Size (% of capital)
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      max="1"
-                      value={params.position_size_pct}
-                      onChange={(e) => setParams(prev => ({ ...prev, position_size_pct: parseFloat(e.target.value) }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
+                    <div className="relative rounded-md shadow-sm">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        max="1"
+                        value={params.position_size_pct}
+                        onChange={(e) => setParams(prev => ({ ...prev, position_size_pct: parseFloat(e.target.value) }))}
+                        className="block w-full pr-10 py-2.5 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      />
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 dark:text-gray-400 sm:text-sm">%</span>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage of capital to use per trade (0.1 = 10%)</p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Voting Threshold
                     </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min="0.1"
-                      max="1"
-                      value={params.voting_threshold}
-                      onChange={(e) => setParams(prev => ({ ...prev, voting_threshold: parseFloat(e.target.value) }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
+                    <div className="mt-1">
+                      <input
+                        type="range"
+                        step="0.1"
+                        min="0.1"
+                        max="1"
+                        value={params.voting_threshold}
+                        onChange={(e) => setParams(prev => ({ ...prev, voting_threshold: parseFloat(e.target.value) }))}
+                        className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 px-1 mt-1">
+                        <span>0.1</span>
+                        <span>0.5</span>
+                        <span>1.0</span>
+                      </div>
+                      <div className="text-center mt-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+                        {params.voting_threshold.toFixed(1)}
+                      </div>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage of indicators needed for signal (0.6 = 60%)</p>
                   </div>
                 </div>
 
                 {/* Technical Indicators */}
                 <div className="space-y-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Technical Indicators</h3>
+                  <div className="flex items-center space-x-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                    <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Technical Indicators</h3>
+                  </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     {Object.entries(availableIndicators).map(([key, indicator]) => (
-                      <div key={key} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <label className="flex items-center">
+                      <div key={key} className="border border-gray-200 dark:border-gray-700 rounded-lg p-5 hover:shadow-md transition-shadow duration-200">
+                        <div className="flex items-center justify-between mb-4">
+                          <label className="flex items-center cursor-pointer">
                             <input
                               type="checkbox"
                               checked={params.selected_indicators[key] !== undefined}
                               onChange={() => toggleIndicator(key)}
-                              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                              className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5"
                             />
-                            <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">
+                            <span className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
                               {indicator.name}
                             </span>
                           </label>
                         </div>
                         
                         {params.selected_indicators[key] && indicator.hasParams && (
-                          <div className="ml-6">
+                          <div className="ml-8 mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-md">
                             {renderIndicatorForm(key, params.selected_indicators[key])}
                           </div>
                         )}
@@ -532,10 +581,15 @@ const BacktestingBetaPage: React.FC = () => {
               </div>
 
               {/* Advanced Parameters */}
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Advanced Parameters</h3>
+              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 mb-6">
+                  <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Advanced Parameters</h3>
+                </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Risk-Reward Ratio
@@ -577,24 +631,29 @@ const BacktestingBetaPage: React.FC = () => {
               </div>
 
               {/* Run Backtest Button */}
-              <div className="mt-8 flex justify-center">
+              <div className="mt-10 flex justify-center">
                 <button
                   onClick={runBacktest}
                   disabled={isLoading || Object.keys(params.selected_indicators).length === 0}
-                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isLoading ? (
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                   ) : (
-                    <PlayIcon className="w-5 h-5 mr-2" />
+                    <PlayIcon className="w-6 h-6 mr-3" />
                   )}
                   {isLoading ? 'Running Backtest...' : 'Run Backtest'}
                 </button>
               </div>
 
               {error && (
-                <div className="mt-4 p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-md">
-                  <p className="text-red-800 dark:text-red-200">{error}</p>
+                <div className="mt-6 p-5 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg shadow-sm">
+                  <div className="flex items-center">
+                    <svg className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
+                  </div>
                 </div>
               )}
             </div>
