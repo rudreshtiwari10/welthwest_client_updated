@@ -346,7 +346,7 @@ const StockPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-8 pt-20 md:pt-8">
         <div className="flex justify-center items-center h-64">
           <ArrowPathIcon className="h-8 w-8 animate-spin text-primary-600" />
         </div>
@@ -356,7 +356,7 @@ const StockPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-8 pt-20 md:pt-8">
         <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-6 text-center">
           <h2 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">Error</h2>
           <p className="text-red-600 dark:text-red-300">{error}</p>
@@ -374,7 +374,7 @@ const StockPage: React.FC = () => {
   // Render market overview page when no symbol is provided
   if (!symbol) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-8 pt-20 md:pt-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -396,44 +396,6 @@ const StockPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-8">
-            {/* Market Indices */}
-            {marketData?.indices && (
-              <section>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Major Indices</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Object.keys(marketData.indices).map((key) => {
-                    const index_data = marketData.indices[key];
-                    const isPositive = index_data.percentChange >= 0;
-                    
-                    return (
-                      <Link key={key} to={`/stock/${key}`} className="group">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                            {index_data.name || key}
-                          </h3>
-                          <div className="mt-2">
-                            <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                              ₹{index_data.price?.toFixed(2) || '0.00'}
-                            </div>
-                            <div className={`flex items-center mt-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                              {isPositive ? (
-                                <ArrowTrendingUpIcon className="h-4 w-4 mr-1" />
-                              ) : (
-                                <ArrowTrendingDownIcon className="h-4 w-4 mr-1" />
-                              )}
-                              <span className="font-medium">
-                                {isPositive ? '+' : ''}{index_data.percentChange?.toFixed(2) || '0.00'}%
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </section>
-            )}
-
             {/* Top Gainers and Losers */}
             <section>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Market Movers</h2>
@@ -533,31 +495,34 @@ const StockPage: React.FC = () => {
 
   // Original stock page content for when symbol is provided
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Stock Header with Search Bar */}
-      <div className="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            {stockData?.symbol || symbol}
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            {stockData?.data?.[0]?.name || 'Stock Details'}
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-4 lg:items-start">
-          {/* Search Bar - Right Aligned */}
-          <div className="max-w-md">
-            <SearchBarWithSuggestions
-              placeholders={["Search stocks...", "Search companies...", "Search symbols..."]}
-              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
-                rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-            />
+    <div className="container mx-auto px-4 py-8 md:py-8 pt-20 md:pt-8">
+      {/* Stock Header with Three Column Layout */}
+      <div className="mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Left: Stock Symbol and Name */}
+          <div className="flex-1 lg:flex-none">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              {stockData?.symbol || symbol}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              {stockData?.data?.[0]?.name || 'Stock Details'}
+            </p>
           </div>
 
-          {/* AI Feature Promotion - Desktop */}
-          <div className="hidden sm:block">
+          {/* Center: Search Bar */}
+          <div className="flex-1 flex justify-center">
+            <div className="max-w-md w-full">
+              <SearchBarWithSuggestions
+                placeholders={["Search stocks...", "Search companies...", "Search symbols..."]}
+                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
+                  rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              />
+            </div>
+          </div>
+
+          {/* Right: AI Feature Promotion */}
+          <div className="flex-1 lg:flex-none flex justify-end">
             <div className="flex items-center space-x-2">
               <SparklesIcon className="h-5 w-5 text-purple-500" />
               <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
@@ -1132,8 +1097,7 @@ const StockPage: React.FC = () => {
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                 Our AI-powered market regime classifier helps you identify the current market conditions and make better trading decisions.
               </p>
-              <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                <span>Powered by Random Forest ML</span>
+              <div className="flex items-center justify-end text-xs text-gray-500 dark:text-gray-400">
                 <button 
                   onClick={() => handleToggleAI(true)}
                   className="text-purple-600 dark:text-purple-400 hover:underline"
@@ -1147,7 +1111,7 @@ const StockPage: React.FC = () => {
       </div>
 
       {/* Mobile AI Feature Promotion - Fixed at bottom */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-gradient-to-r from-purple-600 to-blue-600 p-3 flex items-center justify-between shadow-lg">
+      <div className="md:hidden fixed bottom-20 left-0 right-0 bg-gradient-to-r from-purple-600 to-blue-600 p-3 flex items-center justify-between shadow-lg z-40">
         <div className="flex items-center space-x-2">
           <BeakerIcon className="h-5 w-5 text-white" />
           <span className="text-sm font-medium text-white">AI Analysis</span>

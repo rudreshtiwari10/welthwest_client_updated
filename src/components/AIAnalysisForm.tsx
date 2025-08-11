@@ -54,7 +54,11 @@ const AIAnalysisForm: React.FC<AIAnalysisFormProps> = ({
     }
     
     setErrors({});
-    onAnalyze(config);
+    // Always set retrain to false for regular users (admin-only feature)
+    onAnalyze({
+      ...config,
+      retrain: false
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -128,28 +132,6 @@ const AIAnalysisForm: React.FC<AIAnalysisFormProps> = ({
           </select>
         </div>
 
-        {/* Retrain Option */}
-        <div className="flex items-start space-x-3">
-          <div className="flex items-center h-5">
-            <input
-              type="checkbox"
-              id="retrain"
-              name="retrain"
-              checked={config.retrain}
-              onChange={handleInputChange}
-              disabled={disabled || isLoading}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:border-gray-600 dark:bg-dark-400"
-            />
-          </div>
-          <div>
-            <label htmlFor="retrain" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Retrain Model
-            </label>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Force model retraining with latest data (takes longer but may improve accuracy)
-            </p>
-          </div>
-        </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-3 pt-4">
@@ -161,7 +143,7 @@ const AIAnalysisForm: React.FC<AIAnalysisFormProps> = ({
             {isLoading ? (
               <>
                 <ArrowPathIcon className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                {config.retrain ? 'Training & Analyzing...' : 'Analyzing...'}
+                Analyzing...
               </>
             ) : (
               <>
@@ -188,9 +170,7 @@ const AIAnalysisForm: React.FC<AIAnalysisFormProps> = ({
         </ul>
         
         <div className="mt-2 text-xs text-purple-600 dark:text-purple-400 font-medium">
-          {config.retrain ? 
-            'Retraining will update the model with the latest market data' : 
-            'Using pre-trained model for faster analysis'}
+          Using advanced AI model for market regime analysis
         </div>
       </div>
     </div>
