@@ -143,18 +143,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const handleGoogleLogin = async (token: string) => {
     try {
       setIsLoading(true);
+      console.log('Starting Google authentication...');
+      
       const response = await authService.googleLogin(token);
       
       if (response.user) {
+        console.log('Google authentication successful');
         setUser(response.user);
         localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('refresh_token', response.refresh_token);
       } else {
         throw new Error('Google login failed: No user data returned');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Google login error:', error);
-      throw error;
+      
+      // Provide more specific error messages
+      if (error.response?.data?.message?.includes('Token used too early')) {
+        throw new Error('Authentication timing issue. Please try again in a moment.');
+      } else if (error.response?.status === 401) {
+        throw new Error('Google authentication failed. Please try signing in again.');
+      } else if (error.response?.status >= 500) {
+        throw new Error('Server error during authentication. Please try again.');
+      } else {
+        throw error;
+      }
     } finally {
       setIsLoading(false);
     }

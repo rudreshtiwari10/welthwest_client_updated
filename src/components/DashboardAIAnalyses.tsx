@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowPathIcon, CpuChipIcon, CalendarIcon, ChartBarIcon, ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 import { userDataService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import TechnicalIndicatorGrid from './TechnicalIndicatorGrid';
+
 import ParameterDisplayCard from './ParameterDisplayCard';
 
 interface AIAnalysisData {
@@ -177,7 +177,7 @@ const DashboardAIAnalyses: React.FC = () => {
 
   const formatPercentage = (value: number | undefined) => {
     if (value === undefined || value === null) return 'N/A';
-    return `${value.toFixed(2)}%`;
+    return `${(value * 100).toFixed(0)}%`;
   };
 
   const getRegimeColor = (regime: number | undefined) => {
@@ -279,7 +279,7 @@ const DashboardAIAnalyses: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-0">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-0">
         {/* Sidebar with analysis list */}
         <div className="border-r border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
           {analyses.map((analysis, index) => (
@@ -290,9 +290,14 @@ const DashboardAIAnalyses: React.FC = () => {
               }`}
               onClick={() => setSelectedAnalysis(analysis)}
             >
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                {analysis.display_name}
-              </h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium text-gray-900 dark:text-white">
+                  {analysis.display_name}
+                </h3>
+                <span className="text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded-full">
+                  #{index + 1}
+                </span>
+              </div>
               <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {formatDate(analysis.display_date)}
               </div>
@@ -311,7 +316,7 @@ const DashboardAIAnalyses: React.FC = () => {
         </div>
 
         {/* Main content area */}
-        <div className="col-span-2 p-6 max-h-[70vh] overflow-y-auto">
+        <div className="col-span-3 p-6 max-h-[70vh] overflow-y-auto">
           {selectedAnalysis ? (
             <div>
               {/* Header */}
@@ -350,7 +355,7 @@ const DashboardAIAnalyses: React.FC = () => {
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     <div className="text-center">
-                      <div className={`inline-block px-4 py-2 rounded-lg text-lg font-bold ${getRegimeColor(selectedAnalysis.prediction.regime)}`}>
+                      <div className={`inline-block px-4 py-2 rounded-lg text-lg font-bold break-words ${getRegimeColor(selectedAnalysis.prediction.regime)}`}>
                         {selectedAnalysis.prediction.regime_name || `Regime ${selectedAnalysis.prediction.regime}`}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Current Regime</div>
@@ -363,7 +368,7 @@ const DashboardAIAnalyses: React.FC = () => {
                     </div>
                     {selectedAnalysis.prediction.next_regime !== undefined && (
                       <div className="text-center">
-                        <div className={`inline-block px-3 py-1 rounded text-sm font-medium ${getRegimeColor(selectedAnalysis.prediction.next_regime)}`}>
+                        <div className={`inline-block px-3 py-1 rounded text-sm font-medium break-words ${getRegimeColor(selectedAnalysis.prediction.next_regime)}`}>
                           {selectedAnalysis.prediction.next_regime_name || `Regime ${selectedAnalysis.prediction.next_regime}`}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Next Predicted</div>
@@ -378,7 +383,7 @@ const DashboardAIAnalyses: React.FC = () => {
                       <div className="space-y-2">
                         {Object.entries(selectedAnalysis.prediction.probabilities).map(([regime, probability]) => (
                           <div key={regime} className="flex items-center">
-                            <span className="w-20 text-xs text-gray-600 dark:text-gray-400 capitalize">
+                            <span className="w-24 md:w-32 text-xs text-gray-600 dark:text-gray-400 capitalize truncate" title={regime.replace('_', ' ')}>
                               {regime.replace('_', ' ')}
                             </span>
                             <div className="flex-grow mx-3">
@@ -452,14 +457,7 @@ const DashboardAIAnalyses: React.FC = () => {
                 </div>
               )}
 
-              {/* Enhanced Technical Indicators */}
-              {selectedAnalysis.analysis?.technical_indicators && (
-                <TechnicalIndicatorGrid 
-                  indicators={selectedAnalysis.analysis.technical_indicators}
-                  currentPrice={selectedAnalysis.market_data?.current_price}
-                  className="mb-6"
-                />
-              )}
+              {/* Technical Indicators section removed as requested */}
 
               {/* Market Conditions */}
               {selectedAnalysis.analysis?.market_conditions && (
@@ -604,25 +602,7 @@ const DashboardAIAnalyses: React.FC = () => {
                 </div>
               )}
 
-              {/* Model Information */}
-              <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Analysis Details</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Model Version', value: selectedAnalysis.model_version || 'N/A' },
-                    { label: 'Analysis Type', value: selectedAnalysis.analysis_type || 'N/A' },
-                    { label: 'Timeframe', value: selectedAnalysis.timeframe || 'N/A' },
-                    { label: 'Model Confidence', value: selectedAnalysis.model_confidence ? formatPercentage(selectedAnalysis.model_confidence) : 'N/A' },
-                    { label: 'Processing Time', value: selectedAnalysis.processing_time ? `${selectedAnalysis.processing_time.toFixed(2)}s` : 'N/A' },
-                    { label: 'Features Count', value: selectedAnalysis.features ? Object.keys(selectedAnalysis.features).length : 'N/A' },
-                  ].map((item, index) => (
-                    <div key={index} className="bg-white dark:bg-gray-600 p-3 rounded border">
-                      <div className="text-xs text-gray-500 dark:text-gray-400">{item.label}</div>
-                      <div className="font-semibold text-gray-900 dark:text-white">{item.value}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Removed Analysis Details section as requested */}
 
             </div>
           ) : (

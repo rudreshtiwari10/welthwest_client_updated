@@ -22,20 +22,41 @@ const ParameterDisplayCard: React.FC<ParameterDisplayCardProps> = ({
   size = 'medium',
   colorScheme = 'default'
 }) => {
+  const parseNumeric = (raw: number | string | undefined | null): number | null => {
+    if (raw === undefined || raw === null) return null;
+    if (typeof raw === 'number') return Number.isFinite(raw) ? raw : null;
+    if (typeof raw === 'string') {
+      const cleaned = raw.replace(/[%₹$,\s]/g, '');
+      const parsed = parseFloat(cleaned);
+      return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+  };
+
   const formatValue = (val: number | string | undefined) => {
     if (val === undefined || val === null) return 'N/A';
-    
+
+    const num = parseNumeric(val);
+
     switch (format) {
-      case 'currency':
-        return `₹${(val as number).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      case 'percentage':
-        return `${(val as number).toFixed(2)}%`;
-      case 'decimal':
-        return (val as number).toFixed(2);
-      case 'number':
-        return val.toString();
+      case 'currency': {
+        if (num === null) return 'N/A';
+        return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+      case 'percentage': {
+        if (num === null) return 'N/A';
+        return `${num.toFixed(2)}%`;
+      }
+      case 'decimal': {
+        if (num === null) return 'N/A';
+        return num.toFixed(2);
+      }
+      case 'number': {
+        if (num === null) return 'N/A';
+        return Number.isInteger(num) ? num.toLocaleString('en-IN') : num.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+      }
       default:
-        return val.toString();
+        return String(val);
     }
   };
 
@@ -51,8 +72,8 @@ const ParameterDisplayCard: React.FC<ParameterDisplayCardProps> = ({
     }
 
     if (format === 'currency' || format === 'percentage') {
-      const numValue = value as number;
-      if (numValue === undefined || numValue === null) return 'text-gray-600 dark:text-gray-400';
+      const numValue = parseNumeric(value);
+      if (numValue === null) return 'text-gray-600 dark:text-gray-400';
       return numValue >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
     }
     
@@ -88,15 +109,17 @@ const ParameterDisplayCard: React.FC<ParameterDisplayCardProps> = ({
     }
   };
 
+  const formatted = formatValue(value);
+
   return (
-    <div className={`bg-white dark:bg-gray-600 rounded-lg border shadow-sm ${getSizeClasses()} ${className}`}>
+    <div className={`bg-white dark:bg-gray-600 rounded-lg border shadow-sm ${getSizeClasses()} ${className} min-w-0`}>
       <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
         {label}
       </div>
-      <div className={`${getValueSizeClasses()} ${getValueColor()} flex items-center`}>
+      <div className={`${getValueSizeClasses()} ${getValueColor()} flex items-center` }>
         {getTrendIcon()}
-        <span className={showTrend && trendValue !== undefined ? 'ml-1' : ''}>
-          {formatValue(value)}
+        <span className={`${showTrend && trendValue !== undefined ? 'ml-1' : ''} truncate inline-block max-w-full` } title={formatted}>
+          {formatted}
         </span>
       </div>
       {showTrend && trendValue !== undefined && (

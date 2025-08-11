@@ -50,6 +50,7 @@ interface StockChartProps {
 
 const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height = 400 }) => {
   const [chartData, setChartData] = useState<any>(null);
+  const [chartLabels, setChartLabels] = useState<string[]>([]);
   
   useEffect(() => {
     if (!stockData) return;
@@ -72,7 +73,7 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
       const prices = stockData.data.map(item => item.Close || 0);
       
       datasets.push({
-        label: stockData.symbol,
+        label: 'Price',
         data: prices,
         borderColor: primaryColor,
         backgroundColor: secondaryColor,
@@ -86,7 +87,7 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
         Array.isArray(stockData.chart_data.prices)) {
       labels = stockData.chart_data.dates;
       datasets.push({
-        label: stockData.symbol,
+        label: 'Price',
         data: stockData.chart_data.prices,
         borderColor: primaryColor,
         backgroundColor: secondaryColor,
@@ -212,6 +213,7 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
       });
     }
     
+    setChartLabels(labels);
     setChartData({
       labels,
       datasets,
@@ -223,34 +225,84 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: true,
-        position: 'top' as const,
+        display: false,
       },
       tooltip: {
         mode: 'index' as const,
         intersect: false,
         callbacks: {
           label: function(context: any) {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
-            }
             if (context.parsed.y !== null) {
-              label += context.parsed.y.toFixed(2);
+              return '₹' + context.parsed.y.toFixed(2);
             }
-            return label;
+            return '';
+          },
+          title: function(context: any) {
+            if (context && context[0] && chartLabels[context[0].dataIndex]) {
+              try {
+                const date = new Date(chartLabels[context[0].dataIndex]);
+                return date.toLocaleDateString('en-US', { 
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit'
+                });
+              } catch {
+                return chartLabels[context[0].dataIndex];
+              }
+            }
+            return '';
           }
         }
       },
     },
     scales: {
       x: {
+        display: true,
         grid: {
-          display: false,
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
         },
         ticks: {
-          maxTicksLimit: 8,
-          maxRotation: 0,
+          maxTicksLimit: 10,
+          maxRotation: 45,
+          callback: function(tickValue: any, index: number) {
+            const label = chartLabels[index];
+            if (!label) return '';
+            
+            try {
+              const date = new Date(label);
+              const now = new Date();
+              const diffDays = Math.abs((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+              
+              // Format based on timeframe
+              if (diffDays <= 1) {
+                return date.toLocaleTimeString('en-US', { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                });
+              } else if (diffDays <= 7) {
+                return date.toLocaleDateString('en-US', { 
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric'
+                });
+              } else if (diffDays <= 365) {
+                return date.toLocaleDateString('en-US', { 
+                  month: 'short',
+                  day: 'numeric'
+                });
+              } else {
+                return date.toLocaleDateString('en-US', { 
+                  year: '2-digit',
+                  month: 'short'
+                });
+              }
+            } catch {
+              return label;
+            }
+          }
         },
       },
       y: {
@@ -258,6 +310,11 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
         grid: {
           color: 'rgba(0, 0, 0, 0.05)',
         },
+        ticks: {
+          callback: function(tickValue: any) {
+            return '₹' + tickValue.toFixed(2);
+          }
+        }
       },
     },
     elements: {

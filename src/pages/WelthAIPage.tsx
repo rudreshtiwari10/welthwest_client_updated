@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
 import AIAnalysisResults from '../components/AIAnalysisResults';
 import StockChart from '../components/StockChart';
 import { marketService, marketRegimeService, userDataService } from '../services/api';
+import LimitExceededModal from '../components/subscription/LimitExceededModal';
+import LoginModal from '../components/LoginModal';
 import { 
-  ArrowTrendingUpIcon, 
-  ArrowTrendingDownIcon, 
-  ChartBarIcon,
-  ArrowPathIcon,
   SparklesIcon,
   BeakerIcon,
-  LightBulbIcon
 } from '@heroicons/react/24/outline';
 
 // Define interfaces for AI analysis results
@@ -72,20 +71,32 @@ interface StockData {
 }
 
 const WelthAIPage: React.FC = () => {
+  const { user } = useAuth();
+  const { canUseLLM, incrementLLMUsage } = useSubscription();
+  
   // Default stock symbol
   const defaultSymbol = 'RELIANCE';
   
   // AI Analysis state
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [loadingStep, setLoadingStep] = useState<string>('');
+  const [loadingProgress, setLoadingProgress] = useState<number>(0);
   const [aiPrediction, setAiPrediction] = useState<MarketRegimeResult | undefined>(undefined);
   const [aiAnalysis, setAiAnalysis] = useState<MarketRegimeAnalysis | undefined>(undefined);
   const [aiRecommendations, setAiRecommendations] = useState<any>(undefined);
   const [selectedSymbol, setSelectedSymbol] = useState<string>(defaultSymbol);
   
+  // Anonymous usage tracking
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [anonymousUsage, setAnonymousUsage] = useState({
+    remainingAnalyses: 2, // Allow 2 free AI analyses
+    sessionId: null as string | null
+  });
+  
   // AI Training results state
   const [aiTrainingResult, setAiTrainingResult] = useState<AITrainingResult | undefined>(undefined);
-  const [aiTrainingLoading, setAiTrainingLoading] = useState(false);
   
   // Stock chart data state
   const [stockData, setStockData] = useState<StockData | null>(null);
@@ -93,6 +104,8 @@ const WelthAIPage: React.FC = () => {
   
   // Save state
   const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
+  const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
+  const [analysisName, setAnalysisName] = useState<string>('');
 
   // Popular Indian stocks for quick selection
   const popularStocks = [
@@ -103,12 +116,41 @@ const WelthAIPage: React.FC = () => {
     { symbol: 'ICICIBANK', name: 'ICICI Bank' }
   ];
 
-  // Handle saving AI analysis results
-  const handleSaveAnalysis = async () => {
-    if (!aiPrediction || !aiAnalysis) return;
+  // Simulate loading steps with progress
+  const simulateLoadingSteps = async () => {
+    const steps = [
+      { message: 'Initializing AI analysis...', duration: 800 },
+      { message: 'Collecting market data...', duration: 1200 },
+      { message: 'Processing technical indicators...', duration: 1000 },
+      { message: 'Training AI model...', duration: 1500 },
+      { message: 'Analyzing market regimes...', duration: 1200 },
+      { message: 'Generating insights...', duration: 800 },
+      { message: 'Finalizing results...', duration: 600 }
+    ];
+
+    for (let i = 0; i < steps.length; i++) {
+      const step = steps[i];
+      setLoadingStep(step.message);
+      setLoadingProgress(((i + 1) / steps.length) * 100);
+      
+      await new Promise(resolve => setTimeout(resolve, step.duration));
+    }
+  };
+
+  // Handle opening save modal
+  const handleOpenSaveModal = () => {
+    if (!aiPrediction && !aiAnalysis) return;
+    setShowSaveModal(true);
+    setAnalysisName(`${selectedSymbol} Analysis - ${new Date().toLocaleDateString()}`);
+  };
+
+  // Handle saving AI analysis results with name
+  const handleConfirmSave = async () => {
+    if ((!aiPrediction && !aiAnalysis) || !analysisName.trim()) return;
     
     try {
       setSaveStatus({ saving: true });
+      setShowSaveModal(false);
       
       // Calculate processing time (if not already set)
       const processingTime = aiPrediction?.processing_time || (aiPrediction?.timestamp ? 
@@ -121,7 +163,7 @@ const WelthAIPage: React.FC = () => {
       const analysis_data = {
         ticker: selectedSymbol,
         timestamp: new Date().toISOString(),
-        name: `${selectedSymbol} Analysis - ${new Date().toLocaleDateString()}`,
+        name: analysisName.trim(),
         
         // Core analysis data
         prediction: aiPrediction,
@@ -173,6 +215,7 @@ const WelthAIPage: React.FC = () => {
   // Effect to load initial stock data
   useEffect(() => {
     fetchStockData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSymbol]);
   
   const fetchStockData = async () => {
@@ -197,6 +240,37 @@ const WelthAIPage: React.FC = () => {
     try {
       setAiLoading(true);
       setAiError(null);
+      setLoadingProgress(0);
+      setLoadingStep('Starting analysis...');
+      
+      // Start loading simulation
+      const loadingPromise = simulateLoadingSteps();
+      
+      // Check if user is authenticated
+      if (!user) {
+        // Anonymous user - check remaining analyses
+        if (anonymousUsage.remainingAnalyses <= 0) {
+          setShowLoginModal(true);
+          setAiLoading(false);
+          return;
+        }
+        
+        // Decrement remaining analyses for anonymous users
+        setAnonymousUsage(prev => ({
+          ...prev,
+          remainingAnalyses: prev.remainingAnalyses - 1
+        }));
+      } else {
+        // Authenticated user - check subscription limits
+        if (!canUseLLM()) {
+          setShowLimitModal(true);
+          setAiLoading(false);
+          return;
+        }
+        
+        // Increment usage for authenticated users
+        await incrementLLMUsage();
+      }
       
       // Update selected symbol if changed
       if (config.ticker !== selectedSymbol) {
@@ -205,8 +279,6 @@ const WelthAIPage: React.FC = () => {
       
       // If retrain is requested, train the model first
       if (config.retrain) {
-        setAiTrainingLoading(true);
-        
         try {
           const trainingResponse = await marketRegimeService.trainModel(
             config.ticker,
@@ -218,27 +290,68 @@ const WelthAIPage: React.FC = () => {
         } catch (error) {
           console.error('Error training model:', error);
           setAiError('Failed to train model');
-        } finally {
-          setAiTrainingLoading(false);
         }
       }
       
-      // Get prediction
-      const predictionResponse = await marketRegimeService.predictRegime(config.ticker);
-      setAiPrediction(predictionResponse);
-      
-      // Get comprehensive analysis
-      const analysisResponse = await marketRegimeService.getAnalysis(config.ticker);
-      setAiAnalysis(analysisResponse);
-      
-      // Get recommendations
-      const recommendationsResponse = await marketRegimeService.getRecommendations(config.ticker);
-      setAiRecommendations(recommendationsResponse);
+      if (!user) {
+        // Use anonymous API for non-authenticated users
+        try {
+          const anonymousResponse = await marketService.anonymousAIAnalysis(
+            { ticker: config.ticker, period: config.period },
+            anonymousUsage.sessionId || undefined
+          );
+          
+          // Update session ID and usage information if provided
+          if (anonymousResponse.session_id) {
+            setAnonymousUsage(prev => ({
+              ...prev,
+              sessionId: anonymousResponse.session_id,
+              remainingAnalyses: anonymousResponse.remaining_usage?.ai_analyses ?? prev.remainingAnalyses
+            }));
+          }
+          
+          // Set the response data (assuming the API returns the same structure)
+          setAiPrediction(anonymousResponse.prediction);
+          setAiAnalysis(anonymousResponse.analysis);
+          setAiRecommendations(anonymousResponse.recommendations);
+          if (anonymousResponse.training_result) {
+            setAiTrainingResult(anonymousResponse.training_result);
+          }
+        } catch (error: any) {
+          if (error.response?.status === 403) {
+            // Anonymous limit exceeded, show login modal
+            setAnonymousUsage(prev => ({
+              ...prev,
+              remainingAnalyses: 0
+            }));
+            setShowLoginModal(true);
+            setAiLoading(false);
+            return;
+          }
+          throw error;
+        }
+      } else {
+        // Use regular authenticated APIs
+        // Get prediction
+        const predictionResponse = await marketRegimeService.predictRegime(config.ticker);
+        setAiPrediction(predictionResponse);
+        
+        // Get comprehensive analysis
+        const analysisResponse = await marketRegimeService.getAnalysis(config.ticker);
+        setAiAnalysis(analysisResponse);
+        
+        // Get recommendations
+        const recommendationsResponse = await marketRegimeService.getRecommendations(config.ticker);
+        setAiRecommendations(recommendationsResponse);
+      }
       
       // Fetch stock data if needed
       if (config.ticker !== selectedSymbol) {
         await fetchStockData();
       }
+      
+      // Wait for loading simulation to complete
+      await loadingPromise;
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
@@ -246,6 +359,8 @@ const WelthAIPage: React.FC = () => {
       console.error('AI Analysis error:', err);
     } finally {
       setAiLoading(false);
+      setLoadingStep('');
+      setLoadingProgress(0);
     }
   };
   
@@ -352,9 +467,9 @@ const WelthAIPage: React.FC = () => {
         <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">AI Analysis Results</h2>
-            {(aiPrediction && aiAnalysis) && (
+            {(aiPrediction || aiAnalysis) && (
               <button
-                onClick={handleSaveAnalysis}
+                onClick={handleOpenSaveModal}
                 disabled={saveStatus.saving}
                 className={`px-4 py-2 text-sm rounded-md ${
                   saveStatus.saving ? 'bg-gray-400' : 
@@ -366,7 +481,7 @@ const WelthAIPage: React.FC = () => {
                 {saveStatus.saving ? 'Saving...' : 
                  saveStatus.success === true ? 'Saved!' : 
                  saveStatus.success === false ? 'Failed' : 
-                 'Save Analysis'}
+                 'Save'}
               </button>
             )}
           </div>
@@ -378,8 +493,28 @@ const WelthAIPage: React.FC = () => {
           )}
           
           {aiLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+            <div className="flex flex-col justify-center items-center h-64 space-y-6">
+              <div className="relative">
+                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-500"></div>
+                <div className="absolute inset-0 animate-pulse rounded-full h-16 w-16 border-4 border-indigo-200 opacity-30"></div>
+              </div>
+              
+              <div className="text-center space-y-4 w-full max-w-md">
+                <div className="text-lg font-medium text-indigo-600 dark:text-indigo-400">
+                  {loadingStep}
+                </div>
+                
+                <div className="w-full bg-gray-200 dark:bg-dark-300 rounded-full h-3">
+                  <div 
+                    className="bg-gradient-to-r from-indigo-500 to-purple-600 h-3 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${loadingProgress}%` }}
+                  ></div>
+                </div>
+                
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  {Math.round(loadingProgress)}% Complete
+                </div>
+              </div>
             </div>
           ) : aiError ? (
             <div className="bg-red-100 text-red-700 p-4 rounded-md">
@@ -447,6 +582,70 @@ const WelthAIPage: React.FC = () => {
           <h2 className="text-2xl font-semibold mb-4">Model Training Results</h2>
           {renderModelMetrics()}
           {renderFeatureImportance()}
+        </div>
+      )}
+      
+      {/* Removed usage and plan cards as requested */}
+      
+      {/* Modals */}
+      <LimitExceededModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        featureType="llm"
+        message="You have reached your daily limit for AI analysis. Please upgrade your plan to continue using this feature."
+      />
+      
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLoginSuccess={() => {
+          setAnonymousUsage({ remainingAnalyses: 0, sessionId: null });
+          setShowLoginModal(false);
+        }}
+        message="Sign up to get unlimited access to our AI-powered market analysis"
+      />
+      
+      {/* Save AI Analysis Modal */}
+      {showSaveModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+              Save AI Analysis
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+              Enter a name for your AI analysis to save all results and insights.
+            </p>
+            <input
+              type="text"
+              value={analysisName}
+              onChange={(e) => setAnalysisName(e.target.value)}
+              placeholder="Enter analysis name..."
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              autoFocus
+            />
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowSaveModal(false);
+                  setAnalysisName('');
+                }}
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmSave}
+                disabled={!analysisName.trim()}
+                className={`px-4 py-2 rounded-md text-white transition-colors ${
+                  analysisName.trim()
+                    ? 'bg-indigo-600 hover:bg-indigo-700'
+                    : 'bg-gray-400 cursor-not-allowed'
+                }`}
+              >
+                Save Analysis
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

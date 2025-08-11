@@ -10,7 +10,7 @@ const MobileFooterNav: React.FC = () => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/welthai') || path.startsWith('/backtesting');
+    return path.startsWith('/welthai') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta');
   };
 
   // Close features menu when clicking outside
@@ -83,7 +83,7 @@ const MobileFooterNav: React.FC = () => {
               </h4>
               
               <Link
-                to="/backtesting"
+                to="/backtest-beta"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50"
                 onClick={handleCloseFeatures}
               >

@@ -3,14 +3,22 @@ import ParameterDisplayCard from './ParameterDisplayCard';
 
 interface RatioDisplayGridProps {
   metrics: {
-    sharpe_ratio?: number;
+    sharpe_ratio?: number; // lower_snake keys (frontend saved)
     sortino_ratio?: number;
     profit_factor?: number;
     calmar_ratio?: number;
     recovery_factor?: number;
-    win_rate?: number;
-    total_return?: number;
-    max_drawdown_percent?: number;
+    win_rate?: number; // in percentage 0-100
+    total_return?: number; // in percentage 0-100
+    max_drawdown_percent?: number; // in percentage 0-100
+    // UPPER_SNAKE keys (beta backtest)
+    Sharpe_Ratio?: number;
+    Sortino_Ratio?: number;
+    Profit_Factor?: number;
+    Calmar_Ratio?: number;
+    Win_Rate?: number;
+    Total_Return_Pct?: number;
+    Max_Drawdown?: number; // percent
     [key: string]: any;
   };
   title?: string;
@@ -22,68 +30,72 @@ const RatioDisplayGrid: React.FC<RatioDisplayGridProps> = ({
   title = "Performance Ratios",
   className = ""
 }) => {
+  // Normalize metric keys from multiple possible shapes
+  const normalized = {
+    sharpe: metrics.sharpe_ratio ?? metrics.Sharpe_Ratio,
+    sortino: metrics.sortino_ratio ?? metrics.Sortino_Ratio,
+    profitFactor: metrics.profit_factor ?? metrics.Profit_Factor,
+    calmar: metrics.calmar_ratio ?? metrics.Calmar_Ratio,
+    recovery: metrics.recovery_factor ?? metrics.Recovery_Factor,
+    winRatePct: metrics.win_rate ?? metrics.Win_Rate, // assumed already 0-100
+    totalReturnPct: metrics.total_return ?? metrics.Total_Return_Pct,
+    maxDrawdownPct: metrics.max_drawdown_percent ?? metrics.Max_Drawdown,
+  };
+
   const ratioData = [
     {
       label: 'Sharpe Ratio',
-      value: metrics.sharpe_ratio,
+      value: normalized.sharpe,
       format: 'decimal' as const,
-      colorScheme: (metrics.sharpe_ratio && metrics.sharpe_ratio > 1) ? 'success' as const : 
-                  (metrics.sharpe_ratio && metrics.sharpe_ratio > 0) ? 'warning' as const : 'danger' as const,
+      colorScheme: (normalized.sharpe && normalized.sharpe > 1) ? 'success' as const : 
+                  (normalized.sharpe && normalized.sharpe > 0) ? 'warning' as const : 'danger' as const,
       description: 'Risk-adjusted return measure'
     },
     {
       label: 'Sortino Ratio',
-      value: metrics.sortino_ratio,
+      value: normalized.sortino,
       format: 'decimal' as const,
-      colorScheme: (metrics.sortino_ratio && metrics.sortino_ratio > 1) ? 'success' as const : 
-                  (metrics.sortino_ratio && metrics.sortino_ratio > 0) ? 'warning' as const : 'danger' as const,
+      colorScheme: (normalized.sortino && normalized.sortino > 1) ? 'success' as const : 
+                  (normalized.sortino && normalized.sortino > 0) ? 'warning' as const : 'danger' as const,
       description: 'Downside deviation adjusted return'
     },
     {
       label: 'Profit Factor',
-      value: metrics.profit_factor,
+      value: normalized.profitFactor,
       format: 'decimal' as const,
-      colorScheme: (metrics.profit_factor && metrics.profit_factor > 1.5) ? 'success' as const : 
-                  (metrics.profit_factor && metrics.profit_factor > 1) ? 'warning' as const : 'danger' as const,
+      colorScheme: (normalized.profitFactor && normalized.profitFactor > 1.5) ? 'success' as const : 
+                  (normalized.profitFactor && normalized.profitFactor > 1) ? 'warning' as const : 'danger' as const,
       description: 'Gross profit / Gross loss'
     },
     {
       label: 'Calmar Ratio',
-      value: metrics.calmar_ratio,
+      value: normalized.calmar,
       format: 'decimal' as const,
-      colorScheme: (metrics.calmar_ratio && metrics.calmar_ratio > 0.5) ? 'success' as const : 
-                  (metrics.calmar_ratio && metrics.calmar_ratio > 0) ? 'warning' as const : 'danger' as const,
+      colorScheme: (normalized.calmar && normalized.calmar > 0.5) ? 'success' as const : 
+                  (normalized.calmar && normalized.calmar > 0) ? 'warning' as const : 'danger' as const,
       description: 'Annual return / Max drawdown'
     },
     {
-      label: 'Recovery Factor',
-      value: metrics.recovery_factor,
-      format: 'decimal' as const,
-      colorScheme: (metrics.recovery_factor && metrics.recovery_factor > 2) ? 'success' as const : 
-                  (metrics.recovery_factor && metrics.recovery_factor > 1) ? 'warning' as const : 'danger' as const,
-      description: 'Net profit / Max drawdown'
-    },
-    {
       label: 'Win Rate',
-      value: metrics.win_rate,
+      value: normalized.winRatePct,
       format: 'percentage' as const,
-      colorScheme: (metrics.win_rate && metrics.win_rate > 60) ? 'success' as const : 
-                  (metrics.win_rate && metrics.win_rate > 40) ? 'warning' as const : 'danger' as const,
+      colorScheme: (normalized.winRatePct && normalized.winRatePct > 60) ? 'success' as const : 
+                  (normalized.winRatePct && normalized.winRatePct > 40) ? 'warning' as const : 'danger' as const,
       description: 'Percentage of winning trades'
     },
     {
       label: 'Total Return',
-      value: metrics.total_return,
+      value: normalized.totalReturnPct,
       format: 'percentage' as const,
-      colorScheme: (metrics.total_return && metrics.total_return > 0) ? 'success' as const : 'danger' as const,
+      colorScheme: (normalized.totalReturnPct && normalized.totalReturnPct > 0) ? 'success' as const : 'danger' as const,
       description: 'Overall portfolio return'
     },
     {
       label: 'Max Drawdown',
-      value: metrics.max_drawdown_percent,
+      value: normalized.maxDrawdownPct,
       format: 'percentage' as const,
-      colorScheme: (metrics.max_drawdown_percent && Math.abs(metrics.max_drawdown_percent) < 10) ? 'success' as const : 
-                  (metrics.max_drawdown_percent && Math.abs(metrics.max_drawdown_percent) < 20) ? 'warning' as const : 'danger' as const,
+      colorScheme: (normalized.maxDrawdownPct && Math.abs(normalized.maxDrawdownPct) < 10) ? 'success' as const : 
+                  (normalized.maxDrawdownPct && Math.abs(normalized.maxDrawdownPct) < 20) ? 'warning' as const : 'danger' as const,
       description: 'Maximum portfolio decline'
     }
   ];
@@ -115,83 +127,8 @@ const RatioDisplayGrid: React.FC<RatioDisplayGridProps> = ({
           </div>
         ))}
       </div>
-
-      {/* Performance Rating */}
-      <div className="mt-6 p-4 bg-white dark:bg-gray-600 rounded-lg border">
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Performance Assessment</h4>
-        <div className="flex items-center space-x-4">
-          <div className="flex-1">
-            <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-1">
-              <span>Overall Rating</span>
-              <span>{getOverallRating(metrics)}</span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full transition-all duration-300 ${getRatingColor(metrics)}`}
-                style={{ width: `${getRatingPercentage(metrics)}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
-};
-
-// Helper functions for performance rating
-const getOverallRating = (metrics: any): string => {
-  let score = 0;
-  let factors = 0;
-
-  if (metrics.sharpe_ratio !== undefined) {
-    score += metrics.sharpe_ratio > 1 ? 2 : metrics.sharpe_ratio > 0 ? 1 : 0;
-    factors++;
-  }
-  
-  if (metrics.profit_factor !== undefined) {
-    score += metrics.profit_factor > 1.5 ? 2 : metrics.profit_factor > 1 ? 1 : 0;
-    factors++;
-  }
-  
-  if (metrics.win_rate !== undefined) {
-    score += metrics.win_rate > 60 ? 2 : metrics.win_rate > 40 ? 1 : 0;
-    factors++;
-  }
-  
-  if (metrics.total_return !== undefined) {
-    score += metrics.total_return > 20 ? 2 : metrics.total_return > 0 ? 1 : 0;
-    factors++;
-  }
-
-  if (factors === 0) return 'N/A';
-  
-  const avgScore = score / factors;
-  if (avgScore >= 1.5) return 'Excellent';
-  if (avgScore >= 1) return 'Good';
-  if (avgScore >= 0.5) return 'Fair';
-  return 'Poor';
-};
-
-const getRatingPercentage = (metrics: any): number => {
-  const rating = getOverallRating(metrics);
-  switch (rating) {
-    case 'Excellent': return 90;
-    case 'Good': return 70;
-    case 'Fair': return 50;
-    case 'Poor': return 25;
-    default: return 0;
-  }
-};
-
-const getRatingColor = (metrics: any): string => {
-  const rating = getOverallRating(metrics);
-  switch (rating) {
-    case 'Excellent': return 'bg-green-500';
-    case 'Good': return 'bg-blue-500';
-    case 'Fair': return 'bg-yellow-500';
-    case 'Poor': return 'bg-red-500';
-    default: return 'bg-gray-500';
-  }
 };
 
 export default RatioDisplayGrid;

@@ -16,6 +16,7 @@ import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
 import StockPage from './pages/StockPage';
 import WelthChatbotPage from './pages/WelthChatbotPage';
+import WelthAiChatbotLaunchingSoon from './pages/WelthAiChatbotLaunchingSoon';
 import PlanDetailsPage from './pages/PlanDetailsPage';
 import ReviewPaymentPage from './pages/ReviewPaymentPage';
 import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
@@ -154,11 +155,15 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
                 <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+                <Route path="/stock" element={<PrivateRoute><StockPage /></PrivateRoute>} />
                 <Route path="/stock/:symbol" element={<PrivateRoute><StockPage /></PrivateRoute>} />
                 <Route path="/backtesting" element={<PrivateRoute><BacktestingPage /></PrivateRoute>} />
                 <Route path="/backtesting-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
+                {/* Alias for backtest beta as requested */}
+                <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
+                <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/pricing" element={<PricingPage />} />
                 <Route path="/plan-details/:tier/:billing" element={<PrivateRoute><PlanDetailsPage /></PrivateRoute>} />

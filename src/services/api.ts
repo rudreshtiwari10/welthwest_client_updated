@@ -4,6 +4,26 @@ import axios from 'axios';
 export const API_URL = process.env.REACT_APP_API_URL || 'https://stock-market-api.onrender.com/api';
 export const WS_URL = process.env.REACT_APP_WS_URL || 'wss://stock-market-api.onrender.com/api/ws';
 
+// Utility function to add delay for clock synchronization issues
+const addClockSyncDelay = (ms: number = 2000) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+// Utility function to decode JWT and check expiration
+const isTokenExpiring = (token: string, bufferMinutes: number = 5): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const expirationTime = payload.exp * 1000; // Convert to milliseconds
+    const currentTime = Date.now();
+    const bufferTime = bufferMinutes * 60 * 1000; // Convert minutes to milliseconds
+    
+    return (expirationTime - currentTime) <= bufferTime;
+  } catch (error) {
+    console.error('Error decoding JWT token:', error);
+    return true; // If we can't decode it, assume it's expiring
+  }
+};
+
 // Create axios instance with base URL
 const api = axios.create({
   baseURL: API_URL,
@@ -12,16 +32,150 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include auth token and handle proactive refresh
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
+  async (config) => {
+    let token = localStorage.getItem('access_token');
+    const refreshToken = localStorage.getItem('refresh_token');
+
+    // Check if token is expiring and refresh it proactively
+    if (token && refreshToken && isTokenExpiring(token)) {
+      console.log('Token is expiring, refreshing proactively...');
+      try {
+        const refreshApi = axios.create({
+          baseURL: API_URL,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const response = await refreshApi.post('/auth/refresh', {
+          refresh_token: refreshToken
+        });
+
+        if (response.data.access_token) {
+          localStorage.setItem('access_token', response.data.access_token);
+          if (response.data.refresh_token) {
+            localStorage.setItem('refresh_token', response.data.refresh_token);
+          }
+          token = response.data.access_token;
+          console.log('Token refreshed successfully');
+        }
+      } catch (error) {
+        console.error('Proactive token refresh failed:', error);
+        // Don't fail the request, let the response interceptor handle it
+      }
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Add response interceptor for token refresh and error handling
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Check if error is related to token timing issues
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || '';
+      
+      // Handle specific JWT timing error and other token-related errors
+      if (errorMessage.includes('Token used too early') || 
+          errorMessage.includes('Invalid token') ||
+          errorMessage.includes('token is invalid') ||
+          errorMessage.includes('JWT') ||
+          errorMessage.includes('expired')) {
+        console.warn('JWT timing/validation issue detected:', errorMessage);
+        
+        // For "Token used too early" errors, add a longer delay to handle server clock differences
+        if (errorMessage.includes('Token used too early')) {
+          console.log('Detected "Token used too early" error, adding 3-second delay for clock sync...');
+          await addClockSyncDelay(3000); // 3 seconds for clock sync issues
+        } else {
+          // Add a standard delay for other JWT issues
+          await addClockSyncDelay(1000);
+        }
+        
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+          try {
+            // Use a new axios instance to avoid interceptor loops
+            const refreshApi = axios.create({
+              baseURL: API_URL,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+
+            const response = await refreshApi.post('/auth/refresh', {
+              refresh_token: refreshToken
+            });
+            
+            if (response.data.access_token) {
+              // Store new tokens
+              localStorage.setItem('access_token', response.data.access_token);
+              if (response.data.refresh_token) {
+                localStorage.setItem('refresh_token', response.data.refresh_token);
+              }
+              
+              // Update authorization header for the original request
+              originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`;
+              
+              // Retry the original request
+              return api(originalRequest);
+            }
+          } catch (refreshError) {
+            console.error('Token refresh failed:', refreshError);
+            // Clear invalid tokens
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            
+            // Don't redirect if we're already on login page
+            if (!window.location.pathname.includes('/login')) {
+              console.log('Redirecting to login due to token refresh failure');
+              window.location.href = '/login';
+            }
+            return Promise.reject(refreshError);
+          }
+        } else {
+          // No refresh token available, clear tokens and redirect to login
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          
+          // Don't redirect if we're already on login page
+          if (!window.location.pathname.includes('/login')) {
+            console.log('No refresh token available, redirecting to login');
+            window.location.href = '/login';
+          }
+        }
+      }
+    }
+
+    // Handle other authentication errors
+    if (error.response?.status === 403) {
+      console.warn('Access forbidden - insufficient permissions');
+    }
+
+    // Log the error for debugging
+    if (error.response?.status === 401) {
+      console.error('Authentication error details:', {
+        status: error.response.status,
+        message: error.response?.data?.message || error.response?.data?.error,
+        url: originalRequest?.url,
+        method: originalRequest?.method
+      });
+    }
+    
+    return Promise.reject(error);
+  }
 );
 
 // Authentication service
@@ -113,6 +267,39 @@ export const authService = {
       return response.data;
     } catch (error) {
       console.error('Google login error:', error);
+      throw error;
+    }
+  },
+
+  // Refresh access token using refresh token
+  refreshToken: async (refreshToken: string) => {
+    try {
+      // Use a new axios instance to avoid interceptor loops
+      const refreshApi = axios.create({
+        baseURL: API_URL,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const response = await refreshApi.post('/auth/refresh', {
+        refresh_token: refreshToken
+      });
+
+      // Store new tokens
+      if (response.data.access_token) {
+        localStorage.setItem('access_token', response.data.access_token);
+        if (response.data.refresh_token) {
+          localStorage.setItem('refresh_token', response.data.refresh_token);
+        }
+      }
+
+      return response.data;
+    } catch (error) {
+      console.error('Token refresh error:', error);
+      // Clear tokens on refresh failure
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
       throw error;
     }
   }
@@ -263,6 +450,34 @@ export const marketService = {
       throw error;
     }
   },
+
+  // Anonymous backtesting with session limits
+  anonymousBacktest: async (params: any, sessionId?: string) => {
+    try {
+      const response = await api.post('/backtest/anonymous', {
+        ...params,
+        session_id: sessionId
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with anonymous backtest:', error);
+      throw error;
+    }
+  },
+
+  // Anonymous AI analysis with session limits
+  anonymousAIAnalysis: async (config: { ticker: string; period?: string }, sessionId?: string) => {
+    try {
+      const response = await api.post('/ai-analysis/anonymous', {
+        ...config,
+        session_id: sessionId
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with anonymous AI analysis:', error);
+      throw error;
+    }
+  },
   
   // Get trending stocks (top gainers and losers)
   getTrendingStocks: async (limit?: number) => {
@@ -271,6 +486,17 @@ export const marketService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching trending stocks:', error);
+      throw error;
+    }
+  },
+  
+  // Get comprehensive fundamental analysis data
+  getStockFundamentals: async (symbol: string) => {
+    try {
+      const response = await api.get(`/stock/fundamentals?ticker=${symbol}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching fundamentals for ${symbol}:`, error);
       throw error;
     }
   }

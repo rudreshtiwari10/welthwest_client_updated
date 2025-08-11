@@ -24,9 +24,13 @@ const Footer: React.FC = () => {
                 WelthWest
               </h1>
             </div>
-            <p className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md mx-auto md:mx-0`}>
-              AI-Powered <AnimatedText words={animatedWords} baseText="Wealth" interval={2500} direction="down" /> Intelligence Platform
-            </p>
+            <div className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md text-left`}>
+              <div className="text-lg font-medium">AI-Powered Wealth</div>
+              <div className="text-base mt-1">Intelligence Platform</div>
+              <div className="mt-2 text-sm">
+                <AnimatedText words={animatedWords} baseText="Empowering" interval={2500} direction="down" /> smarter investments
+              </div>
+            </div>
             <div className="mt-4 flex space-x-3 justify-center md:justify-start">
               <a href="#" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -46,22 +50,70 @@ const Footer: React.FC = () => {
             </div>
           </div>
           
-          {/* Middle section - Quick Links in a row */}
-          <div className="mb-6 md:mb-0 text-center">
-            <h3 className={`text-lg font-semibold mb-4 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Quick Links</h3>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-3 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-dark-500`}>
-                Home
-              </Link>
-              <Link to="/dashboard" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-3 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-dark-500`}>
-                Dashboard
-              </Link>
-              <Link to="/login" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-3 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-dark-500`}>
-                Login
-              </Link>
-              <Link to="/register" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors px-3 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-dark-500`}>
-                Register
-              </Link>
+          {/* Middle section - Categorized Quick Links */}
+          <div className="mb-6 md:mb-0 text-center max-w-lg mx-auto">
+            <h3 className={`text-lg font-semibold mb-6 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Quick Links</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+              {/* AI Features */}
+              <div>
+                <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
+                  AI Features
+                </h4>
+                <div className="space-y-2">
+                  <Link to="/welthai" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    AI Market Analysis
+                  </Link>
+                  <Link to="/WelthAiChatBot-lanching-soon" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    WelthAI Chat
+                  </Link>
+                  <Link to="/backtesting-beta" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Backtesting
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Platform */}
+              <div>
+                <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
+                  Platform
+                </h4>
+                <div className="space-y-2">
+                  <Link to="/" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Home
+                  </Link>
+                  <Link to="/dashboard" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Dashboard
+                  </Link>
+                  <Link to="/stock" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Stock Analysis
+                  </Link>
+                  <Link to="/pricing" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Pricing
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Account */}
+              <div>
+                <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
+                  Account
+                </h4>
+                <div className="space-y-2">
+                  <Link to="/login" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Login
+                  </Link>
+                  <Link to="/register" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Register
+                  </Link>
+                  <Link to="/profile" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Profile
+                  </Link>
+                  <Link to="/about" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    About
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
           

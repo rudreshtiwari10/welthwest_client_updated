@@ -144,54 +144,8 @@ const TechnicalIndicatorGrid: React.FC<TechnicalIndicatorGridProps> = ({
           </div>
         ))}
       </div>
-
-      {/* Key Signals Summary */}
-      <div className="mt-6 p-4 bg-white dark:bg-gray-600 rounded-lg border">
-        <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Signal Summary</h4>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center">
-            <div className={`text-lg font-bold ${getBullishSignals(indicators) > getBearishSignals(indicators) ? 'text-green-600' : 'text-red-600'}`}>
-              {getBullishSignals(indicators) > getBearishSignals(indicators) ? 'Bullish' : 'Bearish'}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Overall Trend</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-green-600 dark:text-green-400">
-              {getBullishSignals(indicators)}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Bullish Signals</div>
-          </div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-red-600 dark:text-red-400">
-              {getBearishSignals(indicators)}
-            </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">Bearish Signals</div>
-          </div>
-        </div>
-      </div>
     </div>
   );
-};
-
-// Helper functions for signal analysis
-const getBullishSignals = (indicators: any): number => {
-  let bullishCount = 0;
-  
-  if (indicators.rsi && indicators.rsi < 30) bullishCount++;
-  if (indicators.macd && indicators.macd > 0) bullishCount++;
-  // Add more bullish signal logic here
-  
-  return bullishCount;
-};
-
-const getBearishSignals = (indicators: any): number => {
-  let bearishCount = 0;
-  
-  if (indicators.rsi && indicators.rsi > 70) bearishCount++;
-  if (indicators.macd && indicators.macd < 0) bearishCount++;
-  // Add more bearish signal logic here
-  
-  return bearishCount;
 };
 
 export default TechnicalIndicatorGrid;
