@@ -77,16 +77,27 @@ const HomePage: React.FC = () => {
   
   // Memoized chart data generator to prevent unnecessary re-renders
   const generateChartData = useMemo(() => {
-    return (isPositive: boolean) => {
+    return (isPositive: boolean, currentPrice: number) => {
       const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
       
-      // Use fixed base data for consistent charts
-      let baseData = [65, 59, 80, 81, 56, 55, 40, 60, 70];
-      
-      // Only apply trend factor, no random values to prevent shaking
-      const data = baseData.map((value, index) => {
-        const trendFactor = isPositive ? index * 1.2 : -index * 0.8;
-        return value + trendFactor;
+      // Generate smooth curved data progression based on current price
+      const basePrice = currentPrice || 100;
+      const data = labels.map((_, index) => {
+        // Create a more pronounced curve with smooth transitions
+        const progress = index / (labels.length - 1); // 0 to 1
+        let curveValue;
+        
+        if (isPositive) {
+          // For positive trend: start lower, curve upward smoothly
+          curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * Math.PI) * 0.02);
+        } else {
+          // For negative trend: start higher, curve downward smoothly
+          curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * Math.PI) * 0.02);
+        }
+        
+        // Add some natural market-like fluctuation
+        const fluctuation = Math.sin(index * 0.8) * (basePrice * 0.008);
+        return curveValue + fluctuation;
       });
       
       return {
@@ -97,8 +108,14 @@ const HomePage: React.FC = () => {
             data,
             borderColor: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
             backgroundColor: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-            tension: 0.4,
+            tension: 0.5, // Increased tension for smoother curves
             fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointBackgroundColor: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
           },
         ],
       };
@@ -109,13 +126,33 @@ const HomePage: React.FC = () => {
   const chartOptions = useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'nearest' as const,
+      axis: 'x' as const,
+      intersect: false,
+    },
     plugins: {
       legend: {
         display: false,
       },
       tooltip: {
+        enabled: true,
         mode: 'index' as const,
         intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 6,
+        displayColors: false,
+        callbacks: {
+          title: () => '',
+          label: (context: any) => {
+            const value = context.parsed.y;
+            return `₹${value.toFixed(2)}`;
+          },
+        },
       },
     },
     scales: {
@@ -129,6 +166,12 @@ const HomePage: React.FC = () => {
     elements: {
       point: {
         radius: 0,
+        hoverRadius: 4,
+        hitRadius: 10,
+      },
+      line: {
+        borderCapStyle: 'round' as const,
+        borderJoinStyle: 'round' as const,
       },
     },
     // Add animation options to prevent jarring changes
@@ -138,7 +181,7 @@ const HomePage: React.FC = () => {
     transitions: {
       active: {
         animation: {
-          duration: 0,
+          duration: 200,
         },
       },
     },
@@ -393,14 +436,13 @@ const HomePage: React.FC = () => {
                               <span className="font-medium">
                                 {isPositive ? '+' : ''}
                                 {percentChange.toFixed(2)}%
-                                {` (${change.toFixed(2)})`}
                               </span>
                             </div>
                           </div>
                         </div>
                         
                         <div className="h-32 w-full" style={{ minHeight: '128px', maxHeight: '128px' }}>
-                          <Line data={generateChartData(isPositive)} options={chartOptions} key={`chart-${key}-${isPositive}`} />
+                          <Line data={generateChartData(isPositive, index_data.price || 0)} options={chartOptions} key={`chart-${key}-${isPositive}-${index_data.price}`} />
                         </div>
                         
                         <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
@@ -633,7 +675,145 @@ const HomePage: React.FC = () => {
           </div>
         </section>
         
+        {/* Trading Challenges We Solve Section */}
+        <section className="mb-12 max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600">
+              Trading Challenges We Solve
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Common trader problems that our AI intelligence platform addresses
+            </p>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* False Breakouts & Stop-Loss Hunts */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-red-500 transition-colors">
+                  False Breakouts & Stop-Loss Hunts
+                </h3>
+              </div>
+            </div>
+
+            {/* Information Overload & Slow Reaction */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-blue-500 transition-colors">
+                  Information Overload & Slow Reaction
+                </h3>
+              </div>
+            </div>
+
+            {/* Lack of Institutional-Grade Analytics */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-green-500 transition-colors">
+                  Lack of Institutional-Grade Analytics
+                </h3>
+              </div>
+            </div>
+
+            {/* Inconsistent Strategy Performance */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-yellow-500 transition-colors">
+                  Inconsistent Strategy Performance
+                </h3>
+              </div>
+            </div>
+
+            {/* Manual Backtesting Limitations */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.871 4A17.926 17.926 0 003 12c0 2.874.673 5.59 1.871 8m14.13 0a17.926 17.926 0 001.87-8 17.926 17.926 0 00-1.87-8M9 9h1.246a1 1 0 01.961.725l1.586 5.55a1 1 0 00.961.725H15" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-indigo-500 transition-colors">
+                  Manual Backtesting Limitations
+                </h3>
+              </div>
+            </div>
+
+            {/* Hidden Market Manipulation */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-pink-500 transition-colors">
+                  Hidden Market Manipulation
+                </h3>
+              </div>
+            </div>
+
+            {/* Static Risk Management */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-cyan-500 transition-colors">
+                  Static Risk Management
+                </h3>
+              </div>
+            </div>
+
+            {/* Steep Learning Curve */}
+            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-full -mr-10 -mt-10"></div>
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-emerald-500 transition-colors">
+                  Steep Learning Curve
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom accent */}
+          <div className="flex justify-center mt-12">
+            <div className="h-1 w-32 bg-gradient-to-r from-transparent via-primary-500 to-transparent rounded-full"></div>
+          </div>
+        </section>
       </div>
     </div>
   );

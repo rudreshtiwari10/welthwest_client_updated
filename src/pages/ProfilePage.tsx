@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import SubscriptionSection from '../components/account/SubscriptionSection';
+import PasswordResetModal from '../components/PasswordResetModal';
 import { ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 
 const ProfilePage: React.FC = () => {
@@ -15,6 +16,9 @@ const ProfilePage: React.FC = () => {
   // Dropdown states
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(true);
   const [subscriptionDropdownOpen, setSubscriptionDropdownOpen] = useState(false);
+  
+  // Password reset modal state
+  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   
   useEffect(() => {
     if (user) {
@@ -181,7 +185,7 @@ const ProfilePage: React.FC = () => {
                   <button 
                     type="button"
                     className="flex-1 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 font-medium py-2 px-4 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
-                    onClick={() => console.log('Change password')}
+                    onClick={() => setShowPasswordResetModal(true)}
                   >
                     Change Password
                   </button>
@@ -226,6 +230,14 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {/* Password Reset Modal */}
+      <PasswordResetModal
+        isOpen={showPasswordResetModal}
+        onClose={() => setShowPasswordResetModal(false)}
+        userEmail={user?.email || ''}
+        isLoggedIn={true}
+      />
     </div>
   );
 };

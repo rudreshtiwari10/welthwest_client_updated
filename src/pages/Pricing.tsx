@@ -131,10 +131,10 @@ const PricingPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center">
-        <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
+        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
           Choose Your Plan
         </h1>
-        <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
+        <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500 dark:text-gray-400">
           Get the tools you need to trade smarter. Start with our free plan or upgrade for more features.
         </p>
       </div>

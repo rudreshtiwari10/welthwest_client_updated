@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon } from '@heroicons/react/24/outline';
@@ -12,7 +13,8 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, user } = useAuth();
+  const { subscriptionDetails } = useSubscription();
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showStocksMenu, setShowStocksMenu] = useState(false);
@@ -323,34 +325,94 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               >
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center space-x-2 text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400"
+                  className="flex items-center text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400"
                 >
                   <div className="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
                     <i className="fas fa-user text-primary-600 dark:text-primary-400"></i>
                   </div>
-                  <span className="text-sm font-medium">Profile</span>
-                  <i className={`fas fa-chevron-down text-xs transition-transform ${showProfileMenu ? 'rotate-180' : ''}`}></i>
+                  <i className={`fas fa-chevron-down text-xs ml-1 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`}></i>
                 </button>
 
                 {/* Profile Menu */}
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
-                      onClick={() => setShowProfileMenu(false)}
-                    >
-                      Profile Settings
-                    </Link>
-                    <button
-                      onClick={() => {
-                        logout();
-                        setShowProfileMenu(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
-                    >
-                      Logout
-                    </button>
+                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-2 border border-gray-200 dark:border-gray-700">
+                    {/* User Info Section */}
+                    <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center">
+                          <i className="fas fa-user text-primary-600 dark:text-primary-400 text-lg"></i>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                            {user?.username || 'User'}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {user?.email || 'No email'}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Subscription Plan */}
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-xs text-gray-600 dark:text-gray-400">Plan:</span>
+                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                          subscriptionDetails?.tier === 'FREE' 
+                            ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                            : subscriptionDetails?.tier === 'PRO'
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                            : subscriptionDetails?.tier === 'ENTERPRISE'
+                            ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                        }`}>
+                          {subscriptionDetails?.tier || 'Free'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-1">
+                      <Link
+                        to="/profile"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <i className="fas fa-user-cog w-4 mr-3 text-gray-400"></i>
+                        Profile Settings
+                      </Link>
+                      
+                      <Link
+                        to="/dashboard"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <i className="fas fa-tachometer-alt w-4 mr-3 text-gray-400"></i>
+                        Dashboard
+                      </Link>
+                      
+                      {subscriptionDetails?.tier === 'FREE' && (
+                        <Link
+                          to="/pricing"
+                          className="flex items-center px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                          onClick={() => setShowProfileMenu(false)}
+                        >
+                          <i className="fas fa-crown w-4 mr-3 text-blue-500"></i>
+                          Upgrade Plan
+                        </Link>
+                      )}
+                      
+                      <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                      
+                      <button
+                        onClick={() => {
+                          logout();
+                          setShowProfileMenu(false);
+                        }}
+                        className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <i className="fas fa-sign-out-alt w-4 mr-3"></i>
+                        Logout
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

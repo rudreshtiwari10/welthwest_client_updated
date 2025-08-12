@@ -19,21 +19,21 @@ const FeatureComparison: React.FC<FeatureComparisonProps> = ({ features }) => {
 
   return (
     <div className="mt-16">
-      <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white text-center mb-8">
         Compare Plan Features
       </h2>
       
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-t border-gray-200">
-              <th className="py-5 px-4 text-left text-sm font-medium text-gray-500" scope="col">
+            <tr className="border-t border-gray-200 dark:border-gray-700">
+              <th className="py-5 px-4 text-left text-sm font-medium text-gray-500 dark:text-gray-400" scope="col">
                 Features
               </th>
               {tiers.map((tier) => (
                 <th
                   key={tier}
-                  className="py-5 px-4 text-center text-sm font-medium text-gray-500"
+                  className="py-5 px-4 text-center text-sm font-medium text-gray-500 dark:text-gray-400"
                   scope="col"
                 >
                   {tier}
@@ -41,25 +41,25 @@ const FeatureComparison: React.FC<FeatureComparisonProps> = ({ features }) => {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {features.map((feature, featureIdx) => (
-              <tr key={featureIdx} className={featureIdx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+              <tr key={featureIdx} className={featureIdx % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-800'}>
                 <td className="py-5 px-4">
-                  <div className="text-sm font-medium text-gray-900">{feature.name}</div>
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">{feature.name}</div>
                   {feature.description && (
-                    <div className="text-sm text-gray-500">{feature.description}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{feature.description}</div>
                   )}
                 </td>
                 {tiers.map((tier) => (
                   <td key={tier} className="py-5 px-4 text-center">
                     {typeof feature.tiers[tier] === 'boolean' ? (
                       feature.tiers[tier] ? (
-                        <CheckIcon className="w-5 h-5 text-green-500 mx-auto" />
+                        <CheckIcon className="w-5 h-5 text-green-500 dark:text-green-400 mx-auto" />
                       ) : (
-                        <XMarkIcon className="w-5 h-5 text-gray-300 mx-auto" />
+                        <XMarkIcon className="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" />
                       )
                     ) : (
-                      <span className="text-sm text-gray-700">{feature.tiers[tier]}</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">{feature.tiers[tier]}</span>
                     )}
                   </td>
                 ))}

@@ -18,12 +18,12 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ percentage, label, count, lim
   return (
     <div className="mb-4">
       <div className="flex justify-between items-center mb-1">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">
           {count} / {limit === Infinity ? '∞' : limit}
         </span>
       </div>
-      <div className="w-full bg-gray-200 rounded-full h-2.5">
+      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
         <div
           className={`h-2.5 rounded-full ${getColorClass()}`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -49,10 +49,10 @@ const UsageTracker: React.FC = () => {
   const timeUntilReset = getTimeUntilReset();
 
   return (
-    <div className="bg-white rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium text-gray-900">Daily Usage</h3>
-        <span className="text-sm text-gray-500">
+        <h3 className="text-lg font-medium text-gray-900 dark:text-white">Daily Usage</h3>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
           Resets in {timeUntilReset}
         </span>
       </div>
@@ -72,12 +72,12 @@ const UsageTracker: React.FC = () => {
       />
 
       {subscriptionDetails.tier !== 'ENTERPRISE' && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Need more? {' '}
             <a 
               href="/pricing" 
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
             >
               Upgrade your plan →
             </a>

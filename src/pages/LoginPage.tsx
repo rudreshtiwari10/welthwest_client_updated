@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
+import PasswordResetModal from '../components/PasswordResetModal';
 
 const LoginPage: React.FC = () => {
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   
   const { login, handleGoogleLogin } = useAuth();
   const navigate = useNavigate();
@@ -112,9 +114,13 @@ const LoginPage: React.FC = () => {
             </div>
             
             <div className="text-sm">
-              <Link to="/forgot-password" className="font-medium text-primary-400 hover:text-primary-300">
+              <button
+                type="button"
+                onClick={() => setShowPasswordResetModal(true)}
+                className="font-medium text-primary-400 hover:text-primary-300 focus:outline-none focus:underline"
+              >
                 Forgot your password?
-              </Link>
+              </button>
             </div>
           </div>
           
@@ -162,6 +168,14 @@ const LoginPage: React.FC = () => {
           </div>
         </form>
       </div>
+      
+      {/* Password Reset Modal */}
+      <PasswordResetModal
+        isOpen={showPasswordResetModal}
+        onClose={() => setShowPasswordResetModal(false)}
+        userEmail=""
+        isLoggedIn={false}
+      />
     </div>
   );
 };

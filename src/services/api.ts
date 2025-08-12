@@ -302,6 +302,46 @@ export const authService = {
       localStorage.removeItem('refresh_token');
       throw error;
     }
+  },
+
+  // Password Reset Functions
+  forgotPassword: async (usernameOrEmail: string) => {
+    try {
+      const response = await api.post('/auth/forgot-password', {
+        username_or_email: usernameOrEmail
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Forgot password error:', error);
+      throw error;
+    }
+  },
+
+  verifyResetOTP: async (usernameOrEmail: string, otp: string) => {
+    try {
+      const response = await api.post('/auth/verify-reset-otp', {
+        username_or_email: usernameOrEmail,
+        otp
+      });
+      return response.data;
+    } catch (error) {
+      console.error('OTP verification error:', error);
+      throw error;
+    }
+  },
+
+  resetPassword: async (userId: string, newPassword: string, otp: string) => {
+    try {
+      const response = await api.post('/auth/reset-password', {
+        user_id: userId,
+        new_password: newPassword,
+        otp
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Password reset error:', error);
+      throw error;
+    }
   }
 };
 

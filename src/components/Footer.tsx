@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
           <div className="mb-6 md:mb-0 text-center max-w-lg mx-auto">
             <h3 className={`text-lg font-semibold mb-6 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Quick Links</h3>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
               {/* AI Features */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
@@ -114,6 +114,21 @@ const Footer: React.FC = () => {
                   </Link>
                 </div>
               </div>
+              
+              {/* Legal */}
+              <div>
+                <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
+                  Legal
+                </h4>
+                <div className="space-y-2">
+                  <Link to="/privacy-policy" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Privacy Policy
+                  </Link>
+                  <Link to="/terms-and-conditions" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Terms & Conditions
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -135,7 +150,15 @@ const Footer: React.FC = () => {
               </span>
               <p className={isAuthPage ? 'text-gray-300' : ''}>&copy; {new Date().getFullYear()} WelthWest. All rights reserved.</p>
             </div>
-            <div className="mt-3 sm:mt-0">
+            <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+              <div className="flex space-x-4 text-sm">
+                <Link to="/privacy-policy" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  Privacy
+                </Link>
+                <Link to="/terms-and-conditions" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  Terms
+                </Link>
+              </div>
               <button 
                 className={`inline-flex items-center px-3 py-1 rounded-md ${isAuthPage ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 dark:bg-dark-500 text-gray-700 dark:text-gray-300'} text-sm transition-colors hover:bg-gray-200 dark:hover:bg-dark-600`}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}

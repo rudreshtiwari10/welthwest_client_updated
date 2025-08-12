@@ -14,10 +14,13 @@ import BacktestingPage from './pages/BacktestingPage';
 import BacktestingBetaPage from './pages/BacktestingBetaPage';
 import WelthAIPage from './pages/WelthAIPage';
 import PricingPage from './pages/Pricing';
+import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
 import StockPage from './pages/StockPage';
 import WelthChatbotPage from './pages/WelthChatbotPage';
 import WelthAiChatbotLaunchingSoon from './pages/WelthAiChatbotLaunchingSoon';
 import PlanDetailsPage from './pages/PlanDetailsPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsAndConditions from './pages/TermsAndConditions';
 import ReviewPaymentPage from './pages/ReviewPaymentPage';
 import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 
@@ -165,7 +168,12 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
-                <Route path="/pricing" element={<PricingPage />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
+                {/* Temporarily route /pricing to launching-soon page; keep legacy at /pricing-old */}
+                <Route path="/pricing" element={<PricingLaunchingSoon />} />
+                <Route path="/pricing-launching-soon" element={<PricingLaunchingSoon />} />
+                <Route path="/pricing-old" element={<PricingPage />} />
                 <Route path="/plan-details/:tier/:billing" element={<PrivateRoute><PlanDetailsPage /></PrivateRoute>} />
                 <Route path="/review-payment" element={<PrivateRoute><ReviewPaymentPage /></PrivateRoute>} />
                 <Route path="/payment-confirmation" element={<PrivateRoute><PaymentConfirmationPage /></PrivateRoute>} />
