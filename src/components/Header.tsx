@@ -133,7 +133,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                   className="flex items-center px-4 py-1.5 bg-[#7e22ce] hover:bg-[#6b21a8] text-white rounded-full font-medium transition-colors shadow-md"
                   onMouseEnter={() => setShowWelthAIMenu(true)}
                 >
-                  <span className="mr-1">Welth AI</span>
+                  <SparklesIcon className="h-4 w-4 mr-2 text-white" />
+                  <span className="mr-1">WelthAI</span>
                   <i className={`fas fa-chevron-down text-xs transition-transform ${showWelthAIMenu ? 'rotate-180' : ''}`}></i>
                 </Link>
 
@@ -173,7 +174,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 )}
               </div>
 
-              {/* Backtesting Link - route to Beta page */}
+              {/* Backtesting Link in top nav */}
               <Link 
                 to="/backtest-beta"
                 className={`flex items-center text-sm font-medium ${
@@ -186,108 +187,21 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <span>Backtesting</span>
               </Link>
 
-              {/* Stocks Dropdown */}
-              <div 
-                className="relative" 
-                ref={stocksRef}
-                onMouseEnter={() => handleDropdownHover(true, setShowStocksMenu, stocksTimeoutRef)}
-                onMouseLeave={() => handleDropdownHover(false, setShowStocksMenu, stocksTimeoutRef)}
-              >
-                <Link 
-                  to="/stock"
-                  className={`flex items-center text-sm space-x-1 font-medium ${
-                    isStockActive()
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
-                  onMouseEnter={() => setShowStocksMenu(true)}
-                >
-                  <span>Stocks</span>
-                  <i className={`fas fa-chevron-down text-xs transition-transform ${showStocksMenu ? 'rotate-180' : ''}`}></i>
-                </Link>
-
-                {showStocksMenu && (
-                  <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50">
-                    {/* Stocks dropdown content */}
-                    <div className="py-1">
-                      <Link
-                        to="/stock"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
-                        onClick={() => setShowStocksMenu(false)}
-                      >
-                        <div className="flex items-center">
-                          <div className="mr-3 text-green-600 dark:text-green-400">
-                            <i className="fas fa-chart-line"></i>
-                          </div>
-                          <div>
-                            <div className="font-medium">Top Gainers</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-300">View market movers</div>
-                          </div>
-                        </div>
-                      </Link>
-                      <Link
-                        to="/stock/reliance"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
-                        onClick={() => setShowStocksMenu(false)}
-                      >
-                        <div className="flex items-center">
-                          <div className="mr-3 text-blue-600 dark:text-blue-400">
-                            <i className="fas fa-search"></i>
-                          </div>
-                          <div>
-                            <div className="font-medium">All Stocks</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-300">Browse all stocks</div>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Dashboard Dropdown */}
-              <div 
-                className="relative" 
-                ref={dashboardRef}
-                onMouseEnter={() => handleDropdownHover(true, setShowDashboardMenu, dashboardTimeoutRef)}
-                onMouseLeave={() => handleDropdownHover(false, setShowDashboardMenu, dashboardTimeoutRef)}
-              >
+              {/* Dashboard Link (replaces Stocks) */}
+              <div className="relative" ref={dashboardRef}>
                 <Link 
                   to="/dashboard"
-                  className={`flex items-center text-sm space-x-1 font-medium ${
+                  className={`flex items-center text-sm font-medium ${
                     isActive('/dashboard')
                       ? 'text-primary-600 dark:text-primary-400'
                       : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
                   }`}
-                  onClick={() => setShowDashboardMenu(false)}
                 >
                   <span>Dashboard</span>
-                  <i className={`fas fa-chevron-down text-xs transition-transform ${showDashboardMenu ? 'rotate-180' : ''}`}></i>
                 </Link>
-
-                {showDashboardMenu && (
-                  <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50">
-                    {/* Dashboard dropdown content */}
-                    <div className="py-1">
-                      <Link
-                        to="/dashboard"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
-                        onClick={() => setShowDashboardMenu(false)}
-                      >
-                        <div className="flex items-center">
-                          <div className="mr-3 text-blue-600 dark:text-blue-400">
-                            <i className="fas fa-chart-line"></i>
-                          </div>
-                          <div>
-                            <div className="font-medium">Overview</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-300">View your dashboard</div>
-                          </div>
-                        </div>
-                      </Link>
-                    </div>
-                  </div>
-                )}
               </div>
+
+              {/* Dashboard Dropdown removed; simple Dashboard link kept above */}
             </nav>
           </div>
 

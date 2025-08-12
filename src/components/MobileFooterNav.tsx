@@ -48,7 +48,7 @@ const MobileFooterNav: React.FC = () => {
               </h4>
               
               <Link
-                to="/welthai"
+                to="/WelthAiChatBot-lanching-soon"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
                 onClick={handleCloseFeatures}
               >
@@ -76,26 +76,7 @@ const MobileFooterNav: React.FC = () => {
               </Link>
             </div>
             
-            {/* Trading Tools */}
-            <div>
-              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-                Trading Tools
-              </h4>
-              
-              <Link
-                to="/backtest-beta"
-                className="flex items-center p-3 rounded-lg bg-gray-800/50"
-                onClick={handleCloseFeatures}
-              >
-                <div className="mr-3 text-blue-400">
-                  <ChartBarIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="font-medium text-white">Backtesting</div>
-                  <div className="text-xs text-gray-400">Test trading strategies with historical data</div>
-                </div>
-              </Link>
-            </div>
+            {/* Trading Tools - removed Backtesting per request */}
           </div>
         </>
       )}
@@ -113,13 +94,13 @@ const MobileFooterNav: React.FC = () => {
           </Link>
 
           <Link
-            to="/markets"
+            to="/backtest-beta"
             className={`flex flex-col items-center justify-center ${
-              isActive('/markets') ? 'text-primary-400' : 'text-gray-400'
+              isActive('/backtest-beta') ? 'text-primary-400' : 'text-gray-400'
             }`}
           >
-            <i className="fas fa-chart-line text-lg mb-1"></i>
-            <span className="text-xs">Markets</span>
+            <i className="fas fa-vial text-lg mb-1"></i>
+            <span className="text-xs">Backtest</span>
           </Link>
 
           {/* WelthAI Button - Mobile */}
@@ -131,27 +112,21 @@ const MobileFooterNav: React.FC = () => {
               isActive('/welthai') ? 'bg-primary-700' : 'bg-primary-600'
             }`}>
               <div className="flex items-center justify-center">
-                <i className="fas fa-comment text-white text-xl"></i>
+                <SparklesIcon className="h-6 w-6 text-white" />
               </div>
             </div>
             <span className="text-xs mt-1 text-gray-400">WelthAI</span>
           </Link>
 
-          {/* AI-Powered Stock Analysis */}
+          {/* Dashboard */}
           <Link
-            to="/stock/RELIANCE"
+            to="/dashboard"
             className={`flex flex-col items-center justify-center ${
-              isStockActive() ? 'text-primary-400' : 'text-gray-400'
+              isActive('/dashboard') ? 'text-primary-400' : 'text-gray-400'
             }`}
           >
-            <div className="relative">
-              <i className="fas fa-search-dollar text-lg mb-1"></i>
-              <div className="absolute -top-1 -right-1 w-2 h-2 bg-purple-500 rounded-full"></div>
-            </div>
-            <div className="flex items-center">
-              <span className="text-xs">Stocks</span>
-              <SparklesIcon className="h-3 w-3 ml-0.5 text-purple-500" />
-            </div>
+            <i className="fas fa-tachometer-alt text-lg mb-1"></i>
+            <span className="text-xs">Dashboard</span>
           </Link>
 
           {/* Features Button - Replace Profile */}

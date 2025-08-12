@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import AnimatedText from '../components/AnimatedText';
 import { marketService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
@@ -18,11 +17,11 @@ const HomePage: React.FC = () => {
   const [displayText, setDisplayText] = useState('Trading');
   
   // Words to animate through
-  const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
-  const dynamicWords = ['Trading', 'Backtesting', 'Analysis'];
+  // const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
+  const dynamicWords = useMemo(() => ['Trading', 'Backtesting', 'Analysis'], []);
   
   // Get the longest word to set a fixed width
-  const longestWord = dynamicWords.reduce((a, b) => a.length > b.length ? a : b, '');
+  // const longestWord = dynamicWords.reduce((a, b) => a.length > b.length ? a : b, '');
   
   // Dynamic word typing effect
   useEffect(() => {
@@ -55,7 +54,7 @@ const HomePage: React.FC = () => {
     }
     
     return () => clearInterval(interval);
-  }, [dynamicWord]);
+  }, [dynamicWord, dynamicWords, displayText]);
   
   useEffect(() => {
     const fetchMarketData = async () => {
@@ -290,24 +289,7 @@ const HomePage: React.FC = () => {
                   </svg>
                 </Link>
                 
-                {/* Backtesting Button */}
-                <Link 
-                  to="/backtest-beta" 
-                  className="group flex items-center justify-center sm:justify-between bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
-                >
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
-                      <ClockIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Backtesting</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Test your strategies</p>
-                    </div>
-                  </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-green-600 dark:text-green-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </Link>
+                {/* Backtesting Button removed per request */}
               </div>
               
               {/* Small sparkle decoration */}
@@ -381,7 +363,6 @@ const HomePage: React.FC = () => {
                   const index_data = marketData.indices[key];
                   // Calculate percentage change more accurately
                   let percentChange = 0;
-                  let change = 0;
                   
                   if (index_data.percentChange !== undefined && index_data.percentChange !== null) {
                     percentChange = index_data.percentChange;
@@ -395,13 +376,7 @@ const HomePage: React.FC = () => {
                     percentChange = sampleChanges[Object.keys(marketData.indices).indexOf(key) % sampleChanges.length];
                   }
                   
-                  if (index_data.change !== undefined && index_data.change !== null) {
-                    change = index_data.change;
-                  } else if (index_data.price && percentChange) {
-                    // Calculate change based on percentage
-                    const previousPrice = index_data.price / (1 + (percentChange / 100));
-                    change = index_data.price - previousPrice;
-                  }
+                  // Absolute change is not displayed; omit to avoid unused variable warnings
                   
                   const isPositive = percentChange >= 0;
                   
