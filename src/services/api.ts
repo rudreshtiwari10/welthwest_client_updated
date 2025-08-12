@@ -1075,4 +1075,77 @@ export const subscriptionService = {
       throw error;
     }
   }
+};
+
+// Feedback service for dynamic feedback forms
+export const feedbackService = {
+  // Submit feedback form
+  submitFeedback: async (feedbackData: {
+    user_info: {
+      name: string;
+      email: string;
+      phone?: string;
+    };
+    form_type: string;
+    responses: Array<{
+      question: string;
+      answer: string;
+      question_type?: string;
+      options?: string[];
+    }>;
+    form_metadata?: any;
+  }) => {
+    try {
+      const response = await api.post('/feedback/submit', feedbackData);
+      return response.data;
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      throw error;
+    }
+  },
+
+  // Get feedback list (Admin only)
+  getFeedbackList: async (params?: {
+    form_type?: string;
+    user_email?: string;
+    limit?: number;
+    skip?: number;
+  }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params?.form_type) queryParams.append('form_type', params.form_type);
+      if (params?.user_email) queryParams.append('user_email', params.user_email);
+      if (params?.limit) queryParams.append('limit', params.limit.toString());
+      if (params?.skip) queryParams.append('skip', params.skip.toString());
+
+      const response = await api.get(`/feedback/list${queryParams.toString() ? '?' + queryParams.toString() : ''}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting feedback list:', error);
+      throw error;
+    }
+  },
+
+  // Get specific feedback by ID (Admin only)
+  getFeedbackById: async (submissionId: string) => {
+    try {
+      const response = await api.get(`/feedback/${submissionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting feedback by ID:', error);
+      throw error;
+    }
+  },
+
+  // Get feedback statistics (Admin only)
+  getFeedbackStatistics: async (formType?: string) => {
+    try {
+      const queryParams = formType ? `?form_type=${formType}` : '';
+      const response = await api.get(`/feedback/statistics${queryParams}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting feedback statistics:', error);
+      throw error;
+    }
+  }
 }; 

@@ -116,7 +116,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <div className="flex items-center space-x-8">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <span className="font-bold text-lg text-gray-900 dark:text-white">WelthWest</span>
+              <span className="font-bold text-2xl text-gray-900 dark:text-white">WelthWest</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -399,6 +399,15 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                           Upgrade Plan
                         </Link>
                       )}
+                      
+                      <Link
+                        to="/feedback"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        <i className="fas fa-comment-dots w-4 mr-3 text-gray-400"></i>
+                        Feedback
+                      </Link>
                       
                       <hr className="my-1 border-gray-200 dark:border-gray-700" />
                       

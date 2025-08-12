@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback API Integration Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background: #4F46E5;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #3730A3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Feedback API Integration Test</h1>
+        <p>This page tests the feedback API connection between frontend and backend.</p>
+        
+        <div class="form-group">
+            <label>API Base URL:</label>
+            <input type="text" id="apiUrl" value="http://localhost:8000/api" />
+        </div>
+        
+        <h2>Test Feedback Submission</h2>
+        
+        <div class="form-group">
+            <label>Your Name:</label>
+            <input type="text" id="userName" value="Test User" />
+        </div>
+        
+        <div class="form-group">
+            <label>Your Email:</label>
+            <input type="email" id="userEmail" value="test@example.com" />
+        </div>
+        
+        <div class="form-group">
+            <label>Phone (Optional):</label>
+            <input type="tel" id="userPhone" value="+1234567890" />
+        </div>
+        
+        <div class="form-group">
+            <label>Overall Experience:</label>
+            <select id="overallExperience">
+                <option value="">Select...</option>
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Average">Average</option>
+                <option value="Poor">Poor</option>
+                <option value="Very Poor">Very Poor</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Comments:</label>
+            <textarea id="comments" rows="4" placeholder="Any additional feedback...">This is a test submission from the integration test page.</textarea>
+        </div>
+        
+        <button onclick="testFeedbackSubmission()" id="submitBtn">Submit Test Feedback</button>
+        <button onclick="clearResults()">Clear Results</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testFeedbackSubmission() {
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            resultDiv.innerHTML = '';
+            
+            try {
+                const apiUrl = document.getElementById('apiUrl').value;
+                const userName = document.getElementById('userName').value;
+                const userEmail = document.getElementById('userEmail').value;
+                const userPhone = document.getElementById('userPhone').value;
+                const overallExperience = document.getElementById('overallExperience').value;
+                const comments = document.getElementById('comments').value;
+                
+                // Validate required fields
+                if (!userName || !userEmail) {
+                    throw new Error('Name and email are required');
+                }
+                
+                // Create feedback data structure
+                const feedbackData = {
+                    user_info: {
+                        name: userName,
+                        email: userEmail,
+                        phone: userPhone || undefined
+                    },
+                    form_type: 'Integration Test Feedback',
+                    responses: [
+                        {
+                            question: 'How would you rate your overall experience?',
+                            answer: overallExperience,
+                            question_type: 'rating',
+                            options: ['Excellent', 'Good', 'Average', 'Poor', 'Very Poor']
+                        },
+                        {
+                            question: 'Any additional comments?',
+                            answer: comments,
+                            question_type: 'textarea'
+                        }
+                    ].filter(r => r.answer), // Only include answers that have content
+                    form_metadata: {
+                        version: '1.0',
+                        form_title: 'API Integration Test',
+                        submitted_from: 'test_page'
+                    }
+                };
+                
+                console.log('Submitting feedback data:', feedbackData);
+                
+                // Make API request
+                const response = await axios.post(`${apiUrl}/feedback/submit`, feedbackData, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Show success result
+                resultDiv.innerHTML = `<div class="result success">
+                    <h3>✅ Success!</h3>
+                    <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    <p><strong>Response:</strong></p>
+                    <pre>${JSON.stringify(response.data, null, 2)}</pre>
+                </div>`;
+                
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                
+                let errorMessage = 'Unknown error occurred';
+                let errorDetails = '';
+                
+                if (error.response) {
+                    errorMessage = `Server responded with ${error.response.status}: ${error.response.statusText}`;
+                    errorDetails = JSON.stringify(error.response.data, null, 2);
+                } else if (error.request) {
+                    errorMessage = 'Network error - no response from server';
+                    errorDetails = 'Make sure the server is running on the correct URL';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                resultDiv.innerHTML = `<div class="result error">
+                    <h3>❌ Error</h3>
+                    <p><strong>Error:</strong> ${errorMessage}</p>
+                    ${errorDetails ? `<p><strong>Details:</strong></p><pre>${errorDetails}</pre>` : ''}
+                </div>`;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Test Feedback';
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('result').innerHTML = '';
+        }
+        
+        // Test server connectivity on page load
+        window.addEventListener('load', async () => {
+            const resultDiv = document.getElementById('result');
+            const apiUrl = document.getElementById('apiUrl').value;
+            
+            try {
+                // Try to ping the server
+                const response = await axios.get(`${apiUrl.replace('/api', '')}/`);
+                resultDiv.innerHTML = `<div class="result info">
+                    <h3>🌐 Server Connectivity</h3>
+                    <p>✅ Server is responding at ${apiUrl}</p>
+                </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="result error">
+                    <h3>🌐 Server Connectivity</h3>
+                    <p>❌ Cannot connect to server at ${apiUrl}</p>
+                    <p>Make sure the backend server is running.</p>
+                </div>`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -57,14 +57,14 @@ const PricingLaunchingSoon: React.FC = () => {
               <span className="mt-1 h-2 w-2 rounded-full bg-green-500 dark:bg-green-400" />
               <div>
                 <div className="font-medium text-gray-900 dark:text-white">Backtesting</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">Run up to 2 backtests per day with key indicators.</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Run up to 100 backtests per day with key indicators.</div>
               </div>
             </li>
             <li className="py-3 flex items-start gap-3">
               <span className="mt-1 h-2 w-2 rounded-full bg-green-500 dark:bg-green-400" />
               <div>
-                <div className="font-medium text-gray-900 dark:text-white">AI Trading Assistant</div>
-                <div className="text-sm text-gray-600 dark:text-gray-300">Ask up to 5 questions per day for insights and ideas.</div>
+                <div className="font-medium text-gray-900 dark:text-white">WelthAI Market Analysis</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Ask up to 100 questions per day for insights and ideas.</div>
               </div>
             </li>
             <li className="py-3 flex items-start gap-3">

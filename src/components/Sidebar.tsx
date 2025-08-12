@@ -118,7 +118,6 @@ const marketSectors = [
 
 const mainNavigation = [
   { name: 'Dashboard', path: '/dashboard', icon: 'chart-line' },
-  { name: 'Markets', path: '/markets', icon: 'globe' },
   { name: 'Stocks', path: '/stock/RELIANCE', icon: 'search-dollar' },
 ];
 
@@ -127,14 +126,12 @@ const featureNavigation = [
   { 
     category: 'WelthAI Services',
     items: [
-      { name: 'WelthAI Chat Assistant', path: '/welthai', icon: 'comment' },
-      { name: 'WelthAI Market Analysis', path: '/welthai', icon: 'sparkles' },
+      { name: 'WelthAI Market Analysis', path: '/welthai', icon: 'brain' },
     ]
   },
   {
     category: 'Trading Tools',
     items: [
-      { name: 'Backtesting', path: '/backtesting', icon: 'chart-bar' },
       { name: 'Backtest (Beta)', path: '/backtesting-beta', icon: 'chart-line' },
     ]
   }
@@ -397,92 +394,90 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
             </button>
           </div>
 
-          {/* Navigation Links */}
-          <div className="px-4 py-4 border-b border-gray-700">
-            <nav className="space-y-2">
-              {mainNavigation.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={handleNavClick}
-                  className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
-                >
-                  <i className={`fas fa-${item.icon} mr-3`}></i>
-                  {item.name}
-                </Link>
-              ))}
-              
-              {/* Features Section */}
-              <div className="mt-6">
-                <h3 className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Features
-                </h3>
-                
-                {featureNavigation.map((section, index) => (
-                  <div key={section.category} className={index > 0 ? "mt-4" : ""}>
-                    <h4 className="px-4 py-1 text-xs font-medium text-gray-400">
-                      {section.category}
-                    </h4>
-                    {section.items.map((item) => (
-                      <Link
-                        key={item.path + item.name}
-                        to={item.path}
-                        onClick={handleNavClick}
-                        className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
-                      >
-                        <i className={`fas fa-${item.icon} mr-3`}></i>
-                        {item.name}
-                      </Link>
-                    ))}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Profile Link */}
-              <Link
-                to="/profile"
-                onClick={handleNavClick}
-                className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50 mt-4"
-              >
-                <i className="fas fa-user mr-3"></i>
-                Profile
-              </Link>
-            </nav>
-          </div>
-          
-
-          
-          {/* Sidebar Footer - Auth Button */}
-          <div className="p-4 border-t border-gray-700">
-            {isAuthenticated ? (
-              <button
-                onClick={async () => {
-                  try {
-                    await logout();
-                    closeSidebar();
-                    navigate('/login');
-                  } catch (error) {
-                    console.error('Logout failed:', error);
-                  }
-                }}
-                className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
-              >
-                <i className="fas fa-sign-out-alt mr-2"></i>
-                Logout
-              </button>
-            ) : (
-              <button
-                onClick={() => {
-                  closeSidebar();
-                  navigate('/login');
-                }}
-                className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
-              >
-                <i className="fas fa-sign-in-alt mr-2"></i>
-                Login
-              </button>
-            )}
-          </div>
+                     {/* Navigation Links */}
+           <div className="px-4 py-4 border-b border-gray-700 flex-1">
+             <nav className="space-y-2">
+               {mainNavigation.map((item) => (
+                 <Link
+                   key={item.path}
+                   to={item.path}
+                   onClick={handleNavClick}
+                   className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
+                 >
+                   <i className={`fas fa-${item.icon} mr-3`}></i>
+                   {item.name}
+                 </Link>
+               ))}
+               
+               {/* Features Section */}
+               <div className="mt-6">
+                 <h3 className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                   Features
+                 </h3>
+                 
+                 {featureNavigation.map((section, index) => (
+                   <div key={section.category} className={index > 0 ? "mt-4" : ""}>
+                     <h4 className="px-4 py-1 text-xs font-medium text-gray-400">
+                       {section.category}
+                     </h4>
+                     {section.items.map((item) => (
+                       <Link
+                         key={item.path + item.name}
+                         to={item.path}
+                         onClick={handleNavClick}
+                         className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
+                       >
+                         <i className={`fas fa-${item.icon} mr-3`}></i>
+                         {item.name}
+                       </Link>
+                     ))}
+                   </div>
+                 ))}
+               </div>
+               
+               {/* Profile Link */}
+               <Link
+                 to="/profile"
+                 onClick={handleNavClick}
+                 className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50 mt-4"
+               >
+                 <i className="fas fa-user mr-3"></i>
+                 Profile
+               </Link>
+             </nav>
+           </div>
+           
+           {/* Sidebar Footer - Auth Button */}
+           <div className="p-4 border-t border-gray-700 mt-auto">
+             {isAuthenticated ? (
+               <button
+                 onClick={async () => {
+                   try {
+                     await logout();
+                     closeSidebar();
+                     navigate('/login');
+                   } catch (error) {
+                     console.error('Logout failed:', error);
+                   }
+                 }}
+                 className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+               >
+                 <i className="fas fa-sign-out-alt mr-2"></i>
+                 Logout
+               </button>
+             ) : (
+               <button
+                 onClick={() => {
+                   closeSidebar();
+                   navigate('/login');
+                 }}
+                 className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
+               >
+                 <i className="fas fa-sign-in-alt mr-2"></i>
+                 Login
+               </button>
+             )}
+           </div>
         </div>
       </div>
     </>

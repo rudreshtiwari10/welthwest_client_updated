@@ -35,7 +35,7 @@ const PrivacyPolicy: React.FC = () => {
                 This Privacy Policy explains how WelthWest collects, uses, and protects your information when you use our AI-powered financial intelligence platform. By using our services, you agree to the collection and use of information in accordance with this policy.
               </p>
               <p className="text-gray-700 dark:text-gray-300">
-                WelthWest is a demonstration project that provides AI-driven market analysis, backtesting tools, and financial insights. We are committed to transparency and protecting your personal information.
+                WelthWest is a demonstration Platform that provides AI-driven market analysis, backtesting tools, and financial insights. We are committed to transparency and protecting your personal information.
               </p>
             </section>
 
@@ -50,7 +50,7 @@ const PrivacyPolicy: React.FC = () => {
               </h3>
               <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 mb-4 space-y-2">
                 <li>Name and contact information (email address)</li>
-                <li>Account credentials and authentication data</li>
+                <li>Account credentials and authentication data (Encrypted)</li>
                 <li>Profile information and preferences</li>
                 <li>Usage data and interaction with our platform</li>
               </ul>
@@ -140,9 +140,7 @@ const PrivacyPolicy: React.FC = () => {
                 <li>Resolve disputes and enforce agreements</li>
                 <li>Improve our services and user experience</li>
               </ul>
-              <p className="text-gray-700 dark:text-gray-300 mt-4">
-                Account data is typically retained for 3 years after account deactivation, while usage analytics may be retained for up to 2 years for service improvement purposes.
-              </p>
+              
             </section>
 
             {/* Your Rights */}
@@ -241,7 +239,7 @@ const PrivacyPolicy: React.FC = () => {
               </p>
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p className="text-gray-700 dark:text-gray-300">
-                  <strong>Email:</strong> privacy@welthwest.com<br />
+                  <strong>Email:</strong> contact@welthwest.com<br />
                   <strong>Address:</strong> WelthWest Privacy Team<br />
                   <strong>Response Time:</strong> We aim to respond to all inquiries within 48 hours
                 </p>
@@ -255,7 +253,7 @@ const PrivacyPolicy: React.FC = () => {
               </h2>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4">
                 <p className="text-yellow-800 dark:text-yellow-200">
-                  <strong>Important:</strong> WelthWest is a demonstration project. The information provided is not financial advice. Always do your own research before making investment decisions. This Privacy Policy applies to our platform usage and does not constitute legal advice.
+                  <strong>Important:</strong> WelthWest is a demonstration Platform. The information provided is not financial advice. Always do your own research before making investment decisions. This Privacy Policy applies to our platform usage and does not constitute legal advice.
                 </p>
               </div>
             </section>
