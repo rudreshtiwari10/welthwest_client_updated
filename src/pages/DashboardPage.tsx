@@ -10,7 +10,13 @@ type ActiveView = 'backtests' | 'ai-analyses';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  // Default sidebar to closed on mobile, open on desktop
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 1024; // lg breakpoint
+    }
+    return false; // Default to closed during SSR
+  });
   // Removed explicit page-level loader
   const [activeView, setActiveView] = useState<ActiveView>('backtests');
   const [savedBacktests, setSavedBacktests] = useState<any[]>([]);
@@ -101,33 +107,33 @@ const DashboardPage: React.FC = () => {
         closeSidebar={closeSidebar}
       />
       
-      <div className={`transition-all duration-300 ${isSidebarOpen ? 'ml-[35vh]' : 'ml-0'}`}>
-        <div className="container mx-auto px-4 py-8 text-gray-800 dark:text-gray-200">
-          <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Dashboard</h1>
+      <div className={`transition-all duration-300 ${isSidebarOpen ? 'md:ml-80 ml-0' : 'ml-0'}`}>
+        <div className="container mx-auto px-4 py-4 md:py-8 text-gray-800 dark:text-gray-200">
+          <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 text-gray-900 dark:text-white">Dashboard</h1>
           
           {/* Quick Access Buttons */}
-          <div className="grid grid-cols-2 gap-3 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 md:mb-8">
             <button 
-              className={`text-left p-3 rounded-md border transition-all duration-200 ${
+              className={`text-left p-4 md:p-3 rounded-md border transition-all duration-200 ${
                 activeView === 'backtests' 
                   ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700 shadow-md' 
                   : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-md'
               }`}
               onClick={() => handleSetActiveView('backtests')}
             >
-              <div className="font-medium text-gray-900 dark:text-white">Backtest</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">View saved strategies</div>
+              <div className="font-medium text-base md:text-sm text-gray-900 dark:text-white">Backtest</div>
+              <div className="text-sm md:text-xs text-gray-500 dark:text-gray-400">View saved strategies</div>
             </button>
             <button 
-              className={`text-left p-3 rounded-md border transition-all duration-200 ${
+              className={`text-left p-4 md:p-3 rounded-md border transition-all duration-200 ${
                 activeView === 'ai-analyses' 
                   ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700 shadow-md' 
                   : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-md'
               }`}
               onClick={() => handleSetActiveView('ai-analyses')}
             >
-              <div className="font-medium text-gray-900 dark:text-white">AI Analysis</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">View saved insights</div>
+              <div className="font-medium text-base md:text-sm text-gray-900 dark:text-white">AI Analysis</div>
+              <div className="text-sm md:text-xs text-gray-500 dark:text-gray-400">View saved insights</div>
             </button>
           </div>
 

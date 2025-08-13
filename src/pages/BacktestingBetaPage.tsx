@@ -153,15 +153,15 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
   return (
     <div className="relative">
       <div 
-        className={`inline-flex items-center px-4 py-2 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+        className={`inline-flex items-center px-3 sm:px-4 py-2 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
           isExpanded
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
             : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
         }`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center space-x-3">
-          <div className="flex-1">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className="flex-1 min-w-0">
             <h4 className="text-sm font-medium text-gray-900 dark:text-white">
               {indicator.name}
             </h4>
@@ -202,7 +202,7 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
       
       {/* Expandable Parameter Form */}
       {isExpanded && indicator.hasParams && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-4 z-10">
+        <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 sm:p-4 z-10">
           <div className="flex items-center justify-between mb-3">
             <h5 className="text-sm font-medium text-gray-900 dark:text-white">
               {indicator.name} Parameters
@@ -527,7 +527,7 @@ const BacktestingBetaPage: React.FC = () => {
               className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Oversold</label>
               <input
@@ -554,7 +554,7 @@ const BacktestingBetaPage: React.FC = () => {
     if (indicator === 'MACD') {
       return (
         <div className="space-y-3">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Fast Period</label>
               <input
@@ -610,7 +610,7 @@ const BacktestingBetaPage: React.FC = () => {
     if (indicator === 'Bollinger_Bands') {
       return (
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period</label>
               <input
@@ -638,7 +638,7 @@ const BacktestingBetaPage: React.FC = () => {
     if (indicator === 'Stochastic') {
       return (
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">K Period</label>
               <input
@@ -658,7 +658,7 @@ const BacktestingBetaPage: React.FC = () => {
               />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Oversold</label>
               <input
@@ -685,7 +685,7 @@ const BacktestingBetaPage: React.FC = () => {
     if (indicator === 'ADX') {
       return (
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Period</label>
               <input
@@ -721,7 +721,7 @@ const BacktestingBetaPage: React.FC = () => {
               className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Oversold</label>
               <input
@@ -750,14 +750,14 @@ const BacktestingBetaPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+        <div className="text-center mb-8 sm:mb-12 mt-8 sm:mt-12">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Backtest (Beta)
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-2">
             Comprehensive backtesting with advanced analytics and visualization
           </p>
           <div className="mt-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
@@ -767,8 +767,8 @@ const BacktestingBetaPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-10">
-          <nav className="flex space-x-10 bg-white dark:bg-gray-800 rounded-lg shadow-md p-2" aria-label="Tabs">
+        <div className="flex justify-center mb-8 sm:mb-12">
+          <nav className="flex space-x-2 sm:space-x-10 bg-white dark:bg-gray-800 rounded-lg shadow-md p-1 sm:p-2" aria-label="Tabs">
             {[
               { id: 'parameters', name: 'Parameters', icon: CogIcon },
               { id: 'results', name: 'Results', icon: DocumentTextIcon },
@@ -781,9 +781,9 @@ const BacktestingBetaPage: React.FC = () => {
                   activeTab === tab.id
                     ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 shadow-sm'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-                } whitespace-nowrap py-3 px-6 rounded-md font-medium text-sm flex items-center transition-colors duration-200`}
+                } whitespace-nowrap py-2 sm:py-3 px-3 sm:px-6 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
               >
-                <tab.icon className="w-5 h-5 mr-3" />
+                <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
                 {tab.name}
               </button>
             ))}
@@ -797,8 +797,8 @@ const BacktestingBetaPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
                 
                 {/* Basic Parameters */}
                 <div className="space-y-6">
@@ -878,7 +878,7 @@ const BacktestingBetaPage: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         Period
@@ -1101,15 +1101,15 @@ const BacktestingBetaPage: React.FC = () => {
               </div>
 
               {/* Advanced Parameters */}
-              <div className="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <div className="flex items-center space-x-2 mb-6">
+              <div className="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 mb-4 sm:mb-6">
                   <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                   </svg>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Advanced Parameters</h3>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Risk-Reward Ratio
@@ -1151,16 +1151,16 @@ const BacktestingBetaPage: React.FC = () => {
               </div>
 
               {/* Run Backtest Button */}
-              <div className="mt-10 flex justify-center">
+              <div className="mt-8 sm:mt-10 flex justify-center">
                 <button
                   onClick={runBacktest}
                   disabled={isLoading || Object.keys(params.selected_indicators).length === 0}
-                  className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 border border-transparent text-sm sm:text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
                   ) : (
-                    <PlayIcon className="w-6 h-6 mr-3" />
+                    <PlayIcon className="w-5 h-5 sm:w-6 sm:h-6 mr-3" />
                   )}
                   {isLoading ? 'Running Backtest...' : 'Run Backtest'}
                 </button>
@@ -1190,7 +1190,7 @@ const BacktestingBetaPage: React.FC = () => {
             <div className="space-y-8">
               {/* Save Strategy Button */}
               {user && (
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
                   <h2 className="text-xl font-bold text-gray-900 dark:text-white">Backtest Results</h2>
                   <button
                     onClick={handleSaveBacktest}
@@ -1217,10 +1217,10 @@ const BacktestingBetaPage: React.FC = () => {
               )}
 
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Return</h3>
-                  <p className={`text-2xl font-bold ${result.metrics.Total_Return >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  <p className={`text-xl sm:text-2xl font-bold ${result.metrics.Total_Return >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                     {formatCurrency(result.metrics.Total_Return)}
                   </p>
                   <p className={`text-sm ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -1228,9 +1228,9 @@ const BacktestingBetaPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Win Rate</h3>
-                  <p className="text-2xl font-bold text-blue-600">
+                  <p className="text-xl sm:text-2xl font-bold text-blue-600">
                     {result.metrics.Win_Rate.toFixed(1)}%
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -1238,9 +1238,9 @@ const BacktestingBetaPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Sharpe Ratio</h3>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-xl sm:text-2xl font-bold text-purple-600">
                     {result.metrics.Sharpe_Ratio.toFixed(3)}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -1248,9 +1248,9 @@ const BacktestingBetaPage: React.FC = () => {
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
                   <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Max Drawdown</h3>
-                  <p className="text-2xl font-bold text-red-600">
+                  <p className="text-xl sm:text-2xl font-bold text-red-600">
                     {result.metrics.Max_Drawdown.toFixed(2)}%
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -1264,18 +1264,18 @@ const BacktestingBetaPage: React.FC = () => {
                 isNaN(result.metrics.Number_of_Trades) || 
                 result.metrics.Win_Rate === 0 || 
                 isNaN(result.metrics.Win_Rate)) && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-l-4 border-amber-400 p-6 rounded-lg">
+                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-l-4 border-amber-400 p-4 sm:p-6 rounded-lg">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      <svg className="h-6 w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
                       </svg>
                     </div>
-                    <div className="ml-4">
-                      <h3 className="text-lg font-semibold text-amber-800 dark:text-amber-200">
+                    <div className="ml-3 sm:ml-4">
+                      <h3 className="text-base sm:text-lg font-semibold text-amber-800 dark:text-amber-200">
                         ⚠️ No Trading Signals Generated
                       </h3>
-                      <div className="mt-3 text-amber-700 dark:text-amber-300">
+                      <div className="mt-2 sm:mt-3 text-amber-700 dark:text-amber-300">
                         <p className="text-sm font-medium mb-2">
                           Your selected indicators are not generating any trading signals. This typically happens when:
                         </p>
@@ -1285,7 +1285,7 @@ const BacktestingBetaPage: React.FC = () => {
                           <li>Market conditions don't align with your indicator combination</li>
                         </ul>
                       </div>
-                      <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg border border-amber-200 dark:border-amber-800">
                         <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">💡 Suggested Solutions:</h4>
                         <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
                           <div className="flex items-start space-x-2">
@@ -1391,35 +1391,35 @@ const BacktestingBetaPage: React.FC = () => {
 
               {/* Trades Table */}
               {result.trades.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Trade History</h3>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Trade History</h3>
                   
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto -mx-4 sm:mx-0">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                       <thead className="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Entry Date
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Exit Date
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Direction
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Entry Price
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Exit Price
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             P&L
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Return %
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                          <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Exit Reason
                           </th>
                         </tr>
@@ -1427,60 +1427,60 @@ const BacktestingBetaPage: React.FC = () => {
                       <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                         {result.trades.slice(0, 10).map((trade, index) => (
                           <tr key={index}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               {new Date(trade.Entry_Date).toLocaleDateString()}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               {new Date(trade.Exit_Date).toLocaleDateString()}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                                 trade.Direction === 'Long' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                               }`}>
                                 {trade.Direction}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               ₹{trade.Entry_Price.toFixed(2)}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               ₹{trade.Exit_Price.toFixed(2)}
                             </td>
-                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                            <td className={`px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${
                               trade.PnL >= 0 ? 'text-green-600' : 'text-red-600'
                             }`}>
                               {formatCurrency(trade.PnL)}
                             </td>
-                            <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                            <td className={`px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${
                               trade.Return_Pct >= 0 ? 'text-green-600' : 'text-red-600'
                             }`}>
                               {trade.Return_Pct.toFixed(2)}%
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               {trade.Exit_Reason}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                    
-                    {result.trades.length > 10 && (
-                      <div className="mt-4 text-center">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Showing first 10 of {result.trades.length} trades
-                        </p>
-                      </div>
-                    )}
                   </div>
+                  
+                  {result.trades.length > 10 && (
+                    <div className="mt-4 text-center">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Showing first 10 of {result.trades.length} trades
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* Monte Carlo Results */}
               {result.monte_carlo && (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Monte Carlo Analysis</h3>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Monte Carlo Analysis</h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <h4 className="font-medium text-gray-700 dark:text-gray-300">Expected Returns</h4>
                       <div className="space-y-1">
@@ -1533,6 +1533,7 @@ const BacktestingBetaPage: React.FC = () => {
                   </div>
                 </div>
               )}
+              
             </div>
           </motion.div>
         )}
@@ -1544,109 +1545,141 @@ const BacktestingBetaPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="grid grid-cols-1 gap-8">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
               {/* Candlestick Chart */}
-              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 lg:mb-6 space-y-2 sm:space-y-0">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
                       📊 Price Chart with Trading Signals
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                       Candlestick chart showing buy/sell signals and price action
                     </p>
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 sm:px-3 py-1 rounded-full">
                     {result.summary.symbol} • {result.summary.timeframe}
                   </div>
                 </div>
                 
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
-                  <div className="h-[500px] w-full">
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4 mb-3 sm:mb-4">
+                  <div className="h-[250px] sm:h-[300px] md:h-[400px] lg:h-[450px] w-full">
                     <Plot
                       data={JSON.parse(result.charts.candlestick).data}
                       layout={{
                         ...JSON.parse(result.charts.candlestick).layout,
-                        height: 500,
-                        margin: { l: 60, r: 40, t: 40, b: 80 },
+                        height: 450,
+                        margin: { 
+                          l: 50, r: 30, t: 30, b: 60,
+                          pad: 4
+                        },
                         paper_bgcolor: 'rgba(0,0,0,0)',
                         plot_bgcolor: 'rgba(0,0,0,0)',
                         font: { 
                           color: '#374151', 
                           family: 'Inter, system-ui, sans-serif',
-                          size: 12
+                          size: 10
                         },
                         showlegend: true,
                         legend: {
                           orientation: 'h',
                           yanchor: 'bottom',
-                          y: -0.3,
+                          y: -0.25,
                           xanchor: 'center',
-                          x: 0.5
+                          x: 0.5,
+                          font: { size: 9 }
+                        },
+                        xaxis: {
+                          tickfont: { size: 9 },
+                          title: { font: { size: 10 } }
+                        },
+                        yaxis: {
+                          tickfont: { size: 9 },
+                          title: { font: { size: 10 } }
                         }
                       }}
                       config={{ 
                         responsive: true,
                         displayModeBar: true,
-                        modeBarButtonsToRemove: ['lasso2d', 'select2d'],
-                        displaylogo: false
+                        modeBarButtonsToRemove: ['lasso2d', 'select2d', 'pan2d', 'zoom2d'],
+                        displaylogo: false,
+                        toImageButtonOptions: {
+                          format: 'png',
+                          filename: 'candlestick_chart',
+                          height: 450,
+                          width: 800,
+                          scale: 2
+                        }
                       }}
                       className="w-full h-full"
+                      style={{ width: '100%', height: '100%' }}
                     />
                   </div>
                 </div>
               </div>
 
               {/* Equity and Drawdown in Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
                 {/* Equity Curve */}
-                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
-                  <div className="mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
+                  <div className="mb-3 sm:mb-4 lg:mb-6">
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
                       📈 Portfolio Equity Curve
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                       Portfolio value over time showing growth and performance
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                    <div className="h-[350px] w-full">
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
+                    <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
                       <Plot
                         data={JSON.parse(result.charts.equity_curve).data}
                         layout={{
                           ...JSON.parse(result.charts.equity_curve).layout,
                           height: 350,
-                          margin: { l: 80, r: 40, t: 40, b: 60 },
+                          margin: { 
+                            l: 60, r: 30, t: 30, b: 50,
+                            pad: 4
+                          },
                           paper_bgcolor: 'rgba(0,0,0,0)',
                           plot_bgcolor: 'rgba(0,0,0,0)',
                           font: { 
                             color: '#374151',
                             family: 'Inter, system-ui, sans-serif',
-                            size: 11
+                            size: 9
                           },
-                          showlegend: false
+                          showlegend: false,
+                          xaxis: {
+                            tickfont: { size: 8 },
+                            title: { font: { size: 9 } }
+                          },
+                          yaxis: {
+                            tickfont: { size: 8 },
+                            title: { font: { size: 9 } }
+                          }
                         }}
                         config={{ 
                           responsive: true,
                           displayModeBar: false
                         }}
                         className="w-full h-full"
+                        style={{ width: '100%', height: '100%' }}
                       />
                     </div>
                   </div>
                   
                   {/* Equity Stats */}
-                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                    <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                  <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                    <div className="bg-green-50 dark:bg-green-900/20 p-2 sm:p-3 rounded-lg">
                       <div className="font-medium text-green-700 dark:text-green-300">Final Value</div>
-                      <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                      <div className="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400">
                         {formatCurrency(result.metrics.Total_Return + (params.initial_capital || 100000))}
                       </div>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-3 rounded-lg">
                       <div className="font-medium text-blue-700 dark:text-blue-300">Total Return</div>
-                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      <div className="text-sm sm:text-lg font-bold text-blue-600 dark:text-blue-400">
                         {result.metrics.Total_Return_Pct.toFixed(2)}%
                       </div>
                     </div>
@@ -1654,53 +1687,65 @@ const BacktestingBetaPage: React.FC = () => {
                 </div>
 
                 {/* Drawdown Chart */}
-                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-8">
-                  <div className="mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
+                  <div className="mb-3 sm:mb-4 lg:mb-6">
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
                       📉 Drawdown Analysis
                     </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
                       Peak-to-trough decline showing portfolio risk periods
                     </p>
                   </div>
                   
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
-                    <div className="h-[350px] w-full">
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
+                    <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
                       <Plot
                         data={JSON.parse(result.charts.drawdown).data}
                         layout={{
                           ...JSON.parse(result.charts.drawdown).layout,
                           height: 350,
-                          margin: { l: 80, r: 40, t: 40, b: 60 },
+                          margin: { 
+                            l: 60, r: 30, t: 30, b: 50,
+                            pad: 4
+                          },
                           paper_bgcolor: 'rgba(0,0,0,0)',
                           plot_bgcolor: 'rgba(0,0,0,0)',
                           font: { 
                             color: '#374151',
                             family: 'Inter, system-ui, sans-serif',
-                            size: 11
+                            size: 9
                           },
-                          showlegend: false
+                          showlegend: false,
+                          xaxis: {
+                            tickfont: { size: 8 },
+                            title: { font: { size: 9 } }
+                          },
+                          yaxis: {
+                            tickfont: { size: 8 },
+                            title: { font: { size: 9 } }
+                          }
                         }}
                         config={{ 
                           responsive: true,
                           displayModeBar: false
                         }}
                         className="w-full h-full"
+                        style={{ width: '100%', height: '100%' }}
                       />
                     </div>
                   </div>
                   
                   {/* Drawdown Stats */}
-                  <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-                    <div className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                  <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+                    <div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg">
                       <div className="font-medium text-red-700 dark:text-red-300">Max Drawdown</div>
-                      <div className="text-lg font-bold text-red-600 dark:text-red-400">
+                      <div className="text-sm sm:text-lg font-bold text-red-600 dark:text-red-400">
                         {result.metrics.Max_Drawdown.toFixed(2)}%
                       </div>
                     </div>
-                    <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                    <div className="bg-purple-50 dark:bg-purple-900/20 p-2 sm:p-3 rounded-lg">
                       <div className="font-medium text-purple-700 dark:text-purple-300">Calmar Ratio</div>
-                      <div className="text-lg font-bold text-purple-600 dark:text-purple-400">
+                      <div className="text-sm sm:text-lg font-bold text-purple-600 dark:text-purple-400">
                         {result.metrics.Calmar_Ratio.toFixed(3)}
                       </div>
                     </div>

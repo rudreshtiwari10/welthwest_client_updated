@@ -135,6 +135,7 @@ const DashboardBacktests: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedBacktest, setSelectedBacktest] = useState<BacktestData | null>(null);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
 
   const fetchBacktests = async () => {
     if (!isAuthenticated || !user) {
@@ -180,7 +181,9 @@ const DashboardBacktests: React.FC = () => {
         });
         
         setBacktests(processedBacktests);
-        if (processedBacktests.length > 0) {
+        // Don't auto-select on mobile, only on desktop
+        const isMobile = window.innerWidth < 1024; // lg breakpoint
+        if (processedBacktests.length > 0 && !isMobile) {
           setSelectedBacktest(processedBacktests[0]);
         }
       } else {
@@ -287,9 +290,64 @@ const DashboardBacktests: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Dropdown */}
+      <div className="lg:hidden mb-6 p-4">
+        <div className="relative">
+          <button
+            onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+            className="w-full flex items-center justify-between p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm"
+          >
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {selectedBacktest ? selectedBacktest.display_name : 'Select a Strategy'}
+            </span>
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                isMobileDropdownOpen ? 'rotate-180' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {isMobileDropdownOpen && (
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {backtests.map((backtest, index) => (
+                <div
+                  key={backtest.display_id}
+                  className="p-3 border-b border-gray-100 dark:border-gray-600 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  onClick={() => {
+                    setSelectedBacktest(backtest);
+                    setIsMobileDropdownOpen(false);
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {backtest.display_name}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {backtest.display_ticker}
+                        </span>
+                        <span className="text-xs font-bold text-blue-600 dark:text-blue-400">
+                          #{index + 1}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-0">
-        {/* Sidebar with backtest list */}
-        <div className="border-r border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
+        {/* Desktop Sidebar with backtest list */}
+        <div className="hidden lg:block border-r border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
           {backtests.map((backtest, index) => (
             <div
               key={backtest.display_id}
@@ -299,7 +357,7 @@ const DashboardBacktests: React.FC = () => {
               onClick={() => setSelectedBacktest(backtest)}
             >
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-medium text-gray-900 dark:text-white">
+                <h3 className="font-medium text-sm md:text-base text-gray-900 dark:text-white">
                   {backtest.display_name}
                 </h3>
                 <span className="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded-full">
@@ -324,12 +382,12 @@ const DashboardBacktests: React.FC = () => {
         </div>
 
         {/* Main content area */}
-        <div className="col-span-3 p-6 max-h-[70vh] overflow-y-auto">
+        <div className="col-span-1 lg:col-span-3 p-4 md:p-6 lg:max-h-[70vh] overflow-y-auto">
           {selectedBacktest ? (
             <div>
               {/* Header */}
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {selectedBacktest.display_name}
                 </h2>
                 <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
@@ -354,7 +412,7 @@ const DashboardBacktests: React.FC = () => {
               </div>
 
               {/* Enhanced Parameter Cards for Beta Backtests */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
                 <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                   <div className="text-sm text-gray-500 dark:text-gray-400">Initial Capital</div>
                   <div className="text-lg font-bold text-gray-900 dark:text-white">
@@ -482,7 +540,7 @@ const DashboardBacktests: React.FC = () => {
                 if (!metrics) return null;
                 
                 return (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
                     <ParameterDisplayCard
                       label="Total P&L"
                       value={metrics.total_pnl || metrics.Total_Return}
@@ -521,7 +579,7 @@ const DashboardBacktests: React.FC = () => {
               {(selectedBacktest?.results?.metrics || selectedBacktest?.metrics || selectedBacktest?.backtest_data?.metrics) && (
                 <div className="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Trade Analysis</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
                     {(() => {
                       // Get metrics from any available source
                       const metrics = selectedBacktest?.results?.metrics || 
@@ -564,12 +622,12 @@ const DashboardBacktests: React.FC = () => {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Strategy Parameters</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {Object.entries(selectedBacktest.parameters).map(([key, value]) => (
-                      <div key={key} className="bg-white dark:bg-gray-600 p-3 rounded border">
-                        <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                      <div key={key} className="bg-white dark:bg-gray-600 p-3 rounded-lg border dark:border-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 capitalize font-medium mb-1">
                           {key.replace(/_/g, ' ')}
                         </div>
-                        <div className="font-semibold text-gray-900 dark:text-white">
-                          {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white break-words overflow-wrap-break-word">
+                          {typeof value === 'object' ? JSON.stringify(value, null, 1) : String(value)}
                         </div>
                       </div>
                     ))}
@@ -591,8 +649,8 @@ const DashboardBacktests: React.FC = () => {
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                       📊 Trade History ({trades.length} trades)
                     </h3>
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg">
+                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                      <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg table-fixed">
                         <thead className="bg-gray-100 dark:bg-gray-600">
                           <tr>
                             <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Entry Date</th>
@@ -739,12 +797,12 @@ const DashboardBacktests: React.FC = () => {
                     <div className="space-y-3">
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {Object.entries(summary).map(([key, value]) => (
-                          <div key={key} className="bg-white dark:bg-gray-800 p-3 rounded">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
+                          <div key={key} className="bg-white dark:bg-gray-800 p-3 rounded-lg border dark:border-gray-600">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 capitalize font-medium mb-1">
                               {key.replace(/_/g, ' ')}
                             </div>
-                            <div className="font-semibold text-gray-900 dark:text-white">
-                              {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white break-words overflow-wrap-break-word">
+                              {typeof value === 'object' ? JSON.stringify(value, null, 1) : String(value)}
                             </div>
                           </div>
                         ))}
@@ -759,8 +817,12 @@ const DashboardBacktests: React.FC = () => {
 
             </div>
           ) : (
-            <div className="flex justify-center items-center h-full">
-              <p className="text-gray-500 dark:text-gray-400">Select a backtest to view details</p>
+            <div className="flex flex-col justify-center items-center h-full min-h-[200px] text-center">
+              <ChartBarIcon className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
+                <span className="lg:hidden">Use the dropdown above to select a strategy</span>
+                <span className="hidden lg:inline">Select a backtest to view details</span>
+              </p>
             </div>
           )}
         </div>

@@ -185,8 +185,8 @@ const AppWithRouter: React.FC = () => {
             {/* AI Feature Banner */}
             <AIFeatureBanner />
             
-            {/* Floating Chat Button */}
-            <FloatingChatWithLocation />
+            {/* Floating Chat Button - Temporarily hidden */}
+            {/* <FloatingChatWithLocation /> */}
 
             {/* Footer */}
             <Footer />

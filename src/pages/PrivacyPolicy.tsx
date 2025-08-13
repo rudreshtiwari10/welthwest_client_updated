@@ -10,16 +10,8 @@ const PrivacyPolicy: React.FC = () => {
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Privacy Policy
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-            WelthWest ("we," "our," or "us") is committed to protecting your privacy.
-          </p>
+        
+            
         </div>
 
         {/* Content */}

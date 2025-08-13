@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom';
 import { marketService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon } from '@heroicons/react/24/outline';
+import FeatureVideo from '../components/FeatureVideo';
+import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -261,8 +263,8 @@ const HomePage: React.FC = () => {
                       <ChartBarIcon className="h-5 w-5 text-white" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">AI Market Analysis</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Predict market regimes</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">AI Analysis</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">Market insights</p>
                     </div>
                   </div>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
@@ -280,8 +282,8 @@ const HomePage: React.FC = () => {
                       <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
                     </div>
                     <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">WelthAI Chat Bot</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Get investment insights</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-white">AI Chat</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">Get insights</p>
                     </div>
                   </div>
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-secondary-600 dark:text-secondary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
@@ -289,7 +291,24 @@ const HomePage: React.FC = () => {
                   </svg>
                 </Link>
                 
-                {/* Backtesting Button removed per request */}
+                {/* Backtesting Button */}
+                <Link 
+                  to="/backtest-beta" 
+                  className="group flex items-center justify-center sm:justify-between bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
+                >
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
+                      <BeakerIcon className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-gray-900 dark:text-white">Backtest</h3>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">Test strategies</p>
+                    </div>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </Link>
               </div>
               
               {/* Small sparkle decoration */}
@@ -507,19 +526,71 @@ const HomePage: React.FC = () => {
                   </Link>
                 </div>
                 
-                {/* Video Placeholder */}
+                {/* AI Analysis Video */}
                 <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 lg:p-8 flex items-center justify-center">
-                  <div className="w-full max-w-md aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-primary-200 dark:bg-primary-800 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-primary-600 dark:text-primary-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Demo Video</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Coming Soon</p>
+                  <FeatureVideo
+                    src={VIDEO_URLS.AI_ANALYSIS}
+                    poster={POSTER_URLS.AI_ANALYSIS}
+                    alt="AI Analysis Demo"
+                    className="w-full max-w-md aspect-video"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Backtesting Feature */}
+          <div className="mb-8">
+            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                {/* Text Content */}
+                <div className="p-6 lg:p-8 flex flex-col justify-center">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
+                      <BeakerIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Backtesting</h3>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                    Validate your trading strategies with comprehensive historical backtesting. Test multiple scenarios, analyze risk metrics, and optimize your approach using years of market data before committing real capital.
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Multi-timeframe historical data simulation</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Comprehensive performance analytics and metrics</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Risk-adjusted returns and drawdown analysis</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Strategy optimization and parameter tuning</span>
                     </div>
                   </div>
+                  <Link 
+                    to="/backtest-beta" 
+                    className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-300 w-fit group-hover:bg-green-700 group-hover:shadow-lg"
+                  >
+                    Start Backtesting
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </Link>
+                </div>
+                
+                {/* Backtesting Video */}
+                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 lg:p-8 flex items-center justify-center">
+                  <FeatureVideo
+                    src={VIDEO_URLS.BACKTESTING}
+                    poster={POSTER_URLS.BACKTESTING}
+                    alt="Backtesting Demo"
+                    className="w-full max-w-md aspect-video"
+                  />
                 </div>
               </div>
             </div>
@@ -529,19 +600,14 @@ const HomePage: React.FC = () => {
           <div className="mb-8">
             <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Video Placeholder - Left Side */}
+                {/* WelthAI Chat Video - Left Side */}
                 <div className="bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 p-6 lg:p-8 flex items-center justify-center order-2 lg:order-1">
-                  <div className="w-full max-w-md aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-secondary-200 dark:bg-secondary-800 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-secondary-600 dark:text-secondary-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Demo Video</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Coming Soon</p>
-                    </div>
-                  </div>
+                  <FeatureVideo
+                    src={VIDEO_URLS.WELTHAI_CHAT}
+                    poster={POSTER_URLS.WELTHAI_CHAT}
+                    alt="WelthAI Chat Demo"
+                    className="w-full max-w-md aspect-video"
+                  />
                 </div>
                 
                 {/* Text Content - Right Side */}
@@ -582,68 +648,6 @@ const HomePage: React.FC = () => {
                       <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Backtesting Feature */}
-          <div className="mb-8">
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-                {/* Text Content */}
-                <div className="p-6 lg:p-8 flex flex-col justify-center">
-                  <div className="flex items-center mb-4">
-                    <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
-                      <ClockIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Backtesting</h3>
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
-                    Validate your trading strategies with comprehensive historical backtesting. Test multiple scenarios, analyze risk metrics, and optimize your approach using years of market data before committing real capital.
-                  </p>
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center text-sm">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700 dark:text-gray-300">Multi-timeframe historical data simulation</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700 dark:text-gray-300">Comprehensive performance analytics and metrics</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700 dark:text-gray-300">Risk-adjusted returns and drawdown analysis</span>
-                    </div>
-                    <div className="flex items-center text-sm">
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
-                      <span className="text-gray-700 dark:text-gray-300">Strategy optimization and parameter tuning</span>
-                    </div>
-                  </div>
-                  <Link 
-                    to="/backtest-beta" 
-                    className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-300 w-fit group-hover:bg-green-700 group-hover:shadow-lg"
-                  >
-                    Start Backtesting
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </Link>
-                </div>
-                
-                {/* Video Placeholder */}
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 lg:p-8 flex items-center justify-center">
-                  <div className="w-full max-w-md aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-gray-600">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-green-200 dark:bg-green-800 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </div>
-                      <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Demo Video</p>
-                      <p className="text-xs text-gray-400 dark:text-gray-500">Coming Soon</p>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>

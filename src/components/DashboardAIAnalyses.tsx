@@ -106,6 +106,7 @@ const DashboardAIAnalyses: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAnalysis, setSelectedAnalysis] = useState<AIAnalysisData | null>(null);
+  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false);
 
   const fetchAnalyses = async () => {
     if (!isAuthenticated || !user) {
@@ -167,7 +168,9 @@ const DashboardAIAnalyses: React.FC = () => {
         console.log('🎯 Filtered analyses:', processedAnalyses.map((a: AIAnalysisData) => ({ name: a.display_name, ticker: a.display_ticker, manually_saved: a.is_manually_saved })));
         
         setAnalyses(processedAnalyses);
-        if (processedAnalyses.length > 0) {
+        // Don't auto-select on mobile, only on desktop
+        const isMobile = window.innerWidth < 1024; // lg breakpoint
+        if (processedAnalyses.length > 0 && !isMobile) {
           setSelectedAnalysis(processedAnalyses[0]);
         }
       } else {
@@ -304,9 +307,71 @@ const DashboardAIAnalyses: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Dropdown */}
+      <div className="lg:hidden mb-6 p-4">
+        <div className="relative">
+          <button
+            onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
+            className="w-full flex items-center justify-between p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-sm"
+          >
+            <span className="text-sm font-medium text-gray-900 dark:text-white">
+              {selectedAnalysis ? selectedAnalysis.display_name : 'Select an AI Analysis'}
+            </span>
+            <svg
+              className={`w-5 h-5 text-gray-400 transition-transform ${
+                isMobileDropdownOpen ? 'rotate-180' : ''
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          
+          {isMobileDropdownOpen && (
+            <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {analyses.map((analysis, index) => (
+                <div
+                  key={analysis.display_id}
+                  className="p-3 border-b border-gray-100 dark:border-gray-600 last:border-b-0 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  onClick={() => {
+                    setSelectedAnalysis(analysis);
+                    setIsMobileDropdownOpen(false);
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {analysis.display_name}
+                      </h3>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {analysis.display_ticker}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {analysis.prediction?.regime !== undefined && (
+                            <span className={`text-xs font-medium px-2 py-0.5 rounded ${getRegimeColor(analysis.prediction.regime)}`}>
+                              {analysis.prediction.regime_name || `Regime ${analysis.prediction.regime}`}
+                            </span>
+                          )}
+                          <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                            #{index + 1}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-0">
-        {/* Sidebar with analysis list */}
-        <div className="border-r border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
+        {/* Desktop Sidebar with analysis list */}
+        <div className="hidden lg:block border-r border-gray-200 dark:border-gray-700 max-h-[70vh] overflow-y-auto">
           {analyses.map((analysis, index) => (
             <div
               key={analysis.display_id}
@@ -341,7 +406,7 @@ const DashboardAIAnalyses: React.FC = () => {
         </div>
 
         {/* Main content area */}
-        <div className="col-span-3 p-6 max-h-[70vh] overflow-y-auto">
+        <div className="col-span-1 lg:col-span-3 p-4 md:p-6 lg:max-h-[70vh] overflow-y-auto">
           {selectedAnalysis ? (
             <div>
               {/* Header */}
@@ -437,7 +502,7 @@ const DashboardAIAnalyses: React.FC = () => {
                     <div className="w-1 h-6 bg-green-500 rounded mr-3"></div>
                     Market Data
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
                     <ParameterDisplayCard
                       label="Current Price"
                       value={selectedAnalysis.market_data.current_price}
@@ -631,8 +696,12 @@ const DashboardAIAnalyses: React.FC = () => {
 
             </div>
           ) : (
-            <div className="flex justify-center items-center h-full">
-              <p className="text-gray-500 dark:text-gray-400">Select an analysis to view details</p>
+            <div className="flex flex-col justify-center items-center h-full min-h-[200px] text-center">
+              <CpuChipIcon className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
+              <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">
+                <span className="lg:hidden">Use the dropdown above to select an analysis</span>
+                <span className="hidden lg:inline">Select an analysis to view details</span>
+              </p>
             </div>
           )}
         </div>

@@ -90,22 +90,22 @@ const ParameterDisplayCard: React.FC<ParameterDisplayCardProps> = ({
   const getSizeClasses = () => {
     switch (size) {
       case 'small':
-        return 'p-2 text-sm';
+        return 'p-2 md:p-3 text-sm';
       case 'large':
-        return 'p-6 text-lg';
+        return 'p-3 md:p-6 text-base md:text-lg';
       default:
-        return 'p-4 text-base';
+        return 'p-2.5 md:p-4 text-sm md:text-base';
     }
   };
 
   const getValueSizeClasses = () => {
     switch (size) {
       case 'small':
-        return 'text-lg font-semibold';
+        return 'text-base md:text-lg font-semibold';
       case 'large':
-        return 'text-3xl font-bold';
+        return 'text-lg md:text-3xl font-bold';
       default:
-        return 'text-xl font-bold';
+        return 'text-base md:text-xl font-bold';
     }
   };
 
@@ -113,7 +113,7 @@ const ParameterDisplayCard: React.FC<ParameterDisplayCardProps> = ({
 
   return (
     <div className={`bg-white dark:bg-gray-600 rounded-lg border shadow-sm ${getSizeClasses()} ${className} min-w-0`}>
-      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
+      <div className="text-xs md:text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide font-medium truncate">
         {label}
       </div>
       <div className={`${getValueSizeClasses()} ${getValueColor()} flex items-center` }>

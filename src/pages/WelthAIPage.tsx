@@ -447,9 +447,9 @@ const WelthAIPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Market Regime Analysis</h1>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Market Regime Analysis</h1>
         <p className="text-gray-600 dark:text-gray-300">
           AI-powered market regime detection and analysis
         </p>
@@ -536,14 +536,14 @@ const WelthAIPage: React.FC = () => {
       </div>
       
       {/* Full-width Stock Price Chart */}
-      <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Stock Price Chart</h2>
-          <div className="flex space-x-2">
+      <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-4 md:p-6">
+        <div className="flex flex-col md:flex-row md:justify-between items-start md:items-center mb-4 gap-3 md:gap-0">
+          <h2 className="text-lg md:text-xl font-semibold">Stock Price Chart</h2>
+          <div className="flex flex-wrap gap-1 md:gap-2">
             {popularStocks.map(stock => (
               <button
                 key={stock.symbol}
-                className={`px-2 py-1 text-xs rounded-md ${
+                className={`px-2 md:px-3 py-1 md:py-1.5 text-xs md:text-sm rounded-md ${
                   selectedSymbol === stock.symbol
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-200 dark:bg-dark-300 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-dark-200'
@@ -561,13 +561,13 @@ const WelthAIPage: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
           </div>
         ) : stockData ? (
-          <div className="h-96">
+          <div className="h-64 md:h-96">
             <StockChart
               stockData={{
                 symbol: stockData.symbol,
                 data: stockData.data
               }}
-              height={384}
+              height={typeof window !== 'undefined' && window.innerWidth < 768 ? 256 : 384}
             />
           </div>
         ) : (

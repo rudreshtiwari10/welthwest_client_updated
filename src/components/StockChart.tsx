@@ -51,6 +51,17 @@ interface StockChartProps {
 const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height = 400 }) => {
   const [chartData, setChartData] = useState<any>(null);
   const [chartLabels, setChartLabels] = useState<string[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   useEffect(() => {
     if (!stockData) return;
@@ -265,8 +276,12 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
           color: 'rgba(0, 0, 0, 0.05)',
         },
         ticks: {
-          maxTicksLimit: 10,
-          maxRotation: 45,
+          maxTicksLimit: isMobile ? 5 : 10,
+          maxRotation: isMobile ? 90 : 45,
+          minRotation: isMobile ? 90 : 0,
+          font: {
+            size: isMobile ? 10 : 12
+          },
           callback: function(tickValue: any, index: number) {
             const label = chartLabels[index];
             if (!label) return '';
@@ -276,27 +291,27 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
               const now = new Date();
               const diffDays = Math.abs((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
               
-              // Format based on timeframe
+              // Format based on timeframe and device
               if (diffDays <= 1) {
                 return date.toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
+                  hour: isMobile ? 'numeric' : '2-digit', 
                   minute: '2-digit' 
                 });
               } else if (diffDays <= 7) {
                 return date.toLocaleDateString('en-US', { 
-                  weekday: 'short',
+                  weekday: isMobile ? undefined : 'short',
                   month: 'short',
                   day: 'numeric'
                 });
               } else if (diffDays <= 365) {
                 return date.toLocaleDateString('en-US', { 
-                  month: 'short',
+                  month: isMobile ? 'numeric' : 'short',
                   day: 'numeric'
                 });
               } else {
                 return date.toLocaleDateString('en-US', { 
                   year: '2-digit',
-                  month: 'short'
+                  month: isMobile ? 'numeric' : 'short'
                 });
               }
             } catch {
@@ -311,7 +326,19 @@ const StockChart: React.FC<StockChartProps> = ({ stockData, indicators, height =
           color: 'rgba(0, 0, 0, 0.05)',
         },
         ticks: {
+          font: {
+            size: isMobile ? 10 : 12
+          },
           callback: function(tickValue: any) {
+            if (isMobile) {
+              // Shorter format for mobile
+              if (tickValue >= 1000000) {
+                return '₹' + (tickValue / 1000000).toFixed(1) + 'M';
+              } else if (tickValue >= 1000) {
+                return '₹' + (tickValue / 1000).toFixed(1) + 'K';
+              }
+              return '₹' + tickValue.toFixed(0);
+            }
             return '₹' + tickValue.toFixed(2);
           }
         }

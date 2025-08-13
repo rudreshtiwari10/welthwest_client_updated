@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import SubscriptionSection from '../components/account/SubscriptionSection';
 import PasswordResetModal from '../components/PasswordResetModal';
@@ -16,6 +16,10 @@ const ProfilePage: React.FC = () => {
   // Dropdown states
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(true);
   const [subscriptionDropdownOpen, setSubscriptionDropdownOpen] = useState(false);
+  
+  // Refs for dropdown content
+  const accountContentRef = useRef<HTMLDivElement>(null);
+  const subscriptionContentRef = useRef<HTMLDivElement>(null);
   
   // Password reset modal state
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
@@ -54,10 +58,10 @@ const ProfilePage: React.FC = () => {
       
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Account Details Dropdown */}
-        <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden transition-all duration-300">
           <button
             onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
-            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"
           >
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-full">
@@ -71,15 +75,20 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
             <div className="flex-shrink-0">
-              {accountDropdownOpen ? (
-                <ChevronDownIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRightIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              )}
+              <ChevronDownIcon 
+                className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ${
+                  accountDropdownOpen ? 'rotate-0' : '-rotate-90'
+                }`}
+              />
             </div>
           </button>
           
-          {accountDropdownOpen && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              accountDropdownOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+            ref={accountContentRef}
+          >
             <div className="px-6 pb-6 border-t border-gray-100 dark:border-gray-700">
               <form onSubmit={handleProfileUpdate} className="mt-6">
                 {updateSuccess && (
@@ -192,14 +201,14 @@ const ProfilePage: React.FC = () => {
                 </div>
               </form>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Subscription Details Dropdown */}
-        <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden transition-all duration-300">
           <button
             onClick={() => setSubscriptionDropdownOpen(!subscriptionDropdownOpen)}
-            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"
           >
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-full">
@@ -213,21 +222,26 @@ const ProfilePage: React.FC = () => {
               </div>
             </div>
             <div className="flex-shrink-0">
-              {subscriptionDropdownOpen ? (
-                <ChevronDownIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              ) : (
-                <ChevronRightIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-              )}
+              <ChevronDownIcon 
+                className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-300 ${
+                  subscriptionDropdownOpen ? 'rotate-0' : '-rotate-90'
+                }`}
+              />
             </div>
           </button>
           
-          {subscriptionDropdownOpen && (
+          <div 
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              subscriptionDropdownOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
+            ref={subscriptionContentRef}
+          >
             <div className="border-t border-gray-100 dark:border-gray-700">
               <div className="p-6">
                 <SubscriptionSection />
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
       

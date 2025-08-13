@@ -10,13 +10,7 @@ const TermsAndConditions: React.FC = () => {
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Terms and Conditions
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-300">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </p>
+          
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             Please read these terms carefully before using WelthWest services.
           </p>
@@ -32,7 +26,7 @@ const TermsAndConditions: React.FC = () => {
                 1. Agreement to Terms
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                By accessing and using WelthWest ("we," "our," or "us"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                By accessing and using WelthWest, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
               </p>
               <p className="text-gray-700 dark:text-gray-300">
                 WelthWest is an AI-powered financial intelligence platform that provides market analysis, backtesting tools, and investment insights. These terms govern your use of our platform and services.
@@ -116,8 +110,8 @@ const TermsAndConditions: React.FC = () => {
                 We offer a free tier with limited features and usage quotas. Free tier users are subject to daily limits on:
               </p>
               <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 mb-4 space-y-2">
-                <li>Backtesting operations (2 per day)</li>
-                <li>AI analysis queries (5 per day)</li>
+                <li>Backtesting operations (100 per day)</li>
+                <li>AI analysis queries (100 per day)</li>
                 <li>Market data access (delayed data only)</li>
               </ul>
 
@@ -141,7 +135,7 @@ const TermsAndConditions: React.FC = () => {
                 6. Intellectual Property Rights
               </h2>
               <p className="text-gray-700 dark:text-gray-300 mb-4">
-                The service and its original content, features, and functionality are owned by WelthWest and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
+                The service and its original content, features, and functionality are owned by WelthWest.
               </p>
               <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
                 6.1 Your Content
@@ -180,7 +174,7 @@ const TermsAndConditions: React.FC = () => {
               </h2>
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 mb-4">
                 <p className="text-yellow-800 dark:text-yellow-200">
-                  <strong>Financial Disclaimer:</strong> WelthWest is a demonstration project. The information provided is not financial advice. Always do your own research before making investment decisions.
+                  <strong>Financial Disclaimer:</strong> WelthWest is a demonstration Platform. The information provided is not financial advice. Always do your own research before making investment decisions.
                 </p>
               </div>
               
@@ -290,9 +284,9 @@ const TermsAndConditions: React.FC = () => {
               </p>
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <p className="text-gray-700 dark:text-gray-300">
-                  <strong>Email:</strong> legal@welthwest.com<br />
-                  <strong>Address:</strong> WelthWest Legal Team<br />
-                  <strong>Response Time:</strong> We aim to respond to all inquiries within 72 hours
+                  <strong>Email:</strong> contact@welthwest.com<br />
+                  <strong>Address:</strong> WelthWest Team<br />
+                  <strong>Response Time:</strong> We aim to respond to all inquiries within 24 hours
                 </p>
               </div>
             </section>

@@ -367,15 +367,23 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
 
   return (
     <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-[70] md:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+      
       {/* Sidebar */}
       <div
-        className={`fixed top-16 bottom-0 left-0 z-[80] w-[35vh] bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-16 bottom-0 left-0 z-[80] w-80 md:w-80 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header with Close Button */}
-          <div className="flex items-center justify-end p-4 border-b border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex items-center justify-end p-3 md:p-4 border-b border-gray-700 bg-white dark:bg-gray-800">
             <button
               onClick={handleToggle}
               className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -395,29 +403,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
           </div>
 
                      {/* Navigation Links */}
-           <div className="px-4 py-4 border-b border-gray-700 flex-1">
+           <div className="px-3 md:px-4 py-3 md:py-4 border-b border-gray-700 flex-1">
              <nav className="space-y-2">
                {mainNavigation.map((item) => (
                  <Link
                    key={item.path}
                    to={item.path}
                    onClick={handleNavClick}
-                   className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
+                   className="flex items-center px-3 md:px-4 py-3 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
                  >
-                   <i className={`fas fa-${item.icon} mr-3`}></i>
+                   <i className={`fas fa-${item.icon} mr-2 md:mr-3 text-sm md:text-base`}></i>
                    {item.name}
                  </Link>
                ))}
                
                {/* Features Section */}
                <div className="mt-6">
-                 <h3 className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                 <h3 className="px-3 md:px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
                    Features
                  </h3>
                  
                  {featureNavigation.map((section, index) => (
                    <div key={section.category} className={index > 0 ? "mt-4" : ""}>
-                     <h4 className="px-4 py-1 text-xs font-medium text-gray-400">
+                     <h4 className="px-3 md:px-4 py-1 text-xs font-medium text-gray-400">
                        {section.category}
                      </h4>
                      {section.items.map((item) => (
@@ -425,9 +433,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                          key={item.path + item.name}
                          to={item.path}
                          onClick={handleNavClick}
-                         className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
+                         className="flex items-center px-3 md:px-4 py-3 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
                        >
-                         <i className={`fas fa-${item.icon} mr-3`}></i>
+                         <i className={`fas fa-${item.icon} mr-2 md:mr-3 text-sm md:text-base`}></i>
                          {item.name}
                        </Link>
                      ))}
@@ -439,16 +447,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                <Link
                  to="/profile"
                  onClick={handleNavClick}
-                 className="flex items-center px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50 mt-4"
+                 className="flex items-center px-3 md:px-4 py-3 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50 mt-4"
                >
-                 <i className="fas fa-user mr-3"></i>
+                 <i className="fas fa-user mr-2 md:mr-3 text-sm md:text-base"></i>
                  Profile
                </Link>
              </nav>
            </div>
            
            {/* Sidebar Footer - Auth Button */}
-           <div className="p-4 border-t border-gray-700 mt-auto">
+           <div className="p-3 md:p-4 border-t border-gray-700 mt-auto">
              {isAuthenticated ? (
                <button
                  onClick={async () => {
@@ -460,9 +468,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                      console.error('Logout failed:', error);
                    }
                  }}
-                 className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+                 className="w-full flex items-center justify-center px-4 py-3 md:py-2 text-sm md:text-base font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
                >
-                 <i className="fas fa-sign-out-alt mr-2"></i>
+                 <i className="fas fa-sign-out-alt mr-1 md:mr-2 text-sm md:text-base"></i>
                  Logout
                </button>
              ) : (
@@ -471,9 +479,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                    closeSidebar();
                    navigate('/login');
                  }}
-                 className="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
+                 className="w-full flex items-center justify-center px-4 py-3 md:py-2 text-sm md:text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
                >
-                 <i className="fas fa-sign-in-alt mr-2"></i>
+                 <i className="fas fa-sign-in-alt mr-1 md:mr-2 text-sm md:text-base"></i>
                  Login
                </button>
              )}
