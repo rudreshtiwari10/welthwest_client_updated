@@ -187,6 +187,81 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <span>Backtesting</span>
               </Link>
 
+              {/* Market Dropdown */}
+              <div 
+                className="relative" 
+                ref={stocksRef}
+                onMouseEnter={() => handleDropdownHover(true, setShowStocksMenu, stocksTimeoutRef)}
+                onMouseLeave={() => handleDropdownHover(false, setShowStocksMenu, stocksTimeoutRef)}
+              >
+                <button
+                  className={`flex items-center text-sm font-medium ${
+                    isStockActive()
+                      ? 'text-primary-600 dark:text-primary-400'
+                      : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                  }`}
+                >
+                  <ChartBarIcon className="h-4 w-4 mr-1" />
+                  <span>Market</span>
+                  <i className={`fas fa-chevron-down text-xs ml-1 transition-transform ${showStocksMenu ? 'rotate-180' : ''}`}></i>
+                </button>
+
+                {showStocksMenu && (
+                  <div className="absolute left-0 mt-2 w-64 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-2 border border-gray-200 dark:border-gray-700 z-50">
+                    {/* Stocks */}
+                    <Link
+                      to="/stock"
+                      className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
+                      onClick={() => setShowStocksMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
+                          <i className="fas fa-chart-line text-blue-600 dark:text-blue-400 text-sm"></i>
+                        </div>
+                        <div>
+                          <div className="font-medium">Top Gainer & Loser</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Search and analyze individual stocks</div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Stocks */}
+                    <Link
+                      to="/stock/Reliance"
+                      className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
+                      onClick={() => setShowStocksMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
+                          <i className="fas fa-trophy text-purple-600 dark:text-purple-400 text-sm"></i>
+                        </div>
+                        <div>
+                          <div className="font-medium">Stocks</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Top performing stocks & market insights</div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Popular Stocks Quick Access */}
+                    <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700">
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Popular Stocks</div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {popularStocks.map((stock) => (
+                          <Link
+                            key={stock.symbol}
+                            to={`/stock/${stock.symbol}`}
+                            className="text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-primary-600 dark:hover:text-primary-400 rounded transition-colors"
+                            onClick={() => setShowStocksMenu(false)}
+                          >
+                            {stock.symbol}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Dashboard Link (replaces Stocks) */}
               <div className="relative" ref={dashboardRef}>
                 <Link 

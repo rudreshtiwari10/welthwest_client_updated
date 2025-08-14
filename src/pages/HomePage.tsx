@@ -78,28 +78,103 @@ const HomePage: React.FC = () => {
   
   // Memoized chart data generator to prevent unnecessary re-renders
   const generateChartData = useMemo(() => {
-    return (isPositive: boolean, currentPrice: number) => {
+    return (isPositive: boolean, currentPrice: number, chartIndex: number) => {
       const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
       
-      // Generate smooth curved data progression based on current price
+      // Generate different curve patterns based on chart index
       const basePrice = currentPrice || 100;
       const data = labels.map((_, index) => {
-        // Create a more pronounced curve with smooth transitions
         const progress = index / (labels.length - 1); // 0 to 1
         let curveValue;
         
-        if (isPositive) {
-          // For positive trend: start lower, curve upward smoothly
-          curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * Math.PI) * 0.02);
-        } else {
-          // For negative trend: start higher, curve downward smoothly
-          curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * Math.PI) * 0.02);
+        // Different curve patterns for each chart
+        switch (chartIndex % 8) {
+          case 0: // Exponential growth/decline
+            if (isPositive) {
+              curveValue = basePrice * (0.92 + Math.pow(progress, 1.5) * 0.12);
+            } else {
+              curveValue = basePrice * (1.08 - Math.pow(progress, 1.3) * 0.1);
+            }
+            break;
+            
+          case 1: // S-curve pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + (1 / (1 + Math.exp(-8 * (progress - 0.5))) - 0.5) * 0.12);
+            } else {
+              curveValue = basePrice * (1.06 - (1 / (1 + Math.exp(-8 * (progress - 0.5))) - 0.5) * 0.12);
+            }
+            break;
+            
+          case 2: // Double peak pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * 4 * Math.PI) * 0.03);
+            } else {
+              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * 4 * Math.PI) * 0.03);
+            }
+            break;
+            
+          case 3: // Stepped pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + Math.floor(progress * 4) * 0.02 + (progress % 0.25) * 0.08);
+            } else {
+              curveValue = basePrice * (1.04 - Math.floor(progress * 4) * 0.015 - (progress % 0.25) * 0.06);
+            }
+            break;
+            
+          case 4: // Wave pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * 6 * Math.PI) * 0.04);
+            } else {
+              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * 6 * Math.PI) * 0.04);
+            }
+            break;
+            
+          case 5: // Logarithmic pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + Math.log(1 + progress * 8) * 0.08);
+            } else {
+              curveValue = basePrice * (1.04 - Math.log(1 + progress * 8) * 0.06);
+            }
+            break;
+            
+          case 6: // Zigzag pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * 8 * Math.PI) * 0.05);
+            } else {
+              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * 8 * Math.PI) * 0.05);
+            }
+            break;
+            
+          case 7: // Smooth bell curve
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * Math.PI) * 0.06);
+            } else {
+              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * Math.PI) * 0.06);
+            }
+            break;
+            
+          default:
+            // Fallback to original pattern
+            if (isPositive) {
+              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * Math.PI) * 0.02);
+            } else {
+              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * Math.PI) * 0.02);
+            }
         }
         
-        // Add some natural market-like fluctuation
-        const fluctuation = Math.sin(index * 0.8) * (basePrice * 0.008);
-        return curveValue + fluctuation;
+        // Add unique market-like fluctuation for each chart
+        const uniqueFluctuation = Math.sin(index * (0.8 + chartIndex * 0.3)) * (basePrice * 0.006) + 
+                                 Math.cos(index * (1.2 + chartIndex * 0.4)) * (basePrice * 0.004);
+        
+        return curveValue + uniqueFluctuation;
       });
+      
+      // Keep green/red colors based on percent change
+      const colors = {
+        border: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
+        background: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+        point: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
+      };
       
       return {
         labels,
@@ -107,86 +182,100 @@ const HomePage: React.FC = () => {
           {
             label: 'Price',
             data,
-            borderColor: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
-            backgroundColor: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-            tension: 0.5, // Increased tension for smoother curves
+            borderColor: colors.border,
+            backgroundColor: colors.background,
+            tension: 0.3 + (chartIndex % 4) * 0.2, // Varying tension for different curves
             fill: true,
-            borderWidth: 2,
+            borderWidth: 2 + (chartIndex % 2), // Varying border width
             pointRadius: 0,
             pointHoverRadius: 4,
-            pointBackgroundColor: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
+            pointBackgroundColor: colors.point,
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
+            // Add gradient effect for some charts
+            ...(chartIndex % 2 === 0 && {
+              backgroundColor: (context: any) => {
+                const chart = context.chart;
+                const { ctx, chartArea } = chart;
+                if (!chartArea) return colors.background;
+                
+                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                gradient.addColorStop(0, colors.background);
+                gradient.addColorStop(1, colors.background.replace('0.1', '0.3'));
+                return gradient;
+              }
+            }),
           },
         ],
       };
     };
   }, []);
   
-  // Memoized chart options to prevent re-renders
-  const chartOptions = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      mode: 'nearest' as const,
-      axis: 'x' as const,
-      intersect: false,
-    },
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: true,
-        mode: 'index' as const,
+  // Enhanced chart options with more variety
+  const getEnhancedChartOptions = useMemo(() => {
+    return (chartIndex: number) => ({
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'nearest' as const,
+        axis: 'x' as const,
         intersect: false,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        titleColor: '#ffffff',
-        bodyColor: '#ffffff',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-        cornerRadius: 6,
-        displayColors: false,
-        callbacks: {
-          title: () => '',
-          label: (context: any) => {
-            const value = context.parsed.y;
-            return `₹${value.toFixed(2)}`;
+      },
+      plugins: {
+        legend: {
+          display: false,
+        },
+        tooltip: {
+          enabled: true,
+          mode: 'index' as const,
+          intersect: false,
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          titleColor: '#ffffff',
+          bodyColor: '#ffffff',
+          borderColor: 'rgba(255, 255, 255, 0.1)',
+          borderWidth: 1,
+          cornerRadius: 6,
+          displayColors: false,
+          callbacks: {
+            title: () => '',
+            label: (context: any) => {
+              const value = context.parsed.y;
+              return `₹${value.toFixed(2)}`;
+            },
           },
         },
       },
-    },
-    scales: {
-      x: {
-        display: false,
-      },
-      y: {
-        display: false,
-      },
-    },
-    elements: {
-      point: {
-        radius: 0,
-        hoverRadius: 4,
-        hitRadius: 10,
-      },
-      line: {
-        borderCapStyle: 'round' as const,
-        borderJoinStyle: 'round' as const,
-      },
-    },
-    // Add animation options to prevent jarring changes
-    animation: {
-      duration: 0, // Disable animations to prevent shaking
-    },
-    transitions: {
-      active: {
-        animation: {
-          duration: 200,
+      scales: {
+        x: {
+          display: false,
+        },
+        y: {
+          display: false,
         },
       },
-    },
-  }), []);
+      elements: {
+        point: {
+          radius: 0,
+          hoverRadius: 4 + (chartIndex % 2), // Varying hover radius
+          hitRadius: 10,
+        },
+        line: {
+          borderCapStyle: 'round' as const,
+          borderJoinStyle: 'round' as const,
+        },
+      },
+      animation: {
+        duration: 0,
+      },
+      transitions: {
+        active: {
+          animation: {
+            duration: 200 + (chartIndex % 3) * 100, // Varying transition duration
+          },
+        },
+      },
+    });
+  }, []);
   
   const scrollIndices = (direction: 'left' | 'right') => {
     if (indicesSliderRef.current) {
@@ -378,7 +467,7 @@ const HomePage: React.FC = () => {
                 ))
               ) : (
                 // Real data
-                marketData?.indices && Object.keys(marketData.indices).map((key) => {
+                marketData?.indices && Object.keys(marketData.indices).map((key, index) => {
                   const index_data = marketData.indices[key];
                   // Calculate percentage change more accurately
                   let percentChange = 0;
@@ -400,19 +489,28 @@ const HomePage: React.FC = () => {
                   const isPositive = percentChange >= 0;
                   
                   return (
-                    <div key={key} className="min-w-[300px] bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700" style={{ minHeight: '280px' }}>
+                    <div key={key} className="min-w-[300px] bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700" style={{ 
+                      minHeight: '280px',
+                      borderWidth: `${1 + (index % 2)}px`,
+                      borderStyle: index % 3 === 0 ? 'solid' : index % 3 === 1 ? 'dashed' : 'dotted'
+                    }}>
                       <div className="p-6">
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <Link to={`/stock/${key}`} className="group">
-                              <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400">
-                                {index_data.name || key}
-                              </h3>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
-                                {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
-                              </p>
-                            </Link>
-                          </div>
+                            <div className="group">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white cursor-default">
+                                    {index_data.name || key}
+                                  </h3>
+                                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+                                    INDEX
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 cursor-default">
+                                  {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
+                                </p>
+                              </div>
+                            </div>
                           <div className="text-right">
                             <div className="text-3xl font-bold text-gray-900 dark:text-white">
                               {index_data.price?.toFixed(2) || '0.00'}
@@ -435,8 +533,11 @@ const HomePage: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="h-32 w-full" style={{ minHeight: '128px', maxHeight: '128px' }}>
-                          <Line data={generateChartData(isPositive, index_data.price || 0)} options={chartOptions} key={`chart-${key}-${isPositive}-${index_data.price}`} />
+                        <div className="h-32 w-full" style={{ 
+                          minHeight: `${128 + (index % 4) * 12}px`, 
+                          maxHeight: `${128 + (index % 4) * 12}px` 
+                        }}>
+                          <Line data={generateChartData(isPositive, index_data.price || 0, index)} options={getEnhancedChartOptions(index)} key={`chart-${key}-${isPositive}-${index_data.price}`} />
                         </div>
                         
                         <div className="grid grid-cols-3 gap-4 mt-4 text-sm">

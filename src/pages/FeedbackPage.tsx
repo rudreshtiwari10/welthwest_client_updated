@@ -154,7 +154,7 @@ const FeedbackPage: React.FC = () => {
 
     } catch (error: any) {
       console.error('Error submitting feedback:', error);
-      setSubmitError(error.message || 'Failed to submit feedback. Please try again.');
+      setSubmitError( 'Please fill out missing fields');
     } finally {
       setIsSubmitting(false);
     }

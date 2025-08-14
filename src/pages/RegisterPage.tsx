@@ -47,7 +47,21 @@ const RegisterPage: React.FC = () => {
       await register(username, email, password, confirmPassword);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || err.message || 'Failed to register');
+      const serverMessage = err?.response?.data?.error || err?.response?.data?.message || err?.response?.data?.detail || '';
+      if (err?.response?.status === 400 && typeof serverMessage === 'string') {
+        const normalized = serverMessage.toLowerCase();
+        if (normalized.includes('username') && normalized.includes('exists')) {
+          setError('Username already exists. Please choose another.');
+          return;
+        }
+        if (normalized.includes('email') && normalized.includes('exists')) {
+          setError('Email already exists. Try signing in or use a different email.');
+          return;
+        }
+        setError(serverMessage);
+        return;
+      }
+      setError(err.message || 'Failed to register');
     } finally {
       setIsLoading(false);
     }

@@ -496,41 +496,43 @@ const StockPage: React.FC = () => {
   // Original stock page content for when symbol is provided
   return (
     <div className="container mx-auto px-4 py-8 md:py-8 pt-20 md:pt-8">
-      {/* Stock Header with Three Column Layout */}
-      <div className="mb-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      {/* Stock Header with Responsive Layout */}
+      <div className="mb-6 md:mb-8">
+        <div className="flex flex-col space-y-4 lg:space-y-0 lg:flex-row lg:items-center lg:justify-between">
           {/* Left: Stock Symbol and Name */}
           <div className="flex-1 lg:flex-none">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 break-words">
               {stockData?.symbol || symbol}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 break-words">
               {stockData?.data?.[0]?.name || 'Stock Details'}
             </p>
           </div>
 
           {/* Center: Search Bar */}
-          <div className="flex-1 flex justify-center">
-            <div className="max-w-md w-full">
+          <div className="flex-1 flex justify-center order-3 lg:order-2">
+            <div className="w-full max-w-sm md:max-w-md">
               <SearchBarWithSuggestions
                 placeholders={["Search stocks...", "Search companies...", "Search symbols..."]}
-                className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
+                className="w-full pl-10 pr-4 py-2 md:py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 
                   rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm md:text-base"
               />
             </div>
           </div>
 
           {/* Right: AI Feature Promotion */}
-          <div className="flex-1 lg:flex-none flex justify-end">
-            <div className="flex items-center space-x-2">
-              <SparklesIcon className="h-5 w-5 text-purple-500" />
-              <span className="text-sm font-medium text-purple-600 dark:text-purple-400">
-                AI Market Analysis
-              </span>
+          <div className="flex-1 lg:flex-none flex justify-end order-2 lg:order-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
+              <div className="flex items-center space-x-2">
+                <SparklesIcon className="h-4 w-4 md:h-5 md:w-5 text-purple-500 flex-shrink-0" />
+                <span className="text-xs md:text-sm font-medium text-purple-600 dark:text-purple-400 whitespace-nowrap">
+                  AI Market Analysis
+                </span>
+              </div>
               <button
                 onClick={() => handleToggleAI(!aiModeEnabled)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                className={`px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-medium transition-colors whitespace-nowrap ${
                   aiModeEnabled 
                   ? 'bg-purple-600 text-white hover:bg-purple-700' 
                   : 'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50'
@@ -543,84 +545,90 @@ const StockPage: React.FC = () => {
         </div>
       </div>
 
-      {/* AI Feature Promotional Banner - Always visible */}
+      {/* AI Feature Promotional Banner - Mobile Responsive */}
       {!aiModeEnabled && (
-        <div className="mb-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg overflow-hidden">
-          <div className="px-6 py-5 sm:px-10 sm:py-6 flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center space-x-4 mb-4 md:mb-0">
-              <div className="bg-white/20 p-3 rounded-full">
-                <BeakerIcon className="h-8 w-8 text-white" />
+        <div className="mb-6 md:mb-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl shadow-lg overflow-hidden">
+          <div className="px-4 md:px-6 py-4 md:py-5 lg:px-10 lg:py-6">
+            <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-start space-x-3 md:space-x-4">
+                <div className="bg-white/20 p-2 md:p-3 rounded-full flex-shrink-0">
+                  <BeakerIcon className="h-6 w-6 md:h-8 md:w-8 text-white" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-base md:text-lg lg:text-xl font-bold text-white mb-1 md:mb-2 break-words">
+                    AI Market Regime Analysis
+                  </h3>
+                  <p className="text-xs md:text-sm text-purple-100 break-words">
+                    Get advanced market insights powered by machine learning
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg md:text-xl font-bold text-white">AI Market Regime Analysis</h3>
-                <p className="text-purple-100 text-sm md:text-base">
-                  Get advanced market insights powered by machine learning
-                </p>
+              <button
+                onClick={() => handleToggleAI(true)}
+                className="px-4 md:px-6 py-2 bg-white text-purple-700 rounded-full font-medium hover:bg-purple-50 transition-colors shadow-md whitespace-nowrap flex-shrink-0"
+              >
+                Activate AI Analysis
+              </button>
+            </div>
+            
+            {/* Feature Icons - Responsive Grid */}
+            <div className="mt-4 md:mt-6 flex flex-wrap gap-2 md:gap-4">
+              <div className="flex items-center space-x-2 text-white text-xs md:text-sm">
+                <LightBulbIcon className="h-4 w-4 md:h-5 md:w-5 text-yellow-300 flex-shrink-0" />
+                <span className="break-words">Market Regime Detection</span>
               </div>
-            </div>
-            <button
-              onClick={() => handleToggleAI(true)}
-              className="px-6 py-2 bg-white text-purple-700 rounded-full font-medium hover:bg-purple-50 transition-colors shadow-md"
-            >
-              Activate AI Analysis
-            </button>
-          </div>
-          <div className="px-6 pb-4 sm:px-10 sm:pb-6 flex flex-wrap gap-4">
-            <div className="flex items-center space-x-2">
-              <LightBulbIcon className="h-5 w-5 text-yellow-300" />
-              <span className="text-white text-sm">Market Regime Detection</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <ChartBarIcon className="h-5 w-5 text-green-300" />
-              <span className="text-white text-sm">Technical Analysis</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <ArrowTrendingUpIcon className="h-5 w-5 text-blue-300" />
-              <span className="text-white text-sm">Trading Recommendations</span>
+              <div className="flex items-center space-x-2 text-white text-xs md:text-sm">
+                <ChartBarIcon className="h-4 w-4 md:h-5 md:w-5 text-green-300 flex-shrink-0" />
+                <span className="break-words">Technical Analysis</span>
+              </div>
+              <div className="flex items-center space-x-2 text-white text-xs md:text-sm">
+                <ArrowTrendingUpIcon className="h-4 w-4 md:h-5 md:w-5 text-blue-300 flex-shrink-0" />
+                <span className="break-words">Trading Recommendations</span>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Stock Chart and Info - Left Column */}
         <div className="lg:col-span-2">
-          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-6 mb-8">
+          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-4 md:p-6 mb-6 md:mb-8">
             {/* Price Header with Current Data */}
             {stockData?.data?.[0] && (
-              <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="text-3xl font-bold text-gray-900 dark:text-white">
+              <div className="mb-4 md:mb-6 p-3 md:p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white break-words">
                       ₹{stockData.data[0].Close?.toFixed(2) || '0.00'}
                     </div>
-                    <div className="flex items-center mt-1">
+                    <div className="flex items-center mt-1 flex-wrap">
                       {stockData.data[0].Close && stockData.data[1]?.Close && (
                         <>
                           {stockData.data[0].Close >= stockData.data[1].Close ? (
-                            <ArrowTrendingUpIcon className="h-4 w-4 text-green-600 mr-1" />
+                            <ArrowTrendingUpIcon className="h-4 w-4 text-green-600 mr-1 flex-shrink-0" />
                           ) : (
-                            <ArrowTrendingDownIcon className="h-4 w-4 text-red-600 mr-1" />
+                            <ArrowTrendingDownIcon className="h-4 w-4 text-red-600 mr-1 flex-shrink-0" />
                           )}
                           <span className={`text-sm font-medium ${
                             stockData.data[0].Close >= stockData.data[1].Close 
                               ? 'text-green-600' 
                               : 'text-red-600'
-                          }`}>
+                          } break-words`}>
                             {stockData.data[0].Close >= stockData.data[1].Close ? '+' : ''}
                             {((stockData.data[0].Close - stockData.data[1].Close) / stockData.data[1].Close * 100).toFixed(2)}%
-                            ({(stockData.data[0].Close - stockData.data[1].Close).toFixed(2)})
+                            <span className="hidden sm:inline"> ({(stockData.data[0].Close - stockData.data[1].Close).toFixed(2)})</span>
                           </span>
                         </>
                       )}
                     </div>
                   </div>
-                  <div className="text-right mt-2 sm:mt-0">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <div className="text-right min-w-0">
+                    <div className="text-sm text-gray-600 dark:text-gray-400 break-words">
                       Volume: {stockData.data[0].Volume?.toLocaleString() || 'N/A'}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 break-words">
                       Timeframe: {selectedTimeframe} • Updated: {new Date().toLocaleTimeString()}
                     </div>
                   </div>
@@ -628,18 +636,18 @@ const StockPage: React.FC = () => {
               </div>
             )}
             
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0">
+            <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between mb-4">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2 sm:mb-0 break-words">
                 Price Chart
               </h2>
               
-              {/* Timeframe Controls */}
-              <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+              {/* Timeframe Controls - Mobile Responsive */}
+              <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 overflow-x-auto">
                 {['1d', '5d', '1m', '3m', '6m', '1y', '2y', '5y', 'max'].map((timeframe) => (
                   <button
                     key={timeframe}
                     onClick={() => setSelectedTimeframe(timeframe)}
-                    className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    className={`px-2 md:px-3 py-1 text-xs font-medium rounded-md transition-all whitespace-nowrap flex-shrink-0 ${
                       selectedTimeframe === timeframe
                         ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
                         : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
@@ -651,25 +659,25 @@ const StockPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Chart Height Controls with +/- buttons */}
-            <div className="flex items-center justify-between mb-4">
+            {/* Chart Height Controls with +/- buttons - Mobile Responsive */}
+            <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Chart Size:</span>
+                <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">Chart Size:</span>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setChartHeight(Math.max(200, chartHeight - 100))}
-                    className="flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-full text-gray-700 dark:text-gray-300 transition-colors"
+                    className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-full text-gray-700 dark:text-gray-300 transition-colors"
                   >
-                    <span className="text-lg font-bold">−</span>
+                    <span className="text-base md:text-lg font-bold">−</span>
                   </button>
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[60px] text-center">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[50px] md:min-w-[60px] text-center">
                     {chartHeight}px
                   </span>
                   <button
                     onClick={() => setChartHeight(Math.min(800, chartHeight + 100))}
-                    className="flex items-center justify-center w-8 h-8 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-full text-gray-700 dark:text-gray-300 transition-colors"
+                    className="flex items-center justify-center w-7 h-7 md:w-8 md:h-8 bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 rounded-full text-gray-700 dark:text-gray-300 transition-colors"
                   >
-                    <span className="text-lg font-bold">+</span>
+                    <span className="text-base md:text-lg font-bold">+</span>
                   </button>
                 </div>
               </div>
@@ -689,44 +697,44 @@ const StockPage: React.FC = () => {
           </div>
 
           {/* Stock Statistics */}
-          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Statistics</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-4 md:p-6">
+            <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 dark:text-white break-words">Statistics</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
               {stockData?.data && stockData.data[0] && (
                 <>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Open</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 break-words">Open</p>
+                    <p className="text-base md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{stockData.data[0].Open?.toFixed(2) || 'N/A'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">High</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 break-words">High</p>
+                    <p className="text-base md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{stockData.data[0].High?.toFixed(2) || 'N/A'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Low</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 break-words">Low</p>
+                    <p className="text-base md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{stockData.data[0].Low?.toFixed(2) || 'N/A'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Close</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 break-words">Close</p>
+                    <p className="text-base md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{stockData.data[0].Close?.toFixed(2) || 'N/A'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Volume</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 break-words">Volume</p>
+                    <p className="text-base md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       {stockData.data[0].Volume?.toLocaleString() || 'N/A'}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Period</p>
-                    <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <div className="min-w-0">
+                    <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 break-words">Period</p>
+                    <p className="text-base md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       {stockData.period || '1y'}
                     </p>
                   </div>
@@ -736,57 +744,57 @@ const StockPage: React.FC = () => {
           </div>
 
           {/* Fundamental Ratios */}
-          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center">
-              <ChartBarIcon className="h-5 w-5 mr-2 text-blue-500" />
-              Fundamental Ratios
+          <div className="bg-white dark:bg-dark-300 rounded-lg shadow-md p-4 md:p-6 mb-6 md:mb-8">
+            <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-900 dark:text-white flex items-center break-words">
+              <ChartBarIcon className="h-5 w-5 mr-2 text-blue-500 flex-shrink-0" />
+              <span className="break-words">Fundamental Ratios</span>
               {fundamentalsLoading && (
-                <ArrowPathIcon className="h-4 w-4 ml-2 animate-spin text-blue-500" />
+                <ArrowPathIcon className="h-4 w-4 ml-2 animate-spin text-blue-500 flex-shrink-0" />
               )}
             </h2>
             
             {fundamentalsLoading ? (
               <div className="flex justify-center items-center h-32">
                 <ArrowPathIcon className="h-8 w-8 animate-spin text-blue-500" />
-                <span className="ml-2 text-gray-600 dark:text-gray-400">Loading fundamental data...</span>
+                <span className="ml-2 text-gray-600 dark:text-gray-400 text-sm break-words">Loading fundamental data...</span>
               </div>
             ) : fundamentalsError ? (
-              <div className="text-center p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                <p className="text-yellow-700 dark:text-yellow-400">{fundamentalsError}</p>
+              <div className="text-center p-4 md:p-6 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                <p className="text-yellow-700 dark:text-yellow-400 text-sm break-words">{fundamentalsError}</p>
                 <button
                   onClick={() => fetchFundamentalsData(symbol)}
-                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
                 >
                   Retry
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Valuation Ratios */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 border-b pb-2">Valuation</h3>
-                  <div className="space-y-3">
+                <div className="space-y-3 md:space-y-4">
+                  <h3 className="text-base md:text-lg font-medium text-gray-800 dark:text-gray-200 border-b pb-2 break-words">Valuation</h3>
+                  <div className="space-y-2 md:space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">P/E Ratio</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">P/E Ratio</span>
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm md:text-base break-words">
                         {fundamentalsData?.valuation_ratios?.pe_ratio?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">P/B Ratio</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">P/B Ratio</span>
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm md:text-base break-words">
                         {fundamentalsData?.valuation_ratios?.pb_ratio?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">P/S Ratio</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">P/S Ratio</span>
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm md:text-base break-words">
                         {fundamentalsData?.valuation_ratios?.ps_ratio?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">EV/EBITDA</span>
-                      <span className="font-semibold text-gray-900 dark:text-white">
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">EV/EBITDA</span>
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm md:text-base break-words">
                         {fundamentalsData?.valuation_ratios?.ev_ebitda?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
@@ -794,30 +802,30 @@ const StockPage: React.FC = () => {
                 </div>
 
                 {/* Profitability Ratios */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 border-b pb-2">Profitability</h3>
-                  <div className="space-y-3">
+                <div className="space-y-3 md:space-y-4">
+                  <h3 className="text-base md:text-lg font-medium text-gray-800 dark:text-gray-200 border-b pb-2 break-words">Profitability</h3>
+                  <div className="space-y-2 md:space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">ROE</span>
-                      <span className={`font-semibold ${(fundamentalsData?.profitability_ratios?.roe || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">ROE</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.profitability_ratios?.roe || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
                         {fundamentalsData?.profitability_ratios?.roe ? `${fundamentalsData.profitability_ratios.roe.toFixed(2)}%` : 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">ROA</span>
-                      <span className={`font-semibold ${(fundamentalsData?.profitability_ratios?.roa || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">ROA</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.profitability_ratios?.roa || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
                         {fundamentalsData?.profitability_ratios?.roa ? `${fundamentalsData.profitability_ratios.roa.toFixed(2)}%` : 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">ROIC</span>
-                      <span className={`font-semibold ${(fundamentalsData?.profitability_ratios?.roic || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">ROIC</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.profitability_ratios?.roic || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
                         {fundamentalsData?.profitability_ratios?.roic ? `${fundamentalsData.profitability_ratios.roic.toFixed(2)}%` : 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Gross Margin</span>
-                      <span className={`font-semibold ${(fundamentalsData?.profitability_ratios?.gross_margin || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Gross Margin</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.profitability_ratios?.gross_margin || 0) > 0 ? 'text-green-600' : 'text-gray-900 dark:text-white'}`}>
                         {fundamentalsData?.profitability_ratios?.gross_margin ? `${fundamentalsData.profitability_ratios.gross_margin.toFixed(2)}%` : 'N/A'}
                       </span>
                     </div>
@@ -825,30 +833,30 @@ const StockPage: React.FC = () => {
                 </div>
 
                 {/* Financial Health */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 border-b pb-2">Financial Health</h3>
-                  <div className="space-y-3">
+                <div className="space-y-3 md:space-y-4">
+                  <h3 className="text-base md:text-lg font-medium text-gray-800 dark:text-gray-200 border-b pb-2 break-words">Financial Health</h3>
+                  <div className="space-y-2 md:space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Current Ratio</span>
-                      <span className={`font-semibold ${(fundamentalsData?.financial_health?.current_ratio || 0) > 1.5 ? 'text-green-600' : (fundamentalsData?.financial_health?.current_ratio || 0) > 1 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Current Ratio</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.financial_health?.current_ratio || 0) > 1.5 ? 'text-green-600' : (fundamentalsData?.financial_health?.current_ratio || 0) > 1 ? 'text-yellow-600' : 'text-red-600'}`}>
                         {fundamentalsData?.financial_health?.current_ratio?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Quick Ratio</span>
-                      <span className={`font-semibold ${(fundamentalsData?.financial_health?.quick_ratio || 0) > 1 ? 'text-green-600' : 'text-yellow-600'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Quick Ratio</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.financial_health?.quick_ratio || 0) > 1 ? 'text-green-600' : 'text-yellow-600'}`}>
                         {fundamentalsData?.financial_health?.quick_ratio?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Debt/Equity</span>
-                      <span className={`font-semibold ${(fundamentalsData?.financial_health?.debt_to_equity || 0) < 0.5 ? 'text-green-600' : (fundamentalsData?.financial_health?.debt_to_equity || 0) < 1 ? 'text-yellow-600' : 'text-red-600'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Debt/Equity</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.financial_health?.debt_to_equity || 0) < 0.5 ? 'text-green-600' : (fundamentalsData?.financial_health?.debt_to_equity || 0) < 1 ? 'text-yellow-600' : 'text-red-600'}`}>
                         {fundamentalsData?.financial_health?.debt_to_equity?.toFixed(2) || 'N/A'}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">Interest Coverage</span>
-                      <span className={`font-semibold ${(fundamentalsData?.financial_health?.interest_coverage || 0) > 5 ? 'text-green-600' : 'text-yellow-600'}`}>
+                      <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Interest Coverage</span>
+                      <span className={`font-semibold text-sm md:text-base break-words ${(fundamentalsData?.financial_health?.interest_coverage || 0) > 5 ? 'text-green-600' : 'text-yellow-600'}`}>
                         {fundamentalsData?.financial_health?.interest_coverage ? `${fundamentalsData.financial_health.interest_coverage.toFixed(1)}x` : 'N/A'}
                       </span>
                     </div>
@@ -860,29 +868,29 @@ const StockPage: React.FC = () => {
             {/* Market Performance Metrics */}
             {fundamentalsData && !fundamentalsLoading && (
               <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">Market Performance</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <h3 className="text-base md:text-lg font-medium text-gray-800 dark:text-gray-200 mb-4 break-words">Market Performance</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
                   <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">52W High</div>
-                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">52W High</div>
+                    <div className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{fundamentalsData?.market_performance?.fifty_two_week_high?.toFixed(2) || 'N/A'}
                     </div>
                   </div>
                   <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">52W Low</div>
-                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">52W Low</div>
+                    <div className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{fundamentalsData?.market_performance?.fifty_two_week_low?.toFixed(2) || 'N/A'}
                     </div>
                   </div>
                   <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Dividend Yield</div>
-                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Dividend Yield</div>
+                    <div className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       {fundamentalsData?.market_performance?.dividend_yield ? `${fundamentalsData.market_performance.dividend_yield.toFixed(2)}%` : 'N/A'}
                     </div>
                   </div>
                   <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Market Cap</div>
-                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400 break-words">Market Cap</div>
+                    <div className="text-sm md:text-lg font-semibold text-gray-900 dark:text-white break-words">
                       ₹{fundamentalsData?.market_cap ? (fundamentalsData.market_cap / 10000000).toFixed(1) + 'L Cr' : 'N/A'}
                     </div>
                   </div>

@@ -76,6 +76,41 @@ const MobileFooterNav: React.FC = () => {
               </Link>
             </div>
             
+            {/* Market Features */}
+            <div className="mb-4">
+              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Market
+              </h4>
+              
+              <Link
+                to="/stock"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
+                onClick={handleCloseFeatures}
+              >
+                <div className="mr-3 text-blue-400">
+                  <ChartBarIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-medium text-white">Top Gainer & Loser</div>
+                  <div className="text-xs text-gray-400">Search and analyze individual stocks</div>
+                </div>
+              </Link>
+              
+              <Link
+                to="/stock/Reliance"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                onClick={handleCloseFeatures}
+              >
+                <div className="mr-3 text-purple-400">
+                  <i className="fas fa-trophy h-5 w-5"></i>
+                </div>
+                <div>
+                  <div className="font-medium text-white">Stocks</div>
+                  <div className="text-xs text-gray-400">Top performing stocks & market insights</div>
+                </div>
+              </Link>
+            </div>
+            
             {/* Trading Tools - removed Backtesting per request */}
           </div>
         </>

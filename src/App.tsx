@@ -39,6 +39,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import PrivateRoute from './components/PrivateRoute';
+import RouteChangeTracker from './components/RouteChangeTracker';
 
 // Banner component to highlight AI feature
 const AIFeatureBanner: React.FC = () => {
@@ -180,6 +181,8 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/review-payment" element={<PrivateRoute><ReviewPaymentPage /></PrivateRoute>} />
                 <Route path="/payment-confirmation" element={<PrivateRoute><PaymentConfirmationPage /></PrivateRoute>} />
               </Routes>
+              {/* Track route changes for GTM/GA4 */}
+              <RouteChangeTracker />
             </main>
 
             {/* AI Feature Banner */}
