@@ -696,132 +696,30 @@ export const watchlistService = {
 };
 
 // WebSocket service for real-time market data
+// Real-time market WebSocket service is currently disabled.
+// The implementation is intentionally commented out to prevent any WS connections.
+// If needed in future, restore the class and instantiate it.
+/*
 export class MarketWebSocketService {
   private ws: WebSocket | null = null;
   private subscribers: Map<string, ((data: any) => void)[]> = new Map();
-  
-  constructor() {
-    this.connect();
-  }
-  
-  private connect() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-      console.error('No access token available for WebSocket connection');
-      return;
-    }
-    
-    try {
-      this.ws = new WebSocket(`${WS_URL}/market?token=${token}`);
-      
-      this.ws.onopen = () => {
-        console.log('WebSocket connection established');
-        
-        // Resubscribe to previous symbols if any
-        const symbols = Array.from(this.subscribers.keys());
-        if (symbols.length > 0) {
-          this.subscribe(symbols);
-        }
-      };
-      
-      this.ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          // Handle different message types
-          if (data.type === 'price_update' && data.data && data.data.symbol) {
-            const callbacks = this.subscribers.get(data.data.symbol);
-            if (callbacks) {
-              callbacks.forEach(callback => {
-                try {
-                  callback(data.data);
-                } catch (error) {
-                  console.error(`Error in callback for symbol ${data.data.symbol}:`, error);
-                }
-              });
-            }
-          } else if (data.type === 'error') {
-            console.error('WebSocket error from server:', 
-              typeof data.data === 'object' ? JSON.stringify(data.data) : data.data);
-          }
-        } catch (error) {
-          console.error('Error processing WebSocket message:', error);
-        }
-      };
-      
-      this.ws.onclose = () => {
-        console.log('WebSocket connection closed');
-        setTimeout(() => this.connect(), 5000);
-      };
-      
-      this.ws.onerror = (error) => {
-        console.error('WebSocket error:', error);
-      };
-    } catch (error) {
-      console.error('Error creating WebSocket connection:', error);
-    }
-  }
-  
-  public subscribe(symbols: string[]) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('WebSocket not connected');
-      return;
-    }
-    
-    this.ws.send(JSON.stringify({
-      action: 'subscribe',
-      symbols
-    }));
-  }
-  
-  public unsubscribe(symbols: string[]) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.error('WebSocket not connected');
-      return;
-    }
-    
-    this.ws.send(JSON.stringify({
-      action: 'unsubscribe',
-      symbols
-    }));
-    
-    // Remove callbacks for these symbols
-    symbols.forEach(symbol => {
-      this.subscribers.delete(symbol);
-    });
-  }
-  
-  public addSymbolListener(symbol: string, callback: (data: any) => void) {
-    if (!this.subscribers.has(symbol)) {
-      this.subscribers.set(symbol, []);
-      // Subscribe to this symbol if not already subscribed
-      this.subscribe([symbol]);
-    }
-    
-    const callbacks = this.subscribers.get(symbol);
-    if (callbacks) {
-      callbacks.push(callback);
-    }
-  }
-  
-  public removeSymbolListener(symbol: string, callback: (data: any) => void) {
-    const callbacks = this.subscribers.get(symbol);
-    if (callbacks) {
-      const index = callbacks.indexOf(callback);
-      if (index !== -1) {
-        callbacks.splice(index, 1);
-      }
-      
-      // If no more callbacks for this symbol, unsubscribe
-      if (callbacks.length === 0) {
-        this.unsubscribe([symbol]);
-      }
-    }
-  }
+  constructor() { this.connect(); }
+  private connect() {}
+  public subscribe(symbols: string[]) {}
+  public unsubscribe(symbols: string[]) {}
+  public addSymbolListener(symbol: string, callback: (data: any) => void) {}
+  public removeSymbolListener(symbol: string, callback: (data: any) => void) {}
 }
-
-// Export singleton instance
 export const marketWebSocketService = new MarketWebSocketService();
+*/
+
+// Provide a no-op stub to avoid runtime errors where the service is imported/used.
+export const marketWebSocketService = {
+  subscribe: (_symbols: string[]) => {},
+  unsubscribe: (_symbols: string[]) => {},
+  addSymbolListener: (_symbol: string, _callback: (data: any) => void) => {},
+  removeSymbolListener: (_symbol: string, _callback: (data: any) => void) => {},
+};
 
 // Legacy services for backward compatibility
 export const stockService = {
