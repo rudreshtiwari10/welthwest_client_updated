@@ -699,7 +699,7 @@ export const watchlistService = {
 // Real-time market WebSocket service is currently disabled.
 // The implementation is intentionally commented out to prevent any WS connections.
 // If needed in future, restore the class and instantiate it.
-/*
+/* sdsadas
 export class MarketWebSocketService {
   private ws: WebSocket | null = null;
   private subscribers: Map<string, ((data: any) => void)[]> = new Map();
