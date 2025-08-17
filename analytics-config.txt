@@ -1,0 +1,43 @@
+# Google Analytics Configuration Instructions
+# ======================================
+
+# IMPORTANT: Google Analytics IDs are now handled securely through environment variables
+# and dynamically injected by React, NOT hardcoded in HTML files.
+
+# 1. Create a .env file in the WelthWestClientSharing directory with the following content:
+
+# Google Analytics Configuration
+# Replace these placeholder values with your actual Google Analytics IDs
+
+# Google Analytics 4 Measurement ID (G-XXXXXXXXXX)
+REACT_APP_GA4_ID=G-XXXXXXXXXX
+
+# Google Tag Manager Container ID (GTM-XXXXXXXX)
+REACT_APP_GTM_ID=GTM-XXXXXXXX
+
+# API Configuration
+REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_WS_URL=ws://localhost:8000/api/ws
+
+# Google OAuth Configuration
+REACT_APP_GOOGLE_CLIENT_ID=your-google-client-id-goes-here
+
+# 2. The analytics code automatically handles:
+# - Dynamic script injection based on environment variables
+# - Secure ID handling (no IDs exposed in HTML source)
+# - Automatic initialization when the app loads
+# - Page view tracking and custom event tracking
+
+# 3. The analytics code is already implemented in:
+# - src/utils/analytics.ts (utility functions with environment variable support)
+# - src/components/RouteChangeTracker.tsx (page tracking)
+# - App.tsx (integration)
+
+# 4. After setting up the .env file, restart your development server
+# for the environment variables to take effect.
+
+# 5. Security benefits of this approach:
+# - No analytics IDs exposed in HTML source code
+# - IDs can be different for development vs production
+# - Easy to update IDs without code changes
+# - Follows security best practices
