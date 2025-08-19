@@ -163,3 +163,4 @@ After fixing the `.env` file issue, you should see:
 - GTM container loading successfully
 
 **The main issue is the missing `.env` file - create it and analytics will work!**
+
