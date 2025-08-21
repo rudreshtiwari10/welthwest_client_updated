@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { marketService } from '../services/api';
+import ProfileInitialsAvatar from './account/ProfileInitialsAvatar';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -382,8 +383,29 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
         }`}
       >
         <div className="flex flex-col h-full">
-          {/* Header with Close Button */}
-          <div className="flex items-center justify-end p-3 md:p-4 border-b border-gray-700 bg-white dark:bg-gray-800">
+          {/* Header with User Info and Close Button */}
+          <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-700 bg-white dark:bg-gray-800">
+            {/* User Info */}
+            {isAuthenticated && user && (
+              <div className="flex items-center space-x-3">
+                <ProfileInitialsAvatar
+                  firstName={user.first_name || ''}
+                  lastName={user.last_name || ''}
+                  className="w-8 h-8 text-xs"
+                  noHover={true}
+                />
+                <div className="flex flex-col">
+                  <span className="text-base font-semibold text-gray-900 dark:text-white font-sans tracking-wide">
+                    {user.first_name && user.last_name 
+                      ? `${user.first_name} ${user.last_name}` 
+                      : user.first_name || user.last_name || user.username || 'User'
+                    }
+                  </span>
+                </div>
+              </div>
+            )}
+            
+            {/* Close Button */}
             <button
               onClick={handleToggle}
               className="p-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
