@@ -476,21 +476,6 @@ export const marketService = {
     }
   },
 
-  // Anonymous/Free AI chat function with session limits
-  anonymousChatWithAI: async (message: string, sessionId?: string, model?: string) => {
-    try {
-      const response = await api.post('/chat', {
-        message,
-        session_id: sessionId,
-        model: model || 'openrouter'
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error with anonymous AI chat:', error);
-      throw error;
-    }
-  },
-
   // Anonymous backtesting with session limits
   anonymousBacktest: async (params: any, sessionId?: string) => {
     try {
@@ -515,6 +500,21 @@ export const marketService = {
       return response.data;
     } catch (error) {
       console.error('Error with anonymous AI analysis:', error);
+      throw error;
+    }
+  },
+
+  // Anonymous chat with AI using session limits
+  anonymousChatWithAI: async (message: string, sessionId?: string, model?: string) => {
+    try {
+      const response = await api.post('/chat', {
+        message,
+        session_id: sessionId,
+        model: model || 'openrouter'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with anonymous AI chat:', error);
       throw error;
     }
   },
