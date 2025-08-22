@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon } from '@heroicons/react/24/outline';
 import WelthAIPage from '../pages/WelthAIPage';
 import WelthChatbotPage from '../pages/WelthChatbotPage';
 
@@ -238,6 +238,23 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                         <div>
                           <div className="font-medium">Stocks</div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Top performing stocks & market insights</div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Technical Analysis */}
+                    <Link
+                      to="/technical-analysis"
+                      className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
+                      onClick={() => setShowStocksMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
+                          <ChartPieIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <div className="font-medium">Technical Analysis</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">RSI, MACD, Bollinger Bands & more</div>
                         </div>
                       </div>
                     </Link>

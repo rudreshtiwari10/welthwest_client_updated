@@ -24,6 +24,7 @@ import TermsAndConditions from './pages/TermsAndConditions';
 import FeedbackPage from './pages/FeedbackPage';
 import ReviewPaymentPage from './pages/ReviewPaymentPage';
 import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
+import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
 
 // Components
 import Header from './components/Header';
@@ -168,6 +169,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
+                <Route path="/technical-analysis" element={<PrivateRoute><TechnicalAnalysisPage /></PrivateRoute>} />
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />

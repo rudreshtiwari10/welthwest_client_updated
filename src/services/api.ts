@@ -180,6 +180,35 @@ api.interceptors.response.use(
 
 // Authentication service
 export const authService = {
+  // Send registration OTP
+  sendRegistrationOTP: async (email: string) => {
+    try {
+      const response = await api.post('/auth/send-registration-otp', { email });
+      return response.data;
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      throw error;
+    }
+  },
+  
+  // Verify registration OTP and complete registration
+  verifyRegistrationOTP: async (email: string, otp: string, username: string, password: string, confirmPassword: string) => {
+    try {
+      const response = await api.post('/auth/verify-registration-otp', {
+        email,
+        otp,
+        username,
+        password,
+        confirm_password: confirmPassword
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      throw error;
+    }
+  },
+  
+  // Legacy registration method (deprecated)
   register: async (email: string, username: string, password: string, confirmPassword: string) => {
     try {
       const response = await api.post('/auth/register', {
@@ -790,6 +819,17 @@ export const userService = {
       return { success: true };
     } catch (error) {
       console.error('Error adding favorite stock:', error);
+      throw error;
+    }
+  },
+
+  // Get technical indicators and signals for a stock
+  getTechnicalAnalysis: async (ticker: string) => {
+    try {
+      const response = await api.get(`/technical-analysis?ticker=${ticker}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching technical analysis:', error);
       throw error;
     }
   }
