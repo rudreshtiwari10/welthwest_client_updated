@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
@@ -8,6 +8,8 @@ import StockChart from './StockChart';
 import LimitExceededModal from './subscription/LimitExceededModal';
 import LoginModal from './LoginModal';
 import ChatHistorySidebar from './ChatHistorySidebar';
+import TechnicalIndicators from './TechnicalIndicators';
+import StockSymbolSelector from './StockSymbolSelector';
 
 // Thinking Indicator Component
 const ThinkingIndicator: React.FC = () => {
@@ -51,7 +53,7 @@ const ThinkingIndicator: React.FC = () => {
 
 type MessageSender = 'user' | 'assistant';
 
-type MessageContentType = 'text' | 'chart' | 'table' | 'image' | 'cards' | 'progress';
+type MessageContentType = 'text' | 'chart' | 'table' | 'image' | 'cards' | 'progress' | 'technical';
 
 interface AssistantCardAction {
   label: string;
@@ -82,6 +84,8 @@ interface Message {
   cards?: AssistantCard[];
   // Progress content
   progress?: { label: string; percent?: number; indeterminate?: boolean };
+  // Technical indicators content
+  technical?: { symbol: string; data: any };
 }
 
 interface ChatSession {
@@ -152,6 +156,15 @@ const ChatInterface: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
   const [sidebarRefreshTrigger, setSidebarRefreshTrigger] = useState(0);
   const [autoSaveInProgress, setAutoSaveInProgress] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState<string | null>(() => {
+    // Try to restore chat session from sessionStorage on initial load
+    try {
+      return sessionStorage.getItem('currentChatId');
+    } catch {
+      return null;
+    }
+  });
+  const [showTechnicalModal, setShowTechnicalModal] = useState(false);
   
   const placeholders = [
     "Ask about investment strategies...",
@@ -201,8 +214,21 @@ const ChatInterface: React.FC = () => {
     return () => clearInterval(intervalId);
   }, [placeholders.length]);
 
+  // Persist current chat ID to sessionStorage
+  useEffect(() => {
+    try {
+      if (currentChatId) {
+        sessionStorage.setItem('currentChatId', currentChatId);
+      } else {
+        sessionStorage.removeItem('currentChatId');
+      }
+    } catch {
+      // Ignore sessionStorage errors
+    }
+  }, [currentChatId]);
+
   // Generate dynamic title from first user message
-  const generateChatTitle = () => {
+  const generateChatTitle = useCallback(() => {
     const userMessages = messages.filter(msg => msg.sender === 'user');
     if (userMessages.length > 0) {
       const firstUserMessage = userMessages[0].text || '';
@@ -210,11 +236,11 @@ const ChatInterface: React.FC = () => {
       return words.length > 30 ? words.substring(0, 30) + '...' : words || 'New Chat';
     }
     return 'New Chat';
-  };
+  }, [messages]);
 
-  // Auto-save chat history function (for users who weren't using market chat API)
-  const handleAutoSaveChat = async () => {
-    if (!user || messages.length <= 1 || autoSaveInProgress) return;
+  // Auto-save chat history function 
+  const handleAutoSaveChat = useCallback(async () => {
+    if (!user || autoSaveInProgress || messages.length <= 1) return;
     
     try {
       setAutoSaveInProgress(true);
@@ -228,6 +254,7 @@ const ChatInterface: React.FC = () => {
       
       // Prepare chat data to save
       const chat_data = {
+        ...(currentChatId && { chat_id: currentChatId }), // Include chat_id if exists
         title: generateChatTitle(),
         timestamp: new Date().toISOString(),
         conversation: conversation,
@@ -236,6 +263,11 @@ const ChatInterface: React.FC = () => {
       
       // Save chat history silently
       const response = await userDataService.saveChatHistory(chat_data);
+      
+      // Update current chat ID if this was a new chat
+      if (response.success && response.chat_id && !currentChatId) {
+        setCurrentChatId(response.chat_id);
+      }
       
       // Trigger sidebar refresh if save was successful
       if (response.success) {
@@ -247,10 +279,10 @@ const ChatInterface: React.FC = () => {
     } finally {
       setAutoSaveInProgress(false);
     }
-  };
+  }, [user, autoSaveInProgress, messages, currentChatId, selectedModel, generateChatTitle]);
 
   // Manual save chat history function (for manual saves)
-  const handleSaveChat = async () => {
+  const handleSaveChat = useCallback(async () => {
     if (!user || messages.length <= 1) return;
     
     try {
@@ -265,6 +297,7 @@ const ChatInterface: React.FC = () => {
       
       // Prepare chat data to save
       const chat_data = {
+        ...(currentChatId && { chat_id: currentChatId }), // Include chat_id if exists
         title: generateChatTitle(),
         timestamp: new Date().toISOString(),
         conversation: conversation,
@@ -273,6 +306,11 @@ const ChatInterface: React.FC = () => {
       
       // Save chat history
       const response = await userDataService.saveChatHistory(chat_data);
+      
+      // Update current chat ID if this was a new chat
+      if (response.success && response.chat_id && !currentChatId) {
+        setCurrentChatId(response.chat_id);
+      }
       
       setSaveStatus({ 
         saving: false, 
@@ -298,14 +336,15 @@ const ChatInterface: React.FC = () => {
         message: error instanceof Error ? error.message : 'Failed to save chat history' 
       });
     }
-  };
+  }, [user, messages, currentChatId, generateChatTitle, selectedModel]);
 
   // Quick actions
   const quickActions = useMemo(
     () => [
       'How did RELIANCE perform today?',
       'Show RELIANCE chart for last month',
-      'Explain MACD bullish divergence',
+      'Technical indicators for RELIANCE',
+      'RSI and MACD signals for TCS',
       'Backtest RSI strategy on TCS for 6 months',
       'Compare INFY and TCS performance YTD'
     ],
@@ -343,6 +382,7 @@ const ChatInterface: React.FC = () => {
       /backtest|strategy/.test(lower) ? 'backtest' :
       /compare|vs\b/.test(lower) ? 'compare' :
       /chart|perform|price|today/.test(lower) ? 'performance' :
+      /technical|indicators?|rsi|macd|bollinger|stochastic|atr|obv|vwap|pivot|signals?/.test(lower) ? 'technical' :
       /explain|what\s+is|how\s+does/.test(lower) ? 'education' :
       /alert/.test(lower) ? 'alert' :
       /analy/.test(lower) ? 'analysis' :
@@ -394,6 +434,17 @@ const ChatInterface: React.FC = () => {
     setMessages((prev) => [...prev, tableMessage]);
   };
 
+  const addTechnicalAnalysisMessage = (symbol: string, data: any) => {
+    const technicalMessage: Message = {
+      id: Date.now().toString() + '-technical',
+      sender: 'assistant',
+      timestamp: new Date(),
+      contentType: 'technical',
+      technical: { symbol, data },
+    };
+    setMessages((prev) => [...prev, technicalMessage]);
+  };
+
   const handleFileAttach: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
     const files = e.target.files ? Array.from(e.target.files) : [];
     if (files.length === 0) return;
@@ -434,7 +485,7 @@ const ChatInterface: React.FC = () => {
   };
 
   // Function to load a conversation from chat history
-  const handleLoadConversation = (conversation: Array<{text: string; sender: 'user' | 'assistant'; timestamp: string}>) => {
+  const handleLoadConversation = (conversation: Array<{text: string; sender: 'user' | 'assistant'; timestamp: string}>, chatId?: string) => {
     // Convert the string timestamps to Date objects
     const formattedConversation = conversation.map(msg => ({
       id: Date.now().toString() + Math.random().toString(36).substring(2, 9),
@@ -444,6 +495,8 @@ const ChatInterface: React.FC = () => {
     }));
     
     setMessages(formattedConversation);
+    // Set the current chat ID for future saves
+    setCurrentChatId(chatId || null);
   };
 
   // Initialize anonymous session for non-authenticated users without making API call
@@ -466,6 +519,8 @@ const ChatInterface: React.FC = () => {
             timestamp: new Date(),
           }
         ]);
+        // Reset chat ID for new conversation
+        setCurrentChatId(null);
       }
     };
     
@@ -480,6 +535,41 @@ const ChatInterface: React.FC = () => {
       loginRequired: false
     });
     setShowLoginModal(false);
+  };
+  
+  const handleNewChat = () => {
+    // Reset to new chat
+    setMessages([
+      {
+        id: '1',
+        text: 'Hello! I\'m your Welth AI assistant. Ask me anything about stocks, market trends, or investment strategies.',
+        sender: 'assistant',
+        timestamp: new Date(),
+      },
+    ]);
+    // Reset current chat ID for new conversation
+    setCurrentChatId(null);
+    
+    // Reset anonymous session if needed
+    if (!user && anonymousSession.remainingMessages <= 0) {
+      setAnonymousSession(prev => ({
+        ...prev,
+        remainingMessages: 5,
+        loginRequired: false
+      }));
+    }
+  };
+
+  const handleTechnicalAnalysisRequest = (symbol: string) => {
+    setShowTechnicalModal(false);
+    setInput(`Technical indicators for ${symbol}`);
+    // Trigger the message send
+    setTimeout(() => {
+      const form = document.querySelector('form') as HTMLFormElement;
+      if (form) {
+        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      }
+    }, 100);
   };
   
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -548,6 +638,44 @@ const ChatInterface: React.FC = () => {
             },
           ]);
         } catch (err) {
+          // fallback to backend chat
+        }
+      }
+
+      // Quick local responses for technical analysis queries
+      if (intent === 'technical' && symbols.length > 0) {
+        const symbol = symbols[0];
+        try {
+          const technicalData = await marketService.getTechnicalAnalysis(symbol);
+          const summaryText = `Technical analysis for ${symbol}:`;
+          const techMsg: Message = {
+            id: Date.now().toString() + '-tech-summary',
+            sender: 'assistant',
+            timestamp: new Date(),
+            contentType: 'text',
+            text: summaryText,
+          };
+          setMessages((prev) => [...prev, techMsg]);
+          addTechnicalAnalysisMessage(symbol, technicalData);
+          // Suggest additional actions
+          addCardsMessage([
+            {
+              title: `View ${symbol} Chart`,
+              description: 'See price movements and patterns',
+              actions: [
+                { label: 'Show Chart', onClickType: 'sendMessage', payload: `Show ${symbol} chart for last month` },
+              ],
+            },
+            {
+              title: `Backtest ${symbol} Strategy`,
+              description: 'Test strategies based on these signals',
+              actions: [
+                { label: 'Open Backtest', onClickType: 'navigate', route: '/backtest-beta' },
+              ],
+            },
+          ]);
+        } catch (err) {
+          console.error('Technical analysis error:', err);
           // fallback to backend chat
         }
       }
@@ -662,15 +790,9 @@ const ChatInterface: React.FC = () => {
       
       // Auto-save chat history for authenticated users after every AI response
       if (user) {
-        if (shouldUseMarketChat) {
-          // Auto-saving happens on backend for market chat API - no additional action needed
-          // Trigger sidebar refresh to show updated history
-          setSidebarRefreshTrigger(prev => prev + 1);
-        } else if (messages.length >= 1) {
-          // For users using anonymous API or mixed scenarios
-          // Auto-save the conversation after each exchange
-          setTimeout(() => handleAutoSaveChat(), 1500);
-        }
+        // Always auto-save after each conversation exchange
+        // Use a delay to ensure the new message is properly added to state
+        setTimeout(() => handleAutoSaveChat(), 1000);
       }
       
       // If there's stock data (from market chat), add it as a separate message
@@ -842,6 +964,13 @@ const ChatInterface: React.FC = () => {
                     <img src={message.image.src} alt={message.image.name || 'uploaded'} className="max-h-64 rounded-md object-contain" />
                     {message.text && <div className="mt-2 text-xs text-gray-600 dark:text-gray-300">{message.text}</div>}
                   </div>
+                ) : message.contentType === 'technical' && message.technical ? (
+                  <div className="w-full">
+                    <TechnicalIndicators 
+                      ticker={message.technical.symbol} 
+                      className="w-full"
+                    />
+                  </div>
                 ) : (
                   <div
                     className={`rounded-2xl px-4 py-3 shadow-sm ${
@@ -938,6 +1067,30 @@ const ChatInterface: React.FC = () => {
               className="flex-1 px-2 py-2 bg-transparent focus:outline-none text-white placeholder-gray-400"
             />
 
+            {/* Technical Analysis Button */}
+            <button
+              type="button"
+              onClick={() => setShowTechnicalModal(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors"
+              title="Technical Analysis"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </button>
+
+            {/* New Chat Button */}
+            <button
+              type="button"
+              onClick={handleNewChat}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors"
+              title="Start New Chat"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </button>
+
             {/* File Upload */}
             <label className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 cursor-pointer hover:bg-gray-800">
               <input type="file" className="hidden" multiple accept="image/*,.csv" onChange={handleFileAttach} />
@@ -998,7 +1151,7 @@ const ChatInterface: React.FC = () => {
       </div>
 
       {/* Chat History Sidebar - Only show for logged in users */}
-      {user && <ChatHistorySidebar onSelectChat={handleLoadConversation} refreshTrigger={sidebarRefreshTrigger} />}
+      {user && <ChatHistorySidebar onSelectChat={handleLoadConversation} refreshTrigger={sidebarRefreshTrigger} onNewChat={handleNewChat} />}
 
       {/* Modals */}
       <LimitExceededModal
@@ -1014,6 +1167,36 @@ const ChatInterface: React.FC = () => {
         onLoginSuccess={handleLoginSuccess}
         message="Log in to continue chatting with our AI assistant"
       />
+
+      {/* Technical Analysis Modal */}
+      {showTechnicalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Technical Analysis
+              </h3>
+              <button
+                onClick={() => setShowTechnicalModal(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl"
+              >
+                ×
+              </button>
+            </div>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Enter a stock symbol to get technical indicators and signals:
+            </p>
+            <StockSymbolSelector
+              onSymbolSelect={handleTechnicalAnalysisRequest}
+              placeholder="Enter stock symbol (e.g., RELIANCE, TCS)"
+              className="w-full"
+            />
+            <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
+              Available symbols: RELIANCE, TCS, HDFCBANK, INFY, ICICIBANK, etc.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

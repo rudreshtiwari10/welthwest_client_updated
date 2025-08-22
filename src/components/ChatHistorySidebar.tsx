@@ -22,11 +22,12 @@ interface ChatHistoryItem {
 }
 
 interface ChatHistorySidebarProps {
-  onSelectChat: (conversation: ChatMessage[]) => void;
+  onSelectChat: (conversation: ChatMessage[], chatId?: string) => void;
   refreshTrigger?: number; // Optional refresh trigger
+  onNewChat?: () => void; // Optional new chat handler
 }
 
-const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ onSelectChat, refreshTrigger }) => {
+const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ onSelectChat, refreshTrigger, onNewChat }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,8 +70,9 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ onSelectChat, r
   };
 
   const handleSelectChat = (chat: ChatHistoryItem) => {
-    setSelectedChatId(chat.id || chat._id || null);
-    onSelectChat(normalizeConversation(chat));
+    const chatId = chat.id || chat._id || null;
+    setSelectedChatId(chatId);
+    onSelectChat(normalizeConversation(chat), chatId || undefined);
   };
 
   const formatDate = (dateString?: string) => {
@@ -176,7 +178,7 @@ const ChatHistorySidebar: React.FC<ChatHistorySidebarProps> = ({ onSelectChat, r
                 </h2>
               </div>
               <button 
-                onClick={() => window.location.reload()} 
+                onClick={onNewChat || (() => window.location.reload())} 
                 className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
                 title="New Chat"
               >
