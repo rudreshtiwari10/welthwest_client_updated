@@ -22,14 +22,7 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 let initialized = false;
 
 export function initializeAnalytics(): void {
-  console.log('🚀 Initializing Analytics...');
-  
-  // Check if analytics was already initialized by HTML fallback
-  if (window.dataLayer && window.dataLayer.length > 0) {
-    console.log('ℹ️ Analytics already initialized by HTML fallback');
-    initialized = true;
-    return;
-  }
+  console.log('🚀 Initializing Analytics from Environment Variables...');
   
   if (initialized) {
     console.log('⚠️ Analytics already initialized');
@@ -38,6 +31,7 @@ export function initializeAnalytics(): void {
   
   initialized = true;
 
+  // Primary: Use GTM if available (recommended approach)
   if (GTM_ID) {
     console.log('📊 Initializing GTM with ID:', GTM_ID);
     
@@ -63,6 +57,18 @@ export function initializeAnalytics(): void {
       }
       console.log('✅ GTM script injected');
     })(window, document, 'script', 'dataLayer', GTM_ID);
+
+    // Inject GTM noscript fallback
+    const noscript = document.createElement('noscript');
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.googletagmanager.com/ns.html?id=${GTM_ID}`;
+    iframe.height = '0';
+    iframe.width = '0';
+    iframe.style.display = 'none';
+    iframe.style.visibility = 'hidden';
+    noscript.appendChild(iframe);
+    document.body.insertBefore(noscript, document.body.firstChild);
+    console.log('✅ GTM noscript fallback injected');
     
   } else if (GA4_ID) {
     console.log('📊 Initializing GA4 with ID:', GA4_ID);
@@ -79,14 +85,14 @@ export function initializeAnalytics(): void {
     };
     window.gtag = gtagFn as any;
 
-    const inline = document.createElement('script') as HTMLScriptElement;
-    inline.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);} 
-      gtag('js', new Date());
-      gtag('config', '${GA4_ID}');
-    `;
-    document.head.appendChild(inline);
+    // Configure GA4
+    script.onload = () => {
+      if (typeof window.gtag === 'function') {
+        window.gtag('js', new Date());
+        window.gtag('config', GA4_ID);
+        console.log('✅ GA4 configured');
+      }
+    };
     console.log('✅ GA4 script injected');
     
   } else {
@@ -95,12 +101,6 @@ export function initializeAnalytics(): void {
     console.error('Current values:');
     console.error('GTM_ID:', GTM_ID);
     console.error('GA4_ID:', GA4_ID);
-    
-    // Check if HTML fallback might have analytics
-    if (window.dataLayer && window.dataLayer.length > 0) {
-      console.log('ℹ️ HTML fallback analytics detected - using existing setup');
-      initialized = true;
-    }
   }
 }
 
