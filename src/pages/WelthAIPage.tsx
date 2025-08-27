@@ -11,6 +11,7 @@ import {
   SparklesIcon,
   BeakerIcon,
 } from '@heroicons/react/24/outline';
+import { trackEvent } from '../utils/analytics';
 
 // Define interfaces for AI analysis results
 interface MarketRegimeResult {
@@ -243,6 +244,13 @@ const WelthAIPage: React.FC = () => {
       setLoadingProgress(0);
       setLoadingStep('Starting analysis...');
       
+      // Track AI analysis start event
+      trackEvent('ai_analysis_started', {
+        symbol: config.ticker,
+        period: config.period,
+        user_type: user ? 'authenticated' : 'anonymous'
+      });
+      
       // Start loading simulation
       const loadingPromise = simulateLoadingSteps();
       
@@ -250,6 +258,7 @@ const WelthAIPage: React.FC = () => {
       if (!user) {
         // Anonymous user - check remaining analyses
         if (anonymousUsage.remainingAnalyses <= 0) {
+          trackEvent('ai_analysis_limit_reached', { user_type: 'anonymous' });
           setShowLoginModal(true);
           setAiLoading(false);
           return;
@@ -353,10 +362,27 @@ const WelthAIPage: React.FC = () => {
       // Wait for loading simulation to complete
       await loadingPromise;
       
+      // Track successful AI analysis completion
+      trackEvent('ai_analysis_completed', {
+        symbol: config.ticker,
+        period: config.period,
+        user_type: user ? 'authenticated' : 'anonymous',
+        has_prediction: !!aiPrediction,
+        has_analysis: !!aiAnalysis,
+        has_recommendations: !!aiRecommendations
+      });
+      
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
       setAiError(errorMessage);
       console.error('AI Analysis error:', err);
+      
+      // Track AI analysis error
+      trackEvent('ai_analysis_error', {
+        symbol: config.ticker,
+        user_type: user ? 'authenticated' : 'anonymous',
+        error_message: errorMessage
+      });
     } finally {
       setAiLoading(false);
       setLoadingStep('');

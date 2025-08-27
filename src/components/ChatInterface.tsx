@@ -13,6 +13,7 @@ import NewChatHistorySidebar from './NewChatHistorySidebar';
 import TechnicalIndicators from './TechnicalIndicators';
 import StockSymbolSelector from './StockSymbolSelector';
 import { CHATBOT_CONFIG } from '../config/chatbot-config';
+import { trackEvent } from '../utils/analytics';
 
 // Feature flag for first message fix
 const ENABLE_FIRST_MESSAGE_FIX = CHATBOT_CONFIG.ENABLE_FIRST_MESSAGE_FIX;
@@ -701,6 +702,14 @@ const ChatInterface: React.FC = () => {
     e.preventDefault();
     
     if (!input.trim()) return;
+    
+    // Track chat message event
+    trackEvent('chat_message_sent', {
+      user_type: user ? 'authenticated' : 'anonymous',
+      message_length: input.trim().length,
+      is_first_message: isFirstMessage,
+      model: selectedModel
+    });
     
     // Check if current session is at limit
     if (useNewChatHistory && user && newChatHistoryService.isSessionAtLimit()) {

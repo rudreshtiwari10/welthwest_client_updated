@@ -11,7 +11,7 @@ declare global {
 }
 
 const GTM_ID = process.env.REACT_APP_GTM_ID;
-const GA4_ID = process.env.REACT_APP_GA4_ID;
+const GA4_ID = process.env.REACT_APP_GA4_ID || 'G-CE6JLT6ZMM'; // Fallback to hardcoded ID
 
 // Debug logging
 console.log('🔍 Analytics Debug Info:');
@@ -22,7 +22,7 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 let initialized = false;
 
 export function initializeAnalytics(): void {
-  console.log('🚀 Initializing Analytics from Environment Variables...');
+  console.log('🚀 Initializing Analytics...');
   
   if (initialized) {
     console.log('⚠️ Analytics already initialized');
@@ -30,6 +30,13 @@ export function initializeAnalytics(): void {
   }
   
   initialized = true;
+
+  // Check if gtag is already loaded via HTML (preferred)
+  if (typeof window.gtag === 'function' && GA4_ID) {
+    console.log('📊 Using existing GA4 from HTML with ID:', GA4_ID);
+    // gtag is already loaded via HTML, just ensure our tracking works
+    return;
+  }
 
   // Primary: Use GTM if available (recommended approach)
   if (GTM_ID) {

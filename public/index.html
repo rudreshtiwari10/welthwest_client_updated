@@ -7,13 +7,21 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="WelthWest is a demonstration project. The information provided is not financial advice. Always do your own research before making investment decisions."
-      content="WelthWest - AI Powered Financial Platform"
+      content="WelthWest - AI Powered Wealth Intelligence Platform"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/images/singlelogo.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <title>WelthWest - AI Powered Financial Platform</title>
+    <title>WelthWest - AI Powered Wealth Intelligence Platform</title>
     
-    <!-- Analytics placeholder - IDs loaded from environment variables via React -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GA4_ID%"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', '%REACT_APP_GA4_ID%');
+    </script>
     
     <script>
       // Prevent flash of unstyled content (FOUC)

@@ -9,6 +9,7 @@ import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 import UsageTracker from '../components/subscription/UsageTracker';
 import LimitExceededModal from '../components/subscription/LimitExceededModal';
 import LoginModal from '../components/LoginModal';
+import { trackEvent } from '../utils/analytics';
 const Plot = require('react-plotly.js').default as React.ComponentType<any>;
 
 // Types for the comprehensive backtesting response
@@ -237,7 +238,7 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
 
 const BacktestingBetaPage: React.FC = () => {
   const { user, getToken } = useAuth();
-  const { canUseBacktest, incrementBacktestUsage } = useSubscription();
+  const { canUseBacktest, incrementBacktestUsage, subscriptionDetails } = useSubscription();
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<BacktestResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -398,10 +399,19 @@ const BacktestingBetaPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
 
+      // Track backtest start event
+      trackEvent('backtest_started', {
+        symbol: params.stock_symbol,
+        period: params.period,
+        indicators: Object.keys(params.selected_indicators),
+        user_type: user ? 'authenticated' : 'anonymous'
+      });
+
       // Check if user is authenticated
       if (!user) {
         // Anonymous user - check remaining tests
         if (anonymousUsage.remainingTests <= 0) {
+          trackEvent('backtest_limit_reached', { user_type: 'anonymous' });
           setShowLoginModal(true);
           setIsLoading(false);
           return;
@@ -415,6 +425,7 @@ const BacktestingBetaPage: React.FC = () => {
       } else {
         // Authenticated user - check subscription limits
         if (!canUseBacktest()) {
+          trackEvent('backtest_limit_reached', { user_type: 'authenticated', subscription_tier: subscriptionDetails?.tier });
           setShowLimitModal(true);
           setIsLoading(false);
           return;
@@ -443,7 +454,24 @@ const BacktestingBetaPage: React.FC = () => {
       }
       setResult(data.data || data);
       setActiveTab('results');
+      
+      // Track successful backtest completion
+      trackEvent('backtest_completed', {
+        symbol: params.stock_symbol,
+        period: params.period,
+        indicators: Object.keys(params.selected_indicators),
+        user_type: user ? 'authenticated' : 'anonymous',
+        total_return: data?.data?.metrics?.Total_Return || data?.metrics?.Total_Return,
+        number_of_trades: data?.data?.metrics?.Number_of_Trades || data?.metrics?.Number_of_Trades
+      });
     } catch (err: any) {
+      // Track backtest error
+      trackEvent('backtest_error', {
+        symbol: params.stock_symbol,
+        user_type: user ? 'authenticated' : 'anonymous',
+        error_type: err.response?.status === 403 ? 'limit_exceeded' : 'api_error'
+      });
+
       // Handle anonymous limit exceeded
       if (err.response?.status === 403 && err.response?.data?.login_required) {
         setAnonymousUsage(prev => ({
