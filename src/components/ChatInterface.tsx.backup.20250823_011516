@@ -2,20 +2,14 @@ import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { marketService } from '../services/api';
-import { newChatHistoryService } from '../services/newChatHistoryService';
-import chatSystemMonitoring from '../services/chatSystemMonitoring';
+import { marketService, userDataService } from '../services/api';
 import StockChart from './StockChart';
 // Removed usage/subscription UI in chat component
 import LimitExceededModal from './subscription/LimitExceededModal';
 import LoginModal from './LoginModal';
-import NewChatHistorySidebar from './NewChatHistorySidebar';
+import ChatHistorySidebar from './ChatHistorySidebar';
 import TechnicalIndicators from './TechnicalIndicators';
 import StockSymbolSelector from './StockSymbolSelector';
-import { CHATBOT_CONFIG } from '../config/chatbot-config';
-
-// Feature flag for first message fix
-const ENABLE_FIRST_MESSAGE_FIX = CHATBOT_CONFIG.ENABLE_FIRST_MESSAGE_FIX;
 
 // Thinking Indicator Component
 const ThinkingIndicator: React.FC = () => {
@@ -172,20 +166,6 @@ const ChatInterface: React.FC = () => {
   });
   const [showTechnicalModal, setShowTechnicalModal] = useState(false);
   
-  // First message fix state
-  const [isFirstMessage, setIsFirstMessage] = useState(true);
-  const [firstMessageAttempted, setFirstMessageAttempted] = useState(false);
-  
-  // New chat history system state
-  const [useNewChatHistory] = useState(CHATBOT_CONFIG.USE_NEW_CHAT_HISTORY);
-  const [newChatHistoryOpen, setNewChatHistoryOpen] = useState(true);
-  
-  // Session limit management
-  const [sessionLimitWarning, setSessionLimitWarning] = useState(false);
-  const [sessionLimitReached, setSessionLimitReached] = useState(false);
-  
-
-  
   const placeholders = [
     "Ask about investment strategies...",
     "Inquire about stock market trends...",
@@ -247,27 +227,16 @@ const ChatInterface: React.FC = () => {
     }
   }, [currentChatId]);
 
-  // Phase 3: Initialize monitoring and determine system to use (simplified)
-  useEffect(() => {
-    if (CHATBOT_CONFIG.ENABLE_MONITORING && CHATBOT_CONFIG.ENABLE_AUTO_SYSTEM_SELECTION) {
-      // Track the system selection
-      chatSystemMonitoring.trackUsage('system_selection', 'new', user?.id, undefined, {
-        preference: 'new',
-        abTestGroup: chatSystemMonitoring.getABTestGroup()
-      });
+  // Generate dynamic title from first user message
+  const generateChatTitle = useCallback(() => {
+    const userMessages = messages.filter(msg => msg.sender === 'user');
+    if (userMessages.length > 0) {
+      const firstUserMessage = userMessages[0].text || '';
+      const words = firstUserMessage.split(' ').slice(0, 5).join(' ');
+      return words.length > 30 ? words.substring(0, 30) + '...' : words || 'New Chat';
     }
-  }, [user]);
-
-  // Initialize first session for new chat history system
-  useEffect(() => {
-    if (useNewChatHistory && user && !newChatHistoryService.getCurrentSession()) {
-      // Create initial session if none exists
-      const initialSession = newChatHistoryService.createNewSession();
-      setCurrentChatId(initialSession.sessionId);
-    }
-  }, [useNewChatHistory, user]);
-
-
+    return 'New Chat';
+  }, [messages]);
 
   // Auto-save chat history function 
   const handleAutoSaveChat = useCallback(async () => {
@@ -276,19 +245,41 @@ const ChatInterface: React.FC = () => {
     try {
       setAutoSaveInProgress(true);
       
-      // Save chat history silently (new system)
-      await newChatHistoryService.saveCurrentSession();
-      if (!currentChatId && newChatHistoryService.getCurrentSession()?.sessionId) {
-        setCurrentChatId(newChatHistoryService.getCurrentSession()!.sessionId);
+      // Extract conversation for saving
+      const conversation = messages.map(msg => ({
+        text: msg.text,
+        sender: msg.sender,
+        timestamp: msg.timestamp.toISOString()
+      }));
+      
+      // Prepare chat data to save
+      const chat_data = {
+        ...(currentChatId && { chat_id: currentChatId }), // Include chat_id if exists
+        title: generateChatTitle(),
+        timestamp: new Date().toISOString(),
+        conversation: conversation,
+        model: selectedModel
+      };
+      
+      // Save chat history silently
+      const response = await userDataService.saveChatHistory(chat_data);
+      
+      // Update current chat ID if this was a new chat
+      if (response.success && response.chat_id && !currentChatId) {
+        setCurrentChatId(response.chat_id);
       }
-      setSidebarRefreshTrigger(prev => prev + 1);
+      
+      // Trigger sidebar refresh if save was successful
+      if (response.success) {
+        setSidebarRefreshTrigger(prev => prev + 1);
+      }
       
     } catch (error) {
       console.error('Error auto-saving chat history:', error);
     } finally {
       setAutoSaveInProgress(false);
     }
-  }, [user, autoSaveInProgress, messages, currentChatId]);
+  }, [user, autoSaveInProgress, messages, currentChatId, selectedModel, generateChatTitle]);
 
   // Manual save chat history function (for manual saves)
   const handleSaveChat = useCallback(async () => {
@@ -297,13 +288,40 @@ const ChatInterface: React.FC = () => {
     try {
       setSaveStatus({ saving: true });
       
-      // Save chat history (new system)
-      await newChatHistoryService.saveCurrentSession();
-      if (!currentChatId && newChatHistoryService.getCurrentSession()?.sessionId) {
-        setCurrentChatId(newChatHistoryService.getCurrentSession()!.sessionId);
+      // Extract conversation for saving
+      const conversation = messages.map(msg => ({
+        text: msg.text,
+        sender: msg.sender,
+        timestamp: msg.timestamp.toISOString()
+      }));
+      
+      // Prepare chat data to save
+      const chat_data = {
+        ...(currentChatId && { chat_id: currentChatId }), // Include chat_id if exists
+        title: generateChatTitle(),
+        timestamp: new Date().toISOString(),
+        conversation: conversation,
+        model: selectedModel
+      };
+      
+      // Save chat history
+      const response = await userDataService.saveChatHistory(chat_data);
+      
+      // Update current chat ID if this was a new chat
+      if (response.success && response.chat_id && !currentChatId) {
+        setCurrentChatId(response.chat_id);
       }
-      setSaveStatus({ saving: false, success: true, message: 'Saved successfully' });
-      setSidebarRefreshTrigger(prev => prev + 1);
+      
+      setSaveStatus({ 
+        saving: false, 
+        success: response.success, 
+        message: response.message 
+      });
+      
+      // Trigger sidebar refresh if save was successful
+      if (response.success) {
+        setSidebarRefreshTrigger(prev => prev + 1);
+      }
       
       // Clear status after 3 seconds
       setTimeout(() => {
@@ -318,7 +336,7 @@ const ChatInterface: React.FC = () => {
         message: error instanceof Error ? error.message : 'Failed to save chat history' 
       });
     }
-  }, [user, messages, currentChatId]);
+  }, [user, messages, currentChatId, generateChatTitle, selectedModel]);
 
   // Quick actions
   const quickActions = useMemo(
@@ -332,6 +350,10 @@ const ChatInterface: React.FC = () => {
     ],
     []
   );
+
+  const handleQuickAction = (text: string) => {
+    setInput(text);
+  };
 
   // Simple NLP helpers
   const extractSymbols = (text: string): string[] => {
@@ -473,37 +495,8 @@ const ChatInterface: React.FC = () => {
     }));
     
     setMessages(formattedConversation);
-    
-    // Create a new session in the newChatHistoryService for this loaded conversation
-    if (useNewChatHistory && user) {
-      const sessionTitle = chatId ? `Loaded Chat ${new Date().toLocaleTimeString()}` : 'Loaded Conversation';
-      const newSession = newChatHistoryService.createNewSession(sessionTitle);
-      
-      // Add all messages from the loaded conversation to the new session
-      formattedConversation.forEach(msg => {
-        newChatHistoryService.addMessage({
-          id: msg.id,
-          text: msg.text || '',
-          sender: msg.sender,
-          timestamp: msg.timestamp.toISOString(),
-          contentType: 'text'
-        });
-      });
-      
-      // Update current chat ID to match the new session
-      setCurrentChatId(newSession.sessionId);
-    } else {
-      // Set the current chat ID for future saves (legacy system)
-      setCurrentChatId(chatId || null);
-    }
-    
-    // Reset first message state when loading existing conversation
-    setIsFirstMessage(false);
-    setFirstMessageAttempted(false);
-    
-    // Reset session limit warnings when loading conversation
-    setSessionLimitWarning(false);
-    setSessionLimitReached(false);
+    // Set the current chat ID for future saves
+    setCurrentChatId(chatId || null);
   };
 
   // Initialize anonymous session for non-authenticated users without making API call
@@ -528,10 +521,6 @@ const ChatInterface: React.FC = () => {
         ]);
         // Reset chat ID for new conversation
         setCurrentChatId(null);
-        
-        // Reset first message state for new anonymous session
-        setIsFirstMessage(true);
-        setFirstMessageAttempted(false);
       }
     };
     
@@ -549,14 +538,6 @@ const ChatInterface: React.FC = () => {
   };
   
   const handleNewChat = () => {
-    // Auto-save current session before creating new one
-    if (newChatHistoryService.getCurrentSession() && newChatHistoryService.getCurrentSession()!.messages.length > 0) {
-      newChatHistoryService.saveCurrentSession();
-    }
-
-    // Create new session with date/time naming
-    const newSession = newChatHistoryService.createNewSession();
-    
     // Reset to new chat
     setMessages([
       {
@@ -566,17 +547,8 @@ const ChatInterface: React.FC = () => {
         timestamp: new Date(),
       },
     ]);
-    
-    // Set current chat ID from new session
-    setCurrentChatId(newSession.sessionId);
-    
-    // Reset first message state for new chat
-    setIsFirstMessage(true);
-    setFirstMessageAttempted(false);
-    
-    // Reset session limit warnings for new chat
-    setSessionLimitWarning(false);
-    setSessionLimitReached(false);
+    // Reset current chat ID for new conversation
+    setCurrentChatId(null);
     
     // Reset anonymous session if needed
     if (!user && anonymousSession.remainingMessages <= 0) {
@@ -587,103 +559,6 @@ const ChatInterface: React.FC = () => {
       }));
     }
   };
-
-  // First message handler - safe implementation with fallbacks
-  const handleFirstMessage = useCallback(async (message: string) => {
-    if (!ENABLE_FIRST_MESSAGE_FIX) {
-      console.log('First message fix disabled, using fallback');
-      return false; // Fallback to existing logic
-    }
-
-    // Track performance for first message
-    const startTime = CHATBOT_CONFIG.ENABLE_PERFORMANCE_TRACKING ? 
-      chatSystemMonitoring.startTimer() : 0;
-
-    try {
-      console.log('First message fix: Processing first message:', message);
-      setFirstMessageAttempted(true);
-      
-      // Simplified first message logic
-      let response: any;
-      
-      if (!user) {
-        // Anonymous user - use simple anonymous chat
-        try {
-          response = await marketService.anonymousChatWithAI(
-            message,
-            undefined, // No session ID for first message
-            selectedModel
-          );
-          
-          // Update session state from response
-          if (response.session_id) {
-            setAnonymousSession(prev => ({
-              sessionId: response.session_id,
-              remainingMessages: response.remaining_usage?.messages ?? response.remaining_messages ?? prev.remainingMessages,
-              loginRequired: response.login_required || false
-            }));
-          }
-        } catch (error: any) {
-          console.error('First message fix: Anonymous chat failed, falling back to existing logic:', error);
-          return false; // Fallback to existing logic
-        }
-      } else {
-        // Authenticated user - use simple market chat
-        try {
-          response = await marketService.chatWithAI(
-            message,
-            selectedModel,
-            user?.id
-          );
-          
-          // Increment usage after successful response
-          await incrementLLMUsage();
-        } catch (error: any) {
-          console.error('First message fix: Market chat failed, falling back to existing logic:', error);
-          return false; // Fallback to existing logic
-        }
-      }
-      
-      // Create response message
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: response?.analysis || response?.response || 'I received your message but encountered an issue. Please try again.',
-        sender: 'assistant',
-        timestamp: new Date(),
-        contentType: 'text',
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      
-      // Auto-save chat history for authenticated users
-      if (user) {
-        setTimeout(() => handleAutoSaveChat(), 1000);
-      }
-      
-      console.log('First message fix: Successfully processed first message');
-      
-      // Track successful first message
-      if (CHATBOT_CONFIG.ENABLE_PERFORMANCE_TRACKING) {
-        chatSystemMonitoring.trackPerformance('first_message', 'new', startTime, true, undefined, anonymousSession.sessionId || undefined);
-      }
-      
-      return true; // Success
-      
-    } catch (error) {
-      console.error('First message fix: Unexpected error, falling back to existing logic:', error);
-      
-      // Track failed first message
-      if (CHATBOT_CONFIG.ENABLE_PERFORMANCE_TRACKING) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        chatSystemMonitoring.trackPerformance('first_message', 'new', startTime, false, errorMessage, anonymousSession.sessionId || undefined);
-        chatSystemMonitoring.trackError(errorMessage, 'new', 'first_message', undefined, user?.id, anonymousSession.sessionId || undefined);
-      }
-      
-      return false; // Fallback to existing logic
-    }
-  }, [user, selectedModel, incrementLLMUsage, handleAutoSaveChat, anonymousSession.sessionId]);
-
-
 
   const handleTechnicalAnalysisRequest = (symbol: string) => {
     setShowTechnicalModal(false);
@@ -702,12 +577,6 @@ const ChatInterface: React.FC = () => {
     
     if (!input.trim()) return;
     
-    // Check if current session is at limit
-    if (useNewChatHistory && user && newChatHistoryService.isSessionAtLimit()) {
-      setSessionLimitReached(true);
-      return;
-    }
-    
     const userMessage: Message = {
       id: Date.now().toString(),
       text: input.trim(),
@@ -718,57 +587,6 @@ const ChatInterface: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    
-    // Save user message to new chat history system if enabled
-    if (useNewChatHistory && user) {
-      try {
-        const result = newChatHistoryService.addMessage({
-          id: userMessage.id,
-          text: userMessage.text || '',
-          sender: 'user',
-          timestamp: userMessage.timestamp.toISOString(),
-          contentType: 'text'
-        });
-        
-        // Check session limits
-        if (result.limitReached) {
-          setSessionLimitReached(true);
-          setIsLoading(false);
-          return;
-        }
-        
-        if (result.warningThreshold) {
-          setSessionLimitWarning(true);
-        }
-        
-        // Update session title with first user message if this is the first user message
-        if (messages.length === 1) {
-          const firstUserMessage = userMessage.text || '';
-          const words = firstUserMessage.split(' ').slice(0, 5).join(' ');
-          const title = words.length > 30 ? words.substring(0, 30) + '...' : words || 'New Chat';
-          newChatHistoryService.updateSessionTitle(title);
-        }
-      } catch (error) {
-        console.error('Error saving user message to new chat history system:', error);
-        // Fallback to old system - no user impact
-      }
-    }
-    
-    // First message fix - try simplified approach first
-    if (isFirstMessage && ENABLE_FIRST_MESSAGE_FIX) {
-      console.log('First message fix: Attempting simplified first message handling');
-      const firstMessageSuccess = await handleFirstMessage(input.trim());
-      
-      if (firstMessageSuccess) {
-        console.log('First message fix: Success, marking as not first message');
-        setIsFirstMessage(false);
-        setIsLoading(false);
-        return;
-      } else {
-        console.log('First message fix: Failed, falling back to existing logic');
-        // Continue with existing logic
-      }
-    }
     
     try {
       // Intent detection & clarifications
@@ -975,31 +793,6 @@ const ChatInterface: React.FC = () => {
         // Always auto-save after each conversation exchange
         // Use a delay to ensure the new message is properly added to state
         setTimeout(() => handleAutoSaveChat(), 1000);
-        
-        // Also save to new chat history system if enabled
-        if (useNewChatHistory) {
-          try {
-            const result = newChatHistoryService.addMessage({
-              id: assistantMessage.id,
-              text: assistantMessage.text || '',
-              sender: 'assistant',
-              timestamp: assistantMessage.timestamp.toISOString(),
-              contentType: 'text'
-            });
-            
-            // Check session limits
-            if (result.limitReached) {
-              setSessionLimitReached(true);
-            }
-            
-            if (result.warningThreshold) {
-              setSessionLimitWarning(true);
-            }
-          } catch (error) {
-            console.error('Error saving to new chat history system:', error);
-            // Fallback to old system - no user impact
-          }
-        }
       }
       
       // If there's stock data (from market chat), add it as a separate message
@@ -1218,47 +1011,12 @@ const ChatInterface: React.FC = () => {
                   <button
                     key={qa}
                     type="button"
-                    onClick={() => {
-                      setInput(qa);
-                      setTimeout(() => {
-                        const form = document.querySelector('form') as HTMLFormElement;
-                        if (form) {
-                          form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                        }
-                      }, 0);
-                    }}
+                    onClick={() => setInput(qa)}
                     className="text-left px-4 py-3 rounded-xl bg-gray-800/60 hover:bg-gray-800 text-gray-100 border border-gray-700"
                   >
                     {qa}
                   </button>
                 ))}
-              </div>
-            )}
-
-            {/* Session Info Display */}
-            {user && useNewChatHistory && newChatHistoryService.getCurrentSession() && (
-              <div className="mt-4 p-3 bg-gray-800/40 rounded-lg border border-gray-700">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="text-gray-300">
-                    <span className="font-medium">Current Session:</span> {newChatHistoryService.getCurrentSession()?.title}
-                  </div>
-                  <div className="text-gray-400">
-                    {newChatHistoryService.getRemainingMessages()} messages remaining
-                  </div>
-                </div>
-                {newChatHistoryService.isSessionNearLimit() && (
-                  <div className="mt-2 p-2 bg-yellow-900/20 border border-yellow-700 rounded text-yellow-200 text-xs">
-                    ⚠️ Session limit approaching. Consider starting a new chat soon.
-                  </div>
-                )}
-              </div>
-            )}
-            
-            {/* Minimal debug info for first message fix (only in development) */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="mt-4 p-3 bg-gray-800/40 rounded-lg text-xs text-gray-400">
-                <div>First Message: {isFirstMessage ? 'Yes' : 'No'}</div>
-                <div>First Message Attempted: {firstMessageAttempted ? 'Yes' : 'No'}</div>
               </div>
             )}
 
@@ -1299,27 +1057,6 @@ const ChatInterface: React.FC = () => {
             </div>
           )}
 
-          {/* Session Status Display */}
-          {user && useNewChatHistory && newChatHistoryService.getCurrentSession() && (
-            <div className="mb-3 p-2 bg-gray-800/40 rounded-lg border border-gray-700 text-xs">
-              <div className="flex items-center justify-between text-gray-300">
-                <span>
-                  <span className="font-medium">Session:</span> {newChatHistoryService.getCurrentSession()?.title}
-                </span>
-                <span className={`font-medium ${
-                  newChatHistoryService.isSessionNearLimit() ? 'text-yellow-400' : 'text-gray-400'
-                }`}>
-                  {newChatHistoryService.getRemainingMessages()}/25 messages
-                </span>
-              </div>
-              {newChatHistoryService.isSessionNearLimit() && (
-                <div className="mt-1 text-yellow-300 text-xs">
-                  ⚠️ Session limit approaching. Start a new chat to continue.
-                </div>
-              )}
-            </div>
-          )}
-
           <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl px-3 py-2">
             <input
               type="text"
@@ -1353,8 +1090,6 @@ const ChatInterface: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
-
-            {/* Settings Button removed */}
 
             {/* File Upload */}
             <label className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 cursor-pointer hover:bg-gray-800">
@@ -1416,23 +1151,7 @@ const ChatInterface: React.FC = () => {
       </div>
 
       {/* Chat History Sidebar - Only show for logged in users */}
-      {user && useNewChatHistory ? (
-        <NewChatHistorySidebar 
-          onSelectChat={handleLoadConversation} 
-          refreshTrigger={sidebarRefreshTrigger} 
-          onNewChat={handleNewChat}
-          isOpen={newChatHistoryOpen}
-          onToggle={setNewChatHistoryOpen}
-        />
-      ) : (
-        <NewChatHistorySidebar 
-          onSelectChat={handleLoadConversation} 
-          refreshTrigger={sidebarRefreshTrigger} 
-          onNewChat={handleNewChat}
-          isOpen={newChatHistoryOpen}
-          onToggle={setNewChatHistoryOpen}
-        />
-      )}
+      {user && <ChatHistorySidebar onSelectChat={handleLoadConversation} refreshTrigger={sidebarRefreshTrigger} onNewChat={handleNewChat} />}
 
       {/* Modals */}
       <LimitExceededModal
@@ -1478,82 +1197,6 @@ const ChatInterface: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* Session Limit Warning Modal */}
-      {sessionLimitWarning && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-yellow-900/20 border border-yellow-700 rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-yellow-300">
-                Session Limit Warning
-              </h3>
-              <button
-                onClick={() => setSessionLimitWarning(false)}
-                className="text-yellow-400 hover:text-yellow-300 text-xl"
-              >
-                ×
-              </button>
-            </div>
-            <p className="text-yellow-200 mb-4">
-              You're approaching the limit for this chat session ({newChatHistoryService.getRemainingMessages()} messages remaining). 
-              Consider starting a new chat session soon.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setSessionLimitWarning(false)}
-                className="px-4 py-2 bg-yellow-700 hover:bg-yellow-600 text-white rounded-lg"
-              >
-                Continue Chatting
-              </button>
-              <button
-                onClick={() => {
-                  setSessionLimitWarning(false);
-                  handleNewChat();
-                }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
-              >
-                Start New Chat
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Session Limit Reached Modal */}
-      {sessionLimitReached && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-red-900/20 border border-red-700 rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-red-300">
-                Session Limit Reached
-              </h3>
-              <button
-                onClick={() => setSessionLimitReached(false)}
-                className="text-red-400 hover:text-red-300 text-xl"
-              >
-                ×
-              </button>
-            </div>
-            <p className="text-red-200 mb-4">
-              You've reached the maximum limit of 25 messages for this chat session. 
-              Please create a new session to continue chatting.
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setSessionLimitReached(false);
-                  handleNewChat();
-                }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg"
-              >
-                Start New Chat
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Chat System Settings removed */}
     </div>
   );
 };
