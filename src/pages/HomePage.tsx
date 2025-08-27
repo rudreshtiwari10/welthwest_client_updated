@@ -363,7 +363,7 @@ const HomePage: React.FC = () => {
                 
                 {/* WelthAI Chat Bot Button */}
                 <Link 
-                  to="/WelthAiChatBot-lanching-soon" 
+                  to="/welth-ai-chatbot" 
                   className="group flex items-center justify-center sm:justify-between bg-secondary-50/90 dark:bg-secondary-900/30 hover:bg-secondary-100 dark:hover:bg-secondary-900/40 backdrop-blur-sm border border-secondary-200 dark:border-secondary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
                 >
                   <div className="flex items-center">
@@ -741,7 +741,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link 
-                   to="/WelthAiChatBot-lanching-soon" 
+                   to="/welth-ai-chatbot" 
                     className="inline-flex items-center px-4 py-2 bg-secondary-600 text-white text-sm font-medium rounded-lg hover:bg-secondary-700 transition-all duration-300 w-fit group-hover:bg-secondary-700 group-hover:shadow-lg"
                   >
                     Chat with WelthAI

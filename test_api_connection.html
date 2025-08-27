@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .loading { background-color: #fff3cd; border: 1px solid #ffeaa7; color: #856404; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <button id="testBtn" onclick="testAPI()">Test Stock API</button>
+    <div id="results"></div>
+
+    <script>
+        async function testAPI() {
+            const resultsDiv = document.getElementById('results');
+            const testBtn = document.getElementById('testBtn');
+            
+            // Clear previous results
+            resultsDiv.innerHTML = '';
+            testBtn.disabled = true;
+            
+            // Show loading state
+            resultsDiv.innerHTML = '<div class="result loading">Testing API connection...</div>';
+            
+            try {
+                // Test the historical endpoint
+                const response = await fetch('http://localhost:8000/api/historical?ticker=RELIANCE&period=1mo&interval=1d');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultsDiv.innerHTML = `
+                        <div class="result success">
+                            <h3>✅ API Connection Successful!</h3>
+                            <p>Ticker: ${data.ticker}</p>
+                            <p>Period: ${data.period}</p>
+                            <p>Interval: ${data.interval}</p>
+                            <p>Data Points: ${data.data ? data.data.length : 0}</p>
+                            ${data.data && data.data.length > 0 ? `
+                                <p>Latest Close Price: ${data.data[data.data.length - 1].Close?.toFixed(2)}</p>
+                                <details>
+                                    <summary>Sample Data (Click to expand)</summary>
+                                    <pre>${JSON.stringify(data.data.slice(0, 3), null, 2)}</pre>
+                                </details>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    const errorText = await response.text();
+                    resultsDiv.innerHTML = `
+                        <div class="result error">
+                            <h3>❌ API Error</h3>
+                            <p>Status: ${response.status} ${response.statusText}</p>
+                            <p>Response: ${errorText}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Connection Error</h3>
+                        <p>Error: ${error.message}</p>
+                        <p>Make sure the backend server is running on http://localhost:8000</p>
+                    </div>
+                `;
+            } finally {
+                testBtn.disabled = false;
+            }
+        }
+        
+        // Test automatically on page load
+        window.onload = function() {
+            setTimeout(testAPI, 500);
+        };
+    </script>
+</body>
+</html>

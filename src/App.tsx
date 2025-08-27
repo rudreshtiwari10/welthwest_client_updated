@@ -17,6 +17,7 @@ import PricingPage from './pages/Pricing';
 import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
 import StockPage from './pages/StockPage';
 import WelthChatbotPage from './pages/WelthChatbotPage';
+import WelthAIChatbotPage from './pages/WelthAIChatbotPage';
 import WelthAiChatbotLaunchingSoon from './pages/WelthAiChatbotLaunchingSoon';
 import PlanDetailsPage from './pages/PlanDetailsPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
@@ -169,6 +170,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
+                <Route path="/welth-ai-chatbot" element={<PrivateRoute><WelthAIChatbotPage /></PrivateRoute>} />
                 <Route path="/technical-analysis" element={<PrivateRoute><TechnicalAnalysisPage /></PrivateRoute>} />
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />

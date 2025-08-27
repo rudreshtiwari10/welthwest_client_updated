@@ -157,7 +157,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     </Link>
 
                     <Link
-                        to="/WelthAiChatBot-lanching-soon"
+                        to="/welth-ai-chatbot"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
                       onClick={() => setShowWelthAIMenu(false)}
                     >
