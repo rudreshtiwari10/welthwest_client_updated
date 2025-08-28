@@ -1015,7 +1015,7 @@ export const subscriptionService = {
   }
 };
 
-// Feedback service for dynamic feedback forms
+// Feedback service for WealthWest feedback forms
 export const feedbackService = {
   // Submit feedback form
   submitFeedback: async (feedbackData: {
@@ -1024,14 +1024,10 @@ export const feedbackService = {
       email: string;
       phone?: string;
     };
-    form_type: string;
-    responses: Array<{
-      question: string;
-      answer: string;
-      question_type?: string;
-      options?: string[];
-    }>;
-    form_metadata?: any;
+    trading_learning: string;
+    ai_features: string;
+    interface_usability: string;
+    value_recommendation: string;
   }) => {
     try {
       const response = await api.post('/feedback/submit', feedbackData);

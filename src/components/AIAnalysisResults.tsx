@@ -127,16 +127,9 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
     );
   }
 
+  // Don't render anything if there are no results - this prevents blank space
   if (!prediction && !analysis) {
-    return (
-      <div className="bg-gray-50 dark:bg-dark-400 rounded-lg p-8 border border-gray-200 dark:border-gray-600 text-center">
-        <div className="text-gray-400 dark:text-gray-500">
-          <ArrowPathIcon className="h-12 w-12 mx-auto mb-4" />
-          <p className="text-lg font-medium">No Analysis Results</p>
-          <p className="text-sm mt-2">Enable AI mode and run analysis to see results here</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   const getRegimeIcon = (regimeName: string) => {

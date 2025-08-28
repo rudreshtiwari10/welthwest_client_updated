@@ -590,6 +590,73 @@ const StockPage: React.FC = () => {
         </div>
       )}
 
+      {/* Mobile AI Toggle and Analysis Section */}
+      <div className="lg:hidden mb-6 md:mb-8">
+        <div className={`bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden transition-all duration-300 ${aiModeEnabled ? 'border-2 border-purple-500' : 'border border-gray-200 dark:border-gray-700'}`}>
+          <div className={`p-4 ${aiModeEnabled ? 'bg-gradient-to-r from-purple-500/10 to-blue-500/10' : ''}`}>
+            <AIAnalysisToggle 
+              isEnabled={aiModeEnabled} 
+              onToggle={handleToggleAI} 
+              className="border-0 bg-transparent p-0"
+            />
+          </div>
+          
+          {/* AI Mode Content for Mobile */}
+          {aiModeEnabled ? (
+            <div className="p-4 pt-0">
+              {/* AI Analysis Form */}
+              <AIAnalysisForm 
+                onAnalyze={handleAIAnalysis}
+                isLoading={aiLoading || aiTrainingLoading}
+                disabled={false}
+                defaultTicker={symbol}
+              />
+              
+              {/* AI Analysis Results - Only show if there are results */}
+              {(aiPrediction || aiAnalysis) && (
+                <div className="mt-6">
+                  <div className="flex items-center space-x-2 mb-4">
+                    <SparklesIcon className="h-5 w-5 text-purple-500" />
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      Market Regime Analysis
+                    </h3>
+                  </div>
+                  <AIAnalysisResults
+                    prediction={aiPrediction}
+                    analysis={aiAnalysis}
+                    recommendations={aiRecommendations}
+                    ticker={symbol}
+                    isLoading={aiLoading}
+                    error={aiError}
+                  />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 pt-0 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex items-center space-x-2 mb-2">
+                <SparklesIcon className="h-4 w-4 text-purple-500" />
+                <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  What you're missing:
+                </h4>
+              </div>
+              <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-2 pl-6">
+                <li className="list-disc">Market regime classification</li>
+                <li className="list-disc">AI-powered trading signals</li>
+                <li className="list-disc">Technical indicator analysis</li>
+                <li className="list-disc">Risk assessment</li>
+              </ul>
+              <button
+                onClick={() => handleToggleAI(true)}
+                className="mt-4 w-full py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md text-sm font-medium transition-colors"
+              >
+                Enable AI Analysis
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Stock Chart and Info - Left Column */}
@@ -1039,8 +1106,8 @@ const StockPage: React.FC = () => {
           )}
         </div>
 
-        {/* AI Analysis - Right Column */}
-        <div className="lg:col-span-1">
+        {/* AI Analysis - Right Column (Hidden on Mobile) */}
+        <div className="hidden lg:block lg:col-span-1">
           {/* AI Toggle - Enhanced version */}
           <div className={`bg-white dark:bg-dark-300 rounded-lg shadow-md overflow-hidden transition-all duration-300 ${aiModeEnabled ? 'border-2 border-purple-500' : 'border border-gray-200 dark:border-gray-700'}`}>
             <div className={`p-4 ${aiModeEnabled ? 'bg-gradient-to-r from-purple-500/10 to-blue-500/10' : ''}`}>

@@ -4,16 +4,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { feedbackService } from '../services/api';
 
 interface FeedbackForm {
-  overallExperience: string;
-  recommendation: string;
-  navigation: string;
-  visualDesign: string;
-  backtestAccuracy: string;
-  aiInsights: string;
-  bugs: string;
-  missingFeature: string;
-  missingFeatureOther: string;
-  oneThingToChange: string;
+  tradingLearning: string;
+  aiFeatures: string;
+  interfaceUsability: string;
+  valueRecommendation: string;
 }
 
 interface UserInfo {
@@ -26,16 +20,10 @@ const FeedbackPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   
   const [feedback, setFeedback] = useState<FeedbackForm>({
-    overallExperience: '',
-    recommendation: '',
-    navigation: '',
-    visualDesign: '',
-    backtestAccuracy: '',
-    aiInsights: '',
-    bugs: '',
-    missingFeature: '',
-    missingFeatureOther: '',
-    oneThingToChange: ''
+    tradingLearning: '',
+    aiFeatures: '',
+    interfaceUsability: '',
+    valueRecommendation: ''
   });
 
   const [userInfo, setUserInfo] = useState<UserInfo>({
@@ -76,76 +64,17 @@ const FeedbackPage: React.FC = () => {
         throw new Error('Email is required');
       }
 
-      // Convert form data to the API format
-      const responses = [
-        {
-          question: 'How would you rate your overall experience?',
-          answer: feedback.overallExperience,
-          question_type: 'rating',
-          options: ['Excellent', 'Good', 'Average', 'Poor', 'Very Poor']
-        },
-        {
-          question: 'How likely are you to recommend this platform?',
-          answer: feedback.recommendation,
-          question_type: 'rating',
-          options: ['Very Likely', 'Likely', 'Neutral', 'Unlikely', 'Very Unlikely']
-        },
-        {
-          question: 'How intuitive was the platform to navigate?',
-          answer: feedback.navigation,
-          question_type: 'rating',
-          options: ['Very Easy', 'Easy', 'Neutral', 'Difficult', 'Very Difficult']
-        },
-        {
-          question: 'How do you rate the visual design?',
-          answer: feedback.visualDesign,
-          question_type: 'rating',
-          options: ['Love it', 'Like it', 'Neutral', 'Dislike it', 'Hate it']
-        },
-        {
-          question: 'How accurate did the backtest results feel?',
-          answer: feedback.backtestAccuracy,
-          question_type: 'rating',
-          options: ['Very Accurate', 'Accurate', 'Neutral', 'Inaccurate', 'Very Inaccurate']
-        },
-        {
-          question: 'How helpful were the AI insights?',
-          answer: feedback.aiInsights,
-          question_type: 'rating',
-          options: ['Very Helpful', 'Helpful', 'Neutral', 'Not Helpful', 'Confusing']
-        },
-        {
-          question: 'Did you encounter any bugs? Please describe:',
-          answer: feedback.bugs,
-          question_type: 'textarea'
-        },
-                 {
-           question: 'What\'s the most important missing feature?',
-           answer: feedback.missingFeature === 'Other' ? feedback.missingFeatureOther : feedback.missingFeature,
-           question_type: 'single_choice',
-           options: ['More indicators', 'Better charts', 'Mobile app', 'Broker integration', 'Other']
-         },
-         {
-           question: 'One thing you\'d change:',
-           answer: feedback.oneThingToChange,
-           question_type: 'textarea'
-         }
-      ].filter(response => response.answer.trim() !== ''); // Only include answered questions
-
+      // Convert form data to the new API format for the 4 specific questions
       const feedbackData = {
         user_info: {
           name: userInfo.name.trim(),
           email: userInfo.email.trim(),
           phone: userInfo.phone.trim() || undefined
         },
-        form_type: 'Platform Feedback',
-        responses: responses,
-        form_metadata: {
-          version: '1.0',
-          form_title: 'WelthWest Platform Experience Survey',
-          submitted_from: 'feedback_page',
-          user_authenticated: isAuthenticated
-        }
+        trading_learning: feedback.tradingLearning.trim(),
+        ai_features: feedback.aiFeatures.trim(),
+        interface_usability: feedback.interfaceUsability.trim(),
+        value_recommendation: feedback.valueRecommendation.trim()
       };
 
       const result = await feedbackService.submitFeedback(feedbackData);
@@ -160,49 +89,21 @@ const FeedbackPage: React.FC = () => {
     }
   };
 
-  const renderRadioGroup = (
-    field: keyof FeedbackForm,
-    question: string,
-    options: string[]
-  ) => (
-    <div className="mb-6">
-      <p className="text-gray-700 dark:text-gray-300 mb-3 font-medium">
-        {question}
-      </p>
-      <div className="space-y-2">
-        {options.map((option, index) => (
-          <label key={index} className="flex items-center space-x-3 cursor-pointer">
-            <input
-              type="radio"
-              name={field}
-              value={option}
-              checked={feedback[field] === option}
-              onChange={(e) => handleInputChange(field, e.target.value)}
-              className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <span className="text-gray-700 dark:text-gray-300">{option}</span>
-          </label>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderTextInput = (
+  const renderTextarea = (
     field: keyof FeedbackForm,
     label: string,
-    placeholder: string = '',
-    type: string = 'text'
+    placeholder: string = ''
   ) => (
     <div className="mb-6">
       <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
         {label}
       </label>
-      <input
-        type={type}
+      <textarea
         value={feedback[field]}
         onChange={(e) => handleInputChange(field, e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+        rows={4}
+        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white resize-vertical"
       />
     </div>
   );
@@ -244,10 +145,10 @@ const FeedbackPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Platform Feedback
+            WealthWest Feedback
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Help us improve WelthWest by sharing your experience. Your feedback is invaluable in making our platform better for everyone.
+            Help us improve WealthWest by sharing your experience with our trading platform, AI features, and overall value. Your insights help us build better tools for traders.
           </p>
         </div>
 
@@ -303,111 +204,34 @@ const FeedbackPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* Overall Experience Section */}
+            {/* WealthWest Feedback Questions */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                Overall Experience
+                Your WealthWest Experience
               </h2>
               
-              {renderRadioGroup(
-                'overallExperience',
-                'How would you rate your overall experience?',
-                ['Excellent', 'Good', 'Average', 'Poor', 'Very Poor']
+              {renderTextarea(
+                'tradingLearning',
+                'Does WealthWest help you learn Investing? What resources would enhance your experience?',
+                'Share your thoughts on how WealthWest supports your trading education and what additional resources you would find valuable...'
               )}
               
-              {renderRadioGroup(
-                'recommendation',
-                'How likely are you to recommend this platform?',
-                ['Very Likely', 'Likely', 'Neutral', 'Unlikely', 'Very Unlikely']
-              )}
-            </div>
-
-            {/* User Interface & Design Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                User Interface & Design
-              </h2>
-              
-              {renderRadioGroup(
-                'navigation',
-                'How intuitive was the platform to navigate?',
-                ['Very Easy', 'Easy', 'Neutral', 'Difficult', 'Very Difficult']
+              {renderTextarea(
+                'aiFeatures',
+                'How effective are WealthWest\'s AI features (backtesting, Chat Bot, WelthAI Analysis) for learning or trading? Share examples or suggestions.',
+                'Tell us about your experience with our AI features and provide specific examples or suggestions for improvement...'
               )}
               
-              {renderRadioGroup(
-                'visualDesign',
-                'How do you rate the visual design?',
-                ['Love it', 'Like it', 'Neutral', 'Dislike it', 'Hate it']
-              )}
-            </div>
-
-            {/* Core Features Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                Core Features
-              </h2>
-              
-              {renderRadioGroup(
-                'backtestAccuracy',
-                'How accurate did the backtest results feel?',
-                ['Very Accurate', 'Accurate', 'Neutral', 'Inaccurate', 'Very Inaccurate']
+              {renderTextarea(
+                'interfaceUsability',
+                'How user-friendly is WealthWest\'s interface (dashboards, strategy builder)? Suggest improvements.',
+                'Describe your experience with our interface design and navigation. What improvements would make it better...'
               )}
               
-              {renderRadioGroup(
-                'aiInsights',
-                'How helpful were the AI insights?',
-                ['Very Helpful', 'Helpful', 'Neutral', 'Not Helpful', 'Confusing']
-              )}
-            </div>
-
-            {/* Bugs Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                Platform Issues
-              </h2>
-              
-              {renderTextInput(
-                'bugs',
-                'Did you encounter any bugs? Please describe:',
-                'Describe any issues you encountered...'
-              )}
-            </div>
-
-            {/* Value & Features Section */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                Value & Features
-              </h2>
-              
-              {renderRadioGroup(
-                'missingFeature',
-                'What\'s the most important missing feature?',
-                ['More indicators', 'Better charts', 'Mobile app', 'Broker integration', 'Other']
-              )}
-              
-              {feedback.missingFeature === 'Other' && (
-                <div className="mt-4">
-                  {renderTextInput(
-                    'missingFeatureOther',
-                    'Please specify:',
-                    'Describe the missing feature...'
-                  )}
-                </div>
-              )}
-            </div>
-
-
-
-            {/* Optional Fields */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                Additional Information
-              </h2>
-              
-              {renderTextInput(
-                'oneThingToChange',
-                'One thing you\'d change:',
-                'Tell us what you would improve...'
+              {renderTextarea(
+                'valueRecommendation',
+                'What would make WealthWest more valuable, and would you recommend it or pay for basic/pro/Enterprise tiers ranging from ₹299 to ₹1999?',
+                'Share your thoughts on WealthWest\'s value proposition, pricing, and what would make you recommend it to others...'
               )}
             </div>
 

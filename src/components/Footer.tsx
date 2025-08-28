@@ -24,7 +24,7 @@ const Footer: React.FC = () => {
                 WelthWest
               </h1>
             </div>
-            <div className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md text-left`}>
+            <div className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md text-center md:text-left`}>
               <div className="text-lg font-medium">AI-Powered Wealth</div>
               <div className="text-base mt-1">Intelligence Platform</div>
               {/* <div className="mt-2 text-sm">
