@@ -143,10 +143,10 @@ const FeedbackPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            WealthWest Feedback
+            WelthWest Feedback
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Help us improve WealthWest by sharing your experience with our trading platform, AI features, and overall value. Your insights help us build better tools for traders.
+            Help us improve WelthWest by sharing your experience with our trading platform, AI features, and overall value. Your insights help us build better tools for traders.
           </p>
         </div>
 
@@ -202,34 +202,34 @@ const FeedbackPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            {/* WealthWest Feedback Questions */}
+            {/* WelthWest Feedback Questions */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-2">
-                Your WealthWest Experience
+                Your WelthWest Experience
               </h2>
               
               {renderTextarea(
                 'tradingLearning',
-                'Does WealthWest help you learn Investing? What resources would enhance your experience?',
-                'Share your thoughts on how WealthWest supports your trading education and what additional resources you would find valuable...'
+                'Does WelthWest help you learn Investing? What resources would enhance your experience?',
+                // 'Share your thoughts on how WelthWest supports your trading education and what additional resources you would find valuable...'
               )}
               
               {renderTextarea(
                 'aiFeatures',
-                'How effective are WealthWest\'s AI features (backtesting, Chat Bot, WelthAI Analysis) for learning or trading? Share examples or suggestions.',
+                'How effective are WelthWest\'s AI features (backtesting, Chat Bot, WelthAI Analysis) for learning or trading? Share examples or suggestions.',
                 'Tell us about your experience with our AI features and provide specific examples or suggestions for improvement...'
               )}
               
               {renderTextarea(
                 'interfaceUsability',
-                'How user-friendly is WealthWest\'s interface (dashboards, strategy builder)? Suggest improvements.',
+                'How user-friendly is WelthWest\'s interface (dashboards, strategy builder)? Suggest improvements.',
                 'Describe your experience with our interface design and navigation. What improvements would make it better...'
               )}
               
               {renderTextarea(
                 'valueRecommendation',
-                'What would make WealthWest more valuable, and would you recommend it or pay for basic/pro/Enterprise tiers ranging from ₹299 to ₹1999?',
-                'Share your thoughts on WealthWest\'s value proposition, pricing, and what would make you recommend it to others...'
+                'What would make WelthWest more valuable, and would you recommend it or pay for basic/pro/Enterprise tiers ranging from ₹299 to ₹1999?',
+                'Share your thoughts on WelthWest\'s value proposition, pricing, and what would make you recommend it to others...'
               )}
             </div>
 
