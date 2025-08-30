@@ -323,7 +323,6 @@ const BacktestingBetaPage: React.FC = () => {
       }, 3000);
       
     } catch (error) {
-      console.error('Error saving backtest:', error);
       setSaveStatus({ 
         saving: false, 
         success: false, 

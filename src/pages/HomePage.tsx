@@ -67,7 +67,6 @@ const HomePage: React.FC = () => {
         const indicesData = await marketService.getMarketIndices();
         setMarketData(indicesData);
       } catch (error) {
-        console.error('Error fetching market data:', error);
       } finally {
         setIsLoading(false);
       }

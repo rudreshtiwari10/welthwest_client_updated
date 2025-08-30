@@ -52,7 +52,6 @@ const DashboardPage: React.FC = () => {
         setSavedAIAnalyses(analysesResponse.analyses);
       }
     } catch (error) {
-      console.error('Error fetching saved data for stats:', error);
     } finally {
       setSavedDataLoading(false);
     }
@@ -73,7 +72,6 @@ const DashboardPage: React.FC = () => {
       try {
         await fetchSavedData();
       } catch (error) {
-        console.error('Error initializing dashboard:', error);
       }
     };
     init();

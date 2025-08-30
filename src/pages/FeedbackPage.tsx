@@ -78,11 +78,9 @@ const FeedbackPage: React.FC = () => {
       };
 
       const result = await feedbackService.submitFeedback(feedbackData);
-      console.log('Feedback submitted successfully:', result);
       setIsSubmitted(true);
 
     } catch (error: any) {
-      console.error('Error submitting feedback:', error);
       setSubmitError( 'Please fill out missing fields');
     } finally {
       setIsSubmitting(false);

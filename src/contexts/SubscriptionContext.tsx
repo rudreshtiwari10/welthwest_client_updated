@@ -77,7 +77,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       // Validate the response data structure
       const data = response.data;
       if (!data || !data.usage || !data.usage.daily) {
-        console.error('Invalid subscription data received:', data);
         setError('Invalid subscription data received');
         return;
       }
@@ -86,7 +85,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       setError(null);
     } catch (err) {
       setError('Failed to fetch subscription details');
-      console.error('Subscription fetch error:', err);
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +148,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         };
       });
     } catch (err) {
-      console.error('Failed to increment backtest usage:', err);
       throw err;
     }
   };
@@ -180,7 +177,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
         };
       });
     } catch (err) {
-      console.error('Failed to increment LLM usage:', err);
       throw err;
     }
   };
@@ -222,7 +218,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       
       return `${hours}h ${minutes}m`;
     } catch (error) {
-      console.error('Error calculating time until reset:', error);
       return 'N/A';
     }
   };
@@ -237,7 +232,6 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       });
       await refreshSubscription();
     } catch (err) {
-      console.error('Failed to upgrade subscription:', err);
       throw err;
     }
   };
@@ -248,9 +242,7 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       // we just need to refresh the subscription details
       await refreshSubscription();
       
-      console.log('Subscription updated after payment verification');
     } catch (err) {
-      console.error('Failed to refresh subscription after payment:', err);
       throw err;
     }
   };

@@ -57,7 +57,6 @@ const PaymentConfirmationPage: React.FC = () => {
       try {
         await updateSubscriptionAfterPayment(state.paymentData, state.planDetails, state.userInfo);
       } catch (error) {
-        console.error('Failed to update subscription:', error);
       }
     };
 
@@ -83,7 +82,6 @@ const PaymentConfirmationPage: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       alert('Invoice download feature will be available soon. Your payment receipt has been sent to your email.');
     } catch (error) {
-      console.error('Error downloading invoice:', error);
       alert('Invoice download is not available yet. Please check your email for the receipt.');
     } finally {
       setIsDownloadingInvoice(false);

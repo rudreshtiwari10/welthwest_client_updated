@@ -53,7 +53,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const userData = await authService.getCurrentUser();
           setUser(userData.user);
         } catch (error) {
-          console.error('Error fetching user data:', error);
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
         }
@@ -76,7 +75,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         throw new Error('Login failed: No user data returned');
       }
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -91,7 +89,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Auto-login after registration
       await login(email, password);
     } catch (error) {
-      console.error('Registration error:', error);
       throw error;
     } finally {
       setIsLoading(false);
@@ -105,7 +102,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       await authService.logout();
       setUser(null);
     } catch (error) {
-      console.error('Logout error:', error);
       // Still clear user state even if API call fails
       setUser(null);
     } finally {
@@ -122,7 +118,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(response.user);
       }
     } catch (error) {
-      console.error('Update profile error:', error);
       throw error;
     } finally {
       setIsLoading(false);

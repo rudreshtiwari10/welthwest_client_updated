@@ -13,19 +13,13 @@ declare global {
 const GTM_ID = process.env.REACT_APP_GTM_ID;
 const GA4_ID = process.env.REACT_APP_GA4_ID || 'G-CE6JLT6ZMM'; // Fallback to hardcoded ID
 
-// Debug logging
-console.log('🔍 Analytics Debug Info:');
-console.log('GTM_ID:', GTM_ID);
-console.log('GA4_ID:', GA4_ID);
-console.log('NODE_ENV:', process.env.NODE_ENV);
+// Analytics configuration
 
 let initialized = false;
 
 export function initializeAnalytics(): void {
-  console.log('🚀 Initializing Analytics...');
   
   if (initialized) {
-    console.log('⚠️ Analytics already initialized');
     return;
   }
   
@@ -33,14 +27,12 @@ export function initializeAnalytics(): void {
 
   // Check if gtag is already loaded via HTML (preferred)
   if (typeof window.gtag === 'function' && GA4_ID) {
-    console.log('📊 Using existing GA4 from HTML with ID:', GA4_ID);
     // gtag is already loaded via HTML, just ensure our tracking works
     return;
   }
 
   // Primary: Use GTM if available (recommended approach)
   if (GTM_ID) {
-    console.log('📊 Initializing GTM with ID:', GTM_ID);
     
     // Initialize dataLayer
     window.dataLayer = window.dataLayer || [];
@@ -62,7 +54,6 @@ export function initializeAnalytics(): void {
       } else {
         d.head.appendChild(j);
       }
-      console.log('✅ GTM script injected');
     })(window, document, 'script', 'dataLayer', GTM_ID);
 
     // Inject GTM noscript fallback
@@ -75,10 +66,8 @@ export function initializeAnalytics(): void {
     iframe.style.visibility = 'hidden';
     noscript.appendChild(iframe);
     document.body.insertBefore(noscript, document.body.firstChild);
-    console.log('✅ GTM noscript fallback injected');
     
   } else if (GA4_ID) {
-    console.log('📊 Initializing GA4 with ID:', GA4_ID);
     
     // Load GA4 gtag
     const script = document.createElement('script') as HTMLScriptElement;
@@ -97,23 +86,15 @@ export function initializeAnalytics(): void {
       if (typeof window.gtag === 'function') {
         window.gtag('js', new Date());
         window.gtag('config', GA4_ID);
-        console.log('✅ GA4 configured');
       }
     };
-    console.log('✅ GA4 script injected');
     
   } else {
-    console.error('❌ No Google Analytics IDs found!');
-    console.error('Please set REACT_APP_GTM_ID or REACT_APP_GA4_ID in your .env file');
-    console.error('Current values:');
-    console.error('GTM_ID:', GTM_ID);
-    console.error('GA4_ID:', GA4_ID);
   }
 }
 
 export function trackPageView(path: string, title?: string): void {
   const pageTitle = title || document.title;
-  console.log('📄 Tracking page view:', { path, title: pageTitle });
 
   if (GTM_ID) {
     window.dataLayer = window.dataLayer || [];
@@ -122,13 +103,11 @@ export function trackPageView(path: string, title?: string): void {
       page_path: path,
       page_title: pageTitle
     });
-    console.log('✅ Page view tracked via GTM');
   } else if (GA4_ID && typeof window.gtag === 'function') {
     window.gtag('config', GA4_ID, {
       page_path: path,
       page_title: pageTitle
     });
-    console.log('✅ Page view tracked via GA4');
   } else if (window.dataLayer && window.dataLayer.length > 0) {
     // Use HTML fallback analytics if available
     window.dataLayer.push({
@@ -136,14 +115,11 @@ export function trackPageView(path: string, title?: string): void {
       page_path: path,
       page_title: pageTitle
     });
-    console.log('✅ Page view tracked via HTML fallback');
   } else {
-    console.warn('⚠️ Cannot track page view - no analytics initialized');
   }
 }
 
 export function trackEvent(eventName: string, params: Record<string, any> = {}): void {
-  console.log('🎯 Tracking event:', { eventName, params });
   
   if (GTM_ID) {
     window.dataLayer = window.dataLayer || [];
@@ -151,19 +127,15 @@ export function trackEvent(eventName: string, params: Record<string, any> = {}):
       event: eventName,
       ...params
     });
-    console.log('✅ Event tracked via GTM');
   } else if (GA4_ID && typeof window.gtag === 'function') {
     window.gtag('event', eventName, params);
-    console.log('✅ Event tracked via GA4');
   } else if (window.dataLayer && window.dataLayer.length > 0) {
     // Use HTML fallback analytics if available
     window.dataLayer.push({
       event: eventName,
       ...params
     });
-    console.log('✅ Event tracked via HTML fallback');
   } else {
-    console.warn('⚠️ Cannot track event - no analytics initialized');
   }
 }
 

@@ -141,7 +141,6 @@ const BacktestingPage: React.FC = () => {
       
       setAIAnalysisResults(response);
     } catch (error) {
-      console.error('Error getting AI analysis:', error);
       setError('Failed to get AI analysis. Please try again.');
     } finally {
       setAILoading(false);
@@ -210,7 +209,6 @@ const BacktestingPage: React.FC = () => {
       }, 3000);
       
     } catch (error) {
-      console.error('Error saving backtest:', error);
       setSaveStatus({ 
         saving: false, 
         success: false, 
@@ -281,7 +279,6 @@ const BacktestingPage: React.FC = () => {
       
       setResults(extendedResponse);
     } catch (error) {
-      console.error('Backtest error:', error);
       setError(error instanceof Error ? error.message : 'An error occurred while running the backtest');
     } finally {
       setLoading(false);

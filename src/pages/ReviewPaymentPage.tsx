@@ -72,7 +72,6 @@ const ReviewPaymentPage: React.FC = () => {
         }
       });
     } catch (error) {
-      console.error('Error creating order:', error);
       throw error;
     }
   };
@@ -106,7 +105,6 @@ const ReviewPaymentPage: React.FC = () => {
         return;
       }
       
-      console.log('Order data received from backend:', orderData);
       
       const options = {
         key: razorpayKey,
@@ -132,23 +130,15 @@ const ReviewPaymentPage: React.FC = () => {
         },
         handler: async function (response: any) {
           try {
-            console.log('Razorpay response received:', response);
-            console.log('All response keys:', Object.keys(response));
-            console.log('Response object structure:', JSON.stringify(response, null, 2));
             
             // Extract the payment details - Razorpay might return them in different formats
             const paymentId = response.razorpay_payment_id;
             const orderId = response.razorpay_order_id || orderData.order_id || orderData.id;
             const signature = response.razorpay_signature;
             
-            console.log('Extracted values:');
-            console.log('- Payment ID:', paymentId);
-            console.log('- Order ID:', orderId);
-            console.log('- Signature:', signature);
             
             // Check if we have payment ID (minimum requirement)
             if (!paymentId) {
-              console.error('Payment ID is missing from Razorpay response');
               setError('Invalid payment response - no payment ID received.');
               setIsProcessing(false);
               return;
@@ -156,10 +146,8 @@ const ReviewPaymentPage: React.FC = () => {
             
             // For signature and order_id, provide fallbacks and warnings
             if (!signature) {
-              console.warn('Signature missing from Razorpay response. This might be a test environment issue.');
               // In test mode, Razorpay might not always provide signature
               if (process.env.NODE_ENV === 'development') {
-                console.warn('Development mode: proceeding without signature verification');
               } else {
                 setError('Payment signature missing. Please try again or contact support.');
                 setIsProcessing(false);
@@ -168,7 +156,6 @@ const ReviewPaymentPage: React.FC = () => {
             }
             
             if (!orderId) {
-              console.error('Order ID is missing from both Razorpay response and original order data');
               setError('Order ID missing from payment response. Please try again.');
               setIsProcessing(false);
               return;
@@ -176,7 +163,6 @@ const ReviewPaymentPage: React.FC = () => {
 
             // Validate signature format (basic check) - only if signature exists
             if (signature && (typeof signature !== 'string' || signature.length < 10)) {
-              console.error('Invalid signature format:', signature);
               setError('Invalid payment signature received. Please try again.');
               setIsProcessing(false);
               return;
@@ -188,8 +174,6 @@ const ReviewPaymentPage: React.FC = () => {
               razorpay_signature: signature || 'missing_signature',
             };
             
-            console.log('Sending payment verification to backend...');
-            console.log('Payment data:', paymentData);
             
             // Show processing state
             setIsProcessing(true);
@@ -198,7 +182,6 @@ const ReviewPaymentPage: React.FC = () => {
             // Verify payment on backend
             const verifyData = await paymentService.verifyPayment(paymentData);
             
-            console.log('Payment verification successful:', verifyData);
             
             // Navigate to confirmation page
             navigate('/payment-confirmation', {
@@ -209,11 +192,9 @@ const ReviewPaymentPage: React.FC = () => {
               },
             });
           } catch (error: any) {
-            console.error('Payment verification error:', error);
             setIsProcessing(false);
             
             if (error.response && error.response.data) {
-              console.error('Backend error details:', error.response.data);
               const errorMsg = error.response.data.message || error.response.data.error || 'Unknown error';
               setError(`Payment verification failed: ${errorMsg}`);
             } else if (error.message) {
@@ -233,7 +214,6 @@ const ReviewPaymentPage: React.FC = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (error) {
-      console.error('Payment error:', error);
       setError('Payment initialization failed. Please try again.');
       setIsProcessing(false);
     }

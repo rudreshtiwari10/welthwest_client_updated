@@ -490,7 +490,6 @@ const ChatInterfaceNoSave: React.FC = () => {
             },
           ]);
         } catch (err) {
-          console.error('Technical analysis error:', err);
           // fallback to backend chat
         }
       }
@@ -617,7 +616,6 @@ const ChatInterfaceNoSave: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Error processing message:', error);
       
       // Convert error to string to avoid rendering objects directly
       const errorMessage: Message = {

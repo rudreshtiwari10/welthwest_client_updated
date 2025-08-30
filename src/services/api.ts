@@ -19,7 +19,6 @@ const isTokenExpiring = (token: string, bufferMinutes: number = 5): boolean => {
     
     return (expirationTime - currentTime) <= bufferTime;
   } catch (error) {
-    console.error('Error decoding JWT token:', error);
     return true; // If we can't decode it, assume it's expiring
   }
 };
@@ -40,7 +39,6 @@ api.interceptors.request.use(
 
     // Check if token is expiring and refresh it proactively
     if (token && refreshToken && isTokenExpiring(token)) {
-      console.log('Token is expiring, refreshing proactively...');
       try {
         const refreshApi = axios.create({
           baseURL: API_URL,
@@ -59,10 +57,8 @@ api.interceptors.request.use(
             localStorage.setItem('refresh_token', response.data.refresh_token);
           }
           token = response.data.access_token;
-          console.log('Token refreshed successfully');
         }
       } catch (error) {
-        console.error('Proactive token refresh failed:', error);
         // Don't fail the request, let the response interceptor handle it
       }
     }
@@ -93,7 +89,6 @@ api.interceptors.response.use(
           errorMessage.includes('token is invalid') ||
           errorMessage.includes('JWT') ||
           errorMessage.includes('expired')) {
-        console.warn('JWT timing/validation issue detected:', errorMessage);
         
         // For "Token used too early" errors, add a longer delay to handle server clock differences
         if (errorMessage.includes('Token used too early')) {

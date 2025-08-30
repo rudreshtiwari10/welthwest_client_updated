@@ -204,7 +204,6 @@ const WelthAIPage: React.FC = () => {
       }, 3000);
       
     } catch (error) {
-      console.error('Error saving AI analysis:', error);
       setSaveStatus({ 
         saving: false, 
         success: false, 
@@ -230,7 +229,6 @@ const WelthAIPage: React.FC = () => {
         interval: '1d'
       });
     } catch (error) {
-      console.error('Error fetching stock data:', error);
       setAiError('Failed to fetch stock data');
     } finally {
       setStockLoading(false);
@@ -297,7 +295,6 @@ const WelthAIPage: React.FC = () => {
           
           setAiTrainingResult(trainingResponse);
         } catch (error) {
-          console.error('Error training model:', error);
           setAiError('Failed to train model');
         }
       }
@@ -375,7 +372,6 @@ const WelthAIPage: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
       setAiError(errorMessage);
-      console.error('AI Analysis error:', err);
       
       // Track AI analysis error
       trackEvent('ai_analysis_error', {

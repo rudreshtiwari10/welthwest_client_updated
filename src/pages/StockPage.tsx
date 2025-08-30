@@ -106,7 +106,6 @@ const StockPage: React.FC = () => {
       const response = await marketService.getStockFundamentals(ticker);
       setFundamentalsData(response.data);
     } catch (err) {
-      console.error('Error fetching fundamentals:', err);
       setFundamentalsError('Failed to load fundamental data');
     } finally {
       setFundamentalsLoading(false);
@@ -159,7 +158,6 @@ const StockPage: React.FC = () => {
           setMarketData(indicesData);
         }
       } catch (err) {
-        console.error('Error fetching data:', err);
         setError('Failed to load data. Please try again later.');
       } finally {
         setIsLoading(false);
@@ -211,7 +209,6 @@ const StockPage: React.FC = () => {
             });
           }
         } catch (modelInfoErr) {
-          console.error('Error fetching model info:', modelInfoErr);
         } finally {
           setAiTrainingLoading(false);
         }
@@ -232,7 +229,6 @@ const StockPage: React.FC = () => {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
       setAiError(errorMessage);
-      console.error('AI Analysis error:', err);
     } finally {
       setAiLoading(false);
     }

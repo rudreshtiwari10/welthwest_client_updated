@@ -3,11 +3,9 @@ const rawBase = process.env.REACT_APP_VIDEO_CDN_URL || '';
 const CDN_BASE = rawBase.trim().replace(/\/$/, '');
 
 if (!CDN_BASE) {
-  // eslint-disable-next-line no-console
-  console.warn('REACT_APP_VIDEO_CDN_URL is not set. Falling back to relative /videos and /images which requires files to be served locally.');
+  // CDN URL not set, using local files
 } else {
-  // eslint-disable-next-line no-console
-  console.info('Video CDN base:', CDN_BASE);
+  // CDN URL configured
 }
 // Build safe paths (encode spaces/special chars)
 const encodePath = (p: string): string => p.split('/').map(encodeURIComponent).join('/');

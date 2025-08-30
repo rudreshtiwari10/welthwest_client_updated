@@ -129,7 +129,6 @@ const PlanDetailsPage: React.FC = () => {
         },
       });
     } catch (error) {
-      console.error('Error proceeding to payment:', error);
     } finally {
       setIsLoading(false);
     }
