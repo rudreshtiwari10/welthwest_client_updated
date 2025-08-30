@@ -635,11 +635,11 @@ const ChatInterfaceNoSave: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+    <div className="h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
       {/* Messages Container - Scrollable */}
-      <div className="flex-1 overflow-hidden">
+      <div className="h-full overflow-hidden">
         <div
-          className="h-full overflow-y-auto px-4 pt-6 pb-2"
+          className="h-full overflow-y-auto px-3 sm:px-4 pt-20 md:pt-6 pb-2"
           ref={messagesContainerRef}
           onScroll={handleContainerScroll}
         >
@@ -647,15 +647,15 @@ const ChatInterfaceNoSave: React.FC = () => {
             {messages.map((message) => (
             <div
               key={message.id}
-              className={`mb-6 flex ${
+              className={`mb-4 sm:mb-6 flex ${
                 message.sender === 'user' ? 'justify-end' : 'justify-start'
               }`}
             >
-              <div className="flex flex-col max-w-[80%]">
+              <div className="flex flex-col max-w-[85%] sm:max-w-[80%]">
                 {message.contentType === 'chart' && message.chartData ? (
-                  <div className="bg-white dark:bg-gray-700 rounded-2xl p-3 shadow-sm">
-                    <div className="text-sm font-medium mb-2">{message.chartData.symbol} — {message.chartData.period || ''}</div>
-                    <div className="h-64">
+                  <div className="bg-white dark:bg-gray-700 rounded-2xl p-2 sm:p-3 shadow-sm">
+                    <div className="text-xs sm:text-sm font-medium mb-2">{message.chartData.symbol} — {message.chartData.period || ''}</div>
+                    <div className="h-48 sm:h-64">
                       <StockChart
                         stockData={{ symbol: message.chartData.symbol, data: message.chartData.data }}
                         height={256}
@@ -663,12 +663,12 @@ const ChatInterfaceNoSave: React.FC = () => {
                     </div>
                   </div>
                 ) : message.contentType === 'table' && message.table ? (
-                  <div className="bg-white dark:bg-gray-700 rounded-2xl p-3 shadow-sm overflow-auto">
-                    <table className="min-w-full text-sm">
+                  <div className="bg-white dark:bg-gray-700 rounded-2xl p-2 sm:p-3 shadow-sm overflow-auto">
+                    <table className="min-w-full text-xs sm:text-sm">
                       <thead>
                         <tr>
                           {message.table.columns.map((col) => (
-                            <th key={col} className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-600">{col}</th>
+                            <th key={col} className="px-2 sm:px-3 py-1 sm:py-2 text-left font-semibold text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-600">{col}</th>
                           ))}
                         </tr>
                       </thead>
@@ -676,7 +676,7 @@ const ChatInterfaceNoSave: React.FC = () => {
                         {message.table.rows.map((row, idx) => (
                           <tr key={idx} className="border-b border-gray-100 dark:border-gray-600">
                             {message.table!.columns.map((col) => (
-                              <td key={col} className="px-3 py-2 text-gray-800 dark:text-gray-100">{String(row[col] ?? '')}</td>
+                              <td key={col} className="px-2 sm:px-3 py-1 sm:py-2 text-gray-800 dark:text-gray-100">{String(row[col] ?? '')}</td>
                             ))}
                           </tr>
                         ))}
@@ -684,18 +684,18 @@ const ChatInterfaceNoSave: React.FC = () => {
                     </table>
                   </div>
                 ) : message.contentType === 'cards' && message.cards ? (
-                  <div className="bg-white dark:bg-gray-700 rounded-2xl p-3 shadow-sm">
-                    <div className="flex space-x-3 overflow-x-auto">
+                  <div className="bg-white dark:bg-gray-700 rounded-2xl p-2 sm:p-3 shadow-sm">
+                    <div className="flex space-x-2 sm:space-x-3 overflow-x-auto">
                       {message.cards.map((card, idx) => (
-                        <div key={idx} className="min-w-[240px] bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
-                          <div className="font-semibold text-gray-900 dark:text-white mb-1">{card.title}</div>
-                          {card.description && <div className="text-xs text-gray-600 dark:text-gray-300 mb-3">{card.description}</div>}
+                        <div key={idx} className="min-w-[200px] sm:min-w-[240px] bg-gray-50 dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-200 dark:border-gray-600">
+                          <div className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white mb-1">{card.title}</div>
+                          {card.description && <div className="text-xs text-gray-600 dark:text-gray-300 mb-2 sm:mb-3">{card.description}</div>}
                           {card.actions && (
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-1 sm:gap-2">
                               {card.actions.map((action, aidx) => (
                                 <button
                                   key={aidx}
-                                  className="px-3 py-1 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white"
+                                  className="px-2 sm:px-3 py-1 text-xs rounded-md bg-blue-600 hover:bg-blue-700 text-white"
                                   onClick={() => {
                                     if (action.onClickType === 'navigate' && action.route) {
                                       navigate(action.route);
@@ -727,13 +727,13 @@ const ChatInterfaceNoSave: React.FC = () => {
                   </div>
                 ) : (
                   <div
-                    className={`rounded-2xl px-4 py-3 shadow-sm ${
+                    className={`rounded-2xl px-3 sm:px-4 py-2 sm:py-3 shadow-sm ${
                       message.sender === 'user'
                         ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white'
                     }`}
                   >
-                    <div className="whitespace-pre-wrap leading-relaxed">{message.text}</div>
+                    <div className="whitespace-pre-wrap leading-relaxed text-sm sm:text-base">{message.text}</div>
                   </div>
                 )}
                 <div
@@ -753,7 +753,7 @@ const ChatInterfaceNoSave: React.FC = () => {
 
             {/* Starter suggestions when new chat */}
             {messages.length <= 1 && (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3">
                 {quickActions.map((qa) => (
                   <button
                     key={qa}
@@ -767,7 +767,7 @@ const ChatInterfaceNoSave: React.FC = () => {
                         }
                       }, 0);
                     }}
-                    className="text-left px-4 py-3 rounded-xl bg-gray-800/60 hover:bg-gray-800 text-gray-100 border border-gray-700"
+                    className="text-left px-3 sm:px-4 py-2 sm:py-3 rounded-xl bg-gray-800/60 hover:bg-gray-800 text-gray-100 border border-gray-700 text-sm sm:text-base"
                   >
                     {qa}
                   </button>
@@ -776,11 +776,11 @@ const ChatInterfaceNoSave: React.FC = () => {
             )}
 
             {/* Extra padding at bottom so last message is not hidden behind input */}
-            <div className="h-20"></div>
+            <div className="h-56 md:h-44"></div>
           </div>
 
           {showScrollToBottom && (
-            <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="fixed bottom-44 md:bottom-28 left-1/2 transform -translate-x-1/2 z-40">
               <button
                 onClick={scrollToBottom}
                 className="px-3 py-2 rounded-full bg-blue-600 text-white text-xs shadow hover:bg-blue-700"
@@ -793,10 +793,10 @@ const ChatInterfaceNoSave: React.FC = () => {
       </div>
 
       {/* Fixed Input Box at Bottom */}
-      <div className="flex-shrink-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent pt-4">
-        <div className="max-w-3xl mx-auto px-4 pb-4">
+      <div className="fixed bottom-16 md:bottom-0 left-0 right-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent pt-4 pb-4 md:pb-0 z-50">
+        <div className="max-w-3xl mx-auto px-3 sm:px-4 pb-4">
           {!user && anonymousSession.remainingMessages <= 5 && (
-            <div className="mb-3 p-2 bg-blue-900/20 rounded-lg border border-blue-800 text-xs flex justify-between text-blue-300">
+            <div className="mb-3 p-2 bg-blue-900/20 rounded-lg border border-blue-800 text-xs flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 text-blue-300">
               <span>
                 {anonymousSession.remainingMessages > 0 
                   ? `${anonymousSession.remainingMessages} free messages remaining` 
@@ -812,24 +812,24 @@ const ChatInterfaceNoSave: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl px-3 py-2">
+          <form onSubmit={handleSendMessage} className="flex items-center gap-1 sm:gap-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl px-2 sm:px-3 py-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={isLoading}
               placeholder={placeholders[placeholderIndex]}
-              className="flex-1 px-2 py-2 bg-transparent focus:outline-none text-white placeholder-gray-400"
+              className="flex-1 px-2 py-2 bg-transparent focus:outline-none text-white placeholder-gray-400 text-sm sm:text-base"
             />
 
             {/* Technical Analysis Button */}
             <button
               type="button"
               onClick={() => setShowTechnicalModal(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gray-900 border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors"
               title="Technical Analysis"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 00-2-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </button>
@@ -838,18 +838,18 @@ const ChatInterfaceNoSave: React.FC = () => {
             <button
               type="button"
               onClick={handleNewChat}
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors"
+              className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gray-900 border border-gray-700 hover:bg-gray-800 text-gray-300 hover:text-white transition-colors"
               title="Start New Chat"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
             </button>
 
             {/* File Upload */}
-            <label className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-900 border border-gray-700 cursor-pointer hover:bg-gray-800">
+            <label className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gray-900 border border-gray-700 cursor-pointer hover:bg-gray-800">
               <input type="file" className="hidden" multiple accept="image/*,.csv" onChange={handleFileAttach} />
-              <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.415-6.414a4 4 0 10-5.657-5.657l-6.415 6.414" />
               </svg>
             </label>
@@ -857,12 +857,12 @@ const ChatInterfaceNoSave: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white w-12 h-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md grid place-items-center"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-md grid place-items-center"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
               )}
@@ -888,10 +888,10 @@ const ChatInterfaceNoSave: React.FC = () => {
 
       {/* Technical Analysis Modal */}
       {showTechnicalModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-4 sm:p-6 max-w-md w-full">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                 Technical Analysis
               </h3>
               <button
@@ -901,7 +901,7 @@ const ChatInterfaceNoSave: React.FC = () => {
                 ×
               </button>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4">
               Enter a stock symbol to get technical indicators and signals:
             </p>
             <StockSymbolSelector

@@ -41,6 +41,27 @@ const MobileFooterNav: React.FC = () => {
               </button>
             </div>
             
+            {/* User Dashboard */}
+            <div className="mb-4">
+              <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+                Account
+              </h4>
+              
+              <Link
+                to="/dashboard"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                onClick={handleCloseFeatures}
+              >
+                <div className="mr-3 text-green-400">
+                  <i className="fas fa-tachometer-alt h-5 w-5"></i>
+                </div>
+                <div>
+                  <div className="font-medium text-white">Dashboard</div>
+                  <div className="text-xs text-gray-400">View saved strategies and account info</div>
+                </div>
+              </Link>
+            </div>
+            
             {/* WelthAI Services */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
@@ -110,8 +131,6 @@ const MobileFooterNav: React.FC = () => {
                 </div>
               </Link>
             </div>
-            
-            {/* Trading Tools - removed Backtesting per request */}
           </div>
         </>
       )}
@@ -153,16 +172,16 @@ const MobileFooterNav: React.FC = () => {
             <span className="text-xs mt-1 text-gray-400">WelthAI</span>
           </Link>
 
-          {/* Dashboard */}
-          <Link
-            to="/dashboard"
-            className={`flex flex-col items-center justify-center ${
-              isActive('/dashboard') ? 'text-primary-400' : 'text-gray-400'
-            }`}
+          {/* Strategy */}
+          <a
+            href="https://strategy.welthwest.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center justify-center text-gray-400 hover:text-primary-400"
           >
-            <i className="fas fa-tachometer-alt text-lg mb-1"></i>
-            <span className="text-xs">Dashboard</span>
-          </Link>
+            <i className="fas fa-chart-line text-lg mb-1"></i>
+            <span className="text-xs">Strategy</span>
+          </a>
 
           {/* Features Button - Replace Profile */}
           <button

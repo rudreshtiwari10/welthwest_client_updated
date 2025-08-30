@@ -340,64 +340,67 @@ const HomePage: React.FC = () => {
                 </div>
               </h1>
               
-              {/* AI Feature Buttons */}
-              <div className="flex flex-col sm:flex-row justify-center gap-4 mt-6 max-w-3xl mx-auto">
+              {/* AI Feature Buttons - Responsive Layout */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2 mt-6 max-w-4xl mx-auto">
                 {/* AI Market Analysis Button */}
                 <Link 
                   to="/welthai" 
-                  className="group flex items-center justify-center sm:justify-between bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
+                  className="group flex flex-col items-center justify-center bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
                 >
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
-                      <ChartBarIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">AI Analysis</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Market insights</p>
-                    </div>
+                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-primary-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
+                    <ChartBarIcon className="h-5 w-5 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">AI Analysis</h3>
+                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Market insights</p>
+                  </div>
                 </Link>
                 
                 {/* WelthAI Chat Bot Button */}
                 <Link 
                   to="/welth-ai-chatbot" 
-                  className="group flex items-center justify-center sm:justify-between bg-secondary-50/90 dark:bg-secondary-900/30 hover:bg-secondary-100 dark:hover:bg-secondary-900/40 backdrop-blur-sm border border-secondary-200 dark:border-secondary-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
+                  className="group flex flex-col items-center justify-center bg-secondary-50/90 dark:bg-secondary-900/30 hover:bg-secondary-100 dark:hover:bg-secondary-900/40 backdrop-blur-sm border border-secondary-200 dark:border-secondary-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
                 >
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-secondary-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
-                      <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">AI Chat</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Get insights</p>
-                    </div>
+                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-secondary-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
+                    <ChatBubbleLeftRightIcon className="h-5 w-5 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-secondary-600 dark:text-secondary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">AI Chat</h3>
+                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Get insights</p>
+                  </div>
                 </Link>
                 
                 {/* Backtesting Button */}
                 <Link 
                   to="/backtest-beta" 
-                  className="group flex items-center justify-center sm:justify-between bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-5 transition-all duration-300 hover:shadow-md"
+                  className="group flex flex-col items-center justify-center bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
                 >
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300">
-                      <BeakerIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-gray-900 dark:text-white">Backtest</h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Test strategies</p>
-                    </div>
+                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-green-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
+                    <BeakerIcon className="h-5 w-5 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-4 text-primary-600 dark:text-primary-400 group-hover:translate-x-1 transition-transform hidden sm:block" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">Backtest</h3>
+                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Test strategies</p>
+                  </div>
                 </Link>
+                
+                {/* Strategy Button */}
+                <a 
+                  href="https://strategy.welthwest.com/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex flex-col items-center justify-center bg-orange-50/90 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/40 backdrop-blur-sm border border-orange-200 dark:border-orange-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
+                >
+                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-orange-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
+                    <svg className="h-5 w-5 sm:h-4 sm:w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">Strategy</h3>
+                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Live strategies</p>
+                  </div>
+                </a>
               </div>
               
               {/* Small sparkle decoration */}
@@ -575,30 +578,30 @@ const HomePage: React.FC = () => {
         
 
         {/* Main Features Showcase */}
-        <section className="mb-12 max-w-7xl mx-auto px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">Explore Our Main Features</h2>
+        <section className="mb-8 max-w-7xl mx-auto px-4">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Explore Our Main Features</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Discover AI-driven analysis, intelligent chatbot assistance, and comprehensive backtesting tools
             </p>
           </div>
           
           {/* AI Analysis Feature */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Text Content */}
-                <div className="p-6 lg:p-8 flex flex-col justify-center">
-                  <div className="flex items-center mb-4">
+                <div className="p-4 lg:p-5 flex flex-col justify-center">
+                  <div className="flex items-center mb-3">
                     <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mr-3">
                       <CpuChipIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI Analysis</h3>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-400 mb-3 leading-relaxed text-sm">
                     Leverage cutting-edge artificial intelligence to uncover hidden market patterns, predict regime changes, and receive data-driven investment recommendations tailored to your risk profile.
                   </p>
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-1.5 mb-4">
                     <div className="flex items-center text-sm">
                       <div className="w-1.5 h-1.5 bg-primary-500 rounded-full mr-2"></div>
                       <span className="text-gray-700 dark:text-gray-300">Advanced market regime detection using ML algorithms</span>
@@ -628,7 +631,7 @@ const HomePage: React.FC = () => {
                 </div>
                 
                 {/* AI Analysis Video */}
-                <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-6 lg:p-8 flex items-center justify-center">
+                <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-4 lg:p-5 flex items-center justify-center">
                   <FeatureVideo
                     src={VIDEO_URLS.AI_ANALYSIS}
                     poster={POSTER_URLS.AI_ANALYSIS}
@@ -641,21 +644,21 @@ const HomePage: React.FC = () => {
           </div>
           
           {/* Backtesting Feature */}
-          <div className="mb-8">
+          <div className="mb-6">
             <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Text Content */}
-                <div className="p-6 lg:p-8 flex flex-col justify-center">
-                  <div className="flex items-center mb-4">
+                <div className="p-4 lg:p-5 flex flex-col justify-center">
+                  <div className="flex items-center mb-3">
                     <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
                       <BeakerIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">Backtesting</h3>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                  <p className="text-gray-600 dark:text-gray-400 mb-3 leading-relaxed text-sm">
                     Validate your trading strategies with comprehensive historical backtesting. Test multiple scenarios, analyze risk metrics, and optimize your approach using years of market data before committing real capital.
                   </p>
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-1.5 mb-4">
                     <div className="flex items-center text-sm">
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
                       <span className="text-gray-700 dark:text-gray-300">Multi-timeframe historical data simulation</span>
@@ -685,7 +688,7 @@ const HomePage: React.FC = () => {
                 </div>
                 
                 {/* Backtesting Video */}
-                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 lg:p-8 flex items-center justify-center">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 lg:p-5 flex items-center justify-center">
                   <FeatureVideo
                     src={VIDEO_URLS.BACKTESTING}
                     poster={POSTER_URLS.BACKTESTING}
@@ -749,6 +752,70 @@ const HomePage: React.FC = () => {
                       <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Strategy Feature */}
+          <div className="mb-8">
+            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                {/* Text Content */}
+                <div className="p-6 lg:p-8 flex flex-col justify-center">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center mr-3">
+                      <svg className="h-5 w-5 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Live Trading Strategies</h3>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                    Access professional-grade trading strategies with real-time performance tracking. Discover proven methodologies, automated execution, and comprehensive risk management for consistent returns.
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Real-time strategy performance monitoring</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Professional trading algorithms and signals</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Automated risk management and position sizing</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Comprehensive performance analytics and reporting</span>
+                    </div>
+                  </div>
+                  <a 
+                    href="https://strategy.welthwest.com/" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-all duration-300 w-fit group-hover:bg-orange-700 group-hover:shadow-lg"
+                  >
+                    Explore Strategies
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </a>
+                </div>
+                
+                {/* Strategy Visual - Right Side */}
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 lg:p-8 flex items-center justify-center">
+                  <div className="w-full max-w-md aspect-video bg-white dark:bg-dark-400 rounded-lg shadow-lg flex items-center justify-center">
+                    <div className="text-center p-6">
+                      <svg className="h-20 w-20 mx-auto mb-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                      <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">Live Performance</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Real-time strategy tracking & execution</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

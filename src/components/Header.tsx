@@ -259,6 +259,27 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       </div>
                     </Link>
 
+                    {/* Strategy */}
+                    <a
+                      href="https://strategy.welthwest.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
+                      onClick={() => setShowStocksMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center mr-3">
+                          <svg className="h-5 w-5 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="font-medium">Strategy</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">Live trading strategies & performance</div>
+                        </div>
+                      </div>
+                    </a>
+
                     {/* Popular Stocks Quick Access */}
                     <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700">
                       <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Popular Stocks</div>
