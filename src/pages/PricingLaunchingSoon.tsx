@@ -15,9 +15,9 @@ const PricingLaunchingSoon: React.FC = () => {
           Coming soon
         </span>
         <h1 className="mt-4 text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
-          Pricing plans launching soon
+          It's Free for all user visiting WelthWest
         </h1>
-        <p className="mt-5 max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-300">
+        <p className="mt-5 max-w-2xl mx-auto text-lg text-gray-600` dark:text-gray-300">
           We're preparing flexible plans for <span className="font-semibold text-gray-900 dark:text-white">Pro Traders</span> and
           <span className="font-semibold text-gray-900 dark:text-white"> Enterprises</span>. Stay tuned — it'll be worth it.
         </p>
