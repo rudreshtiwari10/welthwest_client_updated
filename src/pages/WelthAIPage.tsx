@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
@@ -74,6 +74,7 @@ interface StockData {
 const WelthAIPage: React.FC = () => {
   const { user } = useAuth();
   const { canUseLLM, incrementLLMUsage } = useSubscription();
+  const resultsRef = useRef<HTMLDivElement>(null);
   
   // Default stock symbol
   const defaultSymbol = 'RELIANCE';
@@ -383,6 +384,13 @@ const WelthAIPage: React.FC = () => {
       setAiLoading(false);
       setLoadingStep('');
       setLoadingProgress(0);
+      
+      // Scroll to results on mobile after a short delay to allow DOM update
+      setTimeout(() => {
+        if (window.innerWidth < 1024 && resultsRef.current) {
+          resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   };
   
@@ -486,7 +494,7 @@ const WelthAIPage: React.FC = () => {
         </div>
         
         {/* AI Analysis Results */}
-        <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+        <div ref={resultsRef} className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">AI Analysis Results</h2>
             {(aiPrediction || aiAnalysis) && (
@@ -674,4 +682,4 @@ const WelthAIPage: React.FC = () => {
   );
 };
 
-export default WelthAIPage; 
+export default WelthAIPage;

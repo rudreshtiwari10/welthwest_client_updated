@@ -367,3 +367,4 @@ class ChatSystemMonitoring {
 // Export singleton instance
 export const chatSystemMonitoring = new ChatSystemMonitoring();
 export default chatSystemMonitoring;
+
