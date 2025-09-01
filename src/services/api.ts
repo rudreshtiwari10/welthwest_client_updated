@@ -186,19 +186,32 @@ export const authService = {
     }
   },
   
-  // Verify registration OTP and complete registration
-  verifyRegistrationOTP: async (email: string, otp: string, username: string, password: string, confirmPassword: string) => {
+  // Verify registration OTP (without completing registration)
+  verifyRegistrationOTP: async (email: string, otp: string) => {
     try {
       const response = await api.post('/auth/verify-registration-otp', {
         email,
-        otp,
+        otp
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      throw error;
+    }
+  },
+
+  // Complete registration after email verification
+  completeRegistration: async (email: string, username: string, password: string, confirmPassword: string) => {
+    try {
+      const response = await api.post('/auth/complete-registration', {
+        email,
         username,
         password,
         confirm_password: confirmPassword
       });
       return response.data;
     } catch (error) {
-      console.error('Verify OTP error:', error);
+      console.error('Complete registration error:', error);
       throw error;
     }
   },
