@@ -13,6 +13,7 @@ import AboutPage from './pages/AboutPage';
 import BacktestingPage from './pages/BacktestingPage';
 import BacktestingBetaPage from './pages/BacktestingBetaPage';
 import WelthAIPage from './pages/WelthAIPage';
+import AIMarketAnalysisPage from './pages/AIMarketAnalysisPage';
 import PricingPage from './pages/Pricing';
 import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
 import StockPage from './pages/StockPage';
@@ -112,7 +113,7 @@ const FloatingChatWithLocation: React.FC = () => {
   const location = useLocation();
   
   // Don't show the floating chat on the WelthAI page
-  const isWelthAIPage = location.pathname === '/welthai';
+  const isWelthAIPage = location.pathname === '/ai-market-analysis';
   
   if (isWelthAIPage) return null;
   
@@ -169,6 +170,7 @@ const AppWithRouter: React.FC = () => {
                 {/* Alias for backtest beta as requested */}
                 <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
+                <Route path="/ai-market-analysis" element={<PrivateRoute><AIMarketAnalysisPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/welth-ai-chatbot" element={<PrivateRoute><WelthAIChatbotPage /></PrivateRoute>} />
                 <Route path="/technical-analysis" element={<PrivateRoute><TechnicalAnalysisPage /></PrivateRoute>} />

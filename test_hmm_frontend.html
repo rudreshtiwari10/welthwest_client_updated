@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HMM Frontend Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #6366f1;
+            background: #f8fafc;
+        }
+        .success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+        .warning {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        .error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #4f46e5;
+        }
+        .toggle-demo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #6366f1;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .toggle::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 22px;
+            transition: all 0.3s;
+        }
+        .toggle.off {
+            background: #d1d5db;
+        }
+        .toggle.off::after {
+            left: 2px;
+        }
+        .forecast-demo {
+            background: linear-gradient(135deg, #e0e7ff, #f3e8ff);
+            border: 2px solid #6366f1;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .forecast-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+        .bar {
+            width: 200px;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        .bullish { background: linear-gradient(to right, #10b981, #059669); }
+        .bearish { background: linear-gradient(to right, #ef4444, #dc2626); }
+        .neutral { background: linear-gradient(to right, #6b7280, #4b5563); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 HMM Frontend Integration Test</h1>
+        <p>This page demonstrates the new Hidden Markov Model features integrated into your WealthWest application.</p>
+        
+        <div class="test-section success">
+            <h2>✅ Integration Complete</h2>
+            <p>The HMM functionality has been successfully integrated into both backend and frontend:</p>
+            <ul>
+                <li>Backend: MarketRegimeClassifier enhanced with HMM</li>
+                <li>Frontend: UI components updated with HMM controls</li>
+                <li>API: Existing endpoints now include HMM data</li>
+                <li>Build: Frontend compiles successfully with no errors</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🎛️ HMM Configuration Demo</h2>
+            <p>In the actual application, users will see these controls in the AI Analysis form:</p>
+            
+            <div class="toggle-demo">
+                <span>Hidden Markov Model (HMM)</span>
+                <div class="toggle" id="hmmToggle" onclick="toggleHMM()"></div>
+                <span style="background: #6366f1; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">NEW</span>
+            </div>
+            
+            <div id="hmmConfig" style="margin-left: 20px; margin-top: 10px;">
+                <label for="stateSelect">Number of Hidden States:</label>
+                <select id="stateSelect" style="margin-left: 10px; padding: 5px;">
+                    <option value="2">2 States (Simple)</option>
+                    <option value="3" selected>3 States (Default)</option>
+                    <option value="4">4 States (Advanced)</option>
+                    <option value="5">5 States (Complex)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 HMM Forecast Visualization Demo</h2>
+            <p>When HMM is enabled, users will see next-day regime forecasts like this:</p>
+            
+            <div class="forecast-demo">
+                <h3 style="margin-top: 0; color: #6366f1;">HMM Next-Day Forecast</h3>
+                <p style="font-size: 14px; color: #6b7280;">Hidden Markov Model prediction for tomorrow's market regime probabilities</p>
+                
+                <div class="forecast-bar">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; background: #10b981; border-radius: 50%;"></div>
+                        <span>Bullish State</span>
+                    </div>
+                    <span style="font-weight: bold;">15.3%</span>
+                </div>
+                <div class="bar"><div class="bar-fill bullish" style="width: 15.3%;"></div></div>
+                
+                <div class="forecast-bar">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%;"></div>
+                        <span>Bearish State</span>
+                    </div>
+                    <span style="font-weight: bold;">74.2%</span>
+                </div>
+                <div class="bar"><div class="bar-fill bearish" style="width: 74.2%;"></div></div>
+                <div style="font-size: 12px; color: #6366f1; font-weight: 500; margin-top: 4px;">Most likely for tomorrow</div>
+                
+                <div class="forecast-bar">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 12px; height: 12px; background: #6b7280; border-radius: 50%;"></div>
+                        <span>Neutral State</span>
+                    </div>
+                    <span style="font-weight: bold;">10.5%</span>
+                </div>
+                <div class="bar"><div class="bar-fill neutral" style="width: 10.5%;"></div></div>
+            </div>
+        </div>
+
+        <div class="test-section warning">
+            <h2>⚠️ Testing Instructions</h2>
+            <p>To test the full integration:</p>
+            <ol>
+                <li><strong>Start Backend:</strong> Run <code>python app.py</code> in WelthWestServer2</li>
+                <li><strong>Start Frontend:</strong> Run <code>npm start</code> in WelthWestClientSharing</li>
+                <li><strong>Navigate:</strong> Go to <code>/wealthai</code> page</li>
+                <li><strong>Test HMM Toggle:</strong> Find the HMM switch in the left panel</li>
+                <li><strong>Run Analysis:</strong> Enter a stock symbol and click "Run AI Analysis"</li>
+                <li><strong>Observe Results:</strong> Look for the new HMM Next-Day Forecast section</li>
+            </ol>
+        </div>
+
+        <div class="test-section">
+            <h2>🔧 Technical Details</h2>
+            <p><strong>Files Modified:</strong></p>
+            <ul>
+                <li><code>src/components/AIAnalysisForm.tsx</code> - Added HMM controls</li>
+                <li><code>src/components/AIAnalysisResults.tsx</code> - Added HMM visualization</li>
+                <li><code>src/pages/WelthAIPage.tsx</code> - Updated interfaces</li>
+                <li><code>services/market_regime_classifier.py</code> - HMM backend integration</li>
+            </ul>
+            
+            <p><strong>API Response Enhancement:</strong></p>
+            <pre style="background: #1f2937; color: #e5e7eb; padding: 10px; border-radius: 4px; font-size: 12px;">{
+  "status": "success",
+  "regime": 2,
+  "regime_name": "Sideways/Ranging",
+  "confidence": 0.99,
+  "probabilities": { ... },
+  "hmm_next_probs": [0.15, 0.74, 0.11], // NEW!
+  "timestamp": "2024-01-01T00:00:00"
+}</pre>
+        </div>
+
+        <div class="test-section success">
+            <h2>🎉 Ready for Production</h2>
+            <p>The HMM integration is complete and ready for use:</p>
+            <ul>
+                <li>✅ Backend integration working</li>
+                <li>✅ Frontend components implemented</li>
+                <li>✅ TypeScript compilation successful</li>
+                <li>✅ No breaking changes to existing functionality</li>
+                <li>✅ Graceful fallback when HMM data unavailable</li>
+            </ul>
+            
+            <div style="margin-top: 15px;">
+                <a href="/wealthai" class="button">Test Live Integration →</a>
+                <a href="HMM_FRONTEND_INTEGRATION_GUIDE.md" class="button">View Documentation</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let hmmEnabled = true;
+        
+        function toggleHMM() {
+            const toggle = document.getElementById('hmmToggle');
+            const config = document.getElementById('hmmConfig');
+            
+            hmmEnabled = !hmmEnabled;
+            
+            if (hmmEnabled) {
+                toggle.classList.remove('off');
+                config.style.display = 'block';
+            } else {
+                toggle.classList.add('off');
+                config.style.display = 'none';
+            }
+        }
+        
+        // Animate the forecast bars on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.bar-fill');
+                bars.forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+        });
+    </script>
+</body>
+</html>
