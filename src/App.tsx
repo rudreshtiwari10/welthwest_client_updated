@@ -135,7 +135,7 @@ const AppWithRouter: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <div className="min-h-screen bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-white">
+          <div className="min-h-screen bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-white flex flex-col">
             <Header toggleSidebar={toggleSidebar} />
             
             {/* Hamburger Button */}
@@ -152,7 +152,7 @@ const AppWithRouter: React.FC = () => {
             
             {/* Main Content */}
             <main 
-              className={`pt-16 pb-16 md:pb-0 transition-all duration-300 ${
+              className={`pt-16 pb-16 md:pb-0 transition-all duration-300 flex-grow ${
                 isSidebarOpen ? 'md:ml-[35vh]' : 'md:ml-0'
               }`}
             >

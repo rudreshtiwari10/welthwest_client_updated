@@ -81,7 +81,7 @@ const FeedbackPage: React.FC = () => {
       setIsSubmitted(true);
 
     } catch (error: any) {
-      setSubmitError( 'Please fill out missing fields');
+      setSubmitError(error.message || 'Please fill out all required fields.');
     } finally {
       setIsSubmitting(false);
     }
@@ -169,7 +169,6 @@ const FeedbackPage: React.FC = () => {
                     value={userInfo.name}
                     onChange={(e) => handleUserInfoChange('name', e.target.value)}
                     placeholder="Enter your full name"
-                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
@@ -183,7 +182,6 @@ const FeedbackPage: React.FC = () => {
                     value={userInfo.email}
                     onChange={(e) => handleUserInfoChange('email', e.target.value)}
                     placeholder="Enter your email"
-                    required
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
