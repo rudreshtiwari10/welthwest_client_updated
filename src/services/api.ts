@@ -186,19 +186,32 @@ export const authService = {
     }
   },
   
-  // Verify registration OTP and complete registration
-  verifyRegistrationOTP: async (email: string, otp: string, username: string, password: string, confirmPassword: string) => {
+  // Verify registration OTP (without completing registration)
+  verifyRegistrationOTP: async (email: string, otp: string) => {
     try {
       const response = await api.post('/auth/verify-registration-otp', {
         email,
-        otp,
+        otp
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      throw error;
+    }
+  },
+
+  // Complete registration after email verification
+  completeRegistration: async (email: string, username: string, password: string, confirmPassword: string) => {
+    try {
+      const response = await api.post('/auth/complete-registration', {
+        email,
         username,
         password,
         confirm_password: confirmPassword
       });
       return response.data;
     } catch (error) {
-      console.error('Verify OTP error:', error);
+      console.error('Complete registration error:', error);
       throw error;
     }
   },
@@ -595,10 +608,21 @@ export const marketRegimeService = {
   },
 
   // Predict market regime for a ticker
-  predictRegime: async (ticker: string) => {
+  predictRegime: async (ticker: string, config?: { useRandomForest?: boolean; useHmm?: boolean }) => {
     try {
-      const response = await api.get(`/market-regime/predict?ticker=${ticker}`);
-      return response.data;
+      if (config && (config.useRandomForest !== undefined || config.useHmm !== undefined)) {
+        // Use POST when configuration is provided
+        const response = await api.post('/market-regime/predict', {
+          ticker,
+          useRandomForest: config.useRandomForest,
+          useHmm: config.useHmm
+        });
+        return response.data;
+      } else {
+        // Use GET for backward compatibility
+        const response = await api.get(`/market-regime/predict?ticker=${ticker}`);
+        return response.data;
+      }
     } catch (error) {
       console.error('Error predicting market regime:', error);
       throw error;
@@ -655,6 +679,93 @@ export const marketRegimeService = {
       return response.data;
     } catch (error) {
       console.error('Error getting market regime analysis:', error);
+      throw error;
+    }
+  }
+};
+
+// HMM Market Analysis Service - Dedicated Hidden Markov Model endpoints
+export const hmmService = {
+  // Predict market regime using HMM
+  predict: async (ticker: string) => {
+    try {
+      const response = await api.post('/hmm_model/predict', { ticker });
+      return response.data;
+    } catch (error) {
+      console.error('Error predicting HMM regime:', error);
+      throw error;
+    }
+  },
+
+  // Get HMM regime persistence analysis
+  analyze: async (ticker: string, period: string = '6mo') => {
+    try {
+      const response = await api.get(`/hmm_model/analysis?ticker=${ticker}&period=${period}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting HMM analysis:', error);
+      throw error;
+    }
+  },
+
+  // Get HMM model information (requires auth)
+  getModelInfo: async () => {
+    try {
+      const response = await api.get('/hmm_model/model-info');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting HMM model info:', error);
+      throw error;
+    }
+  },
+
+  // Train HMM model (admin only)
+  trainModel: async (ticker: string, period: string = '2y', retrain: boolean = false) => {
+    try {
+      const response = await api.post('/hmm_model/train', {
+        ticker,
+        period,
+        retrain
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error training HMM model:', error);
+      throw error;
+    }
+  },
+
+  // Evaluate HMM model performance (admin only)
+  evaluateModel: async (ticker: string, testPeriod: string = '6mo') => {
+    try {
+      const response = await api.get(`/hmm_model/evaluate?ticker=${ticker}&test_period=${testPeriod}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error evaluating HMM model:', error);
+      throw error;
+    }
+  },
+
+  // Get multiple HMM predictions (requires auth)
+  getMultiplePredictions: async (tickers: string[]) => {
+    try {
+      const response = await api.post('/hmm_model/multiple', { tickers });
+      return response.data;
+    } catch (error) {
+      console.error('Error getting multiple HMM predictions:', error);
+      throw error;
+    }
+  },
+
+  // Anonymous HMM analysis for non-authenticated users
+  anonymousAnalysis: async (ticker: string, sessionId?: string) => {
+    try {
+      const response = await api.post('/hmm_model/anonymous', {
+        ticker,
+        session_id: sessionId
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with anonymous HMM analysis:', error);
       throw error;
     }
   }

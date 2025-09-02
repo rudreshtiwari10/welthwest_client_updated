@@ -21,6 +21,7 @@ interface MarketRegimeResult {
   regime_description: string;
   confidence: number;
   probabilities: { [key: string]: number };
+  hmm_next_probs?: number[]; // HMM next-day forecast probabilities
   timestamp: string;
   processing_time?: number;  // Optional processing time in seconds
 }
@@ -88,6 +89,9 @@ const WelthAIPage: React.FC = () => {
   const [aiAnalysis, setAiAnalysis] = useState<MarketRegimeAnalysis | undefined>(undefined);
   const [aiRecommendations, setAiRecommendations] = useState<any>(undefined);
   const [selectedSymbol, setSelectedSymbol] = useState<string>(defaultSymbol);
+  
+  // Current analysis configuration
+  const [currentConfig, setCurrentConfig] = useState<AIAnalysisConfig | null>(null);
   
   // Anonymous usage tracking
   const [showLimitModal, setShowLimitModal] = useState(false);
@@ -285,6 +289,9 @@ const WelthAIPage: React.FC = () => {
         setSelectedSymbol(config.ticker);
       }
       
+      // Store current configuration
+      setCurrentConfig(config);
+      
       // If retrain is requested, train the model first
       if (config.retrain) {
         try {
@@ -339,8 +346,11 @@ const WelthAIPage: React.FC = () => {
         }
       } else {
         // Use regular authenticated APIs
-        // Get prediction
-        const predictionResponse = await marketRegimeService.predictRegime(config.ticker);
+        // Get prediction with configuration
+        const predictionResponse = await marketRegimeService.predictRegime(config.ticker, {
+          useRandomForest: config.useRandomForest,
+          useHmm: config.useHmm
+        });
         setAiPrediction(predictionResponse);
         
         // Get comprehensive analysis
@@ -556,6 +566,10 @@ const WelthAIPage: React.FC = () => {
               analysis={aiAnalysis}
               recommendations={aiRecommendations}
               ticker={selectedSymbol}
+              config={{
+                useRandomForest: currentConfig?.useRandomForest,
+                useHmm: currentConfig?.useHmm
+              }}
             />
           ) : (
             <div className="text-center py-12 text-gray-500">

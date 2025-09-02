@@ -127,7 +127,7 @@ const featureNavigation = [
   { 
     category: 'WelthAI Services',
     items: [
-      { name: 'WelthAI Market Analysis', path: '/welthai', icon: 'brain' },
+      { name: 'WelthAI Market Analysis', path: '/ai-market-analysis', icon: 'brain' },
     ]
   },
   {

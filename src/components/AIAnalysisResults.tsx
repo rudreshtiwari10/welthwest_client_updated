@@ -16,6 +16,7 @@ interface MarketRegimeResult {
   regime_description: string;
   confidence: number;
   probabilities: { [key: string]: number };
+  hmm_next_probs?: number[]; // HMM next-day forecast probabilities
   timestamp: string;
 }
 
@@ -47,6 +48,10 @@ interface AIAnalysisResultsProps {
   ticker?: string;
   isLoading?: boolean;
   error?: string | null;
+  config?: {
+    useRandomForest?: boolean;
+    useHmm?: boolean;
+  };
 }
 
 const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
@@ -55,7 +60,8 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
   recommendations,
   ticker,
   isLoading = false,
-  error = null
+  error = null,
+  config = { useRandomForest: true, useHmm: true }
 }) => {
 
 
@@ -187,6 +193,35 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Methods Used Indicator */}
+      {(prediction || analysis) && (
+        <div className="animate-fade-in bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 rounded-lg p-4 border border-gray-200 dark:border-gray-700 opacity-0 transform translate-y-4 transition-all duration-500">
+          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Analysis Methods Used:
+          </h3>
+          <div className="flex flex-wrap gap-2">
+            {config.useRandomForest && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200 dark:border-green-800">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                Random Forest
+              </span>
+            )}
+            {config.useHmm && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full mr-2"></div>
+                Hidden Markov Model
+              </span>
+            )}
+            {config.useRandomForest && config.useHmm && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                Combined Analysis
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+      
       {/* Current Regime Prediction */}
       {currentResult && (
         <div className={`animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border-2 ${getBorderColor(currentResult.regime_name)} shadow-md opacity-0 transform translate-y-4 transition-all duration-500`}>
@@ -274,9 +309,81 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
         </div>
       )}
 
+      {/* HMM Next-Day Forecast */}
+      {config.useHmm && prediction?.hmm_next_probs && prediction.hmm_next_probs.length > 0 && (
+        <div className="animate-fade-in bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6 border-2 border-indigo-200 dark:border-indigo-800 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '225ms'}}>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+            <SparklesIcon className="h-5 w-5 text-indigo-500 mr-2" />
+            HMM Next-Day Forecast
+            <span className="ml-2 text-xs bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 px-2 py-1 rounded-full font-medium">
+              NEW
+            </span>
+          </h3>
+          
+          <div className="mb-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Hidden Markov Model prediction for tomorrow's market regime probabilities
+            </p>
+          </div>
+          
+          <div className="space-y-4">
+            {prediction.hmm_next_probs.map((probability, index) => {
+              const regimeNames = ['Bullish State', 'Bearish State', 'Neutral State'];
+              const regimeName = regimeNames[index] || `State ${index}`;
+              
+              return (
+                <div key={index} className="relative">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-3 h-3 rounded-full ${
+                        index === 0 ? 'bg-green-500' : 
+                        index === 1 ? 'bg-red-500' : 
+                        'bg-gray-500'
+                      }`}></div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {regimeName}
+                      </span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                      {(probability * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="w-full h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                        index === 0 ? 'bg-gradient-to-r from-green-400 to-green-600' :
+                        index === 1 ? 'bg-gradient-to-r from-red-400 to-red-600' :
+                        'bg-gradient-to-r from-gray-400 to-gray-600'
+                      }`}
+                      style={{ width: `${probability * 100}%` }}
+                    ></div>
+                  </div>
+                  {prediction.hmm_next_probs && index === prediction.hmm_next_probs.indexOf(Math.max(...prediction.hmm_next_probs)) && (
+                    <div className="mt-1 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                      Most likely for tomorrow
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          <div className="mt-4 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-indigo-200 dark:border-indigo-700">
+            <div className="flex items-start space-x-2">
+              <div className="w-4 h-4 bg-indigo-500 rounded-full flex-shrink-0 mt-0.5"></div>
+              <div>
+                <p className="text-xs text-gray-600 dark:text-gray-400">
+                  <span className="font-medium text-indigo-700 dark:text-indigo-300">HMM Insight:</span> Based on historical patterns and regime transitions, the model predicts tomorrow's most likely market state.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Technical Indicators */}
       {analysis?.technical_indicators && (
-        <div className="animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '300ms'}}>
+        <div className="animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '375ms'}}>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             <ChartBarIcon className="h-5 w-5 text-blue-500 mr-2" />
             Technical Analysis
@@ -302,7 +409,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
 
       {/* Market Conditions */}
       {analysis?.market_conditions && (
-        <div className="animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '450ms'}}>
+        <div className="animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '525ms'}}>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             <ArrowPathIcon className="h-5 w-5 text-green-500 mr-2" />
             Market Conditions
@@ -339,7 +446,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
 
       {/* Recommendations */}
       {(analysis?.recommendations || recommendations) && (
-        <div className="animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '600ms'}}>
+        <div className="animate-fade-in bg-white dark:bg-dark-300 rounded-lg p-6 border border-gray-200 dark:border-gray-700 shadow-md opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '675ms'}}>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
             <SparklesIcon className="h-5 w-5 text-purple-500 mr-2" />
             AI Recommendations
@@ -380,7 +487,7 @@ const AIAnalysisResults: React.FC<AIAnalysisResultsProps> = ({
 
       {/* Timestamp */}
       {prediction?.timestamp && (
-        <div className="animate-fade-in text-center text-sm text-gray-500 dark:text-gray-400 opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '750ms'}}>
+        <div className="animate-fade-in text-center text-sm text-gray-500 dark:text-gray-400 opacity-0 transform translate-y-4 transition-all duration-500" style={{transitionDelay: '825ms'}}>
           Analysis generated on {new Date(prediction.timestamp).toLocaleString()}
         </div>
       )}

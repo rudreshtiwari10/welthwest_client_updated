@@ -17,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (username: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  completeRegistration: (email: string, username: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: any) => Promise<void>;
   getToken: () => Promise<string | null>;
@@ -30,6 +31,7 @@ const AuthContext = createContext<AuthContextType>({
   isLoading: true,
   login: async () => {},
   register: async () => {},
+  completeRegistration: async () => {},
   logout: async () => {},
   updateProfile: async () => {},
   getToken: async () => null,
@@ -81,13 +83,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
   
-  // Register function
+  // Register function (legacy)
   const register = async (username: string, email: string, password: string, confirmPassword: string) => {
     try {
       setIsLoading(true);
       await authService.register(email, username, password, confirmPassword);
       // Auto-login after registration
       await login(email, password);
+    } catch (error) {
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Complete registration with tokens (after email verification)
+  const completeRegistration = async (email: string, username: string, password: string, confirmPassword: string) => {
+    try {
+      setIsLoading(true);
+      const response = await authService.completeRegistration(email, username, password, confirmPassword);
+      
+      // Set user data and tokens automatically
+      if (response.user && response.access_token) {
+        setUser(response.user);
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('refresh_token', response.refresh_token);
+      } else {
+        throw new Error('Registration failed: No user data or tokens returned');
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -176,6 +199,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         isLoading,
         login,
         register,
+        completeRegistration,
         logout,
         updateProfile,
         getToken,

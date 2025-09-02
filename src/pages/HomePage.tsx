@@ -343,7 +343,7 @@ const HomePage: React.FC = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2 mt-6 max-w-4xl mx-auto">
                 {/* AI Market Analysis Button */}
                 <Link 
-                  to="/welthai" 
+                  to="/ai-market-analysis" 
                   className="group flex flex-col items-center justify-center bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
                 >
                   <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-primary-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
@@ -619,7 +619,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link 
-                    to="/welthai" 
+                    to="/ai-market-analysis" 
                     className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-all duration-300 w-fit group-hover:bg-primary-700 group-hover:shadow-lg"
                   >
                     Explore AI Analysis

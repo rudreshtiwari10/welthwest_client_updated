@@ -17,7 +17,7 @@ const RegisterPage: React.FC = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
   
-  const { handleGoogleLogin } = useAuth();
+  const { handleGoogleLogin, completeRegistration } = useAuth();
   const navigate = useNavigate();
   
   // Force dark mode for register page
@@ -66,7 +66,7 @@ const RegisterPage: React.FC = () => {
     try {
       setError('');
       setIsLoading(true);
-      await authService.verifyRegistrationOTP(email, otp, username, password, confirmPassword);
+      await authService.verifyRegistrationOTP(email, otp);
       setIsEmailVerified(true);
       setError(''); // Clear any previous errors
     } catch (err: any) {
@@ -105,16 +105,10 @@ const RegisterPage: React.FC = () => {
       setError('');
       setIsLoading(true);
       
-      // Since email is already verified, we can proceed with registration
-      // We'll use the existing user service to create the account
-      const result = await authService.verifyRegistrationOTP(email, otp, username, password, confirmPassword);
+      // Complete registration using AuthContext (handles tokens automatically)
+      await completeRegistration(email, username, password, confirmPassword);
       
-      // Store tokens
-      if (result.access_token) {
-        localStorage.setItem('access_token', result.access_token);
-        localStorage.setItem('refresh_token', result.refresh_token);
-      }
-      
+      // Navigate to dashboard (user is now authenticated)
       navigate('/dashboard');
     } catch (err: any) {
       const serverMessage = err?.response?.data?.error || err?.response?.data?.message || 'Failed to complete registration';
