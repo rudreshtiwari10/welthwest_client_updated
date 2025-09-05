@@ -104,10 +104,21 @@ async function main() {
     fs.mkdirSync(outputDir, { recursive: true });
   }
   
-  // Get all image files
+  // Get all image files, excluding already optimized files
   const files = fs.readdirSync(inputDir).filter(file => {
     const ext = path.extname(file).toLowerCase();
-    return ['.jpg', '.jpeg', '.png'].includes(ext);
+    const isValidImage = ['.jpg', '.jpeg', '.png'].includes(ext);
+    
+    // Skip files that are already optimized (contain optimization suffixes)
+    const isOptimized = file.includes('-optimized') || 
+                       file.includes('@2x') || 
+                       file.includes('-lg') || 
+                       file.includes('-md') || 
+                       file.includes('-sm') ||
+                       file.includes('.avif') ||
+                       file.includes('.webp');
+    
+    return isValidImage && !isOptimized;
   });
   
   if (files.length === 0) {

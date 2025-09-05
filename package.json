@@ -41,6 +41,7 @@
     "build:prod": "node scripts/deploymentPrep.js && react-scripts build",
     "build:analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
     "optimize:images": "node scripts/optimizeImages.js",
+    "cleanup:images": "node scripts/cleanupImages.js",
     "predeploy": "node scripts/deploymentPrep.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
