@@ -636,6 +636,8 @@ const HomePage: React.FC = () => {
                     poster={POSTER_URLS.AI_ANALYSIS}
                     alt="AI Analysis Demo"
                     className="w-full max-w-md aspect-video"
+                    priority={true}
+                    fetchPriority="high"
                   />
                 </div>
               </div>
@@ -693,6 +695,8 @@ const HomePage: React.FC = () => {
                     poster={POSTER_URLS.BACKTESTING}
                     alt="Backtesting Demo"
                     className="w-full max-w-md aspect-video"
+                    priority={false}
+                    fetchPriority="auto"
                   />
                 </div>
               </div>
@@ -710,6 +714,8 @@ const HomePage: React.FC = () => {
                     poster={POSTER_URLS.WELTHAI_CHAT}
                     alt="WelthAI Chat Demo"
                     className="w-full max-w-md aspect-video"
+                    priority={false}
+                    fetchPriority="low"
                   />
                 </div>
                 

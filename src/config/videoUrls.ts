@@ -17,9 +17,9 @@ export const VIDEO_URLS = {
 };
 
 export const POSTER_URLS = {
-  AI_ANALYSIS: `${CDN_BASE}/${encodePath('images/AIAnalysis.jpg')}`,
-  WELTHAI_CHAT: `${CDN_BASE}/${encodePath('images/chatbotposter.jpg')}`,
-  BACKTESTING: `${CDN_BASE}/${encodePath('images/backtestposter.jpg')}`,
+  AI_ANALYSIS: '/images/ai-analysis-poster.webp',
+  WELTHAI_CHAT: '/images/welthai-chat-poster.webp',
+  BACKTESTING: '/images/backtesting-poster.webp',
 };
 
 

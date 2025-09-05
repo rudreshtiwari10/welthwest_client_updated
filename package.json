@@ -37,7 +37,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run optimize:images",
+    "build:analyze": "npm run build && npx webpack-bundle-analyzer build/static/js/*.js",
+    "optimize:images": "node scripts/optimizeImages.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

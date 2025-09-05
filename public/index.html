@@ -6,15 +6,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
-      name="WelthWest is a demonstration project. The information provided is not financial advice. Always do your own research before making investment decisions."
-      content="WelthWest - AI Powered Wealth Intelligence Platform"
+      name="description"
+      content="Transform your investing with WelthWest AI-powered platform: no-code backtesting, real-time market sentiment analysis, 24/7 AI trading assistant, and high-win-rate strategies."
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/images/singlelogo.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>WelthWest - AI Powered Wealth Intelligence Platform</title>
     
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GA4_ID%"></script>
+    <!-- Preload critical resources -->
+    <link rel="preload" href="%PUBLIC_URL%/images/singlelogo.png" as="image" fetchpriority="high" />
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" /></noscript>
+    
+    <!-- Critical CSS - Inline above-the-fold styles -->
+    <style>
+      /* Critical CSS for initial page load */
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #1a1f2e;
+        color: white;
+      }
+      
+      /* Critical layout styles */
+      .min-h-screen {
+        min-height: 100vh;
+      }
+      
+      .bg-gray-50 {
+        background-color: #f9fafb;
+      }
+      
+      .dark\:bg-\[0d1117\] {
+        background-color: #0d1117;
+      }
+      
+      .text-gray-900 {
+        color: #111827;
+      }
+      
+      .dark\:text-white {
+        color: #ffffff;
+      }
+      
+      .flex {
+        display: flex;
+      }
+      
+      .flex-col {
+        flex-direction: column;
+      }
+      
+      .pt-16 {
+        padding-top: 4rem;
+      }
+      
+      .pb-16 {
+        padding-bottom: 4rem;
+      }
+      
+      @media (min-width: 768px) {
+        .md\:pb-0 {
+          padding-bottom: 0;
+        }
+      }
+      
+      .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      
+      .duration-300 {
+        transition-duration: 300ms;
+      }
+      
+      .flex-grow {
+        flex-grow: 1;
+      }
+      
+      /* Hide content until CSS loads to prevent FOUC */
+      .preload-hidden {
+        visibility: hidden;
+      }
+    </style>
+    
+    <!-- Preconnect to external domains for faster connections -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://www.google-analytics.com" />
+    
+    <!-- Google tag (gtag.js) - Load with low priority -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=%REACT_APP_GA4_ID%" fetchpriority="low"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}

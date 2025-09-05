@@ -1,10 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
+import OptimizedImage from './OptimizedImage';
 
 interface FeatureVideoProps {
   src: string;
   poster?: string;
   alt: string;
   className?: string;
+  priority?: boolean;
+  fetchPriority?: 'high' | 'low' | 'auto';
   onLoad?: () => void;
 }
 
@@ -13,6 +16,8 @@ const FeatureVideo: React.FC<FeatureVideoProps> = ({
   poster,
   alt,
   className = '',
+  priority = false,
+  fetchPriority = 'auto',
   onLoad
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -78,7 +83,14 @@ const FeatureVideo: React.FC<FeatureVideoProps> = ({
   return (
     <div className={`relative overflow-hidden rounded-lg ${className}`}>
       {poster && (!isLoaded || hasError) && (
-        <img src={poster} alt={alt} className="w-full h-full object-cover" />
+        <OptimizedImage
+          src={poster}
+          alt={alt}
+          className="w-full h-full object-cover"
+          priority={priority}
+          fetchPriority={fetchPriority}
+          loading={priority ? 'eager' : 'lazy'}
+        />
       )}
 
       {!isLoaded && !poster && !hasError && (
@@ -104,8 +116,9 @@ const FeatureVideo: React.FC<FeatureVideoProps> = ({
           muted
           loop
           autoPlay
-          preload="auto"
+          preload={priority ? 'auto' : 'metadata'}
           aria-label={alt}
+          {...(fetchPriority && { fetchpriority: fetchPriority })}
         />
       )}
 
