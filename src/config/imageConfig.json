@@ -1,0 +1,27 @@
+{
+  "optimizedAvailable": true,
+  "fallbacks": {
+    "ai-analysis-poster.avif": "ai-analysis-poster.JPG",
+    "ai-analysis-poster.webp": "ai-analysis-poster.JPG",
+    "welthai-chat-poster.avif": "welthai-chat-poster.JPG",
+    "welthai-chat-poster.webp": "welthai-chat-poster.JPG",
+    "backtesting-poster.avif": "backtesting-poster.jpg",
+    "backtesting-poster.webp": "backtesting-poster.jpg",
+    "singlelogo.avif": "singlelogo.png",
+    "singlelogo.webp": "singlelogo.png",
+    "logo.avif": "logo.png",
+    "logo.webp": "logo.png"
+  },
+  "criticalImages": [
+    "ai-analysis-poster.avif",
+    "ai-analysis-poster.webp",
+    "welthai-chat-poster.avif",
+    "welthai-chat-poster.webp",
+    "backtesting-poster.avif",
+    "backtesting-poster.webp",
+    "singlelogo.avif",
+    "singlelogo.webp",
+    "logo.avif",
+    "logo.webp"
+  ]
+}

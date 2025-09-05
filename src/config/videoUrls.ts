@@ -17,9 +17,9 @@ export const VIDEO_URLS = {
 };
 
 export const POSTER_URLS = {
-  AI_ANALYSIS: '/images/ai-analysis-poster.webp',
-  WELTHAI_CHAT: '/images/welthai-chat-poster.webp',
-  BACKTESTING: '/images/backtesting-poster.webp',
+  AI_ANALYSIS: '/images/ai-analysis-poster.avif',
+  WELTHAI_CHAT: '/images/welthai-chat-poster.avif',
+  BACKTESTING: '/images/backtesting-poster.avif',
 };
 
 

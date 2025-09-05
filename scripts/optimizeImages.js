@@ -1,6 +1,15 @@
-const sharp = require('sharp');
 const fs = require('fs');
 const path = require('path');
+
+// Try to require sharp, but make it optional for deployment
+let sharp;
+try {
+  sharp = require('sharp');
+} catch (error) {
+  console.log('⚠️ Sharp not available - skipping image optimization');
+  console.log('This is normal during deployment. Images should be pre-optimized.');
+  process.exit(0);
+}
 
 const inputDir = path.join(__dirname, '..', 'public', 'images');
 const outputDir = path.join(__dirname, '..', 'public', 'images');
