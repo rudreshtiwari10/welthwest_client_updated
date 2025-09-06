@@ -126,10 +126,17 @@ export const initializePerformanceOptimizations = () => {
     }
   ];
   
-  // Load after initial render
-  requestIdleCallback(() => {
+  // Load after initial render with fallback for browsers without requestIdleCallback
+  const loadNonCriticalCSS = () => {
     loadMultipleCSS(nonCriticalCSS);
-  });
+  };
+
+  if (typeof requestIdleCallback !== 'undefined') {
+    requestIdleCallback(loadNonCriticalCSS);
+  } else {
+    // Fallback for browsers that don't support requestIdleCallback (like Safari)
+    setTimeout(loadNonCriticalCSS, 100);
+  }
 };
 
 // Optimize third-party scripts loading
