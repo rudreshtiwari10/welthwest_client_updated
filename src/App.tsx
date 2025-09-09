@@ -27,6 +27,8 @@ import FeedbackPage from './pages/FeedbackPage';
 import ReviewPaymentPage from './pages/ReviewPaymentPage';
 import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
+import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
+import NewsDetailPage from './pages/NewsDetailPage';
 
 // Components
 import Header from './components/Header';
@@ -176,6 +178,9 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/technical-analysis" element={<PrivateRoute><TechnicalAnalysisPage /></PrivateRoute>} />
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/news-and-blogs" element={<NewsAndBlogsPage />} />
+                <Route path="/news/:id" element={<NewsDetailPage />} />
+                <Route path="/blog/:id" element={<NewsDetailPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                 <Route path="/feedback" element={<FeedbackPage />} />
