@@ -294,22 +294,6 @@ const HomePage: React.FC = () => {
         {/* Main gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"></div>
         
-        {/* Abstract circuit-like patterns */}
-        <div className="absolute inset-0 opacity-5 dark:opacity-10">
-          <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M0,50 Q25,25 50,50 T100,50 M50,0 Q75,25 50,50 T50,100" fill="none" stroke="currentColor" strokeWidth="1" />
-                <circle cx="50" cy="50" r="3" fill="currentColor" />
-                <circle cx="0" cy="50" r="2" fill="currentColor" />
-                <circle cx="100" cy="50" r="2" fill="currentColor" />
-                <circle cx="50" cy="0" r="2" fill="currentColor" />
-                <circle cx="50" cy="100" r="2" fill="currentColor" />
-              </pattern>
-            </defs>
-            <rect x="0" y="0" width="100%" height="100%" fill="url(#circuit-pattern)" />
-          </svg>
-        </div>
         
         {/* Floating particles/nodes effect */}
         <div className="absolute inset-0">

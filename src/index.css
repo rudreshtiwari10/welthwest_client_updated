@@ -19,11 +19,6 @@ code {
 }
 
 /* Custom AI-themed styles */
-.bg-circuit-pattern {
-  background-image: url('../public/circuit-pattern.svg');
-  background-repeat: repeat;
-  background-size: 100px 100px;
-}
 
 .text-gradient {
   @apply bg-gradient-to-r from-primary-500 to-secondary-500 text-transparent bg-clip-text;
@@ -168,10 +163,7 @@ code {
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
-} 
+}
 
-/* .dark\:bg-gray-800:is(.dark *) {
-    --tw-bg-opacity: 1;
-    background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
-    width: 35vh;
-} */
+/* ======================== */
+/* DYNAMIC FINANCE-THEMED BACKGROUND SYSTEM */

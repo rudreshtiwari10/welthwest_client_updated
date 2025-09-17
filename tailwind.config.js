@@ -48,7 +48,6 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'circuit-pattern': "url('/circuit-pattern.svg')",
       },
       animation: {
         'pulse-slow': 'pulseSlow 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',

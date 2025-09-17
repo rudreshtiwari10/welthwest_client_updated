@@ -4,7 +4,7 @@ import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 
 const AIPage: React.FC = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-dark-500">
+    <div className="flex flex-col min-h-screen">
       <SubscriptionBanner />
       
       <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8 flex-grow">

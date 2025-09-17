@@ -12,7 +12,7 @@ const AssistantIcon: React.FC<{ className?: string }> = ({ className = "h-6 w-6"
 
 const WelthAIChatbotPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 pt-16 md:pt-0">
+    <div className="min-h-screen">
       {/* ChatGPT-like interface - full screen, no containers or borders - No Save Version */}
       <ChatInterfaceNoSave />
     </div>

@@ -379,6 +379,33 @@ export const authService = {
       console.error('Password reset error:', error);
       throw error;
     }
+  },
+
+  // Send OTP for mobile number verification
+  sendMobileOTP: async (mobileNumber: string) => {
+    try {
+      const response = await api.post('/auth/send-mobile-otp', {
+        mobile_number: mobileNumber
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Send mobile OTP error:', error);
+      throw error;
+    }
+  },
+
+  // Verify mobile number with OTP
+  verifyMobileOTP: async (mobileNumber: string, otpCode: string) => {
+    try {
+      const response = await api.post('/auth/verify-mobile-otp', {
+        mobile_number: mobileNumber,
+        otp_code: otpCode
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Verify mobile OTP error:', error);
+      throw error;
+    }
   }
 };
 

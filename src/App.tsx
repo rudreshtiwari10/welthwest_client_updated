@@ -43,6 +43,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
 import PrivateRoute from './components/PrivateRoute';
 import RouteChangeTracker from './components/RouteChangeTracker';
+import NextGenChatPage from './NextGenChatPage';
 
 // Banner component to highlight AI feature
 const AIFeatureBanner: React.FC = () => {
@@ -136,7 +137,7 @@ const AppWithRouter: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <div className="min-h-screen bg-gray-50 dark:bg-[#0d1117] text-gray-900 dark:text-white flex flex-col">
+          <div className="min-h-screen text-gray-900 dark:text-white flex flex-col">
             <Header toggleSidebar={toggleSidebar} />
             
             {/* Hamburger Button */}
@@ -170,6 +171,7 @@ const AppWithRouter: React.FC = () => {
                 {/* Alias for backtest beta as requested */}
                 <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
+                <Route path="/nextgenchat" element={<PrivateRoute><NextGenChatPage /></PrivateRoute>} />
                 <Route path="/ai-market-analysis" element={<PrivateRoute><AIMarketAnalysisPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/welth-ai-chatbot" element={<PrivateRoute><WelthAIChatbotPage /></PrivateRoute>} />
