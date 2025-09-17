@@ -51,6 +51,19 @@ module.exports = {
           secondary: '#0F141B',
           tertiary: '#0C1016',
         },
+        light: {
+          50: '#F9FAFB',
+          100: '#F3F4F6',
+          200: '#E5E7EB',
+          300: '#D1D5DB',
+          400: '#9CA3AF',
+          500: '#6B7280',
+        },
+        'light-bg': {
+          primary: '#FFFFFF',
+          secondary: '#F9FAFB',
+          tertiary: '#F3F4F6',
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

@@ -50,18 +50,37 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light theme styles */
+.light body {
+  background-color: #FFFFFF;
+  color: #1F2937;
+}
+
+.light #root {
+  background-color: #FFFFFF;
+  min-height: 100vh;
+}
+
+.light html {
+  background-color: #FFFFFF;
+}
+
+/* Dark theme styles */
+.dark body {
   background-color: #121820;
   color: #FFFFFF;
-  min-height: 100vh;
 }
 
-/* Root element styles for consistent dark theme */
-#root {
+.dark #root {
   background-color: #121820;
   min-height: 100vh;
 }
 
-html {
+.dark html {
   background-color: #121820;
 }
 
