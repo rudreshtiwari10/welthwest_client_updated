@@ -620,6 +620,8 @@ const HomePage: React.FC = () => {
                     poster={POSTER_URLS.AI_ANALYSIS}
                     alt="AI Analysis Demo"
                     className="w-full max-w-md aspect-video"
+                    priority={true}
+                    fetchPriority="high"
                   />
                 </div>
               </div>
@@ -677,6 +679,8 @@ const HomePage: React.FC = () => {
                     poster={POSTER_URLS.BACKTESTING}
                     alt="Backtesting Demo"
                     className="w-full max-w-md aspect-video"
+                    priority={false}
+                    fetchPriority="auto"
                   />
                 </div>
               </div>
@@ -694,6 +698,8 @@ const HomePage: React.FC = () => {
                     poster={POSTER_URLS.WELTHAI_CHAT}
                     alt="WelthAI Chat Demo"
                     className="w-full max-w-md aspect-video"
+                    priority={false}
+                    fetchPriority="low"
                   />
                 </div>
                 
@@ -799,6 +805,76 @@ const HomePage: React.FC = () => {
                       <p className="text-sm text-gray-600 dark:text-gray-400">Real-time strategy tracking & execution</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* AI Tools Suite Feature - Reverse Layout */}
+          <div className="mb-8">
+            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                {/* AI Tools Visual - Left Side */}
+                <div className="bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-800/20 p-6 lg:p-8 flex items-center justify-center order-2 lg:order-1">
+                  <div className="w-full max-w-md aspect-video bg-white dark:bg-dark-400 rounded-lg shadow-lg flex items-center justify-center">
+                    <div className="text-center p-6">
+                      <div className="flex justify-center space-x-2 mb-4">
+                        <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                          <SparklesIcon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center">
+                          <ChatBubbleLeftRightIcon className="h-4 w-4 text-white" />
+                        </div>
+                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <CpuChipIcon className="h-4 w-4 text-white" />
+                        </div>
+                      </div>
+                      <h4 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">AI-Powered Suite</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Advanced AI tools for modern trading</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Text Content - Right Side */}
+                <div className="p-6 lg:p-8 flex flex-col justify-center order-1 lg:order-2">
+                  <div className="flex items-center mb-4">
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mr-3">
+                      <CpuChipIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI Tools Suite</h3>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+                    Harness the power of artificial intelligence with our comprehensive suite of AI tools. From daily market recaps to personal AI assistants and sentiment analysis, stay ahead of the market with cutting-edge technology.
+                  </p>
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Daily Market Recap using AI</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Personal AI Assistant for Trading</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Advanced Sentiment Analysis Bot</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mr-2"></div>
+                      <span className="text-gray-700 dark:text-gray-300">Real-time Market Intelligence</span>
+                    </div>
+                  </div>
+                  <a 
+                    href="https://services.welthwest.com" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-all duration-300 w-fit group-hover:bg-purple-700 group-hover:shadow-lg"
+                  >
+                    Explore AI Tools
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </a>
                 </div>
               </div>
             </div>

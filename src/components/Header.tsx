@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon, CpuChipIcon } from '@heroicons/react/24/outline';
 import WelthAIPage from '../pages/WelthAIPage';
 import WelthChatbotPage from '../pages/WelthChatbotPage';
 
@@ -170,6 +170,21 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       </div>
                     </Link>
 
+                    <a
+                      href="https://services.welthwest.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
+                      onClick={() => setShowWelthAIMenu(false)}
+                    >
+                      <div className="flex items-center">
+                        <CpuChipIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
+                        <div>
+                          <div className="font-medium">WelthAI Services</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">All AI-powered services</div>
+                        </div>
+                      </div>
+                    </a>
 
                   </div>
                 )}
@@ -314,6 +329,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                   <span>Dashboard</span>
                 </Link>
               </div>
+
+              {/* News & Blogs Link */}
+              {/*<Link 
+                to="/news-and-blogs"
+                className={`flex items-center text-sm font-medium ${
+                  isActive('/news-and-blogs')
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
+              >
+                <span>News & Insights</span>
+              </Link>
 
               {/* Dashboard Dropdown removed; simple Dashboard link kept above */}
             </nav>
