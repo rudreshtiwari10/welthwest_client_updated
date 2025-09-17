@@ -37,13 +37,27 @@ const NextGenChatPage: React.FC = () => {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(scrollToBottom, [messages]);
+  const checkIfScrolledToBottom = () => {
+    if (chatContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
+      const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100;
+      setShouldAutoScroll(isScrolledToBottom);
+    }
+  };
+
+  useEffect(() => {
+    if (shouldAutoScroll) {
+      scrollToBottom();
+    }
+  }, [messages, shouldAutoScroll]);
 
   const getMessageIcon = (type?: string, sender?: string) => {
     if (sender === 'user') return null;
@@ -74,6 +88,7 @@ const NextGenChatPage: React.FC = () => {
     setInput('');
     setIsLoading(true);
     setError(null);
+    setShouldAutoScroll(true); // Force auto-scroll when user sends a message
 
     try {
       // Get auth token if user is logged in
@@ -160,7 +175,7 @@ const NextGenChatPage: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 p-4 shadow-sm">
+      <div className=" p-4 shadow-sm">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
@@ -168,7 +183,7 @@ const NextGenChatPage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                NextGen AI Finance Chat
+                WelthAI Chat Assistant
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Powered by multiple AI models for enhanced accuracy
@@ -188,7 +203,11 @@ const NextGenChatPage: React.FC = () => {
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4"
+        onScroll={checkIfScrolledToBottom}
+      >
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-12">
@@ -196,7 +215,7 @@ const NextGenChatPage: React.FC = () => {
                 <SparklesIcon className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Welcome to NextGen Finance Chat
+                Welcome to WelthAI Chat Assistant
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
                 Ask me about stock prices, financial news analysis, trading concepts, or general finance questions. 
@@ -319,7 +338,7 @@ const NextGenChatPage: React.FC = () => {
           </div>
           
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-            NextGen AI uses multiple models for enhanced financial insights. Always consult professionals for investment decisions.
+            WelthAI uses multiple models for enhanced financial insights. Always consult professionals for investment decisions.
           </p>
         </div>
       </div>

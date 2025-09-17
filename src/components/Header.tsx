@@ -331,7 +331,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               </div>
 
               {/* News & Blogs Link */}
-              <Link 
+              {/*<Link 
                 to="/news-and-blogs"
                 className={`flex items-center text-sm font-medium ${
                   isActive('/news-and-blogs')
