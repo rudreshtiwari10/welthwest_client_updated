@@ -173,7 +173,7 @@ const AppWithRouter: React.FC = () => {
                 {/* Alias for backtest beta as requested */}
                 <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
                 <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
-                <Route path="/nextgenchat" element={<PrivateRoute><NextGenChatPage /></PrivateRoute>} />
+                <Route path="/welth-ai-assistant" element={<PrivateRoute><NextGenChatPage /></PrivateRoute>} />
                 <Route path="/ai-market-analysis" element={<PrivateRoute><AIMarketAnalysisPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
                 <Route path="/welth-ai-chatbot" element={<PrivateRoute><WelthAIChatbotPage /></PrivateRoute>} />

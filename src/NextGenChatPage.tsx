@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import { 
-  PaperAirplaneIcon, 
-  SparklesIcon, 
+import { API_URL } from './services/api';
+import {
+  PaperAirplaneIcon,
+  SparklesIcon,
   ChartBarIcon,
   NewspaperIcon,
   CpuChipIcon,
@@ -94,7 +95,7 @@ const NextGenChatPage: React.FC = () => {
       // Get auth token if user is logged in
       const token = user ? await getToken() : null;
       
-      const response = await fetch('/api/nextgenchat', {
+      const response = await fetch(`${API_URL}/nextgenchat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
