@@ -199,26 +199,26 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+    <div className="min-h-screen bg-background-primary">
       {/* Header Section */}
-      <div className="pt-20 md:pt-8 pb-8 px-4">
+      <div className="pt-20 md:pt-8 pb-6 px-4 bg-background-primary">
         <div className="container mx-auto">
-          <div className="text-center py-12">
-            <ProfileInitialsAvatar 
-              firstName={firstName} 
+          <div className="text-center py-6">
+            <ProfileInitialsAvatar
+              firstName={firstName}
               lastName={lastName}
               size="hero"
-              className="mx-auto mb-8"
+              className="mx-auto mb-4"
               noHover
             />
-            <h1 className="text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-white mb-2">
               {firstName || lastName ? `${firstName} ${lastName}`.trim() : 'Complete Your Profile'}
             </h1>
-            <p className="text-blue-100 text-lg">
+            <p className="text-gray-300 text-base">
               @{username}
             </p>
             {(!firstName || !lastName) && (
-              <p className="text-blue-200 text-sm mt-2">
+              <p className="text-gray-400 text-sm mt-2">
                 Please fill in your profile information below
               </p>
             )}
@@ -227,12 +227,12 @@ const ProfilePage: React.FC = () => {
       </div>
 
       {/* Form Section */}
-      <div className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <div className="bg-background-secondary min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             
             {/* Profile Details Card */}
-            <div className="bg-white dark:bg-dark-300 rounded-xl shadow-lg overflow-hidden mb-6">
+            <div className="bg-background-tertiary rounded-xl shadow-lg overflow-hidden mb-6">
               <div className="p-6 border-b border-gray-100 dark:border-gray-700">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white flex items-center">
                   <IdentificationIcon className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-3" />
@@ -558,7 +558,7 @@ const ProfilePage: React.FC = () => {
             </div>
 
             {/* Subscription Section */}
-            <div className="bg-white dark:bg-dark-300 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-background-tertiary rounded-xl shadow-lg overflow-hidden">
               <button
                 onClick={() => setSubscriptionDropdownOpen(!subscriptionDropdownOpen)}
                 className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all duration-200"

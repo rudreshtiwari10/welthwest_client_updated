@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { SparklesIcon, Bars3Icon, ChartBarIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, Bars3Icon, ChartBarIcon, ChatBubbleBottomCenterTextIcon, ChartPieIcon } from '@heroicons/react/24/outline';
 
 const MobileFooterNav: React.FC = () => {
   const location = useLocation();
@@ -10,7 +10,7 @@ const MobileFooterNav: React.FC = () => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/ai-market-analysis') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta');
+    return path.startsWith('/ai-market-analysis') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta') || path.startsWith('/technical-analysis');
   };
 
   // Close features menu when clicking outside
@@ -119,7 +119,7 @@ const MobileFooterNav: React.FC = () => {
               
               <Link
                 to="/stock/Reliance"
-                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
                 onClick={handleCloseFeatures}
               >
                 <div className="mr-3 text-purple-400">
@@ -128,6 +128,20 @@ const MobileFooterNav: React.FC = () => {
                 <div>
                   <div className="font-medium text-white">Stocks</div>
                   <div className="text-xs text-gray-400">Top performing stocks & market insights</div>
+                </div>
+              </Link>
+
+              <Link
+                to="/technical-analysis"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                onClick={handleCloseFeatures}
+              >
+                <div className="mr-3 text-green-400">
+                  <ChartPieIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-medium text-white">Technical Analysis</div>
+                  <div className="text-xs text-gray-400">RSI, MACD, Bollinger Bands & more</div>
                 </div>
               </Link>
             </div>

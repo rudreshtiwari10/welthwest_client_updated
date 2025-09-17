@@ -139,7 +139,7 @@ const AppWithRouter: React.FC = () => {
     <ThemeProvider>
       <AuthProvider>
         <SubscriptionProvider>
-          <div className="min-h-screen text-gray-900 dark:text-white flex flex-col">
+          <div className="min-h-screen bg-background-primary text-gray-900 dark:text-white flex flex-col">
             <Header toggleSidebar={toggleSidebar} />
             
             {/* Hamburger Button */}

@@ -50,6 +50,19 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #121820;
+  color: #FFFFFF;
+  min-height: 100vh;
+}
+
+/* Root element styles for consistent dark theme */
+#root {
+  background-color: #121820;
+  min-height: 100vh;
+}
+
+html {
+  background-color: #121820;
 }
 
 code {
@@ -180,17 +193,17 @@ code {
   box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
 }
 
-/* Glass morphism effect */
+/* Glass morphism effect - Updated for dark theme */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dark .glass {
-  background: rgba(17, 24, 39, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 } 
 
 /* Hide scrollbar for Chrome, Safari and Opera */
