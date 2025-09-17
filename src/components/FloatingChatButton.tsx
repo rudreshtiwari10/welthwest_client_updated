@@ -11,7 +11,7 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = () => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate('/nextgenchat');
+    navigate('/welth-ai-assistant');
   };
 
   return (

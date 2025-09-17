@@ -67,7 +67,7 @@ const Footer: React.FC = () => {
                   <Link to="/ai-market-analysis" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     AI Market Analysis
                   </Link>
-                  <Link to="/nextgenchat" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/welth-ai-assistant" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     WelthAI Chat
                   </Link>
                   <Link to="/backtesting-beta" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>

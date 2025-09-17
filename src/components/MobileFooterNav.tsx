@@ -69,7 +69,7 @@ const MobileFooterNav: React.FC = () => {
               </h4>
               
               <Link
-                to="/nextgenchat"
+                to="/welth-ai-assistant"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
                 onClick={handleCloseFeatures}
               >
