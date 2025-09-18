@@ -314,7 +314,9 @@ const HomePage: React.FC = () => {
           <div className="relative overflow-hidden rounded-xl bg-white/80 dark:bg-dark-300/80 shadow-md border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
             {/* Content */}
             <div className="relative py-10 px-6 text-center" style={{ minHeight: '200px' }}>
-              <h1 className="text-3xl font-bold mb-3 flex flex-col sm:flex-row items-center justify-center gap-2 text-gray-900 dark:text-white">
+              
+              
+              <h1 className="text-3xl md:text-4xl font-bold mb-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-gray-900 dark:text-white">
                 <span>Discover the Power of AI in</span>
                 <div className="relative inline-block" style={{ minWidth: '140px', width: '140px' }}>
                   <span className={`bg-gradient-to-r from-primary-500 to-secondary-500 text-transparent bg-clip-text font-bold ${isTyping ? 'border-r-2 border-primary-500 animate-cursor' : ''}`}>
@@ -397,9 +399,9 @@ const HomePage: React.FC = () => {
         {/* Market Overview - Horizontal Slider */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Market Overview
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Live Market Data & Indices
               <span className="ml-2 text-xs bg-secondary-600 text-white px-2 py-0.5 rounded-full">
-                {isLoading ? 'Loading...' : 'Live Data'}
+                {isLoading ? 'Loading...' : 'Real-Time NSE & BSE'}
               </span>
             </h2>
             <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -409,7 +411,7 @@ const HomePage: React.FC = () => {
           
           {/* Slider Navigation */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Major Indices</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">NSE & BSE Market Indices</h3>
             <div className="flex space-x-2">
               <button 
                 onClick={() => scrollIndices('left')} 
@@ -563,7 +565,7 @@ const HomePage: React.FC = () => {
         {/* Main Features Showcase */}
         <section className="mb-8 max-w-7xl mx-auto px-4">
           <div className="text-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">Explore Our Main Features</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">AI Trading Tools & Backtesting Features</h2>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Discover AI-driven analysis, intelligent chatbot assistance, and comprehensive backtesting tools
             </p>
@@ -579,7 +581,7 @@ const HomePage: React.FC = () => {
                     <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mr-3">
                       <CpuChipIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI Analysis</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI Market Analysis</h3>
                   </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-3 leading-relaxed text-sm">
                     Leverage cutting-edge artificial intelligence to uncover hidden market patterns, predict regime changes, and receive data-driven investment recommendations tailored to your risk profile.
@@ -638,7 +640,7 @@ const HomePage: React.FC = () => {
                     <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
                       <BeakerIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Backtesting</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Strategy Backtesting</h3>
                   </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-3 leading-relaxed text-sm">
                     Validate your trading strategies with comprehensive historical backtesting. Test multiple scenarios, analyze risk metrics, and optimize your approach using years of market data before committing real capital.
@@ -709,7 +711,7 @@ const HomePage: React.FC = () => {
                     <div className="w-10 h-10 bg-secondary-100 dark:bg-secondary-900/30 rounded-lg flex items-center justify-center mr-3">
                       <ChatBubbleLeftRightIcon className="h-5 w-5 text-secondary-600 dark:text-secondary-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">WelthAI Chat Bot</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">AI Trading Assistant</h3>
                   </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
                     Experience conversational AI that understands financial markets. Get instant answers to investment questions, portfolio analysis, and personalized stock recommendations through natural language conversations.
