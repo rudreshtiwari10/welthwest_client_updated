@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import { API_URL } from './services/api';
-import {
-  PaperAirplaneIcon,
-  SparklesIcon,
+import { 
+  PaperAirplaneIcon, 
+  SparklesIcon, 
   ChartBarIcon,
   NewspaperIcon,
   CpuChipIcon,
@@ -38,27 +37,13 @@ const NextGenChatPage: React.FC = () => {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const checkIfScrolledToBottom = () => {
-    if (chatContainerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-      const isScrolledToBottom = scrollHeight - scrollTop - clientHeight < 100;
-      setShouldAutoScroll(isScrolledToBottom);
-    }
-  };
-
-  useEffect(() => {
-    if (shouldAutoScroll) {
-      scrollToBottom();
-    }
-  }, [messages, shouldAutoScroll]);
+  useEffect(scrollToBottom, [messages]);
 
   const getMessageIcon = (type?: string, sender?: string) => {
     if (sender === 'user') return null;
@@ -89,12 +74,14 @@ const NextGenChatPage: React.FC = () => {
     setInput('');
     setIsLoading(true);
     setError(null);
-    setShouldAutoScroll(true); // Force auto-scroll when user sends a message
 
     try {
       // Get auth token if user is logged in
       const token = user ? await getToken() : null;
-      
+
+      // Import API service
+      const { API_URL } = await import('./services/api');
+
       const response = await fetch(`${API_URL}/nextgenchat`, {
         method: 'POST',
         headers: {
@@ -176,7 +163,7 @@ const NextGenChatPage: React.FC = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className=" p-4 shadow-sm">
+      <div className="@ p-4 shadow-sm">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
@@ -204,11 +191,7 @@ const NextGenChatPage: React.FC = () => {
       </div>
 
       {/* Chat Messages */}
-      <div
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4"
-        onScroll={checkIfScrolledToBottom}
-      >
+      <div className="flex-1 overflow-y-auto p-4">
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.length === 0 && (
             <div className="text-center py-12">
