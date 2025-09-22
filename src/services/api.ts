@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// Use environment variable with fallback to Render URL
+// Use environment variable with fallback to the correct backend URL
 export const API_URL = process.env.REACT_APP_API_URL || 'https://stock-market-api.onrender.com/api';
 export const WS_URL = process.env.REACT_APP_WS_URL || 'wss://stock-market-api.onrender.com/api/ws';
 
@@ -579,6 +579,21 @@ export const marketService = {
       return response.data;
     } catch (error) {
       console.error('Error with anonymous AI chat:', error);
+      throw error;
+    }
+  },
+
+  // NextGen Chat with multi-model orchestration
+  nextGenChat: async (message: string, sessionId?: string, conversationHistory?: any[]) => {
+    try {
+      const response = await api.post('/nextgenchat', {
+        message,
+        session_id: sessionId,
+        conversation_history: conversationHistory || []
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with NextGen chat:', error);
       throw error;
     }
   },

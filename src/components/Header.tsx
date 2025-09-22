@@ -164,7 +164,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       <div className="flex items-center">
                         <ChatBubbleLeftRightIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
                         <div>
-                          <div className="font-medium">WelthAI Chatbot</div>
+                          <div className="font-medium">WelthAI Assistant</div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">Interactive AI assistant</div>
                         </div>
                       </div>
@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       <div className="flex items-center">
                         <CpuChipIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
                         <div>
-                          <div className="font-medium">WelthAI Services</div>
+                          <div className="font-medium">WelthAI bots</div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">All AI-powered services</div>
                         </div>
                       </div>
@@ -318,7 +318,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
               {/* Dashboard Link (replaces Stocks) */}
               <div className="relative" ref={dashboardRef}>
-                <Link 
+                <Link
                   to="/dashboard"
                   className={`flex items-center text-sm font-medium ${
                     isActive('/dashboard')
@@ -329,6 +329,19 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                   <span>Dashboard</span>
                 </Link>
               </div>
+
+              {/* Feedback Link */}
+              <Link
+                to="/feedback"
+                className={`flex items-center text-sm font-medium ${
+                  isActive('/feedback')
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
+              >
+                <i className="fas fa-comment-dots mr-1 text-xs"></i>
+                <span>Feedback</span>
+              </Link>
 
               {/* News & Blogs Link */}
               {/*<Link 

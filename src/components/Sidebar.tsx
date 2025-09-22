@@ -125,7 +125,7 @@ const mainNavigation = [
 // New Features section with categories
 const featureNavigation = [
   { 
-    category: 'WelthAI Services',
+    category: 'WelthAI bots',
     items: [
       { name: 'WelthAI Market Analysis', path: '/ai-market-analysis', icon: 'brain' },
     ]

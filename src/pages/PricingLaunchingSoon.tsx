@@ -21,12 +21,19 @@ const PricingLaunchingSoon: React.FC = () => {
           We're preparing flexible plans for <span className="font-semibold text-gray-900 dark:text-white">Pro Traders</span> and
           <span className="font-semibold text-gray-900 dark:text-white"> Enterprises</span>. Stay tuned — it'll be worth it.
         </p>
-        <div className="mt-6 flex items-center justify-center">
+        <div className="mt-6 flex items-center justify-center gap-4">
           <button
             onClick={() => navigate('/stock/RELIANCE')}
             className="inline-flex items-center rounded-md bg-blue-600 dark:bg-blue-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700 dark:hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 transition-colors"
           >
             Try WelthWest free
+          </button>
+          <button
+            onClick={() => navigate('/feedback')}
+            className="inline-flex items-center rounded-md bg-gray-600 dark:bg-gray-500 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-gray-700 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 dark:focus:ring-offset-gray-800 transition-colors"
+          >
+            <i className="fas fa-comment-dots mr-2"></i>
+            Feedback
           </button>
         </div>
       </div>

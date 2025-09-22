@@ -62,10 +62,10 @@ const MobileFooterNav: React.FC = () => {
               </Link>
             </div>
             
-            {/* WelthAI Services */}
+            {/* WelthAI bots */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-                WelthAI Services
+                WelthAI bots
               </h4>
               
               <Link
@@ -77,7 +77,7 @@ const MobileFooterNav: React.FC = () => {
                   <ChatBubbleBottomCenterTextIcon className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="font-medium text-white">WelthAI Chat Assistant</div>
+                  <div className="font-medium text-white">WelthAI Assistant</div>
                   <div className="text-xs text-gray-400">AI-powered conversational assistant</div>
                 </div>
               </Link>

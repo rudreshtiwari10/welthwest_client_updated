@@ -76,37 +76,23 @@ const NextGenChatPage: React.FC = () => {
     setError(null);
 
     try {
-      // Get auth token if user is logged in
-      const token = user ? await getToken() : null;
-
       // Import API service
-      const { API_URL } = await import('./services/api');
+      const { marketService } = await import('./services/api');
 
-      const response = await fetch(`${API_URL}/nextgenchat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` })
-        },
-        body: JSON.stringify({
-          message: userMessage.text,
-          session_id: sessionId,
-          conversation_history: messages.slice(-5).map(m => ({
-            role: m.sender === 'user' ? 'user' : 'assistant',
-            content: m.text
-          }))
-        })
-      });
+      const data = await marketService.nextGenChat(
+        userMessage.text,
+        sessionId,
+        messages.slice(-5).map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.text
+        }))
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 403 && data.requires_login) {
-          setError(data.message || 'Please log in to continue chatting.');
-          setUsageInfo(data.usage_info);
-          return;
-        }
-        throw new Error(data.message || 'Failed to get response');
+      // Check for login requirement in response
+      if (data.requires_login) {
+        setError(data.message || 'Please log in to continue chatting.');
+        setUsageInfo(data.usage_info);
+        return;
       }
 
       const aiMessage: Message = {
