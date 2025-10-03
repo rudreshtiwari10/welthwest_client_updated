@@ -164,20 +164,22 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
+                {/* PROTECTED ROUTES - Only dashboard and profile require login */}
                 <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
                 <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-                <Route path="/stock" element={<PrivateRoute><StockPage /></PrivateRoute>} />
-                <Route path="/stock/:symbol" element={<PrivateRoute><StockPage /></PrivateRoute>} />
-                <Route path="/backtesting" element={<PrivateRoute><BacktestingPage /></PrivateRoute>} />
-                <Route path="/backtesting-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
+                {/* PUBLIC ROUTES WITH ANONYMOUS TRIAL - All feature pages are now public with 10 free runs */}
+                <Route path="/stock" element={<StockPage />} />
+                <Route path="/stock/:symbol" element={<StockPage />} />
+                <Route path="/backtesting" element={<BacktestingPage />} />
+                <Route path="/backtesting-beta" element={<BacktestingBetaPage />} />
                 {/* Alias for backtest beta as requested */}
-                <Route path="/backtest-beta" element={<PrivateRoute><BacktestingBetaPage /></PrivateRoute>} />
-                <Route path="/welthai" element={<PrivateRoute><WelthAIPage /></PrivateRoute>} />
-                <Route path="/welth-ai-assistant" element={<PrivateRoute><NextGenChatPage /></PrivateRoute>} />
-                <Route path="/ai-market-analysis" element={<PrivateRoute><AIMarketAnalysisPage /></PrivateRoute>} />
-                <Route path="/welthchatbot" element={<PrivateRoute><WelthChatbotPage /></PrivateRoute>} />
-                <Route path="/welth-ai-chatbot" element={<PrivateRoute><WelthAIChatbotPage /></PrivateRoute>} />
-                <Route path="/technical-analysis" element={<PrivateRoute><TechnicalAnalysisPage /></PrivateRoute>} />
+                <Route path="/backtest-beta" element={<BacktestingBetaPage />} />
+                <Route path="/welthai" element={<WelthAIPage />} />
+                <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
+                <Route path="/ai-market-analysis" element={<AIMarketAnalysisPage />} />
+                <Route path="/welthchatbot" element={<WelthChatbotPage />} />
+                <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />
+                <Route path="/technical-analysis" element={<TechnicalAnalysisPage />} />
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/news-and-blogs" element={<NewsAndBlogsPage />} />

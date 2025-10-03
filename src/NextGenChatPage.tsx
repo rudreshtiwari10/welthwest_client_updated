@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './contexts/AuthContext';
-import { 
-  PaperAirplaneIcon, 
-  SparklesIcon, 
+import UsageIndicator from './components/UsageIndicator';
+import TrialExceededModal from './components/TrialExceededModal';
+import {
+  PaperAirplaneIcon,
+  SparklesIcon,
   ChartBarIcon,
   NewspaperIcon,
   CpuChipIcon,
@@ -37,6 +39,8 @@ const NextGenChatPage: React.FC = () => {
   const [sessionId] = useState(() => `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showTrialModal, setShowTrialModal] = useState(false);
+  const [refreshUsage, setRefreshUsage] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -110,20 +114,30 @@ const NextGenChatPage: React.FC = () => {
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      
+
       if (data.usage_info) {
         setUsageInfo(data.usage_info);
       }
 
-    } catch (err) {
+      // Refresh usage counter
+      setRefreshUsage(prev => prev + 1);
+
+    } catch (err: any) {
       console.error('NextGen Chat Error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      
+
+      // Check if trial exceeded
+      if (err.response?.status === 403 && err.response?.data?.error === 'trial_exceeded') {
+        setShowTrialModal(true);
+        setError('Free trial limit reached. Please sign in to continue.');
+      } else {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      }
+
       // Add error message to chat
       const errorMessage: Message = {
         id: `error_${Date.now()}`,
         sender: 'ai',
-        text: '⚠️ Sorry, I encountered an error. Please try again later.',
+        text: err.response?.data?.message || '⚠️ Sorry, I encountered an error. Please try again later.',
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
@@ -148,6 +162,22 @@ const NextGenChatPage: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen">
+      {/* Usage Indicator - Fixed position */}
+      <UsageIndicator
+        feature="welth-ai-assistant"
+        featureDisplayName="AI Chat Assistant"
+        refreshTrigger={refreshUsage}
+      />
+
+      {/* Trial Exceeded Modal */}
+      <TrialExceededModal
+        isOpen={showTrialModal}
+        onClose={() => setShowTrialModal(false)}
+        feature="welth-ai-assistant"
+        featureDisplayName="AI Chat Assistant"
+        limit={10}
+      />
+
       {/* Header */}
       <div className="@ p-4 shadow-sm">
         <div className="max-w-4xl mx-auto flex items-center justify-between">

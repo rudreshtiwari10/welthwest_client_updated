@@ -123,7 +123,7 @@ const AIMarketAnalysisPage: React.FC = () => {
   const [currentConfig, setCurrentConfig] = useState<HMMAnalysisConfig>({
     ticker: defaultSymbol,
     period: '6mo',
-    analyzeHistory: true,
+    analyzeHistory: true, // Always enabled for full analysis
     getModelInfo: false
   });
   
@@ -131,7 +131,8 @@ const AIMarketAnalysisPage: React.FC = () => {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingAnalyses: 2,
+    remainingAnalyses: 10, // Default, will be updated from backend
+    totalLimit: 10, // Default, will be updated from backend
     sessionId: null as string | null
   });
   
@@ -169,11 +170,35 @@ const AIMarketAnalysisPage: React.FC = () => {
     }
   };
 
-  // Effect to load initial stock data
+  // Effect to load initial stock data and fetch usage
   useEffect(() => {
     fetchStockData();
+
+    // Fetch current usage for anonymous users
+    if (!user) {
+      fetchAnonymousUsage();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSymbol]);
+  }, [selectedSymbol, user]);
+
+  const fetchAnonymousUsage = async () => {
+    try {
+      const usageData = await marketService.getAnonymousUsage();
+      if (usageData.features) {
+        const aiAnalysisUsage = usageData.features['ai-market-analysis'];
+        if (aiAnalysisUsage) {
+          setAnonymousUsage(prev => ({
+            ...prev,
+            remainingAnalyses: aiAnalysisUsage.remaining,
+            totalLimit: aiAnalysisUsage.limit
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching anonymous usage:', error);
+      // Keep default values on error
+    }
+  };
   
   const fetchStockData = async () => {
     try {
@@ -219,12 +244,8 @@ const AIMarketAnalysisPage: React.FC = () => {
           setHmmLoading(false);
           return;
         }
-        
-        // Decrement remaining analyses for anonymous users
-        setAnonymousUsage(prev => ({
-          ...prev,
-          remainingAnalyses: prev.remainingAnalyses - 1
-        }));
+
+        // Don't decrement here - backend will handle it and return updated usage
       } else {
         // Authenticated user - check subscription limits
         if (!canUseLLM()) {
@@ -248,23 +269,29 @@ const AIMarketAnalysisPage: React.FC = () => {
       if (!user) {
         // Use anonymous API for non-authenticated users
         try {
-          const anonymousResponse = await hmmService.anonymousAnalysis(
-            config.ticker,
-            anonymousUsage.sessionId || undefined
-          );
-          
-          // Update session ID and usage information if provided
-          if (anonymousResponse.session_id) {
+          const anonymousResponse = await marketService.anonymousAIAnalysis({
+            ticker: config.ticker,
+            period: config.period
+          });
+
+          // Update usage information if provided
+          if (anonymousResponse.usage) {
             setAnonymousUsage(prev => ({
               ...prev,
-              sessionId: anonymousResponse.session_id,
-              remainingAnalyses: anonymousResponse.remaining_usage?.hmm_analyses ?? prev.remainingAnalyses
+              remainingAnalyses: anonymousResponse.usage.remaining ?? prev.remainingAnalyses
             }));
           }
-          
-          // Set the response data
-          setHmmPrediction(anonymousResponse);
-          
+
+          // Set the response data from prediction
+          if (anonymousResponse.prediction) {
+            setHmmPrediction(anonymousResponse.prediction);
+          }
+
+          // Set the analysis data (for detailed tables)
+          if (anonymousResponse.analysis) {
+            setHmmAnalysis(anonymousResponse.analysis);
+          }
+
         } catch (error: any) {
           if (error.response?.status === 403) {
             // Anonymous limit exceeded, show login modal
@@ -283,13 +310,11 @@ const AIMarketAnalysisPage: React.FC = () => {
         // Get HMM prediction
         const predictionResponse = await hmmService.predict(config.ticker);
         setHmmPrediction(predictionResponse);
-        
-        // Get historical analysis if requested
-        if (config.analyzeHistory) {
-          const analysisResponse = await hmmService.analyze(config.ticker, config.period);
-          setHmmAnalysis(analysisResponse);
-        }
-        
+
+        // Get historical analysis - always get it for authenticated users
+        const analysisResponse = await hmmService.analyze(config.ticker, config.period);
+        setHmmAnalysis(analysisResponse);
+
         // Get model info if requested
         if (config.getModelInfo) {
           try {
@@ -548,7 +573,7 @@ const AIMarketAnalysisPage: React.FC = () => {
               <div>
                 <h3 className="font-semibold">Free AI Market Analysis</h3>
                 <p className="text-sm opacity-90">
-                  {anonymousUsage.remainingAnalyses > 0 
+                  {anonymousUsage.remainingAnalyses > 0
                     ? `${anonymousUsage.remainingAnalyses} free ${anonymousUsage.remainingAnalyses === 1 ? 'analysis' : 'analyses'} remaining`
                     : 'No free analyses remaining'
                   }
@@ -556,7 +581,7 @@ const AIMarketAnalysisPage: React.FC = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-bold">{anonymousUsage.remainingAnalyses}/2</div>
+              <div className="text-2xl font-bold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit}</div>
               <button
                 onClick={() => setShowLoginModal(true)}
                 className="mt-1 px-4 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-sm font-medium transition-all"
@@ -567,9 +592,9 @@ const AIMarketAnalysisPage: React.FC = () => {
           </div>
           <div className="mt-3">
             <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
-              <div 
+              <div
                 className="bg-white rounded-full h-2 transition-all duration-300"
-                style={{ width: `${(anonymousUsage.remainingAnalyses / 2) * 100}%` }}
+                style={{ width: `${(anonymousUsage.remainingAnalyses / anonymousUsage.totalLimit) * 100}%` }}
               ></div>
             </div>
           </div>
@@ -754,11 +779,11 @@ const AIMarketAnalysisPage: React.FC = () => {
         </div>
       </div>
       
-      {/* Advanced Analysis Results - Only for authenticated users */}
-      {user && hmmPrediction && (
+      {/* Advanced Analysis Results - Available for all users */}
+      {hmmPrediction && hmmAnalysis && (
         <div className="mt-8 space-y-6">
           <h2 className="text-2xl font-semibold">Advanced Market Analysis</h2>
-          
+
           {renderRegimeProbabilities()}
           {renderTransitionMatrix()}
           {renderRegimePersistence()}
@@ -849,7 +874,7 @@ const AIMarketAnalysisPage: React.FC = () => {
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={() => {
-          setAnonymousUsage({ remainingAnalyses: 0, sessionId: null });
+          setAnonymousUsage({ remainingAnalyses: 0, totalLimit: 10, sessionId: null });
           setShowLoginModal(false);
         }}
         message="Sign up to get unlimited access to our advanced AI market analysis"

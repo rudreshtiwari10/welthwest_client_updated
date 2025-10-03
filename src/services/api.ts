@@ -29,6 +29,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // IMPORTANT: Include cookies for anonymous session tracking
 });
 
 // Add request interceptor to include auth token and handle proactive refresh
@@ -540,13 +541,10 @@ export const marketService = {
     }
   },
 
-  // Anonymous backtesting with session limits
-  anonymousBacktest: async (params: any, sessionId?: string) => {
+  // Anonymous backtesting with session limits (cookie-based, no session_id needed)
+  anonymousBacktest: async (params: any) => {
     try {
-      const response = await api.post('/backtest/anonymous', {
-        ...params,
-        session_id: sessionId
-      });
+      const response = await api.post('/backtest/run', params);
       return response.data;
     } catch (error) {
       console.error('Error with anonymous backtest:', error);
@@ -554,16 +552,24 @@ export const marketService = {
     }
   },
 
-  // Anonymous AI analysis with session limits
-  anonymousAIAnalysis: async (config: { ticker: string; period?: string }, sessionId?: string) => {
+  // Anonymous AI analysis with session limits (cookie-based, no session_id needed)
+  anonymousAIAnalysis: async (config: { ticker: string; period?: string }) => {
     try {
-      const response = await api.post('/ai-analysis/anonymous', {
-        ...config,
-        session_id: sessionId
-      });
+      const response = await api.post('/ai-analysis/run', config);
       return response.data;
     } catch (error) {
       console.error('Error with anonymous AI analysis:', error);
+      throw error;
+    }
+  },
+
+  // Get current anonymous usage
+  getAnonymousUsage: async () => {
+    try {
+      const response = await api.get('/usage/anonymous');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting anonymous usage:', error);
       throw error;
     }
   },

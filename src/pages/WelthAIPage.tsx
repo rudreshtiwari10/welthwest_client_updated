@@ -308,22 +308,21 @@ const WelthAIPage: React.FC = () => {
       }
       
       if (!user) {
-        // Use anonymous API for non-authenticated users
+        // Use anonymous API for non-authenticated users (cookie-based, no sessionId needed)
         try {
-          const anonymousResponse = await marketService.anonymousAIAnalysis(
-            { ticker: config.ticker, period: config.period },
-            anonymousUsage.sessionId || undefined
-          );
-          
-          // Update session ID and usage information if provided
-          if (anonymousResponse.session_id) {
+          const anonymousResponse = await marketService.anonymousAIAnalysis({
+            ticker: config.ticker,
+            period: config.period
+          });
+
+          // Update usage information if provided
+          if (anonymousResponse.usage) {
             setAnonymousUsage(prev => ({
               ...prev,
-              sessionId: anonymousResponse.session_id,
-              remainingAnalyses: anonymousResponse.remaining_usage?.ai_analyses ?? prev.remainingAnalyses
+              remainingAnalyses: anonymousResponse.usage.remaining ?? prev.remainingAnalyses
             }));
           }
-          
+
           // Set the response data (assuming the API returns the same structure)
           setAiPrediction(anonymousResponse.prediction);
           setAiAnalysis(anonymousResponse.analysis);

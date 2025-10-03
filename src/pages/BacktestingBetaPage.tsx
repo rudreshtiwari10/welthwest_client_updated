@@ -4,7 +4,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { backtestingService } from '../services/backtesting';
 import { marketService } from '../services/api';
 import { motion } from 'framer-motion';
-import { ChartBarIcon, CogIcon, PlayIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, CogIcon, PlayIcon, DocumentTextIcon, BoltIcon } from '@heroicons/react/24/outline';
 import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 import UsageTracker from '../components/subscription/UsageTracker';
 import LimitExceededModal from '../components/subscription/LimitExceededModal';
@@ -250,7 +250,8 @@ const BacktestingBetaPage: React.FC = () => {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingTests: 3, // Allow 3 free backtests
+    remainingTests: 10, // Default, will be updated from backend
+    totalLimit: 10, // Default, will be updated from backend
     sessionId: null as string | null
   });
 
@@ -258,6 +259,33 @@ const BacktestingBetaPage: React.FC = () => {
   const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
   const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
   const [strategyName, setStrategyName] = useState<string>('');
+
+  // Fetch anonymous usage on component mount
+  useEffect(() => {
+    if (!user) {
+      fetchAnonymousUsage();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  const fetchAnonymousUsage = async () => {
+    try {
+      const usageData = await marketService.getAnonymousUsage();
+      if (usageData.features) {
+        const backtestUsage = usageData.features['backtest-beta'];
+        if (backtestUsage) {
+          setAnonymousUsage(prev => ({
+            ...prev,
+            remainingTests: backtestUsage.remaining,
+            totalLimit: backtestUsage.limit
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching anonymous usage:', error);
+      // Keep default values on error
+    }
+  };
 
   // Handle opening save modal
   const handleSaveBacktest = () => {
@@ -415,12 +443,8 @@ const BacktestingBetaPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        
-        // Decrement remaining tests for anonymous users
-        setAnonymousUsage(prev => ({
-          ...prev,
-          remainingTests: prev.remainingTests - 1
-        }));
+
+        // Don't decrement here - backend will handle it and return updated usage
       } else {
         // Authenticated user - check subscription limits
         if (!canUseBacktest()) {
@@ -436,15 +460,14 @@ const BacktestingBetaPage: React.FC = () => {
 
       let data: any;
       if (!user) {
-        // Use anonymous API for non-authenticated users
-        data = await marketService.anonymousBacktest(params, anonymousUsage.sessionId || undefined);
-        
-        // Update session ID and usage information if provided
-        if (data.session_id) {
+        // Use anonymous API for non-authenticated users (cookie-based, no sessionId needed)
+        data = await marketService.anonymousBacktest(params);
+
+        // Update usage information if provided
+        if (data.usage) {
           setAnonymousUsage(prev => ({
             ...prev,
-            sessionId: data.session_id,
-            remainingTests: data.remaining_usage?.backtests ?? prev.remainingTests
+            remainingTests: data.usage.remaining ?? prev.remainingTests
           }));
         }
       } else {
@@ -792,6 +815,45 @@ const BacktestingBetaPage: React.FC = () => {
             Beta Version - Enhanced Features
           </div>
         </div>
+
+        {/* Anonymous Usage Display */}
+        {!user && (
+          <div className="mb-6 bg-gradient-to-r from-blue-500 via-cyan-600 to-teal-600 rounded-xl shadow-lg p-4 text-white max-w-4xl mx-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-white bg-opacity-20 rounded-full p-2">
+                  <BoltIcon className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Free Backtesting</h3>
+                  <p className="text-sm opacity-90">
+                    {anonymousUsage.remainingTests > 0
+                      ? `${anonymousUsage.remainingTests} free ${anonymousUsage.remainingTests === 1 ? 'backtest' : 'backtests'} remaining`
+                      : 'No free backtests remaining'
+                    }
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold">{anonymousUsage.remainingTests}/{anonymousUsage.totalLimit}</div>
+                <button
+                  onClick={() => setShowLoginModal(true)}
+                  className="mt-1 px-4 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-sm font-medium transition-all"
+                >
+                  Get Unlimited
+                </button>
+              </div>
+            </div>
+            <div className="mt-3">
+              <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
+                <div
+                  className="bg-white rounded-full h-2 transition-all duration-300"
+                  style={{ width: `${(anonymousUsage.remainingTests / anonymousUsage.totalLimit) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tab Navigation */}
         <div className="flex justify-center mb-8 sm:mb-12">
@@ -1859,7 +1921,7 @@ const BacktestingBetaPage: React.FC = () => {
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}
           onLoginSuccess={() => {
-            setAnonymousUsage({ remainingTests: 0, sessionId: null });
+            setAnonymousUsage({ remainingTests: 0, totalLimit: 10, sessionId: null });
             setShowLoginModal(false);
           }}
           message="Sign up to get unlimited access to our advanced backtesting features"
