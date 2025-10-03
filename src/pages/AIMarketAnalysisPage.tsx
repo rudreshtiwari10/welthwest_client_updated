@@ -555,51 +555,36 @@ const AIMarketAnalysisPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8">
-      <div className="mb-8">
+      <div className="relative mb-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-2">AI Market Analysis</h1>
         <p className="text-gray-600 dark:text-gray-300">
           Advanced artificial intelligence for market condition detection and volatility analysis
         </p>
-      </div>
-      
-      {/* Anonymous Usage Display */}
-      {!user && (
-        <div className="mb-6 bg-gradient-to-r from-purple-500 via-indigo-600 to-blue-600 rounded-xl shadow-lg p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="bg-white bg-opacity-20 rounded-full p-2">
-                <SparklesIcon className="h-6 w-6" />
-              </div>
+
+        {/* Anonymous Usage Display - Compact Right Corner */}
+        {!user && (
+          <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md px-3 py-2 text-white text-xs">
+            <div className="flex items-center space-x-2">
+              <SparklesIcon className="h-4 w-4" />
               <div>
-                <h3 className="font-semibold">Free AI Market Analysis</h3>
-                <p className="text-sm opacity-90">
-                  {anonymousUsage.remainingAnalyses > 0
-                    ? `${anonymousUsage.remainingAnalyses} free ${anonymousUsage.remainingAnalyses === 1 ? 'analysis' : 'analyses'} remaining`
-                    : 'No free analyses remaining'
-                  }
-                </p>
+                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit} Free Analyses</div>
+                <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
+                  <div
+                    className="bg-white rounded-full h-1 transition-all duration-300"
+                    style={{ width: `${(anonymousUsage.remainingAnalyses / anonymousUsage.totalLimit) * 100}%` }}
+                  ></div>
+                </div>
               </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit}</div>
               <button
                 onClick={() => setShowLoginModal(true)}
-                className="mt-1 px-4 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-sm font-medium transition-all"
+                className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
               >
-                Get Unlimited
+                Upgrade
               </button>
             </div>
           </div>
-          <div className="mt-3">
-            <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
-              <div
-                className="bg-white rounded-full h-2 transition-all duration-300"
-                style={{ width: `${(anonymousUsage.remainingAnalyses / anonymousUsage.totalLimit) * 100}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
       
       {/* Two-column layout for Analysis Settings and Results */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

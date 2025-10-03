@@ -803,57 +803,44 @@ const BacktestingBetaPage: React.FC = () => {
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-12 mt-8 sm:mt-12">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Backtest (Beta)
-          </h1>
-          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-2">
-            Comprehensive backtesting with advanced analytics and visualization
-          </p>
-          <div className="mt-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-            <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-            Beta Version - Enhanced Features
+        <div className="relative mb-8 sm:mb-12 mt-8 sm:mt-12">
+          <div className="text-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Backtest (Beta)
+            </h1>
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-2">
+              Comprehensive backtesting with advanced analytics and visualization
+            </p>
+            <div className="mt-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
+              Beta Version - Enhanced Features
+            </div>
           </div>
-        </div>
 
-        {/* Anonymous Usage Display */}
-        {!user && (
-          <div className="mb-6 bg-gradient-to-r from-blue-500 via-cyan-600 to-teal-600 rounded-xl shadow-lg p-4 text-white max-w-4xl mx-auto">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-white bg-opacity-20 rounded-full p-2">
-                  <BoltIcon className="h-6 w-6" />
-                </div>
+          {/* Anonymous Usage Display - Compact Right Corner */}
+          {!user && (
+            <div className="absolute top-0 right-4 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-md px-3 py-2 text-white text-xs">
+              <div className="flex items-center space-x-2">
+                <BoltIcon className="h-4 w-4" />
                 <div>
-                  <h3 className="font-semibold">Free Backtesting</h3>
-                  <p className="text-sm opacity-90">
-                    {anonymousUsage.remainingTests > 0
-                      ? `${anonymousUsage.remainingTests} free ${anonymousUsage.remainingTests === 1 ? 'backtest' : 'backtests'} remaining`
-                      : 'No free backtests remaining'
-                    }
-                  </p>
+                  <div className="font-semibold">{anonymousUsage.remainingTests}/{anonymousUsage.totalLimit} Free Tests</div>
+                  <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
+                    <div
+                      className="bg-white rounded-full h-1 transition-all duration-300"
+                      style={{ width: `${(anonymousUsage.remainingTests / anonymousUsage.totalLimit) * 100}%` }}
+                    ></div>
+                  </div>
                 </div>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-bold">{anonymousUsage.remainingTests}/{anonymousUsage.totalLimit}</div>
                 <button
                   onClick={() => setShowLoginModal(true)}
-                  className="mt-1 px-4 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-full text-sm font-medium transition-all"
+                  className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
                 >
-                  Get Unlimited
+                  Upgrade
                 </button>
               </div>
             </div>
-            <div className="mt-3">
-              <div className="w-full bg-white bg-opacity-20 rounded-full h-2">
-                <div
-                  className="bg-white rounded-full h-2 transition-all duration-300"
-                  style={{ width: `${(anonymousUsage.remainingTests / anonymousUsage.totalLimit) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Tab Navigation */}
         <div className="flex justify-center mb-8 sm:mb-12">

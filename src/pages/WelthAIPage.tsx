@@ -487,11 +487,35 @@ const WelthAIPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8">
-      <div className="mb-8">
+      <div className="relative mb-8">
         <h1 className="text-2xl md:text-3xl font-bold mb-2">Market Regime Analysis</h1>
         <p className="text-gray-600 dark:text-gray-300">
           AI-powered market regime detection and analysis
         </p>
+
+        {/* Anonymous Usage Display - Compact Right Corner */}
+        {!user && (
+          <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md px-3 py-2 text-white text-xs">
+            <div className="flex items-center space-x-2">
+              <SparklesIcon className="h-4 w-4" />
+              <div>
+                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/2 Free Analyses</div>
+                <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
+                  <div
+                    className="bg-white rounded-full h-1 transition-all duration-300"
+                    style={{ width: `${(anonymousUsage.remainingAnalyses / 2) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
+              >
+                Upgrade
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Two-column layout for Analysis Settings and Results */}
