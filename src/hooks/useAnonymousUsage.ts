@@ -13,9 +13,14 @@ interface UsageInfo {
  * Hook to fetch and display anonymous usage status for a specific feature
  * @param feature - Feature name (e.g., 'welth-ai-assistant', 'backtest-beta', 'ai-market-analysis')
  * @param refetchTrigger - Optional dependency to trigger refetch
+ * @param sessionId - Optional session ID for session-based features (like welth-ai-assistant)
  * @returns Usage information or null if not available
  */
-export default function useAnonymousUsage(feature: string, refetchTrigger?: any): UsageInfo | null {
+export default function useAnonymousUsage(
+  feature: string,
+  refetchTrigger?: any,
+  sessionId?: string
+): UsageInfo | null {
   const [usage, setUsage] = useState<UsageInfo | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -30,9 +35,18 @@ export default function useAnonymousUsage(feature: string, refetchTrigger?: any)
 
       try {
         setLoading(true);
+
+        // Build params
+        const params: any = { feature };
+
+        // For welth-ai-assistant, include session_id if available
+        if (feature === 'welth-ai-assistant' && sessionId) {
+          params.session_id = sessionId;
+        }
+
         // Create axios instance with proper base URL
         const response = await axios.get(`${API_URL}/usage/anonymous-status`, {
-          params: { feature: feature },
+          params,
           withCredentials: true // Important: Include cookies for session tracking
         });
 
@@ -62,7 +76,7 @@ export default function useAnonymousUsage(feature: string, refetchTrigger?: any)
     return () => {
       mounted = false;
     };
-  }, [feature, refetchTrigger]);
+  }, [feature, refetchTrigger, sessionId]);
 
   return usage;
 }

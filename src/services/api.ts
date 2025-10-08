@@ -603,6 +603,21 @@ export const marketService = {
       throw error;
     }
   },
+
+  // Enhanced Chat with 4-Phase AI System (No login required)
+  enhancedChat: async (message: string, sessionId?: string, model?: string) => {
+    try {
+      const response = await api.post('/enhanced-chat', {
+        message,
+        session_id: sessionId,
+        model: model || 'openrouter'
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with enhanced chat:', error);
+      throw error;
+    }
+  },
   
   // Get trending stocks (top gainers and losers)
   getTrendingStocks: async (limit?: number) => {
@@ -624,8 +639,32 @@ export const marketService = {
       console.error(`Error fetching fundamentals for ${symbol}:`, error);
       throw error;
     }
+  },
+
+  // Get full trade forecast (LSTM + HMM combined analysis)
+  // getFullTradeForecast: async (ticker: string) => {
+  //   try {
+  //     const response = await api.get(`/ai_forecast/full_trade_forecast?ticker=${ticker}`);
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error(`Error fetching full trade forecast for ${ticker}:`, error);
+  //     throw error;
+  //   }
+  // }
+  // Get full trade forecast (LSTM + HMM combined analysis)
+getFullTradeForecast: async (ticker: string) => {
+  try {
+    const response = await api.get(`/ai_forecast/full_trade_forecast`, {
+      params: { ticker }, // <-- this sends ?ticker=RELIANCE.NS
+    });
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching full trade forecast for ${ticker}:`, error);
+    throw error;
   }
+}
 };
+
 
 // Market Regime AI Analysis Service
 export const marketRegimeService = {

@@ -29,6 +29,7 @@ import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
 import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
 import NewsDetailPage from './pages/NewsDetailPage';
+import MarketRegimePage from './pages/MarketRegimePage';
 
 // Components
 import Header from './components/Header';
@@ -177,6 +178,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/welthai" element={<WelthAIPage />} />
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
                 <Route path="/ai-market-analysis" element={<AIMarketAnalysisPage />} />
+                <Route path="/welth-market-regime" element={<MarketRegimePage />} />
                 <Route path="/welthchatbot" element={<WelthChatbotPage />} />
                 <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />
                 <Route path="/technical-analysis" element={<TechnicalAnalysisPage />} />

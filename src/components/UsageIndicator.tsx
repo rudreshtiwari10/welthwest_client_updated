@@ -7,6 +7,7 @@ interface UsageIndicatorProps {
   feature: string;
   featureDisplayName?: string;
   refreshTrigger?: number;
+  sessionId?: string;
 }
 
 /**
@@ -16,10 +17,11 @@ interface UsageIndicatorProps {
 const UsageIndicator: React.FC<UsageIndicatorProps> = ({
   feature,
   featureDisplayName,
-  refreshTrigger
+  refreshTrigger,
+  sessionId
 }) => {
   const { user } = useAuth();
-  const usage = useAnonymousUsage(feature, refreshTrigger);
+  const usage = useAnonymousUsage(feature, refreshTrigger, sessionId);
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
 

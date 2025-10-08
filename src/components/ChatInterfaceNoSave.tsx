@@ -86,6 +86,18 @@ interface Message {
   progress?: { label: string; percent?: number; indeterminate?: boolean };
   // Technical indicators content
   technical?: { symbol: string; data: any };
+  // Enhanced Chat features
+  toolSuggestions?: Array<{
+    tool_id: string;
+    name: string;
+    description: string;
+    url: string;
+    features: string[];
+    use_cases: string[];
+  }>;
+  followUpQuestions?: string[];
+  stockData?: any;
+  intent?: string;
 }
 
 interface AnonymousSessionState {
@@ -496,33 +508,33 @@ const ChatInterfaceNoSave: React.FC = () => {
 
       let response: any;
       
-      // Determine which API to use
+      // Use Enhanced Chat API for all users (no login required)
       if (!user) {
-        // Not logged in - use free anonymous chat
+        // Not logged in - use enhanced chat with session management
         if (anonymousSession.loginRequired) {
           // Anonymous limit exceeded, show login modal
           setShowLoginModal(true);
           setIsLoading(false);
           return;
         }
-        
+
         try {
-          response = await marketService.anonymousChatWithAI(
+          response = await marketService.enhancedChat(
             input.trim(),
             anonymousSession.sessionId || undefined,
             selectedModel
           );
-          
+
           // Update session state from response
           if (response.session_id) {
             setAnonymousSession(prev => ({
               sessionId: response.session_id,
-              remainingMessages: response.remaining_usage?.messages ?? response.remaining_messages ?? prev.remainingMessages,
-              loginRequired: response.login_required || false
+              remainingMessages: response.usage_info?.messages_remaining ?? prev.remainingMessages,
+              loginRequired: response.usage_info?.requires_login || false
             }));
           }
         } catch (error: any) {
-          // If anonymous chat fails due to limits, suggest login
+          // If enhanced chat fails due to limits, suggest login
           if (error.response?.status === 403) {
             setAnonymousSession(prev => ({
               ...prev,
@@ -536,46 +548,46 @@ const ChatInterfaceNoSave: React.FC = () => {
           throw error;
         }
       } else {
-        // User is logged in
+        // User is logged in - still use enhanced chat (works for both)
         if (anonymousSession.loginRequired || !canUseLLM()) {
-          // Use market chat API for authenticated users
-          response = await marketService.chatWithAI(
+          // Use enhanced chat API even for authenticated users
+          response = await marketService.enhancedChat(
             input.trim(),
-            selectedModel,
-            user?.id
+            anonymousSession.sessionId || undefined,
+            selectedModel
           );
-          
+
           // Increment usage after successful response
           await incrementLLMUsage();
         } else {
-          // Still have free messages, use anonymous chat
+          // Still have free messages, use enhanced chat
           try {
-            response = await marketService.anonymousChatWithAI(
+            response = await marketService.enhancedChat(
               input.trim(),
               anonymousSession.sessionId || undefined,
               selectedModel
             );
-            
+
             // Update session state from response
             if (response.session_id) {
               setAnonymousSession(prev => ({
                 sessionId: response.session_id,
-                remainingMessages: response.remaining_usage?.messages ?? response.remaining_messages ?? prev.remainingMessages,
-                loginRequired: response.login_required || false
+                remainingMessages: response.usage_info?.messages_remaining ?? prev.remainingMessages,
+                loginRequired: response.usage_info?.requires_login || false
               }));
             }
           } catch (error: any) {
-            // If anonymous chat fails, fall back to market chat
+            // If enhanced chat fails, try again with authentication
             if (error.response?.status === 403) {
-              response = await marketService.chatWithAI(
+              response = await marketService.enhancedChat(
                 input.trim(),
-                selectedModel,
-                user?.id
+                anonymousSession.sessionId || undefined,
+                selectedModel
               );
-              
+
               await incrementLLMUsage();
-              
-              // Update session to require market chat from now on
+
+              // Update session to require authentication from now on
               setAnonymousSession(prev => ({
                 ...prev,
                 loginRequired: true,
@@ -588,33 +600,21 @@ const ChatInterfaceNoSave: React.FC = () => {
         }
       }
       
-      // Create response message - handle different response formats
+      // Create response message with enhanced features
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: response.analysis || response.response,
         sender: 'assistant',
         timestamp: new Date(),
         contentType: 'text',
+        // Enhanced Chat features
+        toolSuggestions: response.tool_suggestions || [],
+        followUpQuestions: response.follow_up_questions || [],
+        stockData: response.stock_data,
+        intent: response.intent,
       };
-      
+
       setMessages(prev => [...prev, assistantMessage]);
-      
-      // If there's stock data (from market chat), add it as a separate message
-      if (response.stock_data && Object.keys(response.stock_data).length > 0) {
-        const symbol = Object.keys(response.stock_data)[0];
-        const stockData = response.stock_data[symbol];
-        
-        if (stockData) {
-          const stockMessage: Message = {
-            id: (Date.now() + 2).toString(),
-            text: `Additional data for ${symbol}:\n\nPrice: $${stockData.current_price?.toFixed(2) || 'N/A'}\nChange: ${stockData.change?.percent >= 0 ? '+' : ''}${stockData.change?.percent?.toFixed(2) || 'N/A'}%`,
-            sender: 'assistant',
-            timestamp: new Date(),
-          };
-          
-          setMessages(prev => [...prev, stockMessage]);
-        }
-      }
     } catch (error) {
       
       // Convert error to string to avoid rendering objects directly
