@@ -607,10 +607,10 @@ export const marketService = {
   // Enhanced Chat with 4-Phase AI System (No login required)
   enhancedChat: async (message: string, sessionId?: string, model?: string) => {
     try {
-      const response = await api.post('/enhanced-chat', {
+      const response = await api.post('/nextgenchat', {
         message,
         session_id: sessionId,
-        model: model || 'openrouter'
+        conversation_history: []
       });
       return response.data;
     } catch (error) {

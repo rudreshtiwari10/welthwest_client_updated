@@ -52,11 +52,7 @@ const NextGenChatPage: React.FC = () => {
   const [refreshUsage, setRefreshUsage] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(scrollToBottom, [messages]);
+  // Removed auto-scroll - user can manually scroll to see new messages
 
   const getMessageIcon = (intent?: string, sender?: string) => {
     if (sender === 'user') return null;
@@ -97,31 +93,25 @@ const NextGenChatPage: React.FC = () => {
       // Import API service
       const { marketService } = await import('./services/api');
 
-      console.log('Sending message with sessionId:', currentSessionId);
-      let data = await marketService.enhancedChat(
+      console.log('Sending message to NextGen chat API');
+      const data = await marketService.enhancedChat(
         userMessage.text,
         currentSessionId
       );
 
-      console.log('Enhanced chat response:', data);
-
-      // Check if response contains session creation info (first request without session_id)
-      if (data.session_id && !data.response && data.message) {
-        console.log('Session created:', data.session_id, '- Retrying with session...');
-        setCurrentSessionId(data.session_id);
-
-        // Retry the request with the new session_id
-        data = await marketService.enhancedChat(
-          userMessage.text,
-          data.session_id
-        );
-        console.log('Retry response with session:', data);
-      }
+      console.log('NextGen chat response:', data);
 
       // Check for login requirement in response
       if (data.requires_login) {
         setError(data.message || 'Please log in to continue chatting.');
-        setUsageInfo(data.usage_info);
+        if (data.usage || data.usage_info) {
+          const usage = data.usage || data.usage_info;
+          setUsageInfo({
+            remaining_messages: usage.remaining || usage.remaining_messages || 0,
+            total_limit: usage.limit || usage.total_limit || 10,
+            reset_time: usage.reset_time
+          });
+        }
         return;
       }
 
@@ -132,17 +122,12 @@ const NextGenChatPage: React.FC = () => {
         return;
       }
 
-      // Update session ID if provided
-      if (data.session_id && data.session_id !== currentSessionId) {
-        setCurrentSessionId(data.session_id);
-      }
-
       const aiMessage: Message = {
         id: `ai_${Date.now()}`,
         sender: 'ai',
         text: data.response || 'No response received',
         timestamp: new Date(),
-        intent: data.intent,
+        intent: data.query_type || data.intent, // Backend uses query_type
         metadata: {
           model_used: data.model_used,
           stock_data: data.stock_data,
@@ -155,8 +140,14 @@ const NextGenChatPage: React.FC = () => {
       console.log('Adding AI message:', aiMessage);
       setMessages(prev => [...prev, aiMessage]);
 
-      if (data.usage_info) {
-        setUsageInfo(data.usage_info);
+      // Handle usage from both field names (usage or usage_info)
+      if (data.usage || data.usage_info) {
+        const usage = data.usage || data.usage_info;
+        setUsageInfo({
+          remaining_messages: usage.remaining || usage.remaining_messages || 0,
+          total_limit: usage.limit || usage.total_limit || 10,
+          reset_time: usage.reset_time
+        });
       }
 
       // Refresh usage counter
@@ -219,8 +210,16 @@ const NextGenChatPage: React.FC = () => {
   };
 
   const formatAIResponse = (text: string) => {
-    // Remove asterisks used for bold/emphasis
-    let formatted = text.replace(/\*\*/g, '').replace(/\*/g, '');
+    // Remove common AI response prefixes and suffixes
+    let formatted = text
+      .replace(/^<s>\s*\[OUT\]\s*/gi, '') // Remove <s> [OUT] prefix
+      .replace(/^<s>\s*/gi, '') // Remove <s> prefix
+      .replace(/\[OUT\]\s*/gi, '') // Remove [OUT] prefix
+      .replace(/\[\/OUT\]\s*/gi, '') // Remove [/OUT] suffix
+      .replace(/<\/s>\s*$/gi, '') // Remove </s> suffix
+      .replace(/\*\*/g, '') // Remove ** for bold
+      .replace(/\*/g, '') // Remove * for emphasis
+      .trim();
 
     // Split into paragraphs for better spacing
     const paragraphs = formatted.split('\n\n').filter(p => p.trim());
@@ -241,7 +240,7 @@ const NextGenChatPage: React.FC = () => {
               const cleaned = trimmed.replace(/^[-•]\s/, '').replace(/^\d+\.\s/, '');
               return (
                 <div key={lineIdx} className="flex items-start mb-2 last:mb-0">
-                  <span className="text-blue-500 mr-2 mt-1">•</span>
+                  <span className="text-purple-500 dark:text-purple-400 mr-2 mt-1">•</span>
                   <span className="flex-1">{cleaned}</span>
                 </div>
               );
@@ -338,29 +337,30 @@ const NextGenChatPage: React.FC = () => {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex items-start gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              <div
-                className={`max-w-xs lg:max-w-2xl px-4 py-3 rounded-lg ${
-                  message.sender === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700'
-                }`}
-              >
-                {message.sender === 'ai' && (
-                  <div className="flex items-center space-x-2 mb-3">
-                    {getMessageIcon(message.intent, message.sender)}
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {message.metadata?.model_used && `via ${message.metadata.model_used}`}
-                      {message.intent && ` • ${message.intent.replace('_', ' ')}`}
-                    </span>
-                  </div>
-                )}
+              {/* AI Avatar */}
+              {message.sender === 'ai' && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <SparklesIcon className="w-4 h-4 text-white" />
+                </div>
+              )}
 
+              <div className={`max-w-xs lg:max-w-2xl ${message.sender === 'user' ? 'text-right' : ''}`}>
+                {/* Message sender label */}
+                <div className={`text-xs font-medium mb-1 ${
+                  message.sender === 'user'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-purple-600 dark:text-purple-400'
+                }`}>
+                  {message.sender === 'user' ? 'You' : 'WelthAI'}
+                </div>
+
+                {/* Message content */}
                 {message.sender === 'ai' ? (
-                  <div className="text-sm">{formatAIResponse(message.text)}</div>
+                  <div className="text-sm text-gray-900 dark:text-gray-100">{formatAIResponse(message.text)}</div>
                 ) : (
-                  <div className="text-sm">{message.text}</div>
+                  <div className="text-sm text-gray-900 dark:text-gray-100">{message.text}</div>
                 )}
 
                 {/* Stock Data Display */}
@@ -427,12 +427,18 @@ const NextGenChatPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className={`text-xs mt-2 ${
-                  message.sender === 'user' ? 'text-blue-100' : 'text-gray-400 dark:text-gray-500'
-                }`}>
+                {/* Timestamp */}
+                <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                   {formatTimestamp(message.timestamp)}
                 </div>
               </div>
+
+              {/* User Avatar */}
+              {message.sender === 'user' && (
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center">
+                  <span className="text-white text-xs font-semibold">{user?.username?.[0]?.toUpperCase() || 'U'}</span>
+                </div>
+              )}
             </div>
           ))}
 
