@@ -29,6 +29,8 @@ interface PriceAnalysis {
   forecast: PriceForecast[];
   lstm_trend: string;
   average_change_percent: number;
+  technical_trend?: string;
+  trend_strength?: number;
 }
 
 interface MarketRegime {
@@ -36,12 +38,15 @@ interface MarketRegime {
   regime_name: string;
   confidence: number;
   regime_description: string;
+  volatility?: number;
 }
 
 interface Recommendation {
   action: string;
   reasoning: string;
   confidence: string;
+  model_agreement?: string;
+  model_signals?: Record<string, any>;
 }
 
 interface RiskAssessment {
@@ -59,14 +64,42 @@ interface TradingSignals {
   target_low: number;
 }
 
+interface PositionSizing {
+  recommended_capital: number;
+  position_percentage: number;
+  kelly_criterion: number;
+  max_risk: number;
+  recommendation: string;
+}
+
+interface SentimentAnalysis {
+  overall: number;
+  trend: string;
+  key_topics: string[];
+}
+
+interface Insights {
+  detected_patterns: string[];
+  price_action_signals: string[];
+  breakouts: string[];
+  sentiment_analysis: SentimentAnalysis;
+  support_levels: number[];
+  resistance_levels: number[];
+}
+
 interface FullTradeForecast {
   status: string;
   ticker: string;
+  timestamp?: string;
+  trading_style?: string;
   price_analysis: PriceAnalysis;
   market_regime: MarketRegime;
   recommendation: Recommendation;
   risk_assessment: RiskAssessment;
   signals: TradingSignals;
+  position_sizing?: PositionSizing;
+  insights?: Insights;
+  message?: string;
 }
 
 const MarketRegimePage: React.FC = () => {
@@ -521,12 +554,308 @@ const MarketRegimePage: React.FC = () => {
               <ChartBarIcon className="h-6 w-6 mr-2 text-blue-500" />
               Market Regime Analysis
             </h2>
-            <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-              <p className="text-gray-700 dark:text-gray-300">
-                {forecastData.market_regime.regime_description}
-              </p>
+            <div className="space-y-4">
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p className="text-gray-700 dark:text-gray-300">
+                  {forecastData.market_regime.regime_description}
+                </p>
+              </div>
+              {forecastData.market_regime.volatility !== undefined && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Market Volatility</p>
+                    <p className="text-xl font-bold text-blue-600">
+                      {(forecastData.market_regime.volatility * 100).toFixed(2)}%
+                    </p>
+                  </div>
+                  {forecastData.price_analysis.technical_trend && (
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900 dark:bg-opacity-20 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Technical Trend</p>
+                      <p className={`text-xl font-bold capitalize ${
+                        forecastData.price_analysis.technical_trend.toLowerCase() === 'bullish'
+                          ? 'text-green-600'
+                          : forecastData.price_analysis.technical_trend.toLowerCase() === 'bearish'
+                          ? 'text-red-600'
+                          : 'text-gray-600'
+                      }`}>
+                        {forecastData.price_analysis.technical_trend}
+                      </p>
+                      {forecastData.price_analysis.trend_strength !== undefined && (
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          Strength: {(forecastData.price_analysis.trend_strength * 100).toFixed(0)}%
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Position Sizing Recommendations */}
+          {forecastData.position_sizing && (
+            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <CurrencyDollarIcon className="h-6 w-6 mr-2 text-green-500" />
+                Position Sizing & Risk Management
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="p-4 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-lg">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Recommended Capital</p>
+                  <p className="text-lg font-bold text-green-600">
+                    ₹{forecastData.position_sizing.recommended_capital.toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                  </p>
+                </div>
+                <div className="p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Position Size</p>
+                  <p className="text-lg font-bold text-blue-600">
+                    {forecastData.position_sizing.position_percentage.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="p-4 bg-purple-50 dark:bg-purple-900 dark:bg-opacity-20 rounded-lg">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Kelly Criterion</p>
+                  <p className="text-lg font-bold text-purple-600">
+                    {forecastData.position_sizing.kelly_criterion.toFixed(2)}%
+                  </p>
+                </div>
+                <div className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Max Risk</p>
+                  <p className="text-lg font-bold text-red-600">
+                    ₹{forecastData.position_sizing.max_risk.toLocaleString('en-IN', {maximumFractionDigits: 0})}
+                  </p>
+                </div>
+              </div>
+              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recommendation:</p>
+                <p className="text-gray-600 dark:text-gray-400">{forecastData.position_sizing.recommendation}</p>
+              </div>
+            </div>
+          )}
+
+          {/* AI Model Agreement */}
+          {forecastData.recommendation.model_agreement && (
+            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <SparklesIcon className="h-6 w-6 mr-2 text-purple-500" />
+                AI Model Consensus
+              </h2>
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Model Agreement
+                  </span>
+                  <span className="text-lg font-bold text-purple-600">
+                    {forecastData.recommendation.model_agreement}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                  <div
+                    className="bg-gradient-to-r from-purple-500 to-indigo-600 h-3 rounded-full"
+                    style={{
+                      width: forecastData.recommendation.model_agreement.replace('%', '') + '%'
+                    }}
+                  ></div>
+                </div>
+              </div>
+              {forecastData.recommendation.model_signals && Object.keys(forecastData.recommendation.model_signals).length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {Object.entries(forecastData.recommendation.model_signals).map(([model, signal]: [string, any]) => (
+                    <div key={model} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 capitalize mb-1">{model}</p>
+                      <p className={`text-sm font-bold ${
+                        signal === 'BUY' || signal === 'buy'
+                          ? 'text-green-600'
+                          : signal === 'SELL' || signal === 'sell'
+                          ? 'text-red-600'
+                          : 'text-gray-600'
+                      }`}>
+                        {typeof signal === 'string' ? signal.toUpperCase() : JSON.stringify(signal)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Advanced Insights */}
+          {forecastData.insights && (
+            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <InformationCircleIcon className="h-6 w-6 mr-2 text-indigo-500" />
+                Advanced Market Insights
+              </h2>
+
+              <div className="space-y-6">
+                {/* Sentiment Analysis */}
+                {forecastData.insights.sentiment_analysis && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
+                      Market Sentiment
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
+                      <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900 dark:to-indigo-900 dark:bg-opacity-20 rounded-lg">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Overall Sentiment</p>
+                        <div className="flex items-center">
+                          <p className={`text-2xl font-bold ${
+                            forecastData.insights.sentiment_analysis.overall > 0
+                              ? 'text-green-600'
+                              : forecastData.insights.sentiment_analysis.overall < 0
+                              ? 'text-red-600'
+                              : 'text-gray-600'
+                          }`}>
+                            {forecastData.insights.sentiment_analysis.overall > 0 ? '+' : ''}
+                            {(forecastData.insights.sentiment_analysis.overall * 100).toFixed(0)}%
+                          </p>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900 dark:to-pink-900 dark:bg-opacity-20 rounded-lg">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Sentiment Trend</p>
+                        <p className="text-xl font-bold text-purple-600 capitalize">
+                          {forecastData.insights.sentiment_analysis.trend}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900 dark:to-orange-900 dark:bg-opacity-20 rounded-lg">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Key Topics</p>
+                        <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                          {forecastData.insights.sentiment_analysis.key_topics.length > 0
+                            ? forecastData.insights.sentiment_analysis.key_topics.slice(0, 2).join(', ')
+                            : 'Analyzing...'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Detected Patterns */}
+                {forecastData.insights.detected_patterns && forecastData.insights.detected_patterns.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
+                      Detected Chart Patterns
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {forecastData.insights.detected_patterns.map((pattern, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
+                        >
+                          {pattern}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Price Action Signals */}
+                {forecastData.insights.price_action_signals && forecastData.insights.price_action_signals.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
+                      Price Action Signals
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {forecastData.insights.price_action_signals.map((signal, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 dark:bg-opacity-30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium"
+                        >
+                          {signal}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Breakout Signals */}
+                {forecastData.insights.breakouts && forecastData.insights.breakouts.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
+                      Breakout Opportunities
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {forecastData.insights.breakouts.map((breakout, index) => (
+                        <span
+                          key={index}
+                          className="px-3 py-1.5 bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 dark:bg-opacity-30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium"
+                        >
+                          {breakout}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Support & Resistance Levels */}
+                {((forecastData.insights.support_levels && forecastData.insights.support_levels.length > 0) ||
+                  (forecastData.insights.resistance_levels && forecastData.insights.resistance_levels.length > 0)) && (
+                  <div>
+                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
+                      Key Levels
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {forecastData.insights.support_levels && forecastData.insights.support_levels.length > 0 && (
+                        <div className="p-4 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-lg">
+                          <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">
+                            Support Levels
+                          </p>
+                          <div className="space-y-1">
+                            {forecastData.insights.support_levels.slice(0, 3).map((level, index) => (
+                              <p key={index} className="text-green-600 dark:text-green-400 font-mono text-sm">
+                                S{index + 1}: ₹{level.toFixed(2)}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {forecastData.insights.resistance_levels && forecastData.insights.resistance_levels.length > 0 && (
+                        <div className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg">
+                          <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-2">
+                            Resistance Levels
+                          </p>
+                          <div className="space-y-1">
+                            {forecastData.insights.resistance_levels.slice(0, 3).map((level, index) => (
+                              <p key={index} className="text-red-600 dark:text-red-400 font-mono text-sm">
+                                R{index + 1}: ₹{level.toFixed(2)}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Analysis Metadata */}
+          {(forecastData.timestamp || forecastData.trading_style) && (
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
+              <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-gray-600 dark:text-gray-400">
+                {forecastData.timestamp && (
+                  <div className="flex items-center">
+                    <InformationCircleIcon className="h-4 w-4 mr-2" />
+                    <span>
+                      Analysis generated on: {new Date(forecastData.timestamp).toLocaleString('en-IN', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                )}
+                {forecastData.trading_style && (
+                  <div className="flex items-center">
+                    <span className="mr-2">Trading Style:</span>
+                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900 dark:bg-opacity-30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium capitalize">
+                      {forecastData.trading_style}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
