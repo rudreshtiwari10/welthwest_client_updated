@@ -431,30 +431,13 @@ const MarketRegimePage: React.FC = () => {
       {forecastData && !loading && (
         <div className="space-y-6">
           {/* Main Recommendation Card */}
-          <div className={`bg-white dark:bg-dark-400 rounded-lg shadow-lg p-6 border-l-4 ${
-            getActionColor(forecastData.recommendation.action) === 'green'
-              ? 'border-green-500'
-              : getActionColor(forecastData.recommendation.action) === 'red'
-              ? 'border-red-500'
-              : 'border-yellow-500'
-          }`}>
+          <div className="bg-white dark:bg-dark-400 rounded-lg shadow-lg p-6 border-l-4 border-purple-500">
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-2 flex items-center">
                   <LightBulbIcon className="h-7 w-7 mr-2 text-yellow-500" />
                   Trading Recommendation
                 </h2>
-                <div className="mb-3">
-                  <span className={`inline-block px-4 py-2 rounded-full text-lg font-bold ${
-                    getActionColor(forecastData.recommendation.action) === 'green'
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : getActionColor(forecastData.recommendation.action) === 'red'
-                      ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                  }`}>
-                    {forecastData.recommendation.action}
-                  </span>
-                </div>
               </div>
               <div className="text-right">
                 <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">Confidence</div>
@@ -565,6 +548,26 @@ const MarketRegimePage: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Detected Chart Patterns */}
+          {forecastData.insights?.detected_patterns && forecastData.insights.detected_patterns.length > 0 && (
+            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-semibold mb-4 flex items-center">
+                <ChartBarIcon className="h-6 w-6 mr-2 text-blue-500" />
+                Detected Chart Patterns
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {forecastData.insights.detected_patterns.map((pattern, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
+                  >
+                    {pattern}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Price Forecast Table */}
           <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
@@ -748,25 +751,6 @@ const MarketRegimePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Detected Patterns */}
-                {forecastData.insights.detected_patterns && forecastData.insights.detected_patterns.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
-                      Detected Chart Patterns
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {forecastData.insights.detected_patterns.map((pattern, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
-                        >
-                          {pattern}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Price Action Signals */}
                 {forecastData.insights.price_action_signals && forecastData.insights.price_action_signals.length > 0 && (
                   <div>
@@ -805,45 +789,6 @@ const MarketRegimePage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Support & Resistance Levels */}
-                {((forecastData.insights.support_levels && forecastData.insights.support_levels.length > 0) ||
-                  (forecastData.insights.resistance_levels && forecastData.insights.resistance_levels.length > 0)) && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
-                      Key Levels
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {forecastData.insights.support_levels && forecastData.insights.support_levels.length > 0 && (
-                        <div className="p-4 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-lg">
-                          <p className="text-sm font-medium text-green-700 dark:text-green-300 mb-2">
-                            Support Levels
-                          </p>
-                          <div className="space-y-1">
-                            {forecastData.insights.support_levels.slice(0, 3).map((level, index) => (
-                              <p key={index} className="text-green-600 dark:text-green-400 font-mono text-sm">
-                                S{index + 1}: ₹{level.toFixed(2)}
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      {forecastData.insights.resistance_levels && forecastData.insights.resistance_levels.length > 0 && (
-                        <div className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg">
-                          <p className="text-sm font-medium text-red-700 dark:text-red-300 mb-2">
-                            Resistance Levels
-                          </p>
-                          <div className="space-y-1">
-                            {forecastData.insights.resistance_levels.slice(0, 3).map((level, index) => (
-                              <p key={index} className="text-red-600 dark:text-red-400 font-mono text-sm">
-                                R{index + 1}: ₹{level.toFixed(2)}
-                              </p>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )}
