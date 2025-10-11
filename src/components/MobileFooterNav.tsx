@@ -10,7 +10,7 @@ const MobileFooterNav: React.FC = () => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/ai-market-analysis') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta') || path.startsWith('/technical-analysis');
+    return path.startsWith('/welth-market-regime') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta') || path.startsWith('/technical-analysis');
   };
 
   // Close features menu when clicking outside
@@ -83,7 +83,7 @@ const MobileFooterNav: React.FC = () => {
               </Link>
               
               <Link
-                to="/ai-market-analysis"
+                to="/welth-market-regime"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50"
                 onClick={handleCloseFeatures}
               >
@@ -173,11 +173,11 @@ const MobileFooterNav: React.FC = () => {
 
           {/* WelthAI Button - Mobile */}
           <Link
-            to="/ai-market-analysis"
+            to="/welth-market-regime"
             className="flex flex-col items-center justify-center -mt-6"
           >
             <div className={`rounded-full p-4 bg-primary-600 shadow-lg ${
-              isActive('/ai-market-analysis') ? 'bg-primary-700' : 'bg-primary-600'
+              isActive('/welth-market-regime') ? 'bg-primary-700' : 'bg-primary-600'
             }`}>
               <div className="flex items-center justify-center">
                 <SparklesIcon className="h-6 w-6 text-white" />

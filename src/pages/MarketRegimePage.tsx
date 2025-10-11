@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { marketService } from '../services/api';
@@ -116,6 +116,13 @@ const MarketRegimePage: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState<string>('');
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
+  // Anonymous usage tracking
+  const [anonymousUsage, setAnonymousUsage] = useState({
+    remainingAnalyses: 10, // Default, will be updated from backend
+    totalLimit: 10, // Default, will be updated from backend
+    sessionId: null as string | null
+  });
+
   // Popular Indian stocks for quick selection
   const popularStocks = [
     { symbol: 'RELIANCE.NS', name: 'Reliance Industries' },
@@ -125,13 +132,39 @@ const MarketRegimePage: React.FC = () => {
     { symbol: 'ICICIBANK.NS', name: 'ICICI Bank' },
   ];
 
+  // Fetch anonymous usage on mount
+  useEffect(() => {
+    if (!user) {
+      fetchAnonymousUsage();
+    }
+  }, [user]);
+
+  const fetchAnonymousUsage = async () => {
+    try {
+      const usageData = await marketService.getAnonymousUsage();
+      if (usageData.features) {
+        const aiAnalysisUsage = usageData.features['ai-market-analysis'];
+        if (aiAnalysisUsage) {
+          setAnonymousUsage(prev => ({
+            ...prev,
+            remainingAnalyses: aiAnalysisUsage.remaining,
+            totalLimit: aiAnalysisUsage.limit
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching anonymous usage:', error);
+      // Keep default values on error
+    }
+  };
+
   // Loading simulation
   const simulateLoadingSteps = async () => {
     const steps = [
       { message: 'Fetching historical data...', duration: 800 },
-      { message: 'Training LSTM model...', duration: 1500 },
+      { message: 'Processing market data...', duration: 1500 },
       { message: 'Analyzing market regime...', duration: 1200 },
-      { message: 'Generating price forecasts...', duration: 1000 },
+      { message: 'Forecasting price movements...', duration: 1000 },
       { message: 'Calculating trading signals...', duration: 900 },
       { message: 'Preparing recommendations...', duration: 700 },
     ];
@@ -160,29 +193,51 @@ const MarketRegimePage: React.FC = () => {
       // Start loading simulation
       const loadingPromise = simulateLoadingSteps();
 
-      // Check authentication and limits
-      if (!user) {
-        setShowLoginModal(true);
-        setLoading(false);
-        return;
+      // Fetch forecast data using unified endpoint
+      // Backend will automatically handle authentication and limits
+      try {
+        const response = await marketService.getFullTradeForecast(ticker);
+
+        // Update usage information if provided (for anonymous users)
+        if (!user && response.usage) {
+          setAnonymousUsage(prev => ({
+            ...prev,
+            remainingAnalyses: response.usage.remaining ?? prev.remainingAnalyses
+          }));
+        }
+
+        // For authenticated users, increment usage tracking
+        if (user) {
+          try {
+            await incrementLLMUsage();
+          } catch (usageError) {
+            console.warn('Could not update usage count:', usageError);
+          }
+        }
+
+        // Wait for loading simulation
+        await loadingPromise;
+
+        setForecastData(response);
+      } catch (err: any) {
+        if (err.response?.status === 403) {
+          // Limit exceeded - show appropriate modal
+          if (!user) {
+            // Anonymous limit exceeded, show login modal
+            setAnonymousUsage(prev => ({
+              ...prev,
+              remainingAnalyses: 0
+            }));
+            setShowLoginModal(true);
+          } else {
+            // Authenticated user limit exceeded, show upgrade modal
+            setShowLimitModal(true);
+          }
+          setLoading(false);
+          return;
+        }
+        throw err;
       }
-
-      if (!canUseLLM()) {
-        setShowLimitModal(true);
-        setLoading(false);
-        return;
-      }
-
-      // Increment usage for authenticated users
-      await incrementLLMUsage();
-
-      // Fetch forecast data
-      const response = await marketService.getFullTradeForecast(ticker);
-
-      // Wait for loading simulation
-      await loadingPromise;
-
-      setForecastData(response);
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch forecast data';
       setError(errorMessage);
@@ -219,73 +274,116 @@ const MarketRegimePage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 relative">
         <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center">
           <ChartBarIcon className="h-8 w-8 mr-3 text-purple-500" />
           Market Regime & Trade Forecast
         </h1>
         <p className="text-gray-600 dark:text-gray-300">
-          AI-powered LSTM & HMM analysis for intelligent trading decisions
+          AI-powered stock price forecasting
         </p>
+
+        {/* Anonymous Usage Display - Compact Right Corner */}
+        {!user && (
+          <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md px-3 py-2 text-white text-xs">
+            <div className="flex items-center space-x-2">
+              <SparklesIcon className="h-4 w-4" />
+              <div>
+                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit} Free Trials Left</div>
+                <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
+                  <div
+                    className="bg-white rounded-full h-1 transition-all duration-300"
+                    style={{ width: `${(anonymousUsage.remainingAnalyses / anonymousUsage.totalLimit) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowLoginModal(true)}
+                className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
+              >
+                Sign Up
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Input Form */}
-      <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4 flex items-center">
-          <SparklesIcon className="h-6 w-6 mr-2 text-purple-500" />
+      {/* Input Form - Compact & Interactive */}
+      <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-4 md:p-6 mb-8 max-w-3xl mx-auto">
+        <h2 className="text-lg md:text-xl font-semibold mb-3 flex items-center">
+          <SparklesIcon className="h-5 w-5 md:h-6 md:w-6 mr-2 text-purple-500" />
           Stock Selection
         </h2>
 
-        <div className="space-y-4">
-          {/* Stock ticker input */}
-          <div>
-            <label className="block text-sm font-medium mb-2">Stock Ticker Symbol</label>
-            <input
-              type="text"
-              value={ticker}
-              onChange={(e) => setTicker(e.target.value.toUpperCase())}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="e.g., RELIANCE.NS"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleFetchForecast();
-                }
-              }}
-            />
+        <div className="space-y-3">
+          {/* Compact Stock Input with Quick Select */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Stock ticker input - compact */}
+            <div className="flex-1">
+              <label className="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400">Stock Ticker</label>
+              <input
+                type="text"
+                value={ticker}
+                onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all hover:border-purple-400"
+                placeholder="e.g., RELIANCE.NS"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleFetchForecast();
+                  }
+                }}
+              />
+            </div>
+
+            {/* Submit button - compact */}
+            <div className="sm:pt-5">
+              <button
+                onClick={handleFetchForecast}
+                disabled={loading || !ticker.trim()}
+                className={`w-full sm:w-auto px-5 py-2 text-sm rounded-md font-medium transition-all flex items-center justify-center gap-2 ${
+                  loading || !ticker.trim()
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0'
+                }`}
+              >
+                {loading ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Analyzing
+                  </>
+                ) : (
+                  <>
+                    <SparklesIcon className="h-4 w-4" />
+                    Analyze
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* Popular stocks quick selection */}
+          {/* Popular stocks quick selection - compact chips */}
           <div>
-            <label className="block text-sm font-medium mb-2">Quick Select Popular Stocks</label>
-            <div className="flex flex-wrap gap-2">
+            <label className="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400">Quick Select</label>
+            <div className="flex flex-wrap gap-1.5">
               {popularStocks.map((stock) => (
                 <button
                   key={stock.symbol}
                   onClick={() => setTicker(stock.symbol)}
-                  className={`px-3 py-1.5 text-sm rounded-md transition-all ${
+                  className={`px-2.5 py-1 text-xs rounded-full transition-all transform hover:scale-105 active:scale-95 ${
                     ticker === stock.symbol
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md ring-2 ring-purple-400 ring-opacity-50'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-sm'
                   }`}
+                  title={stock.name}
                 >
                   {stock.symbol.replace('.NS', '')}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Submit button */}
-          <button
-            onClick={handleFetchForecast}
-            disabled={loading || !ticker.trim()}
-            className={`w-full py-3 px-4 rounded-md font-medium transition-all ${
-              loading || !ticker.trim()
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-            }`}
-          >
-            {loading ? 'Analyzing...' : 'Get AI Forecast'}
-          </button>
         </div>
       </div>
 
@@ -371,7 +469,7 @@ const MarketRegimePage: React.FC = () => {
           </div>
 
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Current Price */}
             <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-4">
               <div className="flex items-center mb-2">
@@ -380,29 +478,6 @@ const MarketRegimePage: React.FC = () => {
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 ₹{forecastData.price_analysis.current_price.toFixed(2)}
-              </p>
-            </div>
-
-            {/* LSTM Trend */}
-            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-4">
-              <div className="flex items-center mb-2">
-                {forecastData.price_analysis.lstm_trend === 'Bullish' ? (
-                  <ArrowTrendingUpIcon className="h-5 w-5 mr-2 text-green-500" />
-                ) : (
-                  <ArrowTrendingDownIcon className="h-5 w-5 mr-2 text-red-500" />
-                )}
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">LSTM Trend</h3>
-              </div>
-              <p className={`text-2xl font-bold ${
-                forecastData.price_analysis.lstm_trend === 'Bullish'
-                  ? 'text-green-600'
-                  : 'text-red-600'
-              }`}>
-                {forecastData.price_analysis.lstm_trend}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {forecastData.price_analysis.average_change_percent > 0 ? '+' : ''}
-                {forecastData.price_analysis.average_change_percent.toFixed(2)}%
               </p>
             </div>
 
@@ -502,7 +577,6 @@ const MarketRegimePage: React.FC = () => {
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-700">
                     <th className="text-left p-3 border border-gray-300 dark:border-gray-600 font-semibold">Day</th>
-                    <th className="text-left p-3 border border-gray-300 dark:border-gray-600 font-semibold">Date</th>
                     <th className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">Predicted Price</th>
                     <th className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">Change %</th>
                   </tr>
@@ -512,13 +586,6 @@ const MarketRegimePage: React.FC = () => {
                     <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="p-3 border border-gray-300 dark:border-gray-600 font-medium">
                         Day {forecast.day}
-                      </td>
-                      <td className="p-3 border border-gray-300 dark:border-gray-600">
-                        {new Date(forecast.date).toLocaleDateString('en-IN', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
                       </td>
                       <td className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">
                         ₹{forecast.predicted_price.toFixed(2)}
@@ -629,52 +696,6 @@ const MarketRegimePage: React.FC = () => {
                 <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recommendation:</p>
                 <p className="text-gray-600 dark:text-gray-400">{forecastData.position_sizing.recommendation}</p>
               </div>
-            </div>
-          )}
-
-          {/* AI Model Agreement */}
-          {forecastData.recommendation.model_agreement && (
-            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <SparklesIcon className="h-6 w-6 mr-2 text-purple-500" />
-                AI Model Consensus
-              </h2>
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Model Agreement
-                  </span>
-                  <span className="text-lg font-bold text-purple-600">
-                    {forecastData.recommendation.model_agreement}
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
-                  <div
-                    className="bg-gradient-to-r from-purple-500 to-indigo-600 h-3 rounded-full"
-                    style={{
-                      width: forecastData.recommendation.model_agreement.replace('%', '') + '%'
-                    }}
-                  ></div>
-                </div>
-              </div>
-              {forecastData.recommendation.model_signals && Object.keys(forecastData.recommendation.model_signals).length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {Object.entries(forecastData.recommendation.model_signals).map(([model, signal]: [string, any]) => (
-                    <div key={model} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 capitalize mb-1">{model}</p>
-                      <p className={`text-sm font-bold ${
-                        signal === 'BUY' || signal === 'buy'
-                          ? 'text-green-600'
-                          : signal === 'SELL' || signal === 'sell'
-                          ? 'text-red-600'
-                          : 'text-gray-600'
-                      }`}>
-                        {typeof signal === 'string' ? signal.toUpperCase() : JSON.stringify(signal)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           )}
 

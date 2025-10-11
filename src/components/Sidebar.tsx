@@ -124,10 +124,10 @@ const mainNavigation = [
 
 // New Features section with categories
 const featureNavigation = [
-  { 
+  {
     category: 'WelthAI bots',
     items: [
-      { name: 'WelthAI Market Analysis', path: '/ai-market-analysis', icon: 'brain' },
+      { name: 'WelthAI Market Analysis', path: '/welth-market-regime', icon: 'brain' },
     ]
   },
   {

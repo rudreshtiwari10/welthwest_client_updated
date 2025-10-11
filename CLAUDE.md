@@ -282,3 +282,162 @@ def anonymous_ai_analysis():
 - Automatic session cleanup for expired anonymous sessions
 - Request validation and error handling
 - Memory-efficient in-memory storage with configurable limits
+
+## AI Market Analysis Page - Authentication Removal (Latest)
+
+### Eighth Follow-up Instructions
+```
+@WelthWestFrontend2\ ok so when click on analyze button so can you remove authentication option from this page like anyone can use without login just like other option they have limits of free trials without login so put that same limit of free trial on each run of this analyze button. @WelthWestServer2_aws\ make changes but dont hamper other code and make it run.
+```
+
+### Implementation Summary ✅ (Completed)
+
+**Goal:** Remove authentication requirement from AI Market Analysis page analyze button while maintaining free trial limits for anonymous users.
+
+**Changes Made:**
+
+1. **AIMarketAnalysisPage.tsx** ✅
+   - **Removed Authentication Checks:**
+     - Removed pre-check for user authentication before running analysis
+     - Removed button disabled state based on authentication or remaining analyses
+     - Button now only disabled while loading
+
+   - **Unified API Usage:**
+     - All users (authenticated and anonymous) now use the same `marketService.anonymousAIAnalysis()` API endpoint
+     - Backend automatically handles authentication and limits via `@anon_or_auth_feature_limit` decorator
+     - Removed separate code paths for authenticated vs anonymous users
+
+   - **Usage Tracking:**
+     - Anonymous users: Usage updated from backend response
+     - Authenticated users: Usage incremented via `incrementLLMUsage()` after successful analysis
+     - Both user types see appropriate limit exceeded modals when limits reached
+
+   - **UI Updates:**
+     - Changed "Upgrade" button text to "Sign Up" for anonymous users
+     - Changed usage display text from "Free Analyses" to "Free Trials Left"
+     - Maintained gradient purple/indigo theme for AI analysis branding
+
+2. **Backend Architecture** (Already Existing)
+   - **Unified Endpoint:** `/api/ai-analysis/run` with `@anon_or_auth_feature_limit('ai-market-analysis')` decorator
+   - **Automatic Handling:** Backend automatically:
+     - Detects if user is authenticated or anonymous
+     - Checks appropriate limits (subscription limits for authenticated, session limits for anonymous)
+     - Returns 403 error when limits exceeded
+     - Returns usage information for anonymous users
+     - Performs full HMM analysis with predictions and recommendations
+
+3. **User Experience:**
+   - **Anonymous Users:**
+     - Can run AI analysis without logging in
+     - See remaining free trials in top-right corner
+     - Get login prompt when free trials exhausted
+     - Encouraged to sign up for unlimited access
+
+   - **Authenticated Users:**
+     - Seamless experience with subscription-based limits
+     - Usage tracked against daily LLM query limits
+     - Upgrade modal shown when subscription limits reached
+
+**Technical Benefits:**
+- Simplified codebase with single API endpoint for all users
+- Consistent behavior handled by backend decorator
+- Better user onboarding with anonymous trial access
+- No authentication barriers for first-time users
+- Maintains security and usage tracking integrity
+
+**Files Modified:**
+- `WelthWestFrontend2/src/pages/AIMarketAnalysisPage.tsx` - Removed auth checks, unified API usage
+  - Updated `handleHMMAnalysis` function (lines 221-338)
+  - Updated analyze button disabled state (line 635)
+  - Updated anonymous usage banner text (lines 546, 558)
+
+**No Backend Changes Required:** The backend already had the unified endpoint `/api/ai-analysis/run` with the `@anon_or_auth_feature_limit` decorator that handles both authenticated and anonymous users automatically.
+
+## Market Regime Page - Authentication Removal (Latest - Same Session)
+
+### Same Request Applied to Different Page:
+```
+i wanted to implment this on page /welth-market-regime can you check if implmented on right page as when i ran its showing login pop up page so can you check fix it , @WelthWestServer2_aws\ server if need. also do above changes said
+```
+
+### Implementation Summary ✅ (Completed)
+
+**Goal:** Remove authentication requirement from Market Regime & Trade Forecast page (`/welth-market-regime`) and implement the same free trial system.
+
+**Changes Made:**
+
+1. **MarketRegimePage.tsx** ✅
+   - **Added Anonymous Usage Tracking:**
+     - Added state for anonymous usage (10 free trials)
+     - Added `useEffect` to fetch anonymous usage on mount
+     - Usage display banner in top-right corner with progress bar
+
+   - **Removed Authentication Checks:**
+     - Removed login requirement check before running forecast (lines 164-168 removed)
+     - Updated `handleFetchForecast` to work for both authenticated and anonymous users
+     - Backend automatically handles limits via decorator
+
+   - **Enhanced Error Handling:**
+     - 403 errors show login modal for anonymous users
+     - 403 errors show upgrade modal for authenticated users
+     - Usage count updated from backend response
+
+   - **UI Updates:**
+     - Anonymous usage banner with purple/indigo gradient
+     - "Sign Up" button for anonymous users
+     - Progress bar showing remaining trials
+
+2. **Backend (app.py)** ✅
+   - **Updated `/api/ai_forecast/full_trade_forecast` Endpoint:**
+     - Added `@validate_json_request` decorator
+     - Added `@anon_or_auth_feature_limit('ai-market-analysis')` decorator
+     - Returns usage information for anonymous users
+     - Supports both GET and POST methods
+     - Handles both authenticated and anonymous users automatically
+
+**User Experience:**
+
+**Anonymous Users:**
+- Can access Market Regime forecast without logging in
+- See remaining free trials (10 total) in top-right corner
+- Usage count decrements with each forecast
+- Login prompt shown when trials exhausted
+
+**Authenticated Users:**
+- Seamless experience with subscription limits
+- Usage tracked against daily LLM query limits
+- No visual usage display (subscription-based)
+
+**Files Modified:**
+- `WelthWestFrontend2/src/pages/MarketRegimePage.tsx`
+  - Added anonymous usage state and tracking (lines 119-124)
+  - Added `useEffect` for usage fetching (lines 135-159)
+  - Updated `handleFetchForecast` function (lines 180-241)
+  - Added anonymous usage banner (lines 278-300)
+
+- `WelthWestServer2_aws/app.py`
+  - Updated `/api/ai_forecast/full_trade_forecast` endpoint (lines 4199-4231)
+  - Added `@anon_or_auth_feature_limit` decorator
+  - Added usage info to response for anonymous users
+
+**Technical Implementation:**
+- Same pattern as AI Market Analysis page
+- Unified backend endpoint handles both user types
+- Session-based limits for anonymous (10 free)
+- Subscription-based limits for authenticated
+- Consistent UX across all AI features
+
+### Bug Fix: 400 Bad Request Error ✅
+
+**Issue:** GET requests to `/api/ai_forecast/full_trade_forecast` were failing with 400 Bad Request
+
+**Root Cause:** The `@validate_json_request` decorator was requiring JSON content-type for all requests, but GET requests don't have a JSON body.
+
+**Fix Applied:**
+- Removed `@validate_json_request` decorator from the endpoint
+- Added inline JSON validation for POST requests only
+- GET requests with query parameters now work correctly
+
+**File:** `WelthWestServer2_aws/app.py` (line 4199-4233)
+- Removed line 4200: `@validate_json_request` decorator
+- Added lines 4208-4210: Inline JSON validation for POST method only

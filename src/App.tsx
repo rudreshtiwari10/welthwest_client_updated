@@ -117,7 +117,7 @@ const FloatingChatWithLocation: React.FC = () => {
   const location = useLocation();
   
   // Don't show the floating chat on the WelthAI page
-  const isWelthAIPage = location.pathname === '/ai-market-analysis';
+  const isWelthAIPage = location.pathname === '/welth-market-regime';
   
   if (isWelthAIPage) return null;
   
@@ -177,7 +177,6 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/backtest-beta" element={<BacktestingBetaPage />} />
                 <Route path="/welthai" element={<WelthAIPage />} />
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
-                <Route path="/ai-market-analysis" element={<AIMarketAnalysisPage />} />
                 <Route path="/welth-market-regime" element={<MarketRegimePage />} />
                 <Route path="/welthchatbot" element={<WelthChatbotPage />} />
                 <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />

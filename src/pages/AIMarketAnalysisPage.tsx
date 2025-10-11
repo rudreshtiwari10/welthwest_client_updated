@@ -224,130 +224,106 @@ const AIMarketAnalysisPage: React.FC = () => {
       setHmmError(null);
       setLoadingProgress(0);
       setLoadingStep('Starting AI analysis...');
-      
+
       // Track AI analysis start event
       trackEvent('ai_analysis_started', {
         symbol: config.ticker,
         period: config.period,
         user_type: user ? 'authenticated' : 'anonymous'
       });
-      
+
       // Start loading simulation
       const loadingPromise = simulateLoadingSteps();
-      
-      // Check if user is authenticated
-      if (!user) {
-        // Anonymous user - check remaining analyses
-        if (anonymousUsage.remainingAnalyses <= 0) {
-          trackEvent('ai_analysis_limit_reached', { user_type: 'anonymous' });
-          setShowLoginModal(true);
-          setHmmLoading(false);
-          return;
-        }
 
-        // Don't decrement here - backend will handle it and return updated usage
-      } else {
-        // Authenticated user - check subscription limits
-        if (!canUseLLM()) {
-          setShowLimitModal(true);
-          setHmmLoading(false);
-          return;
-        }
-        
-        // Increment usage for authenticated users
-        await incrementLLMUsage();
-      }
-      
       // Update selected symbol if changed
       if (config.ticker !== selectedSymbol) {
         setSelectedSymbol(config.ticker);
       }
-      
+
       // Store current configuration
       setCurrentConfig(config);
-      
-      if (!user) {
-        // Use anonymous API for non-authenticated users
-        try {
-          const anonymousResponse = await marketService.anonymousAIAnalysis({
-            ticker: config.ticker,
-            period: config.period
-          });
 
-          // Update usage information if provided
-          if (anonymousResponse.usage) {
-            setAnonymousUsage(prev => ({
-              ...prev,
-              remainingAnalyses: anonymousResponse.usage.remaining ?? prev.remainingAnalyses
-            }));
+      // Use unified API endpoint that handles both authenticated and anonymous users
+      // The backend will automatically check limits and return appropriate responses
+      try {
+        const response = await marketService.anonymousAIAnalysis({
+          ticker: config.ticker,
+          period: config.period
+        });
+
+        // Update usage information if provided (for anonymous users)
+        if (!user && response.usage) {
+          setAnonymousUsage(prev => ({
+            ...prev,
+            remainingAnalyses: response.usage.remaining ?? prev.remainingAnalyses
+          }));
+        }
+
+        // Set the response data from prediction
+        if (response.prediction) {
+          setHmmPrediction(response.prediction);
+        }
+
+        // Set the analysis data (for detailed tables)
+        if (response.analysis) {
+          setHmmAnalysis(response.analysis);
+        }
+
+        // Set recommendations if available
+        if (response.recommendations) {
+          // Store recommendations if needed
+        }
+
+        // For authenticated users, increment usage tracking
+        if (user) {
+          try {
+            await incrementLLMUsage();
+          } catch (usageError) {
+            console.warn('Could not update usage count:', usageError);
           }
+        }
 
-          // Set the response data from prediction
-          if (anonymousResponse.prediction) {
-            setHmmPrediction(anonymousResponse.prediction);
-          }
-
-          // Set the analysis data (for detailed tables)
-          if (anonymousResponse.analysis) {
-            setHmmAnalysis(anonymousResponse.analysis);
-          }
-
-        } catch (error: any) {
-          if (error.response?.status === 403) {
+      } catch (error: any) {
+        if (error.response?.status === 403) {
+          // Limit exceeded - show appropriate modal
+          if (!user) {
             // Anonymous limit exceeded, show login modal
             setAnonymousUsage(prev => ({
               ...prev,
               remainingAnalyses: 0
             }));
             setShowLoginModal(true);
-            setHmmLoading(false);
-            return;
+          } else {
+            // Authenticated user limit exceeded, show upgrade modal
+            setShowLimitModal(true);
           }
-          throw error;
+          setHmmLoading(false);
+          return;
         }
-      } else {
-        // Use regular authenticated APIs
-        // Get HMM prediction
-        const predictionResponse = await hmmService.predict(config.ticker);
-        setHmmPrediction(predictionResponse);
-
-        // Get historical analysis - always get it for authenticated users
-        const analysisResponse = await hmmService.analyze(config.ticker, config.period);
-        setHmmAnalysis(analysisResponse);
-
-        // Get model info if requested
-        if (config.getModelInfo) {
-          try {
-            const modelInfoResponse = await hmmService.getModelInfo();
-            setHmmModelInfo(modelInfoResponse);
-          } catch (error) {
-            console.warn('Could not fetch model info (authentication may be required):', error);
-          }
-        }
+        throw error;
       }
-      
+
       // Fetch stock data if needed
       if (config.ticker !== selectedSymbol) {
         await fetchStockData();
       }
-      
+
       // Wait for loading simulation to complete
       await loadingPromise;
-      
+
       // Track successful AI analysis completion
       trackEvent('ai_analysis_completed', {
         symbol: config.ticker,
         period: config.period,
         user_type: user ? 'authenticated' : 'anonymous',
         has_prediction: !!hmmPrediction,
-        has_analysis: !!hmmAnalysis,
-        has_model_info: !!hmmModelInfo
+        has_analysis: !!hmmAnalysis
       });
-      
+
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'AI Analysis failed';
       setHmmError(errorMessage);
-      
+
       // Track AI analysis error
       trackEvent('ai_analysis_error', {
         symbol: config.ticker,
@@ -567,7 +543,7 @@ const AIMarketAnalysisPage: React.FC = () => {
             <div className="flex items-center space-x-2">
               <SparklesIcon className="h-4 w-4" />
               <div>
-                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit} Free Analyses</div>
+                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit} Free Trials Left</div>
                 <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
                   <div
                     className="bg-white rounded-full h-1 transition-all duration-300"
@@ -579,7 +555,7 @@ const AIMarketAnalysisPage: React.FC = () => {
                 onClick={() => setShowLoginModal(true)}
                 className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
               >
-                Upgrade
+                Sign Up
               </button>
             </div>
           </div>
@@ -656,9 +632,9 @@ const AIMarketAnalysisPage: React.FC = () => {
             
             <button
               type="submit"
-              disabled={hmmLoading || (!user && anonymousUsage.remainingAnalyses <= 0)}
+              disabled={hmmLoading}
               className={`w-full py-3 px-4 rounded-md font-medium transition-all ${
-                hmmLoading || (!user && anonymousUsage.remainingAnalyses <= 0)
+                hmmLoading
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
               }`}
