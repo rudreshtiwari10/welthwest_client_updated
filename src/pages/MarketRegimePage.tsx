@@ -277,7 +277,7 @@ const MarketRegimePage: React.FC = () => {
       <div className="mb-8 relative">
         <h1 className="text-2xl md:text-3xl font-bold mb-2 flex items-center">
           <ChartBarIcon className="h-8 w-8 mr-3 text-purple-500" />
-          Market Regime & Trade Forecast
+          Market Analysis & Trade Forecast
         </h1>
         <p className="text-gray-600 dark:text-gray-300">
           AI-powered stock price forecasting
