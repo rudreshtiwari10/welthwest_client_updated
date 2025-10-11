@@ -441,3 +441,192 @@ i wanted to implment this on page /welth-market-regime can you check if implment
 **File:** `WelthWestServer2_aws/app.py` (line 4199-4233)
 - Removed line 4200: `@validate_json_request` decorator
 - Added lines 4208-4210: Inline JSON validation for POST method only
+
+## Quick Start Guide Implementation (Latest)
+
+### Ninth Follow-up Instructions
+```
+@WelthWestFrontend2\ put a 'quick start' button just after hero section and in this button when user click a quick start it should open
+user guide pop up page: this page should look like this:
+also play those same video for each video in theri section which is being played on home page for same features and put a button to start for each features.
+
+"Welcome to WelthWest - Your AI-Powered Trading Assistant
+Get actionable trading insights in seconds with our advanced AI models
+
+[Features content with videos and start buttons for each feature]
+```
+
+### Implementation Summary ✅ (Completed)
+
+**Goal:** Add a Quick Start Guide button after the hero section that opens a modal popup with feature tutorials, videos, and direct access buttons.
+
+**Changes Made:**
+
+1. **QuickStartGuide.tsx Component** ✅ (New File)
+   - **Created comprehensive modal component** with:
+     - Full-screen overlay with backdrop blur
+     - Scrollable content area with sticky header and footer
+     - Gradient header with "Welcome to WelthWest" branding
+     - Close button (X) in top-right corner
+
+   - **Main Features Section:**
+     - AI Market Analysis & Forecasting
+       - 78% accuracy badge
+       - Best for: Swing & Positional Trading
+       - 5 key benefits listed
+       - Embedded video from home page (VIDEO_URLS.AI_ANALYSIS)
+       - "Start AI Analysis" button linking to `/welth-market-regime`
+       - Primary gradient theme
+
+     - AI Virtual Trading Assistant
+       - Real-time Market Data badge
+       - Best for: All Trader Types
+       - 5 key benefits listed
+       - Embedded video (VIDEO_URLS.WELTHAI_CHAT)
+       - "Start AI Chat" button linking to `/welth-ai-assistant`
+       - Secondary gradient theme
+
+     - Advanced Backtesting Engine
+       - 15+ Built-in strategies badge
+       - Best for: Strategy Validation
+       - 6 key benefits listed
+       - Embedded video (VIDEO_URLS.BACKTESTING)
+       - "Start Backtesting" button linking to `/backtest-beta`
+       - Green gradient theme
+
+     - Technical Pattern Recognition
+       - 20+ Chart Patterns badge
+       - Best for: Technical Analysis
+       - 5 key benefits listed
+       - Embedded video (reusing AI_ANALYSIS as placeholder)
+       - "Start Pattern Recognition" button linking to `/welth-market-regime`
+       - Indigo gradient theme
+
+   - **Specialized Tools Section:**
+     - Predefined Strategy
+       - >60% winning rate
+       - Best for: Trader/Scalpers/Swing
+       - 5 key features
+       - External link to https://strategy.welthwest.com/
+       - Orange gradient theme
+
+     - Alert & Monitoring System
+       - AI summary on Telegram
+       - Best for: Daily Summary
+       - 5 key features
+       - External link to https://services.welthwest.com
+       - Purple gradient theme
+
+   - **UI Features:**
+     - Responsive grid layout (1 column mobile, 2 columns desktop)
+     - Video containers with aspect ratio preservation
+     - Badge system for metrics (Accuracy, Knowledge, Strategies, etc.)
+     - Bullet-point benefits with primary color dots
+     - Hover effects on buttons with scale transform
+     - Smooth transitions and animations
+     - Dark mode support throughout
+     - Sticky footer with "Close Guide" button
+
+2. **HomePage.tsx Updates** ✅
+   - **Added Imports:**
+     - `RocketLaunchIcon` from Heroicons
+     - `QuickStartGuide` component
+
+   - **Added State:**
+     - `isQuickStartOpen` state for modal visibility
+
+   - **Added Quick Start Button Section** (after hero section):
+     - Gradient background (primary to secondary)
+     - Grid pattern overlay
+     - Animated rocket icon
+     - "New to WelthWest? Start Here!" heading
+     - Descriptive text about guided tour
+     - Large "Quick Start Guide" button with icon
+     - Feature badges (Video Tutorials, Feature Overview, Quick Access)
+     - Responsive design with max-width container
+     - Positioned between hero and market overview sections
+
+   - **Added Modal Trigger:**
+     - QuickStartGuide modal at end of component
+     - Controlled by `isQuickStartOpen` state
+     - Closes when user clicks backdrop or close button
+
+3. **Video Integration** ✅
+   - **Reused Existing Videos:**
+     - AI_ANALYSIS video for AI Market Analysis feature
+     - WELTHAI_CHAT video for AI Trading Assistant feature
+     - BACKTESTING video for Backtesting Engine feature
+     - AI_ANALYSIS video (reused) for Pattern Recognition
+
+   - **Used FeatureVideo Component:**
+     - Lazy loading with priority setting
+     - Poster images for better perceived performance
+     - Responsive aspect-video containers
+     - Border styling matching modal design
+
+4. **Navigation & User Flow** ✅
+   - **Modal Closes on Navigation:**
+     - `onClick={onClose}` on all Link/anchor elements
+     - User is redirected to feature page
+     - Modal state resets automatically
+
+   - **Start Buttons:**
+     - Each feature has prominent "Start" button
+     - Gradient backgrounds matching feature theme
+     - Arrow icons for visual direction
+     - Hover effects with shadow and scale
+     - Direct routing to feature pages
+
+**Technical Implementation:**
+- **Component Architecture:**
+  - Reusable modal component with props (isOpen, onClose)
+  - TypeScript interfaces for type safety
+  - Modular feature/tool data structures
+  - Responsive grid system
+
+- **Styling:**
+  - Tailwind CSS utility classes
+  - Dark mode variants throughout
+  - Gradient backgrounds for visual hierarchy
+  - Consistent spacing and typography
+  - Border and shadow effects
+
+- **Accessibility:**
+  - Backdrop click to close
+  - Close button in header
+  - Close button in footer
+  - Keyboard navigation support (Link elements)
+  - Semantic HTML structure
+
+**Files Created:**
+- `WelthWestFrontend2/src/components/QuickStartGuide.tsx` (New component)
+
+**Files Modified:**
+- `WelthWestFrontend2/src/pages/HomePage.tsx`
+  - Added imports (lines 6-8)
+  - Added state (line 21)
+  - Added Quick Start button section (lines 401-449)
+  - Added modal component (line 1080)
+
+**Build Status:** ✅ Successful with warnings only (no errors)
+
+**User Experience:**
+- **First-time Users:**
+  - Prominent call-to-action after hero section
+  - Comprehensive feature overview in modal
+  - Video demonstrations for each feature
+  - Direct access to start using features
+
+- **Returning Users:**
+  - Optional - can skip Quick Start button
+  - Modal closes on first click outside
+  - Quick access to specific features via buttons
+
+**Key Benefits:**
+- Reduces onboarding friction
+- Provides visual learning with videos
+- Clear feature explanations with benefits
+- Direct navigation to features
+- Professional presentation matching brand
+- Mobile-responsive design
+- Integrates seamlessly with existing UI

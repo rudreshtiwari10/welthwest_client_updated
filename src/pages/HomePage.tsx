@@ -5,6 +5,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon } from '@heroicons/react/24/outline';
 import FeatureVideo from '../components/FeatureVideo';
+import QuickStartGuide from '../components/QuickStartGuide';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
 // Register Chart.js components
@@ -17,6 +18,7 @@ const HomePage: React.FC = () => {
   const [dynamicWord, setDynamicWord] = useState('Trading');
   const [isTyping, setIsTyping] = useState(false);
   const [displayText, setDisplayText] = useState('Trading');
+  const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
   
   // Words to animate through
   // const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
@@ -395,7 +397,20 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </section>
-        
+
+        {/* Quick Start Guide Button Section */}
+        <section className="mb-12 max-w-4xl mx-auto text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+            New to WelthWest? Start Here!
+          </h2>
+          <button
+            onClick={() => setIsQuickStartOpen(true)}
+            className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors duration-300"
+          >
+            Quick Start
+          </button>
+        </section>
+
         {/* Market Overview - Horizontal Slider */}
         <section className="mb-12">
           <div className="flex justify-between items-center mb-6">
@@ -1023,6 +1038,9 @@ const HomePage: React.FC = () => {
           </div>
         </section>
       </div>
+
+      {/* Quick Start Guide Modal */}
+      <QuickStartGuide isOpen={isQuickStartOpen} onClose={() => setIsQuickStartOpen(false)} />
     </div>
   );
 };
