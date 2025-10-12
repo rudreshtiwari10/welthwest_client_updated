@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { marketService } from '../services/api';
+import { marketService, activityService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon } from '@heroicons/react/24/outline';
@@ -404,7 +404,10 @@ const HomePage: React.FC = () => {
             New to WelthWest? Start Here!
           </h2>
           <button
-            onClick={() => setIsQuickStartOpen(true)}
+            onClick={() => {
+              activityService.trackActivity(activityService.FEATURE_QUICK_START);
+              setIsQuickStartOpen(true);
+            }}
             className="inline-flex items-center justify-center px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors duration-300"
           >
             Quick Start

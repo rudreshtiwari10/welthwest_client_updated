@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 // import StockChart from '../components/StockChart';
 import Sidebar from '../components/Sidebar';
-import { userDataService } from '../services/api';
+import { userDataService, activityService } from '../services/api';
 import DashboardBacktests from '../components/DashboardBacktests';
 import DashboardAIAnalyses from '../components/DashboardAIAnalyses';
 
@@ -68,6 +68,9 @@ const DashboardPage: React.FC = () => {
   // Initialize dashboard and refresh stats on load
   useEffect(() => {
     const init = async () => {
+      // Track dashboard page view
+      activityService.trackActivity(activityService.FEATURE_DASHBOARD_VIEW);
+
       if (!user) return;
       try {
         await fetchSavedData();

@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon, CpuChipIcon } from '@heroicons/react/24/outline';
 import WelthAIPage from '../pages/WelthAIPage';
 import WelthChatbotPage from '../pages/WelthChatbotPage';
+import { activityService } from '../services/api';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -228,7 +229,10 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     <Link
                       to="/stock"
                       className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
-                      onClick={() => setShowStocksMenu(false)}
+                      onClick={() => {
+                        activityService.trackActivity(activityService.FEATURE_MARKET_DROPDOWN_GAINERS);
+                        setShowStocksMenu(false);
+                      }}
                     >
                       <div className="flex items-center">
                         <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">

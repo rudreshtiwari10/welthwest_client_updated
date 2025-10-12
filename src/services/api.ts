@@ -1275,4 +1275,53 @@ export const feedbackService = {
       throw error;
     }
   }
-}; 
+};
+
+// Activity Tracking Service
+export const activityService = {
+  // Feature name constants (matching backend)
+  FEATURE_QUICK_START: 'quick_start',
+  FEATURE_MARKET_REGIME: 'market_regime_analyze',
+  FEATURE_AI_ASSISTANT: 'ai_assistant_send',
+  FEATURE_BACKTEST: 'backtest_run',
+  FEATURE_MARKET_DROPDOWN_GAINERS: 'market_dropdown_gainers',
+  FEATURE_MARKET_DROPDOWN_LOSERS: 'market_dropdown_losers',
+  FEATURE_DASHBOARD_VIEW: 'dashboard_view',
+
+  // Track feature usage
+  trackActivity: async (featureName: string, metadata?: Record<string, any>) => {
+    try {
+      const response = await api.post('/activity/track', {
+        feature_name: featureName,
+        metadata: metadata || {}
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error tracking activity:', error);
+      // Don't throw - tracking shouldn't break functionality
+      return { success: false, count: 0 };
+    }
+  },
+
+  // Get all feature counts
+  getActivityCounts: async () => {
+    try {
+      const response = await api.get('/activity/counts');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting activity counts:', error);
+      return { success: false, counts: {} };
+    }
+  },
+
+  // Get comprehensive activity stats (authenticated users only)
+  getActivityStats: async () => {
+    try {
+      const response = await api.get('/activity/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting activity stats:', error);
+      throw error;
+    }
+  }
+};

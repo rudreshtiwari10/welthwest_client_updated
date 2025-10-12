@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { marketService } from '../services/api';
+import { marketService, activityService } from '../services/api';
 import LimitExceededModal from '../components/subscription/LimitExceededModal';
 import LoginModal from '../components/LoginModal';
 import {
@@ -183,6 +183,9 @@ const MarketRegimePage: React.FC = () => {
       setError('Please enter a stock ticker symbol');
       return;
     }
+
+    // Track activity
+    activityService.trackActivity(activityService.FEATURE_MARKET_REGIME);
 
     try {
       setLoading(true);

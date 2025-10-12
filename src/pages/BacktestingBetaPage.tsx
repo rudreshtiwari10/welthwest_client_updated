@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { backtestingService } from '../services/backtesting';
-import { marketService } from '../services/api';
+import { marketService, activityService } from '../services/api';
 import { motion } from 'framer-motion';
 import { ChartBarIcon, CogIcon, PlayIcon, DocumentTextIcon, BoltIcon } from '@heroicons/react/24/outline';
 import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
@@ -425,6 +425,9 @@ const BacktestingBetaPage: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // Track activity
+      activityService.trackActivity(activityService.FEATURE_BACKTEST);
 
       // Track backtest start event
       trackEvent('backtest_started', {

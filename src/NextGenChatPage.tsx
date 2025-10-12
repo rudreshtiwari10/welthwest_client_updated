@@ -91,7 +91,10 @@ const NextGenChatPage: React.FC = () => {
 
     try {
       // Import API service
-      const { marketService } = await import('./services/api');
+      const { marketService, activityService } = await import('./services/api');
+
+      // Track activity
+      activityService.trackActivity(activityService.FEATURE_AI_ASSISTANT);
 
       console.log('Sending message to NextGen chat API');
       const data = await marketService.enhancedChat(
