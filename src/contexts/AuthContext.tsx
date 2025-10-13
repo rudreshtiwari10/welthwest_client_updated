@@ -8,14 +8,9 @@ interface User {
   email?: string;
   first_name?: string;
   last_name?: string;
-  avatar_url?: string;
-  bio?: string;
-  mobile_number?: string;
-  mobile_verified?: boolean;
-  aadhar_number?: string;
-  pan_number?: string;
-  date_of_birth?: string;
   occupation?: string;
+  bio?: string;
+  avatar_url?: string;
 }
 
 interface AuthContextType {
