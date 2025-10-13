@@ -514,63 +514,48 @@ const MarketRegimePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Trading Signals */}
-          <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <InformationCircleIcon className="h-6 w-6 mr-2 text-blue-500" />
-              Trading Signals & Price Targets
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="p-3 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Entry Price</p>
-                <p className="text-lg font-bold text-green-600">₹{forecastData?.price_analysis?.current_price != null
-  ? forecastData.price_analysis.current_price.toFixed(2)
-  : 'N/A'}</p>
+          {/* Detected Chart Patterns and Price Action Signals - Side by Side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Detected Chart Patterns */}
+            {forecastData.insights?.detected_patterns && forecastData.insights.detected_patterns.length > 0 && (
+              <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <ChartBarIcon className="h-6 w-6 mr-2 text-blue-500" />
+                  Detected Chart Patterns
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {forecastData.insights.detected_patterns.map((pattern, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
+                    >
+                      {pattern}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="p-3 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Exit Price</p>
-                <p className="text-lg font-bold text-blue-600">₹{forecastData.signals.exit_price.toFixed(2)}</p>
-              </div>
-              <div className="p-3 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Stop Loss</p>
-                <p className="text-lg font-bold text-red-600">₹{forecastData.signals.stop_loss.toFixed(2)}</p>
-              </div>
-              <div className="p-3 bg-purple-50 dark:bg-purple-900 dark:bg-opacity-20 rounded-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Take Profit</p>
-                <p className="text-lg font-bold text-purple-600">₹{forecastData?.signals?.take_profit != null
-    ? forecastData.signals.take_profit.toFixed(2)
-    : 'N/A'}</p>
-              </div>
-              <div className="p-3 bg-yellow-50 dark:bg-yellow-900 dark:bg-opacity-20 rounded-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Target High</p>
-                <p className="text-lg font-bold text-yellow-600">₹{forecastData.signals.target_high.toFixed(2)}</p>
-              </div>
-              <div className="p-3 bg-orange-50 dark:bg-orange-900 dark:bg-opacity-20 rounded-lg">
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Target Low</p>
-                <p className="text-lg font-bold text-orange-600">₹{forecastData.signals.target_low.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
+            )}
 
-          {/* Detected Chart Patterns */}
-          {forecastData.insights?.detected_patterns && forecastData.insights.detected_patterns.length > 0 && (
-            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <ChartBarIcon className="h-6 w-6 mr-2 text-blue-500" />
-                Detected Chart Patterns
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {forecastData.insights.detected_patterns.map((pattern, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 dark:bg-opacity-30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium"
-                  >
-                    {pattern}
-                  </span>
-                ))}
+            {/* Price Action Signals */}
+            {forecastData.insights?.price_action_signals && forecastData.insights.price_action_signals.length > 0 && (
+              <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                  <ArrowTrendingUpIcon className="h-6 w-6 mr-2 text-green-500" />
+                  Price Action Signals
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {forecastData.insights.price_action_signals.map((signal, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 dark:bg-opacity-30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium"
+                    >
+                      {signal}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Price Forecast Table */}
           <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
@@ -750,25 +735,6 @@ const MarketRegimePage: React.FC = () => {
                             : 'Analyzing...'}
                         </p>
                       </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Price Action Signals */}
-                {forecastData.insights.price_action_signals && forecastData.insights.price_action_signals.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-medium mb-3 text-gray-800 dark:text-gray-200">
-                      Price Action Signals
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {forecastData.insights.price_action_signals.map((signal, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1.5 bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 dark:bg-opacity-30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium"
-                        >
-                          {signal}
-                        </span>
-                      ))}
                     </div>
                   </div>
                 )}
