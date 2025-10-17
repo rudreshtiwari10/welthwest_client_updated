@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import { marketService, activityService } from '../services/api';
+import { marketService, activityService, API_URL } from '../services/api';
 import LimitExceededModal from '../components/subscription/LimitExceededModal';
 import LoginModal from '../components/LoginModal';
 import {
@@ -15,6 +15,14 @@ import {
   LightBulbIcon,
   CurrencyDollarIcon,
 } from '@heroicons/react/24/outline';
+
+// Define interfaces for stock suggestions
+interface StockSuggestion {
+  symbol: string;
+  name: string;
+  exchange: string;
+  type: string;
+}
 
 // Define interfaces for the API response
 interface PriceForecast {
@@ -106,8 +114,8 @@ const MarketRegimePage: React.FC = () => {
   const { user } = useAuth();
   const { canUseLLM, incrementLLMUsage } = useSubscription();
 
-  // State management
-  const [ticker, setTicker] = useState<string>('RELIANCE.NS');
+  // State management (without .NS suffix, backend will add it automatically)
+  const [ticker, setTicker] = useState<string>('RELIANCE');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [forecastData, setForecastData] = useState<FullTradeForecast | null>(null);
@@ -116,6 +124,14 @@ const MarketRegimePage: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState<string>('');
   const [loadingProgress, setLoadingProgress] = useState<number>(0);
 
+  // Stock suggestion state
+  const [suggestions, setSuggestions] = useState<StockSuggestion[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionLoading, setSuggestionLoading] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
   // Anonymous usage tracking
   const [anonymousUsage, setAnonymousUsage] = useState({
     remainingAnalyses: 10, // Default, will be updated from backend
@@ -123,13 +139,13 @@ const MarketRegimePage: React.FC = () => {
     sessionId: null as string | null
   });
 
-  // Popular Indian stocks for quick selection
+  // Popular Indian stocks for quick selection (without .NS suffix, backend will add it)
   const popularStocks = [
-    { symbol: 'RELIANCE.NS', name: 'Reliance Industries' },
-    { symbol: 'TCS.NS', name: 'Tata Consultancy Services' },
-    { symbol: 'HDFCBANK.NS', name: 'HDFC Bank' },
-    { symbol: 'INFY.NS', name: 'Infosys' },
-    { symbol: 'ICICIBANK.NS', name: 'ICICI Bank' },
+    { symbol: 'RELIANCE', name: 'Reliance Industries' },
+    { symbol: 'TCS', name: 'Tata Consultancy Services' },
+    { symbol: 'HDFCBANK', name: 'HDFC Bank' },
+    { symbol: 'INFY', name: 'Infosys' },
+    { symbol: 'ICICIBANK', name: 'ICICI Bank' },
   ];
 
   // Fetch anonymous usage on mount
@@ -157,6 +173,103 @@ const MarketRegimePage: React.FC = () => {
       // Keep default values on error
     }
   };
+
+  // Fetch stock suggestions from backend
+  const fetchStockSuggestions = async (query: string) => {
+    if (query.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    setSuggestionLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/yahoo-suggest?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      if (data.quotes && Array.isArray(data.quotes)) {
+        setSuggestions(data.quotes);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching suggestions:', error);
+      setSuggestions([]);
+    } finally {
+      setSuggestionLoading(false);
+    }
+  };
+
+  // Handle ticker input change with debouncing
+  const handleTickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.toUpperCase();
+    setTicker(value);
+    setShowSuggestions(true);
+    setSelectedSuggestionIndex(-1);
+
+    // Clear previous timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced search
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchStockSuggestions(value);
+    }, 300);
+  };
+
+  // Handle suggestion selection
+  const handleSuggestionSelect = (suggestion: StockSuggestion) => {
+    // Remove .NS or .BO suffix for display
+    const cleanSymbol = suggestion.symbol.replace('.NS', '').replace('.BO', '');
+    setTicker(cleanSymbol);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || suggestions.length === 0) {
+      if (e.key === 'Enter') {
+        handleFetchForecast();
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev =>
+          prev < suggestions.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedSuggestionIndex >= 0) {
+          handleSuggestionSelect(suggestions[selectedSuggestionIndex]);
+        } else {
+          handleFetchForecast();
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        break;
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Loading simulation
   const simulateLoadingSteps = async () => {
@@ -321,21 +434,56 @@ const MarketRegimePage: React.FC = () => {
         <div className="space-y-3">
           {/* Compact Stock Input with Quick Select */}
           <div className="flex flex-col sm:flex-row gap-2">
-            {/* Stock ticker input - compact */}
-            <div className="flex-1">
+            {/* Stock ticker input with search suggestions - compact */}
+            <div className="flex-1 relative" ref={dropdownRef}>
               <label className="block text-xs font-medium mb-1.5 text-gray-600 dark:text-gray-400">Stock Ticker</label>
               <input
                 type="text"
                 value={ticker}
-                onChange={(e) => setTicker(e.target.value.toUpperCase())}
+                onChange={handleTickerChange}
+                onKeyDown={handleKeyDown}
+                onFocus={() => setShowSuggestions(true)}
                 className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all hover:border-purple-400"
-                placeholder="e.g., RELIANCE.NS"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleFetchForecast();
-                  }
-                }}
+                placeholder="e.g., RELIANCE, TCS, INFY"
               />
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && ticker.length >= 2 && (
+                <div className="absolute w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                  {suggestionLoading ? (
+                    <div className="p-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                      Loading suggestions...
+                    </div>
+                  ) : suggestions.length > 0 ? (
+                    <ul>
+                      {suggestions.map((suggestion, index) => (
+                        <li
+                          key={suggestion.symbol}
+                          className={`px-3 py-2 cursor-pointer text-sm transition-colors ${
+                            index === selectedSuggestionIndex
+                              ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-100'
+                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
+                          }`}
+                          onClick={() => handleSuggestionSelect(suggestion)}
+                          onMouseEnter={() => setSelectedSuggestionIndex(index)}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="font-medium">{suggestion.symbol}</span>
+                              <span className="ml-2 text-gray-600 dark:text-gray-400">{suggestion.name}</span>
+                            </div>
+                            <span className="text-xs text-gray-500 dark:text-gray-500">{suggestion.exchange}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="p-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                      No suggestions found
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Submit button - compact */}
@@ -376,13 +524,13 @@ const MarketRegimePage: React.FC = () => {
                   key={stock.symbol}
                   onClick={() => setTicker(stock.symbol)}
                   className={`px-2.5 py-1 text-xs rounded-full transition-all transform hover:scale-105 active:scale-95 ${
-                    ticker === stock.symbol
+                    ticker === stock.symbol || ticker === stock.symbol + '.NS'
                       ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md ring-2 ring-purple-400 ring-opacity-50'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:shadow-sm'
                   }`}
                   title={stock.name}
                 >
-                  {stock.symbol.replace('.NS', '')}
+                  {stock.symbol}
                 </button>
               ))}
             </div>
