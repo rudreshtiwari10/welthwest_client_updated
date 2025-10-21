@@ -245,8 +245,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       </div>
                     </Link>
 
-                    {/* Stocks */}
-                    <Link
+                    {/* Stocks - Hidden as per user request */}
+                    {/* <Link
                       to="/stock/Reliance"
                       className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
                       onClick={() => setShowStocksMenu(false)}
@@ -260,7 +260,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                           <div className="text-xs text-gray-500 dark:text-gray-400">Top performing stocks & market insights</div>
                         </div>
                       </div>
-                    </Link>
+                    </Link> */}
 
                     {/* Technical Analysis */}
                     <Link
