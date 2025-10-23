@@ -15,7 +15,7 @@ interface ChatHistoryItem {
   timestamp?: string;
   created_at?: string;
   conversation?: ChatMessage[];
-  // Fields when saved automatically by /api/market/chat
+  // Fields when savedd automatically by /api/market/chat
   query?: string;
   response?: any;
   model?: string;
