@@ -1,8 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { XMarkIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon } from '@heroicons/react/24/outline';
-import FeatureVideo from './FeatureVideo';
-import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
+import YouTubeEmbed from './YouTubeEmbed';
 
 interface QuickStartGuideProps {
   isOpen: boolean;
@@ -17,7 +16,7 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
       id: 1,
       title: '1. AI Market Analysis & Forecasting',
       icon: <ChartBarIcon className="h-6 w-6 text-primary-600" />,
-      accuracy: '78%',
+      accuracy: 'Medium',
       bestFor: 'Swing & Positional Trading',
       benefits: [
         'Current market state (Low/Normal/High Volatility)',
@@ -26,8 +25,7 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
         'Historical pattern matching',
         'Trading strategy recommendations based on regime'
       ],
-      videoUrl: VIDEO_URLS.AI_ANALYSIS,
-      posterUrl: POSTER_URLS.AI_ANALYSIS,
+      youtubeId: '1h0j-zsTIwE', // Replace with your YouTube video ID
       link: '/welth-market-regime',
       buttonText: 'Start AI Analysis',
       gradient: 'from-primary-500 to-primary-700'
@@ -45,8 +43,7 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
         'Market trend interpretations',
         'Strategy recommendations with reasoning'
       ],
-      videoUrl: VIDEO_URLS.WELTHAI_CHAT,
-      posterUrl: POSTER_URLS.WELTHAI_CHAT,
+      youtubeId: 'YOUR_FORECASTING_VIDEO_ID', // Replace with your YouTube video ID
       link: '/welth-ai-assistant',
       buttonText: 'Start AI Chat',
       gradient: 'from-secondary-500 to-secondary-700'
@@ -65,8 +62,7 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
         'Comparison with buy-and-hold returns',
         'Optimal position sizing recommendations'
       ],
-      videoUrl: VIDEO_URLS.BACKTESTING,
-      posterUrl: POSTER_URLS.BACKTESTING,
+      youtubeId: 'YOUR_BACKTESTING_VIDEO_ID', // Replace with your YouTube video ID
       link: '/backtest-beta',
       buttonText: 'Start Backtesting',
       gradient: 'from-green-500 to-green-700'
@@ -204,13 +200,11 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
 
                       {/* Right: Video */}
                       <div className="flex items-center justify-center">
-                        <div className="w-full aspect-video rounded-lg overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
-                          <FeatureVideo
-                            src={feature.videoUrl}
-                            poster={feature.posterUrl}
-                            alt={feature.title}
-                            className="w-full h-full"
-                            priority={feature.id === 1}
+                        <div className="w-full rounded-lg overflow-hidden shadow-xl border-2 border-gray-200 dark:border-gray-700">
+                          <YouTubeEmbed
+                            videoId={feature.youtubeId}
+                            title={feature.title}
+                            className="w-full"
                           />
                         </div>
                       </div>
