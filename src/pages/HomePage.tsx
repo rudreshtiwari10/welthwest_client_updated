@@ -328,66 +328,34 @@ const HomePage: React.FC = () => {
               </h1>
               
               {/* AI Feature Buttons - Responsive Layout */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-2 mt-6 max-w-4xl mx-auto">
+              <div className="grid grid-cols-2 gap-3 mt-6 max-w-xl mx-auto">
                 {/* AI Market Analysis Button */}
                 <Link
                   to="/welth-market-regime"
-                  className="group flex flex-col items-center justify-center bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
+                  className="group flex flex-col items-center justify-center bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-3 transition-all duration-300 hover:shadow-md"
                 >
-                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-primary-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <ChartBarIcon className="h-5 w-5 sm:h-4 sm:w-4 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <ChartBarIcon className="h-5 w-5 text-white" />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">AI Analysis</h3>
-                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Market insights</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">AI Analysis</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Market insights</p>
                   </div>
                 </Link>
-                
-                {/* WelthAI Chat Bot Button */}
-                <Link 
-                  to="/welth-ai-assistant" 
-                  className="group flex flex-col items-center justify-center bg-secondary-50/90 dark:bg-secondary-900/30 hover:bg-secondary-100 dark:hover:bg-secondary-900/40 backdrop-blur-sm border border-secondary-200 dark:border-secondary-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
-                >
-                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-secondary-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <ChatBubbleLeftRightIcon className="h-5 w-5 sm:h-4 sm:w-4 text-white" />
-                  </div>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">AI Chat</h3>
-                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Get insights</p>
-                  </div>
-                </Link>
-                
+
                 {/* Backtesting Button */}
-                <Link 
-                  to="/backtest-beta" 
-                  className="group flex flex-col items-center justify-center bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
+                <Link
+                  to="/backtest-beta"
+                  className="group flex flex-col items-center justify-center bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-3 transition-all duration-300 hover:shadow-md"
                 >
-                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-green-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <BeakerIcon className="h-5 w-5 sm:h-4 sm:w-4 text-white" />
+                  <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
+                    <BeakerIcon className="h-5 w-5 text-white" />
                   </div>
                   <div className="text-center">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">Backtest</h3>
-                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Test strategies</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Backtesting</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Test strategies</p>
                   </div>
                 </Link>
-                
-                {/* Strategy Button */}
-                <a 
-                  href="https://strategy.welthwest.com/" 
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex flex-col items-center justify-center bg-orange-50/90 dark:bg-orange-900/30 hover:bg-orange-100 dark:hover:bg-orange-900/40 backdrop-blur-sm border border-orange-200 dark:border-orange-800 rounded-lg py-3 px-3 sm:py-2 sm:px-2 transition-all duration-300 hover:shadow-md"
-                >
-                  <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-full bg-orange-600 flex items-center justify-center mb-2 sm:mb-1 group-hover:scale-110 transition-transform duration-300">
-                    <svg className="h-5 w-5 sm:h-4 sm:w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-xs">Strategy</h3>
-                    <p className="text-xs sm:text-[10px] text-gray-600 dark:text-gray-300">Live strategies</p>
-                  </div>
-                </a>
               </div>
               
               {/* Small sparkle decoration */}
