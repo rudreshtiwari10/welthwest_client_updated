@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { marketService, activityService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import FeatureVideo from '../components/FeatureVideo';
 import QuickStartGuide from '../components/QuickStartGuide';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
@@ -19,10 +19,47 @@ const HomePage: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [displayText, setDisplayText] = useState('Trading');
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
-  
+  const [currentTestimonial, setCurrentTestimonial] = useState(0);
+
   // Words to animate through
   // const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
   const dynamicWords = useMemo(() => ['Trading', 'Backtesting', 'Analysis'], []);
+
+  // Testimonials data
+  const testimonials = useMemo(() => [
+    {
+      text: "The automated market analysis empowers our team to rapidly identify trends and anomalies, streamlining idea generation and tactical planning.",
+      category: "Market Analysis"
+    },
+    {
+      text: "I rely on WelthWest's AI Market Analysis for objective, timely evaluation—particularly valuable during volatile periods",
+      category: "AI Analysis"
+    },
+    {
+      text: "Instant access to platform features without registration enhances my workflow and helps me act on opportunities quickly.",
+      category: "User Experience"
+    },
+    {
+      text: "A well-designed dashboard centralizes trading insights, forecasts, and analytics—maximizing productivity with minimal setup",
+      category: "Dashboard"
+    },
+    {
+      text: "Real-time AI updates keep me aligned with market moves—critical for accuracy in tactical execution",
+      category: "Real-time Updates"
+    },
+    {
+      text: "Most platforms want email or payment up front. Here I just clicked 'Get Forecast' and started learning—superb experience!",
+      category: "Getting Started"
+    },
+    {
+      text: "Pattern scanner caught an ascending triangle before my broker even flagged it. Loving the instant chart patterns!",
+      category: "Pattern Recognition"
+    },
+    {
+      text: "The regime detection tool is invaluable—it adapts my strategies to changing market conditions with clarity and speed.",
+      category: "Regime Detection"
+    }
+  ], []);
   
   // Get the longest word to set a fixed width
   // const longestWord = dynamicWords.reduce((a, b) => a.length > b.length ? a : b, '');
@@ -64,7 +101,7 @@ const HomePage: React.FC = () => {
     const fetchMarketData = async () => {
       try {
         setIsLoading(true);
-        
+
         // Fetch market indices
         const indicesData = await marketService.getMarketIndices();
         setMarketData(indicesData);
@@ -73,9 +110,31 @@ const HomePage: React.FC = () => {
         setIsLoading(false);
       }
     };
-    
+
     fetchMarketData();
   }, []);
+
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000); // Change every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
+
+  // Testimonial navigation functions
+  const nextTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  };
+
+  const goToTestimonial = (index: number) => {
+    setCurrentTestimonial(index);
+  };
   
   // Memoized chart data generator to prevent unnecessary re-renders
   const generateChartData = useMemo(() => {
@@ -1006,6 +1065,86 @@ const HomePage: React.FC = () => {
           {/* Bottom accent */}
           <div className="flex justify-center mt-12">
             <div className="h-1 w-32 bg-gradient-to-r from-transparent via-primary-500 to-transparent rounded-full"></div>
+          </div>
+        </section>
+
+        {/* Testimonials Carousel Section */}
+        <section className="mb-12 max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500">
+              What Our Users Say
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Real experiences from traders who trust WelthWest
+            </p>
+          </div>
+
+          {/* Testimonial Carousel */}
+          <div className="relative">
+            {/* Main testimonial card */}
+            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 p-8 md:p-12 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
+              {/* Decorative quote icon */}
+              <div className="absolute top-6 left-6 opacity-10">
+                <svg className="w-16 h-16 text-primary-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                </svg>
+              </div>
+
+              {/* Testimonial content with fade animation */}
+              <div className="relative z-10 transition-all duration-500 ease-in-out">
+                <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 leading-relaxed mb-6 italic">
+                  "{testimonials[currentTestimonial].text}"
+                </p>
+
+                {/* Category badge */}
+                <div className="flex justify-center">
+                  <span className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-primary-100 to-secondary-100 dark:from-primary-900/30 dark:to-secondary-900/30 border border-primary-200 dark:border-primary-800">
+                    <SparklesIcon className="h-4 w-4 text-primary-600 dark:text-primary-400 mr-2" />
+                    <span className="text-sm font-semibold text-primary-700 dark:text-primary-300">
+                      {testimonials[currentTestimonial].category}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Navigation arrows */}
+              <button
+                onClick={prevTestimonial}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-dark-400 shadow-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-dark-500 transition-all duration-300 hover:scale-110"
+                aria-label="Previous testimonial"
+              >
+                <ChevronLeftIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              </button>
+
+              <button
+                onClick={nextTestimonial}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white dark:bg-dark-400 shadow-lg border border-gray-200 dark:border-gray-600 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-dark-500 transition-all duration-300 hover:scale-110"
+                aria-label="Next testimonial"
+              >
+                <ChevronRightIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+              </button>
+            </div>
+
+            {/* Dot indicators */}
+            <div className="flex justify-center mt-8 gap-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToTestimonial(index)}
+                  className={`transition-all duration-300 rounded-full ${
+                    index === currentTestimonial
+                      ? 'w-8 h-2 bg-gradient-to-r from-primary-500 to-secondary-500'
+                      : 'w-2 h-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Bottom accent */}
+          <div className="flex justify-center mt-12">
+            <div className="h-1 w-32 bg-gradient-to-r from-transparent via-secondary-500 to-transparent rounded-full"></div>
           </div>
         </section>
       </div>
