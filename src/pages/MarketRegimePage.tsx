@@ -587,7 +587,7 @@ const MarketRegimePage: React.FC = () => {
               <div className="flex-1">
                 <h2 className="text-2xl font-bold mb-2 flex items-center">
                   <LightBulbIcon className="h-7 w-7 mr-2 text-yellow-500" />
-                  Trading Recommendation
+                  Trading Recommendation - {forecastData.ticker}
                 </h2>
               </div>
               <div className="text-right">
@@ -709,7 +709,7 @@ const MarketRegimePage: React.FC = () => {
           <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <ChartBarIcon className="h-6 w-6 mr-2 text-purple-500" />
-              5-Day Price Forecast
+              3-Day Price Forecast - {forecastData.ticker}
             </h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
@@ -721,7 +721,7 @@ const MarketRegimePage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {forecastData.price_analysis.forecast.map((forecast, index) => (
+                  {forecastData.price_analysis.forecast.slice(0, 3).map((forecast, index) => (
                     <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="p-3 border border-gray-300 dark:border-gray-600 font-medium">
                         Day {forecast.day}
