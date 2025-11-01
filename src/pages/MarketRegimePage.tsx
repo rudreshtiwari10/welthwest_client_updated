@@ -709,22 +709,22 @@ const MarketRegimePage: React.FC = () => {
           <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
               <ChartBarIcon className="h-6 w-6 mr-2 text-purple-500" />
-              3-Day Price Forecast - {forecastData.ticker}
+              Price Forecasting - {forecastData.ticker}
             </h2>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-700">
-                    <th className="text-left p-3 border border-gray-300 dark:border-gray-600 font-semibold">Day</th>
+                    <th className="text-left p-3 border border-gray-300 dark:border-gray-600 font-semibold">Forecast</th>
                     <th className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">Predicted Price</th>
                     <th className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">Change %</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {forecastData.price_analysis.forecast.slice(0, 3).map((forecast, index) => (
+                  {forecastData.price_analysis.forecast.slice(0, 1).map((forecast, index) => (
                     <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="p-3 border border-gray-300 dark:border-gray-600 font-medium">
-                        Day {forecast.day}
+                        Next Price Prediction for {forecastData.ticker}
                       </td>
                       <td className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">
                         ₹{forecast.predicted_price.toFixed(2)}
@@ -798,45 +798,6 @@ const MarketRegimePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Position Sizing Recommendations */}
-          {forecastData.position_sizing && (
-            <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <CurrencyDollarIcon className="h-6 w-6 mr-2 text-green-500" />
-                Position Sizing & Risk Management
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                <div className="p-4 bg-green-50 dark:bg-green-900 dark:bg-opacity-20 rounded-lg">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Recommended Capital</p>
-                  <p className="text-lg font-bold text-green-600">
-                    ₹{forecastData.position_sizing.recommended_capital.toLocaleString('en-IN', {maximumFractionDigits: 0})}
-                  </p>
-                </div>
-                <div className="p-4 bg-blue-50 dark:bg-blue-900 dark:bg-opacity-20 rounded-lg">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Position Size</p>
-                  <p className="text-lg font-bold text-blue-600">
-                    {forecastData.position_sizing.position_percentage.toFixed(1)}%
-                  </p>
-                </div>
-                <div className="p-4 bg-purple-50 dark:bg-purple-900 dark:bg-opacity-20 rounded-lg">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Kelly Criterion</p>
-                  <p className="text-lg font-bold text-purple-600">
-                    {forecastData.position_sizing.kelly_criterion.toFixed(2)}%
-                  </p>
-                </div>
-                <div className="p-4 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Max Risk</p>
-                  <p className="text-lg font-bold text-red-600">
-                    ₹{forecastData.position_sizing.max_risk.toLocaleString('en-IN', {maximumFractionDigits: 0})}
-                  </p>
-                </div>
-              </div>
-              <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recommendation:</p>
-                <p className="text-gray-600 dark:text-gray-400">{forecastData.position_sizing.recommendation}</p>
-              </div>
-            </div>
-          )}
 
           {/* Advanced Insights */}
           {forecastData.insights && (
