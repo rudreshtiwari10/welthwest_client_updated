@@ -124,6 +124,9 @@ const Footer: React.FC = () => {
                   Legal
                 </h4>
                 <div className="space-y-2">
+                  <Link to="/contactus" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Contact Us
+                  </Link>
                   <Link to="/privacy-policy" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Privacy Policy
                   </Link>
@@ -209,6 +212,9 @@ const Footer: React.FC = () => {
             </div>
             <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
               <div className="flex space-x-4 text-sm">
+                <Link to="/contactus" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  Contact Us
+                </Link>
                 <Link to="/privacy-policy" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                   Privacy
                 </Link>

@@ -24,6 +24,7 @@ import PlanDetailsPage from './pages/PlanDetailsPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import FeedbackPage from './pages/FeedbackPage';
+import ContactUsPage from './pages/ContactUsPage';
 import ReviewPaymentPage from './pages/ReviewPaymentPage';
 import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
@@ -189,6 +190,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                 <Route path="/feedback" element={<FeedbackPage />} />
+                <Route path="/contactus" element={<ContactUsPage />} />
                 {/* Temporarily route /pricing to launching-soon page; keep legacy at /pricing-old */}
                 <Route path="/pricing" element={<PricingLaunchingSoon />} />
                 <Route path="/pricing-launching-soon" element={<PricingLaunchingSoon />} />
