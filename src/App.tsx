@@ -14,18 +14,21 @@ import BacktestingPage from './pages/BacktestingPage';
 import BacktestingBetaPage from './pages/BacktestingBetaPage';
 import WelthAIPage from './pages/WelthAIPage';
 import AIMarketAnalysisPage from './pages/AIMarketAnalysisPage';
-import PricingPage from './pages/Pricing';
+// Legacy pricing pages (commented out - use Premium.tsx instead)
+// import PricingPage from './pages/Pricing';
+// import PlanDetailsPage from './pages/PlanDetailsPage';
+// import ReviewPaymentPage from './pages/ReviewPaymentPage';
+// import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
+import Premium from './pages/Premium';
+import PaymentSuccess from './pages/PaymentSuccess';
 import StockPage from './pages/StockPage';
 import WelthChatbotPage from './pages/WelthChatbotPage';
 import WelthAIChatbotPage from './pages/WelthAIChatbotPage';
 import WelthAiChatbotLaunchingSoon from './pages/WelthAiChatbotLaunchingSoon';
-import PlanDetailsPage from './pages/PlanDetailsPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import FeedbackPage from './pages/FeedbackPage';
-import ReviewPaymentPage from './pages/ReviewPaymentPage';
-import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
 import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
 import NewsDetailPage from './pages/NewsDetailPage';
@@ -189,13 +192,18 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                 <Route path="/feedback" element={<FeedbackPage />} />
-                {/* Temporarily route /pricing to launching-soon page; keep legacy at /pricing-old */}
-                <Route path="/pricing" element={<PricingLaunchingSoon />} />
+                {/* Premium plans page (dynamic from backend) */}
+                <Route path="/premium" element={<Premium />} />
+                {/* Payment Success (Cashfree redirect) */}
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                {/* Legacy pricing routes - redirect to /premium */}
+                <Route path="/pricing" element={<Premium />} />
                 <Route path="/pricing-launching-soon" element={<PricingLaunchingSoon />} />
-                <Route path="/pricing-old" element={<PricingPage />} />
-                <Route path="/plan-details/:tier/:billing" element={<PrivateRoute><PlanDetailsPage /></PrivateRoute>} />
-                <Route path="/review-payment" element={<PrivateRoute><ReviewPaymentPage /></PrivateRoute>} />
-                <Route path="/payment-confirmation" element={<PrivateRoute><PaymentConfirmationPage /></PrivateRoute>} />
+                {/* Legacy routes commented out - use new premium flow instead */}
+                {/* <Route path="/pricing-old" element={<PricingPage />} /> */}
+                {/* <Route path="/plan-details/:tier/:billing" element={<PrivateRoute><PlanDetailsPage /></PrivateRoute>} /> */}
+                {/* <Route path="/review-payment" element={<PrivateRoute><ReviewPaymentPage /></PrivateRoute>} /> */}
+                {/* <Route path="/payment-confirmation" element={<PrivateRoute><PaymentConfirmationPage /></PrivateRoute>} /> */}
               </Routes>
               {/* Track route changes for GTM/GA4 */}
               <RouteChangeTracker />

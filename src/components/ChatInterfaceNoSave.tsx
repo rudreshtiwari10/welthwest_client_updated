@@ -5,7 +5,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { marketService } from '../services/api';
 import StockChart from './StockChart';
 // Removed usage/subscription UI in chat component
-import LimitExceededModal from './subscription/LimitExceededModal';
+import UpgradeModal from './UpgradeModal';
 import LoginModal from './LoginModal';
 import TechnicalIndicators from './TechnicalIndicators';
 import StockSymbolSelector from './StockSymbolSelector';
@@ -870,11 +870,12 @@ const ChatInterfaceNoSave: React.FC = () => {
       </div>
 
       {/* Modals */}
-      <LimitExceededModal
+      <UpgradeModal
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
-        featureType="llm"
-        message="You have reached your daily limit for AI queries. Please upgrade your plan to continue using the AI assistant."
+        featureName="AI Chat Assistant"
+        currentPlan={user ? 'PREMIUM' : 'FREE'}
+        upgradeMessage="You have reached your daily limit for AI queries. Upgrade your plan to continue using the AI assistant."
       />
       
       <LoginModal

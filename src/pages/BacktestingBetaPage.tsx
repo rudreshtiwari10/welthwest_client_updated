@@ -5,9 +5,7 @@ import { backtestingService } from '../services/backtesting';
 import { marketService } from '../services/api';
 import { motion } from 'framer-motion';
 import { ChartBarIcon, CogIcon, PlayIcon, DocumentTextIcon, BoltIcon } from '@heroicons/react/24/outline';
-import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 import UsageTracker from '../components/subscription/UsageTracker';
-import LimitExceededModal from '../components/subscription/LimitExceededModal';
 import LoginModal from '../components/LoginModal';
 import { trackEvent } from '../utils/analytics';
 const Plot = require('react-plotly.js').default as React.ComponentType<any>;
@@ -1897,13 +1895,32 @@ const BacktestingBetaPage: React.FC = () => {
         )}
 
         {/* Modals */}
-        <LimitExceededModal
-          isOpen={showLimitModal}
-          onClose={() => setShowLimitModal(false)}
-          featureType="backtest"
-          message="You have reached your daily limit for backtesting. Please upgrade your plan to continue using this feature."
-        />
-        
+        {/* Limit Exceeded Modal - Inline */}
+        {showLimitModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-4">
+              <h3 className="text-xl font-bold mb-4">Daily Limit Reached</h3>
+              <p className="text-gray-600 mb-6">
+                You have reached your daily limit for backtesting. Please upgrade your plan to continue using this feature.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => window.location.href = '/premium'}
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  View Plans
+                </button>
+                <button
+                  onClick={() => setShowLimitModal(false)}
+                  className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <LoginModal
           isOpen={showLoginModal}
           onClose={() => setShowLoginModal(false)}

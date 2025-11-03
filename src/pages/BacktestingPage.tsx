@@ -16,9 +16,7 @@ import StockChart from '../components/StockChart';
 import MetricCard from '../components/MetricCard';
 import TradeList from '../components/TradeList';
 import { useSubscription } from '../contexts/SubscriptionContext';
-import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 import UsageTracker from '../components/subscription/UsageTracker';
-import LimitExceededModal from '../components/subscription/LimitExceededModal';
 import AIAnalysisToggle from '../components/AIAnalysisToggle';
 import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
 import AIAnalysisResults from '../components/AIAnalysisResults';
@@ -657,8 +655,6 @@ const BacktestingPage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8">
-      <SubscriptionBanner />
-      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="md:col-span-2">
           <h1 className="text-2xl font-bold mb-6">Backtesting</h1>
@@ -1055,14 +1051,6 @@ const BacktestingPage: React.FC = () => {
           {renderResults()}
         </div>
       )}
-
-      {/* Limit Exceeded Modal */}
-      <LimitExceededModal
-        isOpen={showLimitModal}
-        onClose={() => setShowLimitModal(false)}
-        featureType="backtest"
-        message="You have reached your daily backtest limit. Please upgrade your plan to run more backtests."
-      />
 
       {/* Save Strategy Modal */}
       {showSaveModal && (

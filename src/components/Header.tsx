@@ -376,7 +376,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             
             {/* Pro Button */}
             <Link
-              to="/pricing"
+              to="/premium"
               className="hidden md:flex items-center px-4 py-1.5 rounded-md bg-gradient-to-r from-primary-600 to-secondary-600 text-white text-sm font-medium hover:from-primary-500 hover:to-secondary-500 transition-all shadow-md"
             >
               <SparklesIcon className="h-4 w-4 mr-1" />
@@ -459,7 +459,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       
                       {subscriptionDetails?.tier === 'FREE' && (
                         <Link
-                          to="/pricing"
+                          to="/premium"
                           className="flex items-center px-4 py-2 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
                           onClick={() => setShowProfileMenu(false)}
                         >
