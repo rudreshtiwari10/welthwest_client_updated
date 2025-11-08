@@ -1169,10 +1169,10 @@ export const paymentService = {
     }
   },
 
-  // Get payment history
+  // Get payment history (old endpoint - kept for backward compatibility)
   getPaymentHistory: async () => {
     try {
-      const response = await api.get('/payment/history');
+      const response = await api.get('/payment/transaction-history');
       return response.data;
     } catch (error) {
       console.error('Error fetching payment history:', error);
@@ -1203,6 +1203,78 @@ export const subscriptionService = {
       return response.data;
     } catch (error) {
       console.error('Error getting cancellation info:', error);
+      throw error;
+    }
+  },
+
+  // Get subscription status with per-feature usage
+  getSubscriptionStatus: async () => {
+    try {
+      const response = await api.get('/subscription/status');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting subscription status:', error);
+      throw error;
+    }
+  },
+
+  // Verify subscription expiry on login
+  verifyExpiry: async () => {
+    try {
+      const response = await api.post('/subscription/verify-expiry');
+      return response.data;
+    } catch (error) {
+      console.error('Error verifying expiry:', error);
+      throw error;
+    }
+  },
+
+  // Get payment history
+  getPaymentHistory: async (limit = 50, skip = 0) => {
+    try {
+      const response = await api.get('/subscription/payment-history', {
+        params: { limit, skip }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error getting payment history:', error);
+      throw error;
+    }
+  },
+
+  // Get transaction details
+  getTransactionDetails: async (transactionId: string) => {
+    try {
+      const response = await api.get(`/subscription/payment-history/${transactionId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting transaction details:', error);
+      throw error;
+    }
+  },
+
+  // Update feature usage
+  updateUsage: async (featureKey: string) => {
+    try {
+      const response = await api.post('/subscription/usage/update', {
+        feature_key: featureKey
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating usage:', error);
+      throw error;
+    }
+  },
+
+  // Reset usage (for testing)
+  resetUsage: async (featureKey: string = 'all') => {
+    try {
+      const response = await api.post('/subscription/reset', {
+        feature_key: featureKey
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error resetting usage:', error);
       throw error;
     }
   }
