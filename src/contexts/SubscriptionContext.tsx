@@ -2,9 +2,10 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useAuth } from './AuthContext';
 import axios from 'axios';
 import { API_URL } from '../services/api';
+import { premiumService, UserSubscription, FeatureUsage } from '../services/premiumService';
 
 // Types
-export type SubscriptionTier = 'FREE' | 'BASIC' | 'PRO' | 'ENTERPRISE';
+export type SubscriptionTier = 'FREE' | 'STARTER' | 'PRO' | 'ADVANCED' | 'ENTERPRISE';
 
 interface Usage {
   backtest_count: number;
@@ -29,14 +30,21 @@ interface SubscriptionDetails {
 
 interface SubscriptionContextType {
   subscriptionDetails: SubscriptionDetails | null;
+  premiumSubscription: UserSubscription | null;
+  featureUsage: FeatureUsage | null;
+  subscriptionTier: SubscriptionTier;
   isLoading: boolean;
   error: string | null;
   refreshSubscription: () => Promise<void>;
+  refreshPremiumData: () => Promise<void>;
   canUseBacktest: () => boolean;
   canUseLLM: () => boolean;
+  canUseFeature: (featureKey: string) => boolean;
   incrementBacktestUsage: () => Promise<void>;
   incrementLLMUsage: () => Promise<void>;
   getUsagePercentage: (feature: 'backtest' | 'llm') => number;
+  getFeatureUsagePercentage: (featureKey: string) => number;
+  getRemainingUsage: (featureKey: string) => number;
   getTimeUntilReset: () => string;
   upgradeSubscription: (newTier: SubscriptionTier) => Promise<void>;
   updateSubscriptionAfterPayment: (paymentData: any, planDetails: any, userInfo: any) => Promise<void>;
@@ -59,6 +67,8 @@ interface SubscriptionProviderProps {
 export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ children }) => {
   const auth = useAuth();
   const [subscriptionDetails, setSubscriptionDetails] = useState<SubscriptionDetails | null>(null);
+  const [premiumSubscription, setPremiumSubscription] = useState<UserSubscription | null>(null);
+  const [featureUsage, setFeatureUsage] = useState<FeatureUsage | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -241,22 +251,84 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
       // Since the backend automatically activates subscription after successful payment verification,
       // we just need to refresh the subscription details
       await refreshSubscription();
-      
+      await refreshPremiumData();
     } catch (err) {
       throw err;
     }
   };
 
+  // New premium-specific functions
+  const refreshPremiumData = async () => {
+    if (!auth.isAuthenticated) return;
+
+    try {
+      // Fetch premium subscription
+      const subResponse = await premiumService.getUserSubscription();
+      if (subResponse.success) {
+        setPremiumSubscription(subResponse.subscription);
+      }
+
+      // Fetch usage
+      const usageResponse = await premiumService.getUserUsage();
+      if (usageResponse.success) {
+        setFeatureUsage(usageResponse.usage);
+      }
+    } catch (err) {
+      console.error('Error fetching premium data:', err);
+    }
+  };
+
+  const canUseFeature = (featureKey: string): boolean => {
+    if (!featureUsage || !featureUsage[featureKey]) return false;
+    return featureUsage[featureKey].remaining > 0;
+  };
+
+  const getFeatureUsagePercentage = (featureKey: string): number => {
+    if (!featureUsage || !featureUsage[featureKey]) return 0;
+    const { used, limit } = featureUsage[featureKey];
+    if (limit === 0) return 0;
+    return (used / limit) * 100;
+  };
+
+  const getRemainingUsage = (featureKey: string): number => {
+    if (!featureUsage || !featureUsage[featureKey]) return 0;
+    return featureUsage[featureKey].remaining;
+  };
+
+  // Fetch premium data on auth change
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      refreshPremiumData();
+    } else {
+      setPremiumSubscription(null);
+      setFeatureUsage(null);
+    }
+  }, [auth.isAuthenticated]);
+
+  // Compute subscription tier from available data
+  const subscriptionTier: SubscriptionTier = (
+    (premiumSubscription?.plan as SubscriptionTier) ||
+    subscriptionDetails?.tier ||
+    'FREE'
+  );
+
   const value = {
     subscriptionDetails,
+    premiumSubscription,
+    featureUsage,
+    subscriptionTier,
     isLoading,
     error,
     refreshSubscription,
+    refreshPremiumData,
     canUseBacktest,
     canUseLLM,
+    canUseFeature,
     incrementBacktestUsage,
     incrementLLMUsage,
     getUsagePercentage,
+    getFeatureUsagePercentage,
+    getRemainingUsage,
     getTimeUntilReset,
     upgradeSubscription,
     updateSubscriptionAfterPayment

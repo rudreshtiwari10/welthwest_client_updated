@@ -5,7 +5,7 @@ import AIAnalysisForm, { AIAnalysisConfig } from '../components/AIAnalysisForm';
 import AIAnalysisResults from '../components/AIAnalysisResults';
 import StockChart from '../components/StockChart';
 import { marketService, marketRegimeService, userDataService } from '../services/api';
-import LimitExceededModal from '../components/subscription/LimitExceededModal';
+import UpgradeModal from '../components/UpgradeModal';
 import LoginModal from '../components/LoginModal';
 import { 
   SparklesIcon,
@@ -74,7 +74,7 @@ interface StockData {
 
 const WelthAIPage: React.FC = () => {
   const { user } = useAuth();
-  const { canUseLLM, incrementLLMUsage } = useSubscription();
+  const { canUseLLM, incrementLLMUsage, subscriptionTier } = useSubscription();
   const resultsRef = useRef<HTMLDivElement>(null);
   
   // Default stock symbol
@@ -655,11 +655,12 @@ const WelthAIPage: React.FC = () => {
       {/* Removed usage and plan cards as requested */}
       
       {/* Modals */}
-      <LimitExceededModal
+      <UpgradeModal
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
-        featureType="llm"
-        message="You have reached your daily limit for AI analysis. Please upgrade your plan to continue using this feature."
+        featureName="AI Market Regime Analysis"
+        currentPlan={subscriptionTier || 'FREE'}
+        upgradeMessage="You have reached your daily limit for AI analysis. Upgrade your plan to continue using this feature."
       />
       
       <LoginModal

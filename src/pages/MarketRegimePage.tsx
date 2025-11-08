@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { marketService, activityService, API_URL } from '../services/api';
-import LimitExceededModal from '../components/subscription/LimitExceededModal';
+import UpgradeModal from '../components/UpgradeModal';
 import LoginModal from '../components/LoginModal';
 import {
   SparklesIcon,
@@ -112,7 +112,7 @@ interface FullTradeForecast {
 
 const MarketRegimePage: React.FC = () => {
   const { user } = useAuth();
-  const { canUseLLM, incrementLLMUsage } = useSubscription();
+  const { canUseLLM, incrementLLMUsage, subscriptionTier } = useSubscription();
 
   // State management (without .NS suffix, backend will add it automatically)
   const [ticker, setTicker] = useState<string>('RELIANCE');
@@ -904,11 +904,12 @@ const MarketRegimePage: React.FC = () => {
       )}
 
       {/* Modals */}
-      <LimitExceededModal
+      <UpgradeModal
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
-        featureType="llm"
-        message="You have reached your daily limit for AI forecasts. Please upgrade your plan to continue using this feature."
+        featureName="AI Market Analysis"
+        currentPlan={subscriptionTier || 'FREE'}
+        upgradeMessage="You have reached your daily limit for AI forecasts. Upgrade your plan to continue using this feature."
       />
 
       <LoginModal

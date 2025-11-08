@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import StockChart from '../components/StockChart';
 import { marketService, hmmService } from '../services/api';
-import LimitExceededModal from '../components/subscription/LimitExceededModal';
+import UpgradeModal from '../components/UpgradeModal';
 import LoginModal from '../components/LoginModal';
 import { 
   SparklesIcon,
@@ -82,7 +82,7 @@ interface HMMAnalysisConfig {
 
 const AIMarketAnalysisPage: React.FC = () => {
   const { user } = useAuth();
-  const { canUseLLM, incrementLLMUsage } = useSubscription();
+  const { canUseLLM, incrementLLMUsage, subscriptionTier } = useSubscription();
   
   // Default stock symbol
   const defaultSymbol = 'RELIANCE';
@@ -824,11 +824,12 @@ const AIMarketAnalysisPage: React.FC = () => {
       </div>
       
       {/* Modals */}
-      <LimitExceededModal
+      <UpgradeModal
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
-        featureType="llm"
-        message="You have reached your daily limit for AI analysis. Please upgrade your plan to continue using this feature."
+        featureName="AI Market Analysis"
+        currentPlan={subscriptionTier || 'FREE'}
+        upgradeMessage="You have reached your daily limit for AI analysis. Upgrade your plan to continue using this feature."
       />
       
       <LoginModal

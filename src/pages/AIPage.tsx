@@ -1,12 +1,9 @@
 import React from 'react';
 import ChatInterface from '../components/ChatInterface';
-import SubscriptionBanner from '../components/subscription/SubscriptionBanner';
 
 const AIPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <SubscriptionBanner />
-      
       <div className="container mx-auto px-4 pt-20 md:pt-8 pb-8 flex-grow">
         <div className="max-w-4xl mx-auto">
           <div className="mb-8 text-center">
