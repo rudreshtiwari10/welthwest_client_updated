@@ -1277,6 +1277,17 @@ export const subscriptionService = {
       console.error('Error resetting usage:', error);
       throw error;
     }
+  },
+
+  // Get plan details with limits
+  getPlanDetails: async (planId: string) => {
+    try {
+      const response = await api.get(`/subscription/plan-details/${planId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error getting plan details:', error);
+      throw error;
+    }
   }
 };
 

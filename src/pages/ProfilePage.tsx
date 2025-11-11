@@ -16,12 +16,13 @@ const ProfilePage: React.FC = () => {
   const [username, setUsername] = useState(user?.username || '');
   const [bio, setBio] = useState('');
   const [occupation, setOccupation] = useState('');
+  const [billingAddress, setBillingAddress] = useState(user?.billing_address || '');
   
   // UI state
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updateError, setUpdateError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [subscriptionDropdownOpen, setSubscriptionDropdownOpen] = useState(false);
+  const [subscriptionDropdownOpen, setSubscriptionDropdownOpen] = useState(true);
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   
   // Form validation state
@@ -35,6 +36,7 @@ const ProfilePage: React.FC = () => {
       setUsername(user.username || '');
       setBio(user.bio || '');
       setOccupation(user.occupation || '');
+      setBillingAddress(user.billing_address || '');
     }
   }, [user]);
 
@@ -48,6 +50,10 @@ const ProfilePage: React.FC = () => {
 
     if (!lastName.trim()) {
       newErrors.lastName = 'Last name is required';
+    }
+
+    if (!billingAddress.trim()) {
+      newErrors.billingAddress = 'Billing address is required';
     }
 
     setErrors(newErrors);
@@ -71,7 +77,8 @@ const ProfilePage: React.FC = () => {
         first_name: firstName,
         last_name: lastName,
         occupation,
-        bio
+        bio,
+        billing_address: billingAddress
       };
 
       await updateProfile(profileData);
@@ -212,6 +219,26 @@ const ProfilePage: React.FC = () => {
                         disabled
                         className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                       />
+                    </div>
+
+                    {/* Billing Address */}
+                    <div className="lg:col-span-2">
+                      <label htmlFor="billingAddress" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                        Billing Address *
+                      </label>
+                      <textarea
+                        id="billingAddress"
+                        value={billingAddress}
+                        onChange={(e) => setBillingAddress(e.target.value)}
+                        rows={3}
+                        className={`w-full px-4 py-3 border ${errors.billingAddress ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white dark:bg-gray-700 text-gray-900 dark:text-white`}
+                        placeholder="Enter your complete billing address (Street, City, State, PIN)"
+                      />
+                      {errors.billingAddress && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          {errors.billingAddress}
+                        </p>
+                      )}
                     </div>
 
                     {/* Occupation */}

@@ -11,6 +11,7 @@ interface User {
   occupation?: string;
   bio?: string;
   avatar_url?: string;
+  billing_address?: string;
 }
 
 interface AuthContextType {

@@ -9,9 +9,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { premiumService, Plan } from '../services/premiumService';
 import { paymentService } from '../services/paymentService';
 import { CheckIcon, SparklesIcon, RocketLaunchIcon, StarIcon } from '@heroicons/react/24/outline';
+import PlanCheckoutModal from '../components/PlanCheckoutModal';
 
 const Premium: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -20,6 +21,10 @@ const Premium: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState<'weekly' | 'monthly' | 'annual'>('monthly');
   const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
+
+  // Checkout modal state
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{planId: string; price: number} | null>(null);
 
   // Fetch plans on mount
   useEffect(() => {
@@ -49,18 +54,51 @@ const Premium: React.FC = () => {
       return;
     }
 
+    // Check profile completion
+    const firstName = user?.first_name || '';
+    const lastName = user?.last_name || '';
+    const email = user?.email || '';
+    const billingAddress = user?.billing_address || '';
+
+    if (!firstName.trim() || !lastName.trim() || !billingAddress.trim() || !email.trim()) {
+      alert('Please complete your profile (Name and Billing Address) before upgrading.\n\nGo to Profile → Personal Information to update your details.');
+      navigate('/profile');
+      return;
+    }
+
     // Don't allow purchasing FREE plan
     if (planId === 'FREE') {
       alert('You are already on the FREE plan');
       return;
     }
 
+    // Get plan price
+    const plan = plans.find(p => p._id === planId);
+    if (!plan) {
+      alert('Plan not found');
+      return;
+    }
+
+    const price = plan.prices[selectedDuration];
+    if (price === undefined) {
+      alert('Invalid plan duration');
+      return;
+    }
+
+    // Show checkout modal
+    setSelectedPlan({ planId, price });
+    setShowCheckoutModal(true);
+  };
+
+  const handleProceedToPay = async () => {
+    if (!selectedPlan) return;
+
     try {
-      setProcessingPlanId(planId);
+      setProcessingPlanId(selectedPlan.planId);
 
       // Create order
       const orderResponse = await paymentService.createOrder({
-        plan: planId,
+        plan: selectedPlan.planId,
         duration: selectedDuration,
       });
 
@@ -324,6 +362,24 @@ const Premium: React.FC = () => {
           Secure payments powered by Cashfree • Cancel anytime • Money-back guarantee
         </p>
       </div>
+
+      {/* Plan Checkout Modal */}
+      {selectedPlan && user && (
+        <PlanCheckoutModal
+          isOpen={showCheckoutModal}
+          onClose={() => {
+            setShowCheckoutModal(false);
+            setSelectedPlan(null);
+          }}
+          planId={selectedPlan.planId}
+          duration={selectedDuration}
+          planPrice={selectedPlan.price}
+          onProceedToPay={handleProceedToPay}
+          userName={`${user.first_name} ${user.last_name}`.trim()}
+          userEmail={user.email || ''}
+          billingAddress={user.billing_address || ''}
+        />
+      )}
     </div>
   );
 };

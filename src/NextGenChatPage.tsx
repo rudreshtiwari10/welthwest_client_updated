@@ -263,13 +263,15 @@ const NextGenChatPage: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Usage Indicator - Fixed position */}
-      <UsageIndicator
-        feature="welth-ai-assistant"
-        featureDisplayName="AI Chat Assistant"
-        refreshTrigger={refreshUsage}
-        sessionId={currentSessionId}
-      />
+      {/* Usage Indicator - Only for authenticated users */}
+      {user && (
+        <UsageIndicator
+          feature="welth-ai-assistant"
+          featureDisplayName="AI Chat Assistant"
+          refreshTrigger={refreshUsage}
+          sessionId={currentSessionId}
+        />
+      )}
 
       {/* Trial Exceeded Modal */}
       <TrialExceededModal
@@ -297,12 +299,20 @@ const NextGenChatPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Usage Info for Anonymous Users */}
-          {!user && usageInfo && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                {usageInfo.remaining_messages}/{usageInfo.total_limit} free messages
-              </p>
+          {/* Login Prompt for Non-Authenticated Users */}
+          {!user && (
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 rounded-lg shadow-lg flex items-center space-x-3">
+              <SparklesIcon className="h-5 w-5 text-white" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-white">Login to Use This Feature</p>
+                <p className="text-xs text-white opacity-90">Sign in to access AI Assistant</p>
+              </div>
+              <button
+                onClick={() => window.location.href = '/login'}
+                className="px-4 py-1.5 bg-white text-blue-600 hover:bg-opacity-90 rounded-md text-sm font-medium transition-all whitespace-nowrap shadow-md"
+              >
+                Login
+              </button>
             </div>
           )}
         </div>

@@ -399,25 +399,20 @@ const MarketRegimePage: React.FC = () => {
           AI-powered stock price forecasting
         </p>
 
-        {/* Anonymous Usage Display - Compact Right Corner */}
+        {/* Login Prompt for Non-Authenticated Users */}
         {!user && (
-          <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-md px-3 py-2 text-white text-xs">
-            <div className="flex items-center space-x-2">
-              <SparklesIcon className="h-4 w-4" />
+          <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg shadow-lg px-4 py-3 text-white">
+            <div className="flex items-center space-x-3">
+              <SparklesIcon className="h-5 w-5" />
               <div>
-                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/{anonymousUsage.totalLimit} Free Trials Left</div>
-                <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
-                  <div
-                    className="bg-white rounded-full h-1 transition-all duration-300"
-                    style={{ width: `${(anonymousUsage.remainingAnalyses / anonymousUsage.totalLimit) * 100}%` }}
-                  ></div>
-                </div>
+                <div className="font-semibold text-sm">Login to Use This Feature</div>
+                <div className="text-xs opacity-90">Sign in to access AI Market Analysis</div>
               </div>
               <button
-                onClick={() => setShowLoginModal(true)}
-                className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
+                onClick={() => window.location.href = '/login'}
+                className="px-4 py-2 bg-white text-purple-600 hover:bg-opacity-90 rounded-md text-sm font-medium transition-all whitespace-nowrap shadow-md"
               >
-                Sign Up
+                Login
               </button>
             </div>
           </div>

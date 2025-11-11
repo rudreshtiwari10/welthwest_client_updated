@@ -818,25 +818,20 @@ const BacktestingBetaPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Anonymous Usage Display - Compact Right Corner */}
+          {/* Login Prompt for Non-Authenticated Users */}
           {!user && (
-            <div className="absolute top-0 right-4 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-md px-3 py-2 text-white text-xs">
-              <div className="flex items-center space-x-2">
-                <BoltIcon className="h-4 w-4" />
+            <div className="absolute top-0 right-4 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-lg px-4 py-3 text-white">
+              <div className="flex items-center space-x-3">
+                <BoltIcon className="h-5 w-5" />
                 <div>
-                  <div className="font-semibold">{anonymousUsage.remainingTests}/{anonymousUsage.totalLimit} Free Tests</div>
-                  <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
-                    <div
-                      className="bg-white rounded-full h-1 transition-all duration-300"
-                      style={{ width: `${(anonymousUsage.remainingTests / anonymousUsage.totalLimit) * 100}%` }}
-                    ></div>
-                  </div>
+                  <div className="font-semibold text-sm">Login to Use This Feature</div>
+                  <div className="text-xs opacity-90">Sign in to access Backtesting</div>
                 </div>
                 <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="px-2 py-1 bg-white bg-opacity-20 hover:bg-opacity-30 rounded text-xs font-medium transition-all whitespace-nowrap"
+                  onClick={() => window.location.href = '/login'}
+                  className="px-4 py-2 bg-white text-blue-600 hover:bg-opacity-90 rounded-md text-sm font-medium transition-all whitespace-nowrap shadow-md"
                 >
-                  Upgrade
+                  Login
                 </button>
               </div>
             </div>
