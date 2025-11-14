@@ -23,11 +23,6 @@ const PaymentSuccess: React.FC = () => {
     // Get order_id from URL params
     const orderId = searchParams.get('order_id');
 
-    // Debug logging
-    console.log('Payment Success Page - Full URL:', window.location.href);
-    console.log('Payment Success Page - Search Params:', searchParams.toString());
-    console.log('Payment Success Page - Order ID:', orderId);
-
     if (!orderId) {
       setStatus('failed');
       setMessage('Invalid payment link. Order ID not found.');
@@ -42,14 +37,12 @@ const PaymentSuccess: React.FC = () => {
       for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
           setCheckAttempt(attempt);
-          console.log(`Checking payment status (attempt ${attempt}/${maxRetries})...`);
 
           // Wait before checking
           await new Promise(resolve => setTimeout(resolve, retryDelay));
 
           // Get actual order status from backend
           const orderStatus = await paymentService.getOrderStatus(orderId);
-          console.log('Order status response:', orderStatus);
 
           if (orderStatus.success) {
             const status = orderStatus.order.status;
@@ -77,7 +70,6 @@ const PaymentSuccess: React.FC = () => {
               return; // Exit retry loop
             } else if (status === 'PENDING' && attempt < maxRetries) {
               // Still pending, continue retrying
-              console.log('Payment still pending, will retry...');
               continue;
             } else {
               // Pending after all retries
@@ -91,7 +83,7 @@ const PaymentSuccess: React.FC = () => {
             }
           }
         } catch (error) {
-          console.error(`Error checking payment status (attempt ${attempt}):`, error);
+          console.error('Error checking payment status');
           if (attempt === maxRetries) {
             setStatus('failed');
             setMessage('Unable to verify payment status. Please check your email or dashboard.');

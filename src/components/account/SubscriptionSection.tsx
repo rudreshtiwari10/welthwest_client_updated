@@ -113,19 +113,13 @@ const SubscriptionSection: React.FC = () => {
   const fetchPaymentHistory = async () => {
     try {
       setLoadingPaymentHistory(true);
-      console.log('🔍 Fetching payment history...');
       const response = await subscriptionService.getPaymentHistory();
-      console.log('📦 Payment history response:', response);
 
       if (response.success) {
-        console.log(`✅ Found ${response.transactions?.length || 0} transactions`);
         setPaymentHistory(response.transactions || []);
-      } else {
-        console.error('❌ Payment history fetch failed:', response);
       }
     } catch (error: any) {
-      console.error('❌ Error fetching payment history:', error);
-      console.error('Error details:', error.response?.data || error.message);
+      console.error('Error fetching payment history');
     } finally {
       setLoadingPaymentHistory(false);
     }

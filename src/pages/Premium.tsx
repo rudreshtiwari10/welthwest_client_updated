@@ -107,22 +107,16 @@ const Premium: React.FC = () => {
       }
 
       // Use Cashfree SDK for payment
-      console.log('Opening Cashfree checkout with session:', orderResponse.payment_session_id);
-      console.log('Order ID for redirect:', orderResponse.order_id);
-
       await paymentService.loadCashfreeCheckout(
         orderResponse.payment_session_id,
         orderResponse.order_id, // Pass order_id for return URL
         (data: any) => {
           // Payment success - redirect with order_id
-          console.log('✅ Cashfree SDK Success Callback Triggered!');
-          console.log('Payment successful:', data);
-          console.log('Redirecting to:', `/payment-success?order_id=${orderResponse.order_id}`);
           window.location.href = `/payment-success?order_id=${orderResponse.order_id}`;
         },
         (error: any) => {
           // Payment failed
-          console.error('Payment failed:', error);
+          console.error('Payment failed');
           alert('Payment failed. Please try again.');
           setProcessingPlanId(null);
         }
