@@ -6,6 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import FeatureVideo from '../components/FeatureVideo';
 import QuickStartGuide from '../components/QuickStartGuide';
+import NetworkBackground from '../components/NetworkBackground';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
 // Register Chart.js components
@@ -350,23 +351,8 @@ const HomePage: React.FC = () => {
   
   return (
     <div className="relative min-h-screen">
-      {/* Modern AI-themed abstract background */}
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        {/* Main gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800"></div>
-
-
-        {/* Floating particles/nodes effect */}
-        <div className="absolute inset-0">
-          <div className="absolute h-32 w-32 rounded-full bg-primary-600/10 blur-3xl top-1/4 left-1/4 animate-pulse-slow"></div>
-          <div className="absolute h-40 w-40 rounded-full bg-secondary-600/10 blur-3xl bottom-1/3 right-1/3 animate-pulse-slow animation-delay-2000"></div>
-          <div className="absolute h-24 w-24 rounded-full bg-primary-400/10 blur-3xl top-1/3 right-1/4 animate-pulse-slow animation-delay-1000"></div>
-          <div className="absolute h-36 w-36 rounded-full bg-secondary-400/10 blur-3xl bottom-1/4 left-1/3 animate-pulse-slow animation-delay-3000"></div>
-        </div>
-
-        {/* Light grid overlay */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-[0.015] dark:opacity-[0.03]"></div>
-      </div>
+      {/* Geometric Network Background */}
+      <NetworkBackground />
 
       <div className="container mx-auto px-4 py-8 relative z-10">
         
