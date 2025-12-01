@@ -6,6 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon, ChevronLeftIcon, ChevronRightIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
 import FeatureVideo from '../components/FeatureVideo';
 import QuickStartGuide from '../components/QuickStartGuide';
+import NetworkBackground from '../components/NetworkBackground';
 import AssistantWidget from '../components/AssistantWidget';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
