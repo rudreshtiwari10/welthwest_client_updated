@@ -7,6 +7,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Modern cream/off-white for light mode
+        cream: '#fbfbfd',
+        'accent-violet': '#7c3aed',
+        'accent-indigo': '#6366f1',
+
         primary: {
           50: '#f0f9ff',
           100: '#e0f2fe',
@@ -65,6 +70,14 @@ module.exports = {
           tertiary: '#F3F4F6',
         },
       },
+      borderRadius: {
+        '2xl': '1rem',
+        '3xl': '1.5rem',
+      },
+      spacing: {
+        '18': '4.5rem',
+        '22': '5.5rem',
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       },
@@ -74,6 +87,9 @@ module.exports = {
         'typing': 'typing 1.5s steps(3, end) infinite',
         'tech-flow': 'techFlow 3s infinite linear',
         'cursor': 'cursor 1s step-end infinite',
+        'slide-in': 'slideIn 0.3s ease-out',
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'scale-in': 'scaleIn 0.2s ease-out',
       },
       keyframes: {
         glow: {
@@ -95,7 +111,19 @@ module.exports = {
         cursor: {
           '0%, 100%': { borderColor: 'transparent' },
           '50%': { borderColor: 'currentColor' },
-        }
+        },
+        slideIn: {
+          '0%': { transform: 'translateX(-100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
       },
       zIndex: {
         '-10': '-10',

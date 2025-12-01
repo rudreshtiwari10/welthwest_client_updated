@@ -110,7 +110,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-[#f3f0ff] dark:bg-[#1a1f2e] text-gray-900 dark:text-white z-[100] shadow-lg dark:shadow-gray-900/50">
+    <header className="fixed top-0 left-0 right-0 backdrop-blur-md bg-white/80 dark:bg-dark-100/80 border-b border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white z-[100] shadow-sm">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Navigation */}
@@ -120,8 +120,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               <span className="font-bold text-2xl text-gray-900 dark:text-white">WelthWest</span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
+            {/* Desktop Navigation - Minimal, Key Features Only */}
+            <nav className="hidden md:flex items-center space-x-4">
               {/* WelthAI Button with Dropdown */}
               <div 
                 className="relative" 
@@ -190,19 +190,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                   </div>
                 )}
               </div>
-
-              {/* Backtesting Link in top nav */}
-              <Link 
-                to="/backtest-beta"
-                className={`flex items-center text-sm font-medium ${
-                  ['/backtesting', '/backtesting-beta', '/backtest-beta'].includes(location.pathname)
-                    ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
-              >
-                <BeakerIcon className="h-4 w-4 mr-1" />
-                <span>Backtesting</span>
-              </Link>
 
               {/* Market Dropdown */}
               <div 
@@ -320,35 +307,8 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 )}
               </div>
 
-              {/* Dashboard Link (replaces Stocks) */}
-              <div className="relative" ref={dashboardRef}>
-                <Link
-                  to="/dashboard"
-                  className={`flex items-center text-sm font-medium ${
-                    isActive('/dashboard')
-                      ? 'text-primary-600 dark:text-primary-400'
-                      : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
-                  }`}
-                >
-                  <span>Dashboard</span>
-                </Link>
-              </div>
-
-              {/* Feedback Link */}
-              <Link
-                to="/feedback"
-                className={`flex items-center text-sm font-medium ${
-                  isActive('/feedback')
-                    ? 'text-primary-600 dark:text-primary-400'
-                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
-                }`}
-              >
-                <i className="fas fa-comment-dots mr-1 text-xs"></i>
-                <span>Feedback</span>
-              </Link>
-
               {/* News & Blogs Link */}
-              {/*<Link 
+              {/*<Link
                 to="/news-and-blogs"
                 className={`flex items-center text-sm font-medium ${
                   isActive('/news-and-blogs')
@@ -364,7 +324,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           </div>
 
           {/* Center - Search Bar */}
-          <div className="hidden md:block flex-1 max-w-md mx-8">
+          <div className="hidden md:block flex-1 max-w-xs mx-4">
             <SearchBarWithSuggestions
               placeholders={searchPlaceholders}
               className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600 

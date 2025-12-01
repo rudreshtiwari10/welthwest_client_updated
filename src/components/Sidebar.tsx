@@ -148,6 +148,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
   const [marketBreadth, setMarketBreadth] = useState<MarketBreadth | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
   
   // Mock watchlist data
   const watchlistItems = [
@@ -329,6 +330,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
     }
   }, [isAuthenticated, activeTab, selectedStock]);
 
+  // Auto-scroll feature carousel every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeatureIndex((prev) => (prev + 1) % 3);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Format number to 2 decimal places
   const formatNumber = (num: number) => {
     return Number(num).toFixed(2);
@@ -378,13 +388,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
       
       {/* Sidebar */}
       <div
-        className={`fixed top-16 bottom-0 left-0 z-[80] w-80 md:w-80 bg-white dark:bg-gray-800 shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-16 bottom-0 left-0 z-[80] w-80 md:w-80 bg-white/95 dark:bg-dark-100/95 backdrop-blur-md shadow-2xl border-r border-gray-200/50 dark:border-gray-700/50 transform transition-all duration-300 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Header with User Info and Close Button */}
-          <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-700 bg-white dark:bg-gray-800">
+          <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
             {/* User Info */}
             {isAuthenticated && user && (
               <div className="flex items-center space-x-3">
@@ -424,89 +434,254 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
             </button>
           </div>
 
-                     {/* Navigation Links */}
-           <div className="px-3 md:px-4 py-3 md:py-4 border-b border-gray-700 flex-1">
-             <nav className="space-y-2">
-               {mainNavigation.map((item) => (
-                 <Link
-                   key={item.path}
-                   to={item.path}
-                   onClick={handleNavClick}
-                   className="flex items-center px-3 md:px-4 py-3 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
-                 >
-                   <i className={`fas fa-${item.icon} mr-2 md:mr-3 text-sm md:text-base`}></i>
-                   {item.name}
-                 </Link>
-               ))}
-               
-               {/* Features Section */}
-               <div className="mt-6">
-                 <h3 className="px-3 md:px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                   Features
-                 </h3>
-                 
-                 {featureNavigation.map((section, index) => (
-                   <div key={section.category} className={index > 0 ? "mt-4" : ""}>
-                     <h4 className="px-3 md:px-4 py-1 text-xs font-medium text-gray-400">
-                       {section.category}
-                     </h4>
-                     {section.items.map((item) => (
-                       <Link
-                         key={item.path + item.name}
-                         to={item.path}
-                         onClick={handleNavClick}
-                         className="flex items-center px-3 md:px-4 py-3 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50"
-                       >
-                         <i className={`fas fa-${item.icon} mr-2 md:mr-3 text-sm md:text-base`}></i>
-                         {item.name}
-                       </Link>
-                     ))}
-                   </div>
-                 ))}
-               </div>
-               
-               {/* Profile Link */}
-               <Link
-                 to="/profile"
-                 onClick={handleNavClick}
-                 className="flex items-center px-3 md:px-4 py-3 md:py-2 text-sm md:text-base text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-all hover:shadow-lg hover:shadow-gray-900/50 mt-4"
-               >
-                 <i className="fas fa-user mr-2 md:mr-3 text-sm md:text-base"></i>
-                 Profile
-               </Link>
-             </nav>
-           </div>
+          {/* Main Content with Scroll */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
+            {/* Auto-Scrolling Feature Carousel */}
+            <div className="relative overflow-hidden rounded-2xl shadow-xl">
+              <div
+                className="flex transition-transform duration-1000 ease-in-out"
+                style={{
+                  transform: `translateX(-${activeFeatureIndex * 100}%)`,
+                }}
+              >
+                {/* Welth AI Assistant Card */}
+                <div className="w-full flex-shrink-0 p-2">
+                  <Link
+                    to="/welth-ai-assistant"
+                    onClick={handleNavClick}
+                    className="block p-5 rounded-2xl bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 hover:from-purple-600 hover:via-indigo-600 hover:to-blue-600 shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
+                    style={{ minHeight: '200px' }}
+                  >
+                    {/* Animated background pattern */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                    <div className="relative z-10">
+                      <div className="flex items-center mb-3">
+                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          <i className="fas fa-robot text-white text-2xl"></i>
+                        </div>
+                        <div>
+                          <h5 className="text-base font-bold text-white drop-shadow-lg">Welth AI Assistant</h5>
+                          <p className="text-xs text-purple-100">Chat • Analyze • Learn</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-white/90 mb-4 leading-relaxed line-clamp-2">
+                        Get instant insights, market analysis, and personalized trading recommendations.
+                      </p>
+                      <div className="flex items-center justify-center py-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white font-semibold text-sm shadow-lg border border-white/30 group-hover:bg-white/30 transition-all">
+                        <i className="fas fa-comment-dots mr-2"></i>
+                        Open Assistant →
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Welth AI Analysis Card */}
+                <div className="w-full flex-shrink-0 p-2">
+                  <Link
+                    to="/welth-market-regime"
+                    onClick={handleNavClick}
+                    className="block p-5 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-2xl hover:shadow-indigo-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
+                    style={{ minHeight: '200px' }}
+                  >
+                    {/* Animated background pattern */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                    <div className="relative z-10">
+                      <div className="flex items-center mb-3">
+                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          <i className="fas fa-brain text-white text-2xl"></i>
+                        </div>
+                        <div>
+                          <h5 className="text-base font-bold text-white drop-shadow-lg">Welth AI Analysis</h5>
+                          <p className="text-xs text-indigo-100">Predict • Forecast • Decide</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-white/90 mb-4 leading-relaxed line-clamp-2">
+                        AI-powered market regime detection and predictive analysis for smarter trading.
+                      </p>
+                      <div className="flex items-center justify-center py-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white font-semibold text-sm shadow-lg border border-white/30 group-hover:bg-white/30 transition-all">
+                        <i className="fas fa-chart-line mr-2"></i>
+                        Start Analysis →
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Backtesting Card */}
+                <div className="w-full flex-shrink-0 p-2">
+                  <Link
+                    to="/backtest-beta"
+                    onClick={handleNavClick}
+                    className="block p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 shadow-2xl hover:shadow-green-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
+                    style={{ minHeight: '200px' }}
+                  >
+                    {/* Animated background pattern */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
+
+                    <div className="relative z-10">
+                      <div className="flex items-center mb-3">
+                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          <i className="fas fa-flask text-white text-2xl"></i>
+                        </div>
+                        <div>
+                          <h5 className="text-base font-bold text-white drop-shadow-lg flex items-center gap-2">
+                            Backtesting
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-white/30 backdrop-blur-sm text-white border border-white/50">Beta</span>
+                          </h5>
+                          <p className="text-xs text-green-100">Test • Validate • Optimize</p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-white/90 mb-4 leading-relaxed line-clamp-2">
+                        Test your trading strategies with historical data and optimize for better results.
+                      </p>
+                      <div className="flex items-center justify-center py-2.5 rounded-xl bg-white/20 backdrop-blur-sm text-white font-semibold text-sm shadow-lg border border-white/30 group-hover:bg-white/30 transition-all">
+                        <i className="fas fa-play mr-2"></i>
+                        Start Testing →
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Carousel Indicators */}
+              <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                {[0, 1, 2].map((index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveFeatureIndex(index)}
+                    className={`h-2 rounded-full transition-all duration-500 ${
+                      activeFeatureIndex === index
+                        ? 'bg-white w-8 shadow-lg'
+                        : 'bg-white/40 w-2 hover:bg-white/60'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Navigation Section */}
+            <div>
+              <h3 className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Explore
+              </h3>
+              <nav className="mt-2 space-y-1">
+                <Link
+                  to="/dashboard"
+                  onClick={handleNavClick}
+                  className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all group"
+                >
+                  <i className="fas fa-chart-line mr-3 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                  <span>Dashboard</span>
+                </Link>
+
+                <Link
+                  to="/stock/RELIANCE"
+                  onClick={handleNavClick}
+                  className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all group"
+                >
+                  <i className="fas fa-chart-bar mr-3 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
+                  <span>Stocks & Market</span>
+                </Link>
+
+                <Link
+                  to="/feedback"
+                  onClick={handleNavClick}
+                  className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 rounded-lg transition-all group"
+                >
+                  <i className="fas fa-comment-dots mr-3 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform"></i>
+                  <span>Feedback</span>
+                </Link>
+              </nav>
+            </div>
+
+            {/* AI Features Section */}
+            <div>
+              <h3 className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                AI Features
+              </h3>
+              <nav className="mt-2 space-y-1">
+                <Link
+                  to="/welth-ai-assistant"
+                  onClick={handleNavClick}
+                  className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 rounded-lg transition-all group"
+                >
+                  <i className="fas fa-robot mr-3 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform"></i>
+                  <span>Welth AI Assistant</span>
+                </Link>
+
+                <Link
+                  to="/welth-market-regime"
+                  onClick={handleNavClick}
+                  className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all group"
+                >
+                  <i className="fas fa-brain mr-3 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform"></i>
+                  <span>Welth AI Analysis</span>
+                </Link>
+
+                <Link
+                  to="/backtest-beta"
+                  onClick={handleNavClick}
+                  className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 rounded-lg transition-all group"
+                >
+                  <i className="fas fa-flask mr-3 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform"></i>
+                  <span>Backtesting</span>
+                  <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">Beta</span>
+                </Link>
+              </nav>
+            </div>
+
+            {/* User Section */}
+            {isAuthenticated && (
+              <div>
+                <h3 className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Account
+                </h3>
+                <nav className="mt-2 space-y-1">
+                  <Link
+                    to="/profile"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-user mr-3 text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Profile Settings</span>
+                  </Link>
+                </nav>
+              </div>
+            )}
+          </div>
            
-           {/* Sidebar Footer - Auth Button */}
-           <div className="p-3 md:p-4 border-t border-gray-700 mt-auto">
-             {isAuthenticated ? (
-               <button
-                 onClick={async () => {
-                   try {
-                     await logout();
-                     closeSidebar();
-                     navigate('/login');
-                   } catch (error) {
-                     console.error('Logout failed:', error);
-                   }
-                 }}
-                 className="w-full flex items-center justify-center px-4 py-3 md:py-2 text-sm md:text-base font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
-               >
-                 <i className="fas fa-sign-out-alt mr-1 md:mr-2 text-sm md:text-base"></i>
-                 Logout
-               </button>
-             ) : (
-               <button
-                 onClick={() => {
-                   closeSidebar();
-                   navigate('/login');
-                 }}
-                 className="w-full flex items-center justify-center px-4 py-3 md:py-2 text-sm md:text-base font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
-               >
-                 <i className="fas fa-sign-in-alt mr-1 md:mr-2 text-sm md:text-base"></i>
-                 Login
-               </button>
-             )}
+          {/* Sidebar Footer - Auth Button */}
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-200">
+            {isAuthenticated ? (
+              <button
+                onClick={async () => {
+                  try {
+                    await logout();
+                    closeSidebar();
+                    navigate('/login');
+                  } catch (error) {
+                    console.error('Logout failed:', error);
+                  }
+                }}
+                className="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+              >
+                <i className="fas fa-sign-out-alt mr-2"></i>
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  closeSidebar();
+                  navigate('/login');
+                }}
+                className="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-700 hover:to-violet-600 rounded-xl transition-all shadow-md hover:shadow-lg transform hover:scale-105"
+              >
+                <i className="fas fa-sign-in-alt mr-2"></i>
+                Login
+              </button>
+            )}
            </div>
         </div>
       </div>

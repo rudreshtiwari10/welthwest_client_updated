@@ -2,14 +2,43 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import UsageIndicator from './components/UsageIndicator';
 import TrialExceededModal from './components/TrialExceededModal';
+import FinanceAIChart from './components/FinanceAIChart';
+import FinanceAIIndicators from './components/FinanceAIIndicators';
 import {
   PaperAirplaneIcon,
   SparklesIcon,
   ChartBarIcon,
   NewspaperIcon,
   CpuChipIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  ClockIcon
 } from '@heroicons/react/24/outline';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+// Register ChartJS components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 interface Message {
   id: string;
@@ -17,6 +46,10 @@ interface Message {
   text: string;
   timestamp: Date;
   intent?: string;
+  category?: string;
+  chartBase64?: string;
+  indicators?: any;
+  stockData?: any;
   metadata?: {
     model_used?: string;
     stock_data?: any;
@@ -51,6 +84,8 @@ const NextGenChatPage: React.FC = () => {
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [refreshUsage, setRefreshUsage] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   // Removed auto-scroll - user can manually scroll to see new messages
 
@@ -96,13 +131,17 @@ const NextGenChatPage: React.FC = () => {
       // Track activity
       activityService.trackActivity(activityService.FEATURE_AI_ASSISTANT);
 
-      console.log('Sending message to NextGen chat API');
-      const data = await marketService.enhancedChat(
-        userMessage.text,
-        currentSessionId
-      );
+      console.log('Sending message to Finance AI API');
 
-      console.log('NextGen chat response:', data);
+      // Build conversation history for context
+      const conversationHistory = messages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: msg.text
+      }));
+
+      const data = await marketService.financeAIQuery(userMessage.text, conversationHistory);
+
+      console.log('Finance AI response:', data);
 
       // Check for login requirement in response
       if (data.requires_login) {
@@ -118,22 +157,28 @@ const NextGenChatPage: React.FC = () => {
         return;
       }
 
-      // Check if we have a valid response
-      if (!data.response) {
-        console.error('No response field in data:', data);
-        setError('Invalid response from server. Please try again.');
+      // Extract AI response from various possible fields (more flexible)
+      const aiResponseText = data.ai_response || data.response || data.analysis || data.message || 'No response received';
+
+      if (!aiResponseText || aiResponseText === 'No response received') {
+        console.error('No valid response field in data:', data);
+        setError('Unable to get a response from the AI. Please try again.');
         return;
       }
 
       const aiMessage: Message = {
         id: `ai_${Date.now()}`,
         sender: 'ai',
-        text: data.response || 'No response received',
+        text: aiResponseText,
         timestamp: new Date(),
-        intent: data.query_type || data.intent, // Backend uses query_type
+        intent: data.query_type || data.intent || data.category,
+        category: data.category,
+        chartBase64: data.chart_base64,
+        indicators: data.data?.indicators,
+        stockData: data.data,
         metadata: {
           model_used: data.model_used,
-          stock_data: data.stock_data,
+          stock_data: data.stock_data || data.data,
           entities: data.entities,
           tool_suggestions: data.tool_suggestions,
           follow_up_questions: data.follow_up_questions
@@ -141,6 +186,9 @@ const NextGenChatPage: React.FC = () => {
       };
 
       console.log('Adding AI message:', aiMessage);
+      console.log('Message text:', aiMessage.text);
+      console.log('Has chart:', !!aiMessage.chartBase64);
+      console.log('Has indicators:', !!aiMessage.indicators);
       setMessages(prev => [...prev, aiMessage]);
 
       // Handle usage from both field names (usage or usage_info)
@@ -261,8 +309,31 @@ const NextGenChatPage: React.FC = () => {
     });
   };
 
+  const hasMessages = messages.length > 0;
+
+  // Detect when footer is visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFooterVisible(entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+
+    const currentFooterRef = footerRef.current;
+    if (currentFooterRef) {
+      observer.observe(currentFooterRef);
+    }
+
+    return () => {
+      if (currentFooterRef) {
+        observer.unobserve(currentFooterRef);
+      }
+    };
+  }, []);
+
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen relative">
       {/* Usage Indicator - Only for authenticated users */}
       {user && (
         <UsageIndicator
@@ -319,10 +390,12 @@ const NextGenChatPage: React.FC = () => {
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className={`flex-1 overflow-y-auto p-4 ${!hasMessages ? 'flex items-center justify-center' : 'pb-32'}`}>
         <div className="max-w-4xl mx-auto space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center py-12">
+
+          {/* Welcome Message - show when no messages */}
+          {!hasMessages && (
+            <div className="text-center py-12 mb-32">
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 <SparklesIcon className="h-8 w-8 text-white" />
               </div>
@@ -330,7 +403,7 @@ const NextGenChatPage: React.FC = () => {
                 Welcome to WelthAI Chat Assistant
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
-                Ask me about stock prices, financial news analysis, trading concepts, or general finance questions. 
+                Ask me about stock prices, financial news analysis, trading concepts, or general finance questions.
                 I use multiple AI models to provide accurate, comprehensive answers.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
@@ -376,26 +449,162 @@ const NextGenChatPage: React.FC = () => {
                   <div className="text-sm text-gray-900 dark:text-gray-100">{message.text}</div>
                 )}
 
-                {/* Stock Data Display */}
-                {message.sender === 'ai' && message.metadata?.stock_data && (
-                  <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">Stock Data</h4>
+                {/* Finance AI Indicators */}
+                {message.sender === 'ai' && message.indicators && (
+                  <FinanceAIIndicators
+                    indicators={message.indicators}
+                    symbol={message.stockData?.symbol}
+                    currentPrice={message.stockData?.current_price}
+                  />
+                )}
+
+                {/* Finance AI Chart */}
+                {message.sender === 'ai' && message.chartBase64 && (
+                  <FinanceAIChart
+                    chartBase64={message.chartBase64}
+                    title={message.category ? `${message.category.replace(/_/g, ' ').toUpperCase()} Analysis` : 'Technical Analysis'}
+                    category={message.category}
+                  />
+                )}
+
+                {/* Model Information Badge */}
+                {message.sender === 'ai' && message.metadata?.model_used && (
+                  <div className="mt-2 inline-flex items-center px-2 py-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-xs text-blue-700 dark:text-blue-300">
+                    <CpuChipIcon className="h-3 w-3 mr-1" />
+                    Model: {message.metadata.model_used}
+                  </div>
+                )}
+
+                {/* Stock Data Display with Charts (Old format - hide for Finance AI responses) */}
+                {message.sender === 'ai' && message.metadata?.stock_data && !message.chartBase64 && !message.indicators && (
+                  <div className="mt-3 space-y-3">
                     {Object.entries(message.metadata.stock_data).map(([symbol, data]: [string, any]) => (
-                      <div key={symbol} className="text-xs mb-2 last:mb-0">
-                        <div className="font-medium text-gray-900 dark:text-white">{symbol}</div>
-                        {data.current_price && (
-                          <div className="text-gray-600 dark:text-gray-400">
-                            Price: ₹{data.current_price.toFixed(2)}
-                            {data.change_percent && (
-                              <span className={`ml-2 ${data.change_percent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                ({data.change_percent >= 0 ? '+' : ''}{data.change_percent.toFixed(2)}%)
-                              </span>
+                      <div key={symbol} className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                        {/* Stock Info Header */}
+                        <div className="mb-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <div className="font-semibold text-gray-900 dark:text-white text-sm">
+                                {data.company_name || symbol}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">{symbol}</div>
+                            </div>
+                            {data.last_updated && (
+                              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
+                                <ClockIcon className="h-3 w-3 mr-1" />
+                                {new Date(data.last_updated).toLocaleString()}
+                              </div>
                             )}
                           </div>
-                        )}
-                        {data.day_high && data.day_low && (
-                          <div className="text-gray-600 dark:text-gray-400">
-                            Range: ₹{data.day_low.toFixed(2)} - ₹{data.day_high.toFixed(2)}
+
+                          {data.current_price && (
+                            <div className="flex items-baseline space-x-2">
+                              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                                ₹{data.current_price.toFixed(2)}
+                              </span>
+                              {data.change && data.change_percent && (
+                                <span className={`text-sm font-medium ${data.change_percent >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                                  {data.change >= 0 ? '+' : ''}{data.change.toFixed(2)} ({data.change_percent >= 0 ? '+' : ''}{data.change_percent.toFixed(2)}%)
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Additional Info */}
+                          <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
+                            {data.day_high && data.day_low && (
+                              <div className="text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">Day Range:</span> ₹{data.day_low.toFixed(2)} - ₹{data.day_high.toFixed(2)}
+                              </div>
+                            )}
+                            {data.volume && (
+                              <div className="text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">Volume:</span> {data.volume.toLocaleString()}
+                              </div>
+                            )}
+                            {data.market_cap && data.market_cap !== 'N/A' && (
+                              <div className="text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">Market Cap:</span> ₹{(data.market_cap / 10000000).toFixed(2)}Cr
+                              </div>
+                            )}
+                            {data.pe_ratio && data.pe_ratio !== 'N/A' && (
+                              <div className="text-gray-600 dark:text-gray-400">
+                                <span className="font-medium">P/E Ratio:</span> {typeof data.pe_ratio === 'number' ? data.pe_ratio.toFixed(2) : data.pe_ratio}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Price Chart */}
+                        {data.chart_data && data.chart_data.dates && data.chart_data.prices && (
+                          <div className="mt-4">
+                            <h5 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">30-Day Price Chart</h5>
+                            <div className="bg-white dark:bg-gray-900 p-2 rounded">
+                              <Line
+                                data={{
+                                  labels: data.chart_data.dates,
+                                  datasets: [
+                                    {
+                                      label: 'Price (₹)',
+                                      data: data.chart_data.prices,
+                                      borderColor: data.change_percent >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)',
+                                      backgroundColor: data.change_percent >= 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                                      fill: true,
+                                      tension: 0.4,
+                                      pointRadius: 0,
+                                      borderWidth: 2
+                                    }
+                                  ]
+                                }}
+                                options={{
+                                  responsive: true,
+                                  maintainAspectRatio: false,
+                                  plugins: {
+                                    legend: {
+                                      display: false
+                                    },
+                                    tooltip: {
+                                      mode: 'index',
+                                      intersect: false,
+                                      callbacks: {
+                                        label: function(context: any) {
+                                          return `₹${context.parsed.y.toFixed(2)}`;
+                                        }
+                                      }
+                                    }
+                                  },
+                                  scales: {
+                                    x: {
+                                      display: true,
+                                      grid: {
+                                        display: false
+                                      },
+                                      ticks: {
+                                        maxTicksLimit: 6,
+                                        font: {
+                                          size: 10
+                                        }
+                                      }
+                                    },
+                                    y: {
+                                      display: true,
+                                      grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                      },
+                                      ticks: {
+                                        font: {
+                                          size: 10
+                                        },
+                                        callback: function(value: any) {
+                                          return '₹' + value.toFixed(0);
+                                        }
+                                      }
+                                    }
+                                  }
+                                }}
+                                height={180}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -489,19 +698,20 @@ const NextGenChatPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex space-x-3">
+      {/* Dynamic Island Input - Fixed at bottom, floating style */}
+      <div className={`${isFooterVisible ? 'absolute' : 'fixed'} ${isFooterVisible ? 'bottom-24' : 'bottom-6'} left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 transition-all duration-300 ease-in-out z-50`}>
+        {/* Floating Input Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 backdrop-blur-xl bg-opacity-95 dark:bg-opacity-95">
+          <div className="flex items-center gap-3">
             <div className="flex-1 relative">
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Ask about stock prices, financial news, trading concepts..."
+                placeholder="Ask Welth AI..."
                 disabled={isLoading}
                 rows={1}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50"
+                className="w-full px-5 py-3 bg-gray-50 dark:bg-gray-900 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-50 transition-all"
                 style={{
                   minHeight: '48px',
                   maxHeight: '120px',
@@ -512,18 +722,20 @@ const NextGenChatPage: React.FC = () => {
             <button
               onClick={sendMessage}
               disabled={!input.trim() || isLoading}
-              className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+              className="p-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 flex items-center justify-center min-w-[48px] h-[48px]"
             >
-              <PaperAirplaneIcon className="h-5 w-5" />
-              <span className="hidden sm:inline">Send</span>
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <PaperAirplaneIcon className="h-5 w-5" />
+              )}
             </button>
           </div>
-          
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center">
-            WelthAI uses multiple models for enhanced financial insights. Always consult professionals for investment decisions.
-          </p>
         </div>
       </div>
+
+      {/* Footer marker for intersection observer */}
+      <div ref={footerRef} className="h-1"></div>
     </div>
   );
 };

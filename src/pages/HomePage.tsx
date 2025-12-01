@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { marketService, activityService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, CpuChipIcon, BeakerIcon, ChevronLeftIcon, ChevronRightIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
 import FeatureVideo from '../components/FeatureVideo';
 import QuickStartGuide from '../components/QuickStartGuide';
+import AssistantWidget from '../components/AssistantWidget';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
 // Register Chart.js components
@@ -19,11 +20,12 @@ const HomePage: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [displayText, setDisplayText] = useState('Trading');
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
+  const [isAssistantOpen, setIsAssistantOpen] = useState(false);
   const [currentTestimonial, setCurrentTestimonial] = useState(0);
 
   // Words to animate through
   // const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
-  const dynamicWords = useMemo(() => ['Trading', 'Backtesting', 'Analysis'], []);
+  const dynamicWords = useMemo(() => ['Forecasting', 'Backtesting', 'Analysis'], []);
 
   // Testimonials data
   const testimonials = useMemo(() => [
@@ -136,98 +138,19 @@ const HomePage: React.FC = () => {
     setCurrentTestimonial(index);
   };
   
-  // Memoized chart data generator to prevent unnecessary re-renders
+  // Memoized chart data generator using real API data
   const generateChartData = useMemo(() => {
-    return (isPositive: boolean, currentPrice: number, chartIndex: number) => {
-      const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
-      
-      // Generate different curve patterns based on chart index
-      const basePrice = currentPrice || 100;
-      const data = labels.map((_, index) => {
-        const progress = index / (labels.length - 1); // 0 to 1
-        let curveValue;
-        
-        // Different curve patterns for each chart
-        switch (chartIndex % 8) {
-          case 0: // Exponential growth/decline
-            if (isPositive) {
-              curveValue = basePrice * (0.92 + Math.pow(progress, 1.5) * 0.12);
-            } else {
-              curveValue = basePrice * (1.08 - Math.pow(progress, 1.3) * 0.1);
-            }
-            break;
-            
-          case 1: // S-curve pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + (1 / (1 + Math.exp(-8 * (progress - 0.5))) - 0.5) * 0.12);
-            } else {
-              curveValue = basePrice * (1.06 - (1 / (1 + Math.exp(-8 * (progress - 0.5))) - 0.5) * 0.12);
-            }
-            break;
-            
-          case 2: // Double peak pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * 4 * Math.PI) * 0.03);
-            } else {
-              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * 4 * Math.PI) * 0.03);
-            }
-            break;
-            
-          case 3: // Stepped pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + Math.floor(progress * 4) * 0.02 + (progress % 0.25) * 0.08);
-            } else {
-              curveValue = basePrice * (1.04 - Math.floor(progress * 4) * 0.015 - (progress % 0.25) * 0.06);
-            }
-            break;
-            
-          case 4: // Wave pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * 6 * Math.PI) * 0.04);
-            } else {
-              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * 6 * Math.PI) * 0.04);
-            }
-            break;
-            
-          case 5: // Logarithmic pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + Math.log(1 + progress * 8) * 0.08);
-            } else {
-              curveValue = basePrice * (1.04 - Math.log(1 + progress * 8) * 0.06);
-            }
-            break;
-            
-          case 6: // Zigzag pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * 8 * Math.PI) * 0.05);
-            } else {
-              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * 8 * Math.PI) * 0.05);
-            }
-            break;
-            
-          case 7: // Smooth bell curve
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * Math.PI) * 0.06);
-            } else {
-              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * Math.PI) * 0.06);
-            }
-            break;
-            
-          default:
-            // Fallback to original pattern
-            if (isPositive) {
-              curveValue = basePrice * (0.94 + progress * 0.08 + Math.sin(progress * Math.PI) * 0.02);
-            } else {
-              curveValue = basePrice * (1.04 - progress * 0.06 - Math.sin(progress * Math.PI) * 0.02);
-            }
-        }
-        
-        // Add unique market-like fluctuation for each chart
-        const uniqueFluctuation = Math.sin(index * (0.8 + chartIndex * 0.3)) * (basePrice * 0.006) + 
-                                 Math.cos(index * (1.2 + chartIndex * 0.4)) * (basePrice * 0.004);
-        
-        return curveValue + uniqueFluctuation;
-      });
+    return (chartData: any, isPositive: boolean) => {
+      // Use real data if available, otherwise return empty chart
+      if (!chartData || !chartData.dates || !chartData.prices || chartData.dates.length === 0) {
+        return {
+          labels: [],
+          datasets: []
+        };
+      }
+
+      const labels = chartData.dates;
+      const data = chartData.prices;
       
       // Keep green/red colors based on percent change
       const colors = {
@@ -235,7 +158,7 @@ const HomePage: React.FC = () => {
         background: isPositive ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
         point: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
       };
-      
+
       return {
         labels,
         datasets: [
@@ -243,103 +166,99 @@ const HomePage: React.FC = () => {
             label: 'Price',
             data,
             borderColor: colors.border,
-            backgroundColor: colors.background,
-            tension: 0.3 + (chartIndex % 4) * 0.2, // Varying tension for different curves
+            backgroundColor: (context: any) => {
+              const chart = context.chart;
+              const { ctx, chartArea } = chart;
+              if (!chartArea) return colors.background;
+
+              const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+              gradient.addColorStop(0, colors.background);
+              gradient.addColorStop(1, colors.background.replace('0.1', '0.3'));
+              return gradient;
+            },
+            tension: 0.4,
             fill: true,
-            borderWidth: 2 + (chartIndex % 2), // Varying border width
+            borderWidth: 2,
             pointRadius: 0,
-            pointHoverRadius: 4,
+            pointHoverRadius: 5,
             pointBackgroundColor: colors.point,
             pointBorderColor: '#ffffff',
             pointBorderWidth: 2,
-            // Add gradient effect for some charts
-            ...(chartIndex % 2 === 0 && {
-              backgroundColor: (context: any) => {
-                const chart = context.chart;
-                const { ctx, chartArea } = chart;
-                if (!chartArea) return colors.background;
-                
-                const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
-                gradient.addColorStop(0, colors.background);
-                gradient.addColorStop(1, colors.background.replace('0.1', '0.3'));
-                return gradient;
-              }
-            }),
           },
         ],
       };
     };
   }, []);
   
-  // Enhanced chart options with more variety
-  const getEnhancedChartOptions = useMemo(() => {
-    return (chartIndex: number) => ({
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        mode: 'nearest' as const,
-        axis: 'x' as const,
+  // Chart options
+  const chartOptions = useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'nearest' as const,
+      axis: 'x' as const,
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: true,
+        mode: 'index' as const,
         intersect: false,
-      },
-      plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          enabled: true,
-          mode: 'index' as const,
-          intersect: false,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          titleColor: '#ffffff',
-          bodyColor: '#ffffff',
-          borderColor: 'rgba(255, 255, 255, 0.1)',
-          borderWidth: 1,
-          cornerRadius: 6,
-          displayColors: false,
-          callbacks: {
-            title: () => '',
-            label: (context: any) => {
-              const value = context.parsed.y;
-              return `₹${value.toFixed(2)}`;
-            },
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: '#ffffff',
+        bodyColor: '#ffffff',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        cornerRadius: 6,
+        displayColors: false,
+        callbacks: {
+          title: (context: any) => {
+            return context[0]?.label || '';
+          },
+          label: (context: any) => {
+            const value = context.parsed.y;
+            return `₹${value.toFixed(2)}`;
           },
         },
       },
-      scales: {
-        x: {
-          display: false,
-        },
-        y: {
-          display: false,
+    },
+    scales: {
+      x: {
+        display: false,
+      },
+      y: {
+        display: false,
+      },
+    },
+    elements: {
+      point: {
+        radius: 0,
+        hoverRadius: 5,
+        hitRadius: 10,
+      },
+      line: {
+        borderCapStyle: 'round' as const,
+        borderJoinStyle: 'round' as const,
+      },
+    },
+    animation: {
+      duration: 0,
+    },
+    transitions: {
+      active: {
+        animation: {
+          duration: 200,
         },
       },
-      elements: {
-        point: {
-          radius: 0,
-          hoverRadius: 4 + (chartIndex % 2), // Varying hover radius
-          hitRadius: 10,
-        },
-        line: {
-          borderCapStyle: 'round' as const,
-          borderJoinStyle: 'round' as const,
-        },
-      },
-      animation: {
-        duration: 0,
-      },
-      transitions: {
-        active: {
-          animation: {
-            duration: 200 + (chartIndex % 3) * 100, // Varying transition duration
-          },
-        },
-      },
-    });
-  }, []);
+    },
+  }), []);
   
   const scrollIndices = (direction: 'left' | 'right') => {
     if (indicesSliderRef.current) {
-      const scrollAmount = 300; // Adjust as needed
+      const scrollAmount = 340; // Scroll by one card width (320px card + 20px gap)
       const currentScroll = indicesSliderRef.current.scrollLeft;
       indicesSliderRef.current.scrollTo({
         left: direction === 'left' ? currentScroll - scrollAmount : currentScroll + scrollAmount,
@@ -372,7 +291,7 @@ const HomePage: React.FC = () => {
         
         {/* Elegant Hero Section with AI Feature Buttons */}
         <section className="mb-12 max-w-4xl mx-auto">
-          <div className="relative overflow-hidden rounded-xl bg-white/80 dark:bg-dark-300/80 shadow-md border border-gray-100 dark:border-gray-700 backdrop-blur-sm">
+          <div className="relative overflow-hidden rounded-xl bg-white dark:bg-dark-300 shadow-xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
             {/* Content */}
             <div className="relative py-10 px-6 text-center" style={{ minHeight: '200px' }}>
               
@@ -386,33 +305,47 @@ const HomePage: React.FC = () => {
                 </div>
               </h1>
               
-              {/* AI Feature Buttons - Responsive Layout */}
-              <div className="grid grid-cols-2 gap-3 mt-6 max-w-xl mx-auto">
-                {/* AI Market Analysis Button */}
+              {/* Feature Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto">
+                {/* Welth AI Assistant */}
                 <Link
-                  to="/welth-market-regime"
-                  className="group flex flex-col items-center justify-center bg-primary-50/90 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/40 backdrop-blur-sm border border-primary-200 dark:border-primary-800 rounded-lg py-3 px-3 transition-all duration-300 hover:shadow-md"
+                  to="/welth-ai-assistant"
+                  className="group flex items-center bg-white dark:bg-dark-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                    <ChartBarIcon className="h-5 w-5 text-white" />
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
+                    <ChatBubbleLeftRightIcon className="h-6 w-6 text-white" />
                   </div>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">AI Analysis</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Market insights</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth AI Assistant</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Chat with AI for insights</p>
                   </div>
                 </Link>
 
-                {/* Backtesting Button */}
+                {/* Welth AI Analysis */}
+                <Link
+                  to="/welth-market-regime"
+                  className="group flex items-center bg-white dark:bg-dark-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
+                >
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
+                    <SparklesIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth AI Analysis</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Market predictions</p>
+                  </div>
+                </Link>
+
+                {/* Backtesting */}
                 <Link
                   to="/backtest-beta"
-                  className="group flex flex-col items-center justify-center bg-green-50/90 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/40 backdrop-blur-sm border border-green-200 dark:border-green-800 rounded-lg py-3 px-3 transition-all duration-300 hover:shadow-md"
+                  className="group flex items-center bg-white dark:bg-dark-300 hover:bg-green-50 dark:hover:bg-green-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
                 >
-                  <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform duration-300">
-                    <BeakerIcon className="h-5 w-5 text-white" />
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
+                    <BeakerIcon className="h-6 w-6 text-white" />
                   </div>
-                  <div className="text-center">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm">Backtesting</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Test strategies</p>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Backtesting</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Test strategies</p>
                   </div>
                 </Link>
               </div>
@@ -479,22 +412,33 @@ const HomePage: React.FC = () => {
           
           {/* Horizontal Scrollable Indices */}
           <div className="relative mb-8">
-            <div 
+            <div
               ref={indicesSliderRef}
-              className="flex overflow-x-auto pb-4 hide-scrollbar space-x-6"
+              className="flex overflow-x-auto pb-6 hide-scrollbar space-x-4 scroll-smooth"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {isLoading ? (
-                // Loading skeletons
-                Array(4).fill(0).map((_, index) => (
-                  <div key={index} className="min-w-[300px] bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 p-6 animate-pulse" style={{ minHeight: '280px' }}>
-                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-6"></div>
-                    <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                // Loading skeletons with improved design
+                Array(6).fill(0).map((_, index) => (
+                  <div key={index} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-6 animate-pulse" style={{ minHeight: '300px' }}>
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                        <div>
+                          <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-24 mb-2"></div>
+                          <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="h-7 bg-gray-200 dark:bg-gray-700 rounded w-20 mb-2"></div>
+                        <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                      </div>
+                    </div>
+                    <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded-lg mb-4"></div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                      <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                      <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
                     </div>
                   </div>
                 ))
@@ -522,43 +466,55 @@ const HomePage: React.FC = () => {
                   const isPositive = percentChange >= 0;
                   
                   return (
-                    <div key={key} className="min-w-[300px] bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700" style={{ 
-                      minHeight: '280px',
-                      borderWidth: `${1 + (index % 2)}px`,
-                      borderStyle: index % 3 === 0 ? 'solid' : index % 3 === 1 ? 'dashed' : 'dotted'
-                    }}>
-                      <div className="p-6">
-                        <div className="flex justify-between items-start mb-4">
+                    <div key={key} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-1 hover:scale-[1.02]" style={{ minHeight: '300px' }}>
+                      <div className="p-6 relative">
+                        {/* Decorative background element */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+
+                        <div className="flex justify-between items-start mb-4 relative z-10">
                           <div>
-                            <div className="group">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white cursor-default">
-                                    {index_data.name || key}
-                                  </h3>
-                                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
-                                    INDEX
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 cursor-default">
-                                  {key.includes('NSEI') ? 'National Stock Exchange' : 'Bombay Stock Exchange'}
+                            <div className="flex items-center gap-2 mb-1">
+                              {/* Exchange Icon */}
+                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                                isPositive
+                                  ? 'bg-green-100 dark:bg-green-900/30'
+                                  : 'bg-red-100 dark:bg-red-900/30'
+                              }`}>
+                                <ChartBarIcon className={`h-4 w-4 ${
+                                  isPositive
+                                    ? 'text-green-600 dark:text-green-400'
+                                    : 'text-red-600 dark:text-red-400'
+                                }`} />
+                              </div>
+                              <div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                  {index_data.name || key}
+                                </h3>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                  {key.includes('NSEI') || key.includes('NSE') ? 'NSE' : 'BSE'} Index
                                 </p>
                               </div>
                             </div>
+                          </div>
                           <div className="text-right">
-                            <div className="text-3xl font-bold text-gray-900 dark:text-white">
-                              {index_data.price?.toFixed(2) || '0.00'}
+                            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                              ₹{index_data.price?.toFixed(2) || '0.00'}
                             </div>
-                            <div className={`flex items-center ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                            <div className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-semibold text-sm ${
+                              isPositive
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                            } group-hover:scale-110 transition-transform duration-300`}>
                               {isPositive ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
                                 </svg>
                               ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                   <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
                                 </svg>
                               )}
-                              <span className="font-medium">
+                              <span>
                                 {isPositive ? '+' : ''}
                                 {percentChange.toFixed(2)}%
                               </span>
@@ -566,30 +522,73 @@ const HomePage: React.FC = () => {
                           </div>
                         </div>
                         
-                        <div className="h-32 w-full" style={{ 
-                          minHeight: `${128 + (index % 4) * 12}px`, 
-                          maxHeight: `${128 + (index % 4) * 12}px` 
-                        }}>
-                          <Line data={generateChartData(isPositive, index_data.price || 0, index)} options={getEnhancedChartOptions(index)} key={`chart-${key}-${isPositive}-${index_data.price}`} />
+                        <div className="h-32 w-full">
+                          {index_data.chartData && index_data.chartData.dates && index_data.chartData.dates.length > 0 ? (
+                            <Line
+                              data={generateChartData(index_data.chartData, isPositive)}
+                              options={chartOptions}
+                              key={`chart-${key}-${index_data.timestamp}`}
+                            />
+                          ) : (
+                            <Line
+                              data={generateChartData({
+                                dates: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                                prices: (() => {
+                                  const basePrice = index_data.price || 100;
+                                  const percentChange = index_data.percentChange || 0;
+                                  const startPrice = basePrice - (basePrice * percentChange / 100);
+
+                                  // Generate realistic market fluctuations
+                                  const prices = [];
+                                  let currentPrice = startPrice;
+
+                                  for (let i = 0; i < 7; i++) {
+                                    // Add some randomness but trend towards final price
+                                    const progressToEnd = i / 6; // 0 to 1
+                                    const targetPrice = startPrice + (basePrice - startPrice) * progressToEnd;
+
+                                    // Add realistic volatility (±0.3% to ±1.2% per day)
+                                    const volatility = (Math.random() - 0.5) * 2 * (0.003 + Math.random() * 0.009);
+                                    const fluctuation = currentPrice * volatility;
+
+                                    // Move towards target with some randomness
+                                    currentPrice = targetPrice + fluctuation;
+
+                                    // Add intraday variation
+                                    const intraday = Math.sin(i * 1.5) * currentPrice * 0.003;
+
+                                    prices.push(currentPrice + intraday);
+                                  }
+
+                                  // Ensure last price matches actual current price
+                                  prices[6] = basePrice;
+
+                                  return prices;
+                                })()
+                              }, isPositive)}
+                              options={chartOptions}
+                              key={`chart-${key}-fallback`}
+                            />
+                          )}
                         </div>
                         
-                        <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
-                          <div>
-                            <div className="text-gray-500 dark:text-gray-400">Open</div>
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {index_data.price?.toFixed(2) || '0.00'}
+                        <div className="grid grid-cols-3 gap-3 mt-4 relative z-10">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Open</div>
+                            <div className="font-semibold text-gray-900 dark:text-white">
+                              ₹{index_data.price?.toFixed(2) || '0.00'}
                             </div>
                           </div>
-                          <div>
-                            <div className="text-gray-500 dark:text-gray-400">High</div>
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {(index_data.price * 1.01)?.toFixed(2) || '0.00'}
+                          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">High</div>
+                            <div className="font-semibold text-green-700 dark:text-green-400">
+                              ₹{(index_data.price * 1.01)?.toFixed(2) || '0.00'}
                             </div>
                           </div>
-                          <div>
-                            <div className="text-gray-500 dark:text-gray-400">Low</div>
-                            <div className="font-medium text-gray-900 dark:text-white">
-                              {(index_data.price * 0.99)?.toFixed(2) || '0.00'}
+                          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Low</div>
+                            <div className="font-semibold text-red-700 dark:text-red-400">
+                              ₹{(index_data.price * 0.99)?.toFixed(2) || '0.00'}
                             </div>
                           </div>
                         </div>
@@ -618,7 +617,7 @@ const HomePage: React.FC = () => {
           
           {/* AI Analysis Feature */}
           <div className="mb-6">
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Text Content */}
                 <div className="p-4 lg:p-5 flex flex-col justify-center">
@@ -677,7 +676,7 @@ const HomePage: React.FC = () => {
           
           {/* Backtesting Feature */}
           <div className="mb-6">
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Text Content */}
                 <div className="p-4 lg:p-5 flex flex-col justify-center">
@@ -736,7 +735,7 @@ const HomePage: React.FC = () => {
           
           {/* AI Chat Bot Feature - Reverse Layout */}
           <div className="mb-8">
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* WelthAI Chat Video - Left Side */}
                 <div className="bg-gradient-to-br from-secondary-50 to-secondary-100 dark:from-secondary-900/20 dark:to-secondary-800/20 p-6 lg:p-8 flex items-center justify-center order-2 lg:order-1">
@@ -795,7 +794,7 @@ const HomePage: React.FC = () => {
           
           {/* Strategy Feature */}
           <div className="mb-8">
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* Text Content */}
                 <div className="p-6 lg:p-8 flex flex-col justify-center">
@@ -859,7 +858,7 @@ const HomePage: React.FC = () => {
 
           {/* AI Tools Suite Feature - Reverse Layout */}
           <div className="mb-8">
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                 {/* AI Tools Visual - Left Side */}
                 <div className="bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-purple-900/20 dark:to-indigo-800/20 p-6 lg:p-8 flex items-center justify-center order-2 lg:order-1">
@@ -941,7 +940,7 @@ const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* False Breakouts & Stop-Loss Hunts */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-500/20 to-orange-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-orange-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -956,7 +955,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Information Overload & Slow Reaction */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -971,7 +970,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Lack of Institutional-Grade Analytics */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-500/20 to-teal-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-teal-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -986,7 +985,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Inconsistent Strategy Performance */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -1001,7 +1000,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Manual Backtesting Limitations */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -1016,7 +1015,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Hidden Market Manipulation */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -1032,7 +1031,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Static Risk Management */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -1047,7 +1046,7 @@ const HomePage: React.FC = () => {
             </div>
 
             {/* Steep Learning Curve */}
-            <div className="group bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white dark:bg-dark-300 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-2 hover:scale-105 transition-all duration-300 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-full -mr-10 -mt-10"></div>
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -1082,7 +1081,7 @@ const HomePage: React.FC = () => {
           {/* Testimonial Carousel */}
           <div className="relative">
             {/* Main testimonial card */}
-            <div className="bg-white/80 dark:bg-dark-300/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 p-8 md:p-12 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-8 md:p-12 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
               {/* Decorative quote icon */}
               <div className="absolute top-6 left-6 opacity-10">
                 <svg className="w-16 h-16 text-primary-500" fill="currentColor" viewBox="0 0 24 24">
@@ -1151,6 +1150,9 @@ const HomePage: React.FC = () => {
 
       {/* Quick Start Guide Modal */}
       <QuickStartGuide isOpen={isQuickStartOpen} onClose={() => setIsQuickStartOpen(false)} />
+
+      {/* AI Assistant Widget */}
+      <AssistantWidget isOpen={isAssistantOpen} onClose={() => setIsAssistantOpen(false)} />
     </div>
   );
 };

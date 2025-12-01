@@ -618,7 +618,21 @@ export const marketService = {
       throw error;
     }
   },
-  
+
+  // Finance AI Query - New enhanced endpoint with indicators, charts, and intelligent routing
+  financeAIQuery: async (query: string, conversationHistory?: Array<{role: string; content: string}>) => {
+    try {
+      const response = await api.post('/finance-ai/query', {
+        query,
+        conversation_history: conversationHistory || []
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with Finance AI query:', error);
+      throw error;
+    }
+  },
+
   // Get trending stocks (top gainers and losers)
   getTrendingStocks: async (limit?: number) => {
     try {

@@ -1089,17 +1089,20 @@ const ChatInterface: React.FC = () => {
     // }
   // };
 
+  // Check if this is initial state (no user messages)
+  const hasUserMessages = messages.some(m => m.sender === 'user');
+
   return (
     <div className="h-screen flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
       {/* Messages Container - Scrollable */}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden relative">
         <div
-          className="h-full overflow-y-auto px-4 pt-6 pb-6"
+          className={`h-full overflow-y-auto px-4 ${hasUserMessages ? 'pt-6 pb-6' : ''}`}
           ref={messagesContainerRef}
           onScroll={handleContainerScroll}
         >
-          <div className="max-w-3xl mx-auto">
-            {messages.map((message) => (
+          <div className={`max-w-3xl mx-auto ${!hasUserMessages ? 'h-full flex flex-col items-center justify-center' : ''}`}>
+            {hasUserMessages && messages.map((message) => (
             <div
               key={message.id}
               className={`mb-6 flex ${
@@ -1220,30 +1223,6 @@ const ChatInterface: React.FC = () => {
             {isLoading && <ThinkingIndicator />}
             <div ref={messagesEndRef} />
 
-            {/* Starter suggestions when new chat */}
-            {messages.length <= 1 && (
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-3">
-                {quickActions.map((qa) => (
-                  <button
-                    key={qa}
-                    type="button"
-                    onClick={() => {
-                      setInput(qa);
-                      setTimeout(() => {
-                        const form = document.querySelector('form') as HTMLFormElement;
-                        if (form) {
-                          form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-                        }
-                      }, 0);
-                    }}
-                    className="text-left px-4 py-3 rounded-xl bg-gray-800/60 hover:bg-gray-800 text-gray-100 border border-gray-700"
-                  >
-                    {qa}
-                  </button>
-                ))}
-              </div>
-            )}
-
             {/* Session Info Display */}
             {user && useNewChatHistory && newChatHistoryService.getCurrentSession() && (
               <div className="mt-4 p-3 bg-gray-800/40 rounded-lg border border-gray-700">
@@ -1272,7 +1251,7 @@ const ChatInterface: React.FC = () => {
             )}
 
             {/* Extra padding at bottom so last message is not hidden behind input */}
-            <div className="h-32"></div>
+            {hasUserMessages && <div className="h-32"></div>}
           </div>
 
           {showScrollToBottom && (
@@ -1288,9 +1267,46 @@ const ChatInterface: React.FC = () => {
         </div>
       </div>
 
-      {/* Fixed Input Box at Bottom */}
-      <div className="flex-shrink-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent">
-        <div className="max-w-3xl mx-auto px-4 pb-6">
+      {/* Input Box - Centered when empty, Fixed at bottom when has messages */}
+      <div className={`${hasUserMessages ? 'flex-shrink-0 bg-gradient-to-t from-gray-950 via-gray-900 to-transparent' : 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl z-10'} transition-all duration-500`}>
+        <div className={`${hasUserMessages ? 'max-w-3xl mx-auto' : ''} px-4 ${hasUserMessages ? 'pb-6' : ''}`}>
+
+          {/* Welcome message - only show when centered */}
+          {!hasUserMessages && (
+            <div className="text-center mb-8">
+              <div className="inline-block w-16 h-16 mb-4 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg">
+                <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H9L3 7V9C3 10.1 3.9 11 5 11V16.5C5 17.9 6.1 19 7.5 19S10 17.9 10 16.5V15H14V16.5C14 17.9 15.1 19 16.5 19S19 17.9 19 16.5V11C20.1 11 21 10.1 21 9ZM7.5 8C8.3 8 9 8.7 9 9.5S8.3 11 7.5 11 6 10.3 6 9.5 6.7 8 7.5 8ZM16.5 8C17.3 8 18 8.7 18 9.5S17.3 11 16.5 11 15 10.3 15 9.5 15.7 8 16.5 8ZM12 13.5C10.6 13.5 9.5 12.4 9.5 11H14.5C14.5 12.4 13.4 13.5 12 13.5Z"/>
+                </svg>
+              </div>
+              <h2 className="text-3xl font-bold text-white mb-2">Hello! I'm Welth AI</h2>
+              <p className="text-gray-400 text-lg">Ask me anything about stocks, market trends, or investment strategies</p>
+            </div>
+          )}
+
+          {/* Quick actions - only show when centered */}
+          {!hasUserMessages && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+              {quickActions.map((qa) => (
+                <button
+                  key={qa}
+                  type="button"
+                  onClick={() => {
+                    setInput(qa);
+                    setTimeout(() => {
+                      const form = document.querySelector('form') as HTMLFormElement;
+                      if (form) {
+                        form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                      }
+                    }, 0);
+                  }}
+                  className="text-left px-4 py-3 rounded-xl bg-gray-800/60 hover:bg-gray-800 text-gray-100 border border-gray-700 transition-all"
+                >
+                  {qa}
+                </button>
+              ))}
+            </div>
+          )}
           {!user && anonymousSession.remainingMessages <= 5 && (
             <div className="mb-3 p-2 bg-blue-900/20 rounded-lg border border-blue-800 text-xs flex justify-between text-blue-300">
               <span>
@@ -1329,7 +1345,7 @@ const ChatInterface: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSendMessage} className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl px-3 py-2">
+          <form onSubmit={handleSendMessage} className={`flex items-center gap-2 bg-gray-800 border border-gray-700 rounded-2xl shadow-xl px-3 py-2 ${!hasUserMessages ? 'py-4' : ''}`}>
             <input
               type="text"
               value={input}
