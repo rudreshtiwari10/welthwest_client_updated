@@ -801,7 +801,7 @@ const BacktestingBetaPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
         {/* Header */}
         <div className="relative mb-8 sm:mb-12 mt-8 sm:mt-12">
