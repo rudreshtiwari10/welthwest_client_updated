@@ -1633,7 +1633,7 @@ const BacktestingBetaPage: React.FC = () => {
                     {result.summary.symbol} • {result.summary.timeframe}
                   </div>
                 </div>
-                
+
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4 mb-3 sm:mb-4">
                   <div className="h-[250px] sm:h-[300px] md:h-[400px] lg:h-[450px] w-full">
                     <Plot
@@ -1641,14 +1641,14 @@ const BacktestingBetaPage: React.FC = () => {
                       layout={{
                         ...JSON.parse(result.charts.candlestick).layout,
                         height: 450,
-                        margin: { 
+                        margin: {
                           l: 50, r: 30, t: 30, b: 60,
                           pad: 4
                         },
                         paper_bgcolor: 'rgba(0,0,0,0)',
                         plot_bgcolor: 'rgba(0,0,0,0)',
-                        font: { 
-                          color: '#374151', 
+                        font: {
+                          color: '#374151',
                           family: 'Inter, system-ui, sans-serif',
                           size: 10
                         },
@@ -1670,7 +1670,7 @@ const BacktestingBetaPage: React.FC = () => {
                           title: { font: { size: 10 } }
                         }
                       }}
-                      config={{ 
+                      config={{
                         responsive: true,
                         displayModeBar: true,
                         modeBarButtonsToRemove: ['lasso2d', 'select2d', 'pan2d', 'zoom2d'],
@@ -1692,20 +1692,20 @@ const BacktestingBetaPage: React.FC = () => {
 
               {/* Equity and Drawdown in Grid */}
               <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
-                {/* Equity Curve */}
-                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
-                  <div className="mb-3 sm:mb-4 lg:mb-6">
-                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
-                      📈 Portfolio Equity Curve
-                    </h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Portfolio value over time showing growth and performance
-                    </p>
-                  </div>
-                  
-                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
-                    <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
-                      <Plot
+              {/* Equity Curve */}
+              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
+                <div className="mb-3 sm:mb-4 lg:mb-6">
+                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
+                    📈 Portfolio Equity Curve
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Portfolio value over time showing growth and performance
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
+                  <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
+                    <Plot
                         data={JSON.parse(result.charts.equity_curve).data}
                         layout={{
                           ...JSON.parse(result.charts.equity_curve).layout,
