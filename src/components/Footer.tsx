@@ -1,38 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import AnimatedText from './AnimatedText';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 
 const Footer: React.FC = () => {
   const { theme } = useTheme();
   const location = useLocation();
-  
+
   // Check if on auth pages
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-  
+
   // Words to animate through
   const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
-  
+
+  // State for mobile accordion sections
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    aiFeatures: false,
+    platform: false,
+    account: false,
+    legal: false,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  // Scroll to top when clicking any footer link
+  const handleLinkClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className={`${isAuthPage ? 'bg-gray-900 dark:bg-gray-900' : 'bg-white dark:bg-dark-400'} border-t border-gray-200 dark:border-gray-700 py-8 transition-colors`}>
+    <footer className={`${isAuthPage ? 'bg-gray-900 dark:bg-gray-900' : 'bg-white dark:bg-dark-400'} border-t border-gray-200 dark:border-gray-700 py-6 md:py-8 transition-colors`}>
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between">
           {/* Left section - centered on mobile, left on desktop */}
-          <div className="mb-6 md:mb-0 text-center md:text-left">
-            <div className="flex items-center mb-4 justify-center md:justify-start">
-              <h1 className={`text-2xl font-bold ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+          <div className="mb-4 md:mb-0 text-center md:text-left">
+            <div className="flex items-center mb-3 md:mb-4 justify-center md:justify-start">
+              <h1 className={`text-xl md:text-2xl font-bold ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                 WelthWest
               </h1>
             </div>
             <div className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md text-center md:text-left`}>
-              <div className="text-lg font-medium">AI-Powered Wealth</div>
-              <div className="text-base mt-1">Intelligence Platform</div>
-              {/* <div className="mt-2 text-sm">
-                <AnimatedText words={animatedWords} baseText="Empowering" interval={2500} direction="down" /> smarter investments
-              </div> */}
+              <div className="text-base md:text-lg font-medium">AI-Powered Wealth</div>
+              <div className="text-sm md:text-base mt-1">Intelligence Platform</div>
             </div>
-            <div className="mt-4">
-              <h1 className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} text-base font-medium`}>contact@welthwest.com</h1>
+            <div className="mt-3 md:mt-4">
+              <h1 className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} text-sm md:text-base font-medium`}>contact@welthwest.com</h1>
             </div>
             {/* <div className="mt-4 flex space-x-3 justify-center md:justify-start">
               <a href="#" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
@@ -55,85 +73,210 @@ const Footer: React.FC = () => {
           
           {/* Middle section - Categorized Quick Links */}
           <div className="mb-6 md:mb-0 text-center max-w-lg mx-auto">
-            <h3 className={`text-lg font-semibold mb-6 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Quick Links</h3>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
+            <h3 className={`text-lg font-semibold mb-4 md:mb-6 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Quick Links</h3>
+
+            {/* Mobile: Accordion Style */}
+            <div className="md:hidden space-y-2 text-sm">
+              {/* AI Features - Mobile Accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => toggleSection('aiFeatures')}
+                  className={`w-full flex items-center justify-between py-3 ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'} font-semibold text-sm`}
+                >
+                  AI Features
+                  {openSections.aiFeatures ? (
+                    <ChevronUpIcon className="h-4 w-4" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4" />
+                  )}
+                </button>
+                {openSections.aiFeatures && (
+                  <div className="pb-3 space-y-2 text-left pl-4">
+                    <Link to="/welth-market-regime" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      AI Market Analysis
+                    </Link>
+                    <Link to="/welth-ai-assistant" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      WelthAI Chat
+                    </Link>
+                    <Link to="/backtesting-beta" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Backtesting
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
+              {/* Platform - Mobile Accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => toggleSection('platform')}
+                  className={`w-full flex items-center justify-between py-3 ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'} font-semibold text-sm`}
+                >
+                  Platform
+                  {openSections.platform ? (
+                    <ChevronUpIcon className="h-4 w-4" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4" />
+                  )}
+                </button>
+                {openSections.platform && (
+                  <div className="pb-3 space-y-2 text-left pl-4">
+                    <Link to="/" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Home
+                    </Link>
+                    <Link to="/dashboard" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Dashboard
+                    </Link>
+                    <Link to="/stock" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Stock Analysis
+                    </Link>
+                    <Link to="/pricing" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Pricing
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
+              {/* Account - Mobile Accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => toggleSection('account')}
+                  className={`w-full flex items-center justify-between py-3 ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'} font-semibold text-sm`}
+                >
+                  Account
+                  {openSections.account ? (
+                    <ChevronUpIcon className="h-4 w-4" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4" />
+                  )}
+                </button>
+                {openSections.account && (
+                  <div className="pb-3 space-y-2 text-left pl-4">
+                    <Link to="/login" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Login
+                    </Link>
+                    <Link to="/register" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Register
+                    </Link>
+                    <Link to="/profile" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Profile
+                    </Link>
+                    <Link to="/about" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      About
+                    </Link>
+                  </div>
+                )}
+              </div>
+              
+              {/* Legal - Mobile Accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => toggleSection('legal')}
+                  className={`w-full flex items-center justify-between py-3 ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'} font-semibold text-sm`}
+                >
+                  Legal
+                  {openSections.legal ? (
+                    <ChevronUpIcon className="h-4 w-4" />
+                  ) : (
+                    <ChevronDownIcon className="h-4 w-4" />
+                  )}
+                </button>
+                {openSections.legal && (
+                  <div className="pb-3 space-y-2 text-left pl-4">
+                    <Link to="/contactus" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Contact Us
+                    </Link>
+                    <Link to="/privacy-policy" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Privacy Policy
+                    </Link>
+                    <Link to="/terms-and-conditions" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Terms & Conditions
+                    </Link>
+                    <Link to="/feedback" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Feedback
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop: Grid Style (Always Expanded) */}
+            <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
               {/* AI Features */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
                   AI Features
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/welth-market-regime" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/welth-market-regime" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     AI Market Analysis
                   </Link>
-                  <Link to="/welth-ai-assistant" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/welth-ai-assistant" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     WelthAI Chat
                   </Link>
-                  <Link to="/backtesting-beta" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/backtesting-beta" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Backtesting
                   </Link>
                 </div>
               </div>
-              
+
               {/* Platform */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
                   Platform
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Home
                   </Link>
-                  <Link to="/dashboard" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/dashboard" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Dashboard
                   </Link>
-                  <Link to="/stock" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/stock" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Stock Analysis
                   </Link>
-                  <Link to="/pricing" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/pricing" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Pricing
                   </Link>
                 </div>
               </div>
-              
+
               {/* Account */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
                   Account
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/login" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/login" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Login
                   </Link>
-                  <Link to="/register" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/register" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Register
                   </Link>
-                  <Link to="/profile" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/profile" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Profile
                   </Link>
-                  <Link to="/about" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/about" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     About
                   </Link>
                 </div>
               </div>
-              
+
               {/* Legal */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
                   Legal
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/contactus" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/contactus" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Contact Us
                   </Link>
-                  <Link to="/privacy-policy" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/privacy-policy" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Privacy Policy
                   </Link>
-                  <Link to="/terms-and-conditions" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/terms-and-conditions" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Terms & Conditions
                   </Link>
-                  <Link to="/feedback" className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/feedback" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Feedback
                   </Link>
                 </div>
@@ -142,15 +285,15 @@ const Footer: React.FC = () => {
           </div>
           
           {/* Right section - centered on mobile, right on desktop */}
-          <div className="text-center md:text-right">
-            <h3 className={`text-lg font-semibold mb-4 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Disclaimer</h3>
-            <p className={`${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md mx-auto md:ml-auto md:mr-0`}>
+          <div className="text-center md:text-right mt-6 md:mt-0">
+            <h3 className={`text-base md:text-lg font-semibold mb-3 md:mb-4 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>Disclaimer</h3>
+            <p className={`text-sm ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} max-w-md mx-auto md:ml-auto md:mr-0`}>
               WelthWest is a demonstration Platform. The information provided is not financial advice.
               Always do your own research before making investment decisions.
             </p>
 
             {/* Social Media Links */}
-            <div className="mt-6 flex justify-center md:justify-end space-x-3">
+            <div className="mt-4 md:mt-6 flex justify-center md:justify-end space-x-3">
               <a
                 href="https://www.youtube.com/@WelthWest"
                 target="_blank"
@@ -202,35 +345,32 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        <div className="mt-8 pt-4 border-t border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
-          <div className="flex justify-between items-center flex-col sm:flex-row">
+        <div className="mt-6 md:mt-8 pt-4 border-t border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
+          <div className="flex justify-between items-center flex-col sm:flex-row gap-3 sm:gap-0">
             <div className="flex items-center justify-center sm:justify-start">
-              <span className={`text-lg font-bold mr-2 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
+              <span className={`text-base md:text-lg font-bold mr-2 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                 WelthWest
               </span>
-              <p className={isAuthPage ? 'text-gray-300' : ''}>&copy; {new Date().getFullYear()} WelthWest. All rights reserved.</p>
+              <p className={`text-sm ${isAuthPage ? 'text-gray-300' : ''}`}>&copy; {new Date().getFullYear()} All rights reserved.</p>
             </div>
-            <div className="mt-3 sm:mt-0 flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-              <div className="flex space-x-4 text-sm">
-                <Link to="/contactus" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                  Contact Us
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+              <div className="hidden sm:flex space-x-4 text-sm">
+                <Link to="/contactus" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  Contact
                 </Link>
-                <Link to="/privacy-policy" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                <Link to="/privacy-policy" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                   Privacy
                 </Link>
-                <Link to="/terms-and-conditions" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                <Link to="/terms-and-conditions" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                   Terms
                 </Link>
-                <Link to="/feedback" className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                  Feedback
-                </Link>
               </div>
-              <button 
-                className={`inline-flex items-center px-3 py-1 rounded-md ${isAuthPage ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 dark:bg-dark-500 text-gray-700 dark:text-gray-300'} text-sm transition-colors hover:bg-gray-200 dark:hover:bg-dark-600`}
+              <button
+                className={`inline-flex items-center px-3 py-1.5 rounded-md ${isAuthPage ? 'bg-gray-800 text-gray-300' : 'bg-gray-100 dark:bg-dark-500 text-gray-700 dark:text-gray-300'} text-xs md:text-sm transition-colors hover:bg-gray-200 dark:hover:bg-dark-600`}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
                 Back to top
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 md:h-4 md:w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
               </button>

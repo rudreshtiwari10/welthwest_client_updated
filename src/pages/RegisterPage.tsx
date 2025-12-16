@@ -6,6 +6,8 @@ import { authService } from '../services/api';
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -42,11 +44,16 @@ const RegisterPage: React.FC = () => {
       setError('Please enter your email address first');
       return;
     }
-    
+
+    if (!firstName || !lastName) {
+      setError('Please enter your first name and last name');
+      return;
+    }
+
     try {
       setError('');
       setIsSendingOTP(true);
-      await authService.sendRegistrationOTP(email);
+      await authService.sendRegistrationOTP(email, firstName, lastName);
       setOtpSent(true);
       setCountdown(900); // 15 minutes in seconds
     } catch (err: any) {
@@ -158,6 +165,42 @@ const RegisterPage: React.FC = () => {
         )}
         
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {/* First Name and Last Name Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-300 mb-1">
+                First Name
+              </label>
+              <input
+                id="firstName"
+                name="firstName"
+                type="text"
+                autoComplete="given-name"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder="Enter first name"
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-300 mb-1">
+                Last Name
+              </label>
+              <input
+                id="lastName"
+                name="lastName"
+                type="text"
+                autoComplete="family-name"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-white bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                placeholder="Enter last name"
+              />
+            </div>
+          </div>
+
           {/* Email Field with Verification */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-1">
@@ -183,7 +226,7 @@ const RegisterPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleSendOTP}
-                disabled={isSendingOTP || !email || isEmailVerified}
+                disabled={isSendingOTP || !email || !firstName || !lastName || isEmailVerified}
                 className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isEmailVerified ? '✓ Verified' : isSendingOTP ? 'Sending...' : 'Verify Email'}

@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon, CpuChipIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon, CpuChipIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import WelthAIPage from '../pages/WelthAIPage';
 import WelthChatbotPage from '../pages/WelthChatbotPage';
 import { activityService } from '../services/api';
@@ -21,6 +21,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const [showStocksMenu, setShowStocksMenu] = useState(false);
   const [showWelthAIMenu, setShowWelthAIMenu] = useState(false);
   const [showDashboardMenu, setShowDashboardMenu] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   // Refs for dropdown containers
   const profileRef = useRef<HTMLDivElement>(null);
@@ -111,17 +112,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 backdrop-blur-md bg-white/80 dark:bg-dark-100/80 border-b border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white z-[100] shadow-sm">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto pl-0 pr-4">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Navigation */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-8 pl-4">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <span className="font-bold text-2xl text-gray-900 dark:text-white">WelthWest</span>
             </Link>
 
             {/* Desktop Navigation - Minimal, Key Features Only */}
-            <nav className="hidden md:flex items-center space-x-4">
+            <nav className="hidden md:flex items-center space-x-6">
               {/* WelthAI Button with Dropdown */}
               <div 
                 className="relative" 
@@ -307,6 +308,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 )}
               </div>
 
+              {/* About Link */}
+              <Link
+                to="/about"
+                className={`flex items-center text-sm font-medium ${
+                  isActive('/about')
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
+              >
+                <span>About</span>
+              </Link>
+
               {/* News & Blogs Link */}
               {/*<Link
                 to="/news-and-blogs"
@@ -323,18 +336,30 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
             </nav>
           </div>
 
-          {/* Center - Search Bar */}
-          <div className="hidden md:block flex-1 max-w-xs mx-4">
-            <SearchBarWithSuggestions
-              placeholders={searchPlaceholders}
-              className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600 
-                rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-            />
-          </div>
-
           {/* Right side - Auth buttons */}
           <div className="flex items-center space-x-4">
+            {/* Search Bar - Desktop */}
+            <div className="hidden md:block max-w-[260px]">
+              <SearchBarWithSuggestions
+                placeholders={searchPlaceholders}
+                className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600
+                  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
+              />
+            </div>
+
+            {/* Search Button - Mobile */}
+            <button
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="md:hidden p-2 text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              {showMobileSearch ? (
+                <XMarkIcon className="h-6 w-6" />
+              ) : (
+                <MagnifyingGlassIcon className="h-6 w-6" />
+              )}
+            </button>
+
             {/* Theme Toggle */}
             <ThemeToggle />
             
@@ -477,15 +502,27 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
-      <div className="md:hidden px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1f2e] shadow-inner">
-        <SearchBarWithSuggestions
-          placeholders={searchPlaceholders}
-          className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600 
-            rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-            text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-        />
-      </div>
+      {/* Mobile Search Bar - Expandable */}
+      {showMobileSearch && (
+        <div className="md:hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1f2e] shadow-lg transition-all duration-300 ease-in-out">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <SearchBarWithSuggestions
+                placeholders={searchPlaceholders}
+                className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600
+                  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
+              />
+            </div>
+            <button
+              onClick={() => setShowMobileSearch(false)}
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              <XMarkIcon className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

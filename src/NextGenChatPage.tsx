@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import UsageIndicator from './components/UsageIndicator';
 import TrialExceededModal from './components/TrialExceededModal';
@@ -11,7 +12,9 @@ import {
   NewspaperIcon,
   CpuChipIcon,
   ExclamationTriangleIcon,
-  ClockIcon
+  ClockIcon,
+  ArrowRightIcon,
+  BeakerIcon
 } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
@@ -65,6 +68,15 @@ interface Message {
     }>;
     follow_up_questions?: string[];
   };
+  analysisButtons?: {
+    show_buttons: boolean;
+    suggested_tools: Array<{
+      name: string;
+      description: string;
+      url: string;
+      icon: string;
+    }>;
+  };
 }
 
 interface UsageInfo {
@@ -87,7 +99,12 @@ const NextGenChatPage: React.FC = () => {
   const footerRef = useRef<HTMLDivElement>(null);
   const [isFooterVisible, setIsFooterVisible] = useState(false);
 
-  // Removed auto-scroll - user can manually scroll to see new messages
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages]);
 
   const getMessageIcon = (intent?: string, sender?: string) => {
     if (sender === 'user') return null;
@@ -123,6 +140,13 @@ const NextGenChatPage: React.FC = () => {
     setInput('');
     setIsLoading(true);
     setError(null);
+
+    // Scroll to bottom after adding user message
+    setTimeout(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }, 100);
 
     try {
       // Import API service
@@ -182,7 +206,8 @@ const NextGenChatPage: React.FC = () => {
           entities: data.entities,
           tool_suggestions: data.tool_suggestions,
           follow_up_questions: data.follow_up_questions
-        }
+        },
+        analysisButtons: data.analysis_buttons
       };
 
       console.log('Adding AI message:', aiMessage);
@@ -190,6 +215,13 @@ const NextGenChatPage: React.FC = () => {
       console.log('Has chart:', !!aiMessage.chartBase64);
       console.log('Has indicators:', !!aiMessage.indicators);
       setMessages(prev => [...prev, aiMessage]);
+
+      // Scroll to bottom after adding AI response
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      }, 100);
 
       // Handle usage from both field names (usage or usage_info)
       if (data.usage || data.usage_info) {
@@ -241,6 +273,13 @@ const NextGenChatPage: React.FC = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
+
+      // Scroll to bottom after adding error message
+      setTimeout(() => {
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      }, 100);
     } finally {
       setIsLoading(false);
     }
@@ -390,7 +429,7 @@ const NextGenChatPage: React.FC = () => {
       </div>
 
       {/* Chat Messages */}
-      <div className={`flex-1 overflow-y-auto p-4 ${!hasMessages ? 'flex items-center justify-center' : 'pb-32'}`}>
+      <div className={`flex-1 overflow-y-auto p-4 ${!hasMessages ? 'flex items-center justify-center' : 'pb-40'} scroll-smooth`}>
         <div className="max-w-4xl mx-auto space-y-4">
 
           {/* Welcome Message - show when no messages */}
@@ -649,6 +688,47 @@ const NextGenChatPage: React.FC = () => {
                   </div>
                 )}
 
+                {/* Analysis Feature Buttons */}
+                {message.sender === 'ai' && message.analysisButtons?.show_buttons && message.analysisButtons.suggested_tools.length > 0 && (
+                  <div className="mt-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                    <div className="flex items-center mb-3">
+                      <SparklesIcon className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
+                      <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-200">
+                        Try These Advanced Features
+                      </h4>
+                    </div>
+                    <p className="text-xs text-purple-700 dark:text-purple-300 mb-3">
+                      Take your analysis to the next level with our AI-powered tools
+                    </p>
+                    <div className="grid grid-cols-1 gap-2">
+                      {message.analysisButtons.suggested_tools.map((tool, idx) => (
+                        <Link
+                          key={idx}
+                          to={tool.url}
+                          className="group flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-md transition-all duration-200"
+                        >
+                          <div className="flex items-center flex-1">
+                            {tool.icon === 'chart' ? (
+                              <ChartBarIcon className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-3" />
+                            ) : (
+                              <BeakerIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3" />
+                            )}
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                                {tool.name}
+                              </div>
+                              <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                                {tool.description}
+                              </div>
+                            </div>
+                          </div>
+                          <ArrowRightIcon className="h-4 w-4 text-purple-400 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Timestamp */}
                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                   {formatTimestamp(message.timestamp)}
@@ -699,9 +779,9 @@ const NextGenChatPage: React.FC = () => {
       </div>
 
       {/* Dynamic Island Input - Fixed at bottom, floating style */}
-      <div className={`${isFooterVisible ? 'absolute' : 'fixed'} ${isFooterVisible ? 'bottom-24' : 'bottom-6'} left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 transition-all duration-300 ease-in-out z-50`}>
+      <div className={`${isFooterVisible ? 'absolute' : 'fixed'} ${isFooterVisible ? 'bottom-24' : 'bottom-6'} left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 transition-all duration-300 ease-in-out`} style={{ zIndex: 100 }}>
         {/* Floating Input Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 backdrop-blur-xl bg-opacity-95 dark:bg-opacity-95">
+        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-4 backdrop-blur-xl bg-opacity-98 dark:bg-opacity-98">
           <div className="flex items-center gap-3">
             <div className="flex-1 relative">
               <textarea

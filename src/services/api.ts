@@ -30,6 +30,7 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true, // IMPORTANT: Include cookies for anonymous session tracking
+  timeout: 60000, // 60 seconds timeout for complex AI queries (backtesting, etc.)
 });
 
 // Add request interceptor to include auth token and handle proactive refresh
@@ -177,9 +178,13 @@ api.interceptors.response.use(
 // Authentication service
 export const authService = {
   // Send registration OTP
-  sendRegistrationOTP: async (email: string) => {
+  sendRegistrationOTP: async (email: string, firstName?: string, lastName?: string) => {
     try {
-      const response = await api.post('/auth/send-registration-otp', { email });
+      const response = await api.post('/auth/send-registration-otp', {
+        email,
+        first_name: firstName || '',
+        last_name: lastName || ''
+      });
       return response.data;
     } catch (error) {
       console.error('Send OTP error:', error);

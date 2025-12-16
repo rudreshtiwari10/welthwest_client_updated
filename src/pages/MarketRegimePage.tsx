@@ -4,6 +4,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import { marketService, activityService, API_URL } from '../services/api';
 import UpgradeModal from '../components/UpgradeModal';
 import LoginModal from '../components/LoginModal';
+import TutorialVideoSection from '../components/TutorialVideoSection';
 import {
   SparklesIcon,
   ChartBarIcon,
@@ -897,6 +898,29 @@ const MarketRegimePage: React.FC = () => {
           )}
         </div>
       )}
+
+      {/* Tutorial Video Section - Bottom of Page */}
+      <div className="max-w-7xl mx-auto px-4 mt-12 mb-8">
+        <TutorialVideoSection
+          title="How to Use Market Analysis & Forecasting"
+          description="Learn how to analyze stocks, understand market regimes, and get AI-powered trade forecasts. This powerful tool combines LSTM and HMM models to predict price movements and assess market conditions."
+          videoId="dQw4w9WgXcQ"
+          features={[
+            {
+              title: "AI Market Regime Detection",
+              description: "Understand current market volatility and trends"
+            },
+            {
+              title: "5-Day Price Forecasting",
+              description: "Get AI predictions with confidence levels"
+            },
+            {
+              title: "Risk Assessment & Signals",
+              description: "Entry/exit prices with stop-loss recommendations"
+            }
+          ]}
+        />
+      </div>
 
       {/* Modals */}
       <UpgradeModal

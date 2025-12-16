@@ -19,7 +19,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (username: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  register: (email: string, username: string, password: string, confirmPassword: string, firstName?: string, lastName?: string) => Promise<void>;
   completeRegistration: (email: string, username: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (profileData: any) => Promise<void>;
@@ -86,10 +86,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
   
-  // Register function (legacy)
-  const register = async (username: string, email: string, password: string, confirmPassword: string) => {
+  // Register function (legacy) - Note: This endpoint is deprecated on backend
+  const register = async (email: string, username: string, password: string, confirmPassword: string, firstName?: string, lastName?: string) => {
     try {
       setIsLoading(true);
+      // Note: The backend /api/auth/register endpoint is deprecated
+      // This function is kept for backward compatibility but may not work
+      // Users should be directed to use the RegisterPage with OTP verification
       await authService.register(email, username, password, confirmPassword);
       // Auto-login after registration
       await login(email, password);

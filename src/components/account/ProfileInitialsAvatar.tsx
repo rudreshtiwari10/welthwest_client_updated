@@ -9,28 +9,28 @@ interface ProfileInitialsAvatarProps {
 }
 
 const BACKGROUND_COLORS = [
-  'bg-gray-100',
-  'bg-slate-100',
-  'bg-zinc-100', 
-  'bg-neutral-100',
-  'bg-stone-100',
-  'bg-red-50',
-  'bg-orange-50',
-  'bg-amber-50',
-  'bg-yellow-50',
-  'bg-lime-50',
-  'bg-green-50',
-  'bg-emerald-50',
-  'bg-teal-50',
-  'bg-cyan-50',
-  'bg-sky-50',
-  'bg-blue-50',
-  'bg-indigo-50',
-  'bg-violet-50',
-  'bg-purple-50',
-  'bg-fuchsia-50',
-  'bg-pink-50',
-  'bg-rose-50',
+  'bg-gradient-to-br from-slate-600 to-slate-700',
+  'bg-gradient-to-br from-gray-600 to-gray-700',
+  'bg-gradient-to-br from-zinc-600 to-zinc-700',
+  'bg-gradient-to-br from-neutral-600 to-neutral-700',
+  'bg-gradient-to-br from-stone-600 to-stone-700',
+  'bg-gradient-to-br from-red-500 to-red-600',
+  'bg-gradient-to-br from-orange-500 to-orange-600',
+  'bg-gradient-to-br from-amber-500 to-amber-600',
+  'bg-gradient-to-br from-yellow-500 to-yellow-600',
+  'bg-gradient-to-br from-lime-500 to-lime-600',
+  'bg-gradient-to-br from-green-500 to-green-600',
+  'bg-gradient-to-br from-emerald-500 to-emerald-600',
+  'bg-gradient-to-br from-teal-500 to-teal-600',
+  'bg-gradient-to-br from-cyan-500 to-cyan-600',
+  'bg-gradient-to-br from-sky-500 to-sky-600',
+  'bg-gradient-to-br from-blue-600 to-blue-700',
+  'bg-gradient-to-br from-indigo-600 to-indigo-700',
+  'bg-gradient-to-br from-violet-600 to-violet-700',
+  'bg-gradient-to-br from-purple-600 to-purple-700',
+  'bg-gradient-to-br from-fuchsia-600 to-fuchsia-700',
+  'bg-gradient-to-br from-pink-500 to-pink-600',
+  'bg-gradient-to-br from-rose-500 to-rose-600',
 ];
 
 const ProfileInitialsAvatar: React.FC<ProfileInitialsAvatarProps> = ({
@@ -81,8 +81,8 @@ const ProfileInitialsAvatar: React.FC<ProfileInitialsAvatarProps> = ({
         ${backgroundColorClass}
         ${sizeClasses.container}
         rounded-full flex items-center justify-center
-        shadow-lg text-gray-700 dark:text-gray-600 font-bold ${sizeClasses.text}
-        border-2 border-white/20
+        shadow-lg text-white font-bold ${sizeClasses.text}
+        border-2 border-white/30 dark:border-white/20
         ${!noHover ? 'transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105' : ''}
         ${className}
       `}

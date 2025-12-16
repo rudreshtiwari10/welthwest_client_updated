@@ -5,8 +5,9 @@ const AboutPage: React.FC = () => {
   const missionRef = useRef<HTMLDivElement>(null);
   const challengesRef = useRef<HTMLDivElement>(null);
   const techRef = useRef<HTMLDivElement>(null);
+  const teamRef = useRef<HTMLDivElement>(null);
   const disclaimerRef = useRef<HTMLDivElement>(null);
-  
+
   // Animation on scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -20,14 +21,14 @@ const AboutPage: React.FC = () => {
       },
       { threshold: 0.1 }
     );
-    
+
     // Observe all section refs
-    [missionRef, challengesRef, techRef, disclaimerRef].forEach(ref => {
+    [missionRef, challengesRef, techRef, teamRef, disclaimerRef].forEach(ref => {
       if (ref.current) {
         observer.observe(ref.current);
       }
     });
-    
+
     return () => observer.disconnect();
   }, []);
   
@@ -307,8 +308,207 @@ const AboutPage: React.FC = () => {
         </div>
       </div>
       
+      {/* Our Team Section */}
+      <div
+        ref={teamRef}
+        className="max-w-6xl mx-auto mb-16 opacity-0 translate-y-10 transition-all duration-1000 delay-500"
+      >
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-secondary-600">
+            Meet Our Team
+          </h2>
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            The innovative minds behind WelthWest's AI-powered financial intelligence
+          </p>
+        </div>
+
+        <div className="space-y-8">
+          {/* Kunal Kumar - Founder & CEO */}
+          <div className="group bg-white dark:bg-dark-500 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div className="flex flex-col md:flex-row">
+              {/* Left Side - Profile Image, Name, Title */}
+              <div className="relative md:w-1/3 bg-gradient-to-br from-primary-500/20 to-secondary-500/20 p-8 flex flex-col items-center justify-center">
+                {/* Profile Image */}
+                <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-2xl mb-6 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900 dark:to-secondary-900">
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop"
+                    alt="Kunal Kumar"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Name and Title */}
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 text-center">Kunal Kumar</h3>
+                <div className="inline-block px-4 py-2 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-full text-sm font-semibold mb-3">
+                  Founder & CEO
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 text-center">IIT Tirupati</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Fintech | Developer</p>
+              </div>
+
+              {/* Right Side - Bio, Education, Skills, Links */}
+              <div className="md:w-2/3 p-8">
+                {/* Bio */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">About</h4>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm">
+                    Full-Stack Blockchain Engineer with 3+ years building high-performance web solutions. Expert in Python, MERN stack, and AI/ML.
+                    Led development of WelthWest's AI-driven trading platform with 1,200+ beta users and 94% satisfaction rate.
+                  </p>
+                </div>
+
+                {/* Education & Experience */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Education & Experience</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-start">
+                      <svg className="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">B.Tech Chemical Engineering, IIT Tirupati</span>
+                    </div>
+                    <div className="flex items-start">
+                      <svg className="w-5 h-5 text-secondary-600 dark:text-secondary-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Product Development, ICICI Bank</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skills Tags */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full text-xs font-medium">LLMs & RAG</span>
+                    <span className="px-3 py-1 bg-secondary-100 dark:bg-secondary-900/30 text-secondary-700 dark:text-secondary-300 rounded-full text-xs font-medium">MERN Stack</span>
+                    <span className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-medium">Python & ML</span>
+                    <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">AWS & Docker</span>
+                  </div>
+                </div>
+
+                {/* Social Links */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Connect</h4>
+                  <div className="flex flex-wrap gap-3">
+                    <a href="mailto:kunalkumar9457.kk@gmail.com" className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                      Email
+                    </a>
+                    <a href="tel:9458603249" className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                      </svg>
+                      Call
+                    </a>
+                    <a href="https://www.linkedin.com/in/kunal-kumar" target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clipRule="evenodd" />
+                      </svg>
+                      LinkedIn
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Rudresh Tiwari - Full Stack Developer */}
+          <div className="group bg-white dark:bg-dark-500 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+            <div className="flex flex-col md:flex-row">
+              {/* Left Side - Profile Image, Name, Title */}
+              <div className="relative md:w-1/3 bg-gradient-to-br from-purple-500/20 to-indigo-500/20 p-8 flex flex-col items-center justify-center">
+                {/* Profile Image */}
+                <div className="w-56 h-56 rounded-full overflow-hidden border-4 border-white dark:border-gray-700 shadow-2xl mb-6 bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900 dark:to-indigo-900">
+                  <img src="/images/rudreshimage.png"
+                    alt="Rudresh Tiwari"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Name and Title */}
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-3 text-center">Rudresh Tiwari</h3>
+                <div className="inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full text-sm font-semibold mb-3">Co-Developer
+                  
+                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">Full Stack Developer</p>
+              </div>
+
+              {/* Right Side - Bio, Education, Skills, Links */}
+              <div className="md:w-2/3 p-8">
+                {/* Bio */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">About</h4>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm">
+                    Full Stack Developer skilled in Java, Python, TypeScript, React, and Node.js.
+                    Co-developed WelthWest's AI-driven platform including backtesting engines, Welth AI Assistant, and real-time analytics systems.
+                  </p>
+                </div>
+
+                {/* Education & Experience */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Education</h4>
+                  <div className="flex items-start">
+                    <svg className="w-5 h-5 text-purple-600 dark:text-purple-400 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                    </svg>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">B.Tech Computer Science and Engineering</span>
+                  </div>
+                </div>
+
+                {/* Skills Tags */}
+                <div className="mb-6">
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Skills</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-medium">Java & Python</span>
+                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs font-medium">React & TypeScript</span>
+                    <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium">Node.js & Flask</span>
+                    <span className="px-3 py-1 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded-full text-xs font-medium">MongoDB & MySQL</span>
+                  </div>
+                </div>
+
+                {/* Social Links */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Connect</h4>
+                  <div className="flex flex-wrap gap-3">
+                    <a href="mailto:rudraprataptiwari786@gmail.com" className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                      Email
+                    </a>
+                    <a href="tel:7388551679" className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg text-gray-700 dark:text-gray-300 transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                      </svg>
+                      Call
+                    </a>
+                    <a href="https://www.linkedin.com/in/rudresh-tiwari-99bb57297/" target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clipRule="evenodd" />
+                      </svg>
+                      LinkedIn
+                    </a>
+                    <a href="https://github.com/rudresh-tiwari" target="_blank" rel="noopener noreferrer" className="flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg transition-colors text-sm">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 0C4.477 0 0 4.484 0 10.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 4.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0020 10.017C20 4.484 15.522 0 10 0z" clipRule="evenodd" />
+                      </svg>
+                      GitHub
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Disclaimer */}
-      <div 
+      <div
         ref={disclaimerRef}
         className="max-w-4xl mx-auto opacity-0 translate-y-10 transition-all duration-1000 delay-700"
       >
@@ -323,7 +523,7 @@ const AboutPage: React.FC = () => {
           </h2>
           <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800">
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              WelthWest is a demonstration project. The information provided is not financial advice. 
+              WelthWest is a demonstration project. The information provided is not financial advice.
               Always do your own research before making investment decisions. Past performance is not indicative of future results.
               Investment involves risk, including the possible loss of principal.
             </p>

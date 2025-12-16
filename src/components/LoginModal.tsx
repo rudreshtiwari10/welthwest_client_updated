@@ -23,12 +23,14 @@ const LoginModal: React.FC<LoginModalProps> = ({
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  
+
   // Registration fields
   const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   const { login, register } = useAuth();
   
   if (!isOpen) return null;
@@ -63,33 +65,35 @@ const LoginModal: React.FC<LoginModalProps> = ({
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!email || !username || !password || !confirmPassword) {
+
+    if (!email || !firstName || !lastName || !username || !password || !confirmPassword) {
       setError('Please fill in all fields');
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     if (password.length < 6) {
       setError('Password must be at least 6 characters long');
       return;
     }
-    
+
     try {
       setError('');
       setIsLoading(true);
-      await register(email, username, password, confirmPassword);
-      
+      await register(email, username, password, confirmPassword, firstName, lastName);
+
       // Clear form
       setEmail('');
+      setFirstName('');
+      setLastName('');
       setUsername('');
       setPassword('');
       setConfirmPassword('');
-      
+
       if (onLoginSuccess) {
         onLoginSuccess();
       }
@@ -105,6 +109,8 @@ const LoginModal: React.FC<LoginModalProps> = ({
     setUsernameOrEmail('');
     setPassword('');
     setEmail('');
+    setFirstName('');
+    setLastName('');
     setUsername('');
     setConfirmPassword('');
     setError('');
@@ -235,6 +241,41 @@ const LoginModal: React.FC<LoginModalProps> = ({
           ) : (
             /* Register Form */
             <form onSubmit={handleRegisterSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="reg-firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    First Name
+                  </label>
+                  <input
+                    id="reg-firstName"
+                    name="firstName"
+                    type="text"
+                    autoComplete="given-name"
+                    required
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="First name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="reg-lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    id="reg-lastName"
+                    name="lastName"
+                    type="text"
+                    autoComplete="family-name"
+                    required
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white"
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="reg-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Email

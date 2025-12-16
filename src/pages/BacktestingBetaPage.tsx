@@ -7,8 +7,26 @@ import { motion } from 'framer-motion';
 import { ChartBarIcon, CogIcon, PlayIcon, DocumentTextIcon, BoltIcon } from '@heroicons/react/24/outline';
 import UsageTracker from '../components/subscription/UsageTracker';
 import LoginModal from '../components/LoginModal';
+import TutorialVideoSection from '../components/TutorialVideoSection';
 import { trackEvent } from '../utils/analytics';
 const Plot = require('react-plotly.js').default as React.ComponentType<any>;
+
+// Helper function to parse chart data
+const simplifyChartData = (chartDataStr: string) => {
+  try {
+    const chartData = JSON.parse(chartDataStr);
+
+    // With the new multi-panel layout, all indicators are in separate panels
+    // so we want them all visible by default. Users can still toggle them off via legend.
+    // No need to hide indicators anymore since each has its own dedicated panel.
+
+    return chartData;
+  } catch (error) {
+    console.error('Error parsing chart data:', error);
+    // Return original data if parsing fails
+    return JSON.parse(chartDataStr);
+  }
+};
 
 // Types for the comprehensive backtesting response
 interface BacktestMetrics {
@@ -1635,56 +1653,44 @@ const BacktestingBetaPage: React.FC = () => {
                 </div>
 
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4 mb-3 sm:mb-4">
-                  <div className="h-[250px] sm:h-[300px] md:h-[400px] lg:h-[450px] w-full">
+                  {/* Info banner about chart features */}
+                  <div className="mb-3 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <p className="text-xs text-blue-700 dark:text-blue-300 flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <span><strong>Tip:</strong> Each indicator has its own panel. Click legend items to hide/show specific traces. Scroll down to see all 6 panels.</span>
+                    </p>
+                  </div>
+                  <div className="w-full overflow-x-auto">
                     <Plot
-                      data={JSON.parse(result.charts.candlestick).data}
+                      data={simplifyChartData(result.charts.candlestick).data}
                       layout={{
-                        ...JSON.parse(result.charts.candlestick).layout,
-                        height: 450,
+                        ...simplifyChartData(result.charts.candlestick).layout,
+                        // Use the backend-specified height (1800px) for better panel visibility
+                        // Remove height override to let backend chart settings take effect
+                        autosize: true,
                         margin: {
-                          l: 50, r: 30, t: 30, b: 60,
-                          pad: 4
-                        },
-                        paper_bgcolor: 'rgba(0,0,0,0)',
-                        plot_bgcolor: 'rgba(0,0,0,0)',
-                        font: {
-                          color: '#374151',
-                          family: 'Inter, system-ui, sans-serif',
-                          size: 10
-                        },
-                        showlegend: true,
-                        legend: {
-                          orientation: 'h',
-                          yanchor: 'bottom',
-                          y: -0.25,
-                          xanchor: 'center',
-                          x: 0.5,
-                          font: { size: 9 }
-                        },
-                        xaxis: {
-                          tickfont: { size: 9 },
-                          title: { font: { size: 10 } }
-                        },
-                        yaxis: {
-                          tickfont: { size: 9 },
-                          title: { font: { size: 10 } }
+                          l: 60, r: 40, t: 50, b: 70,
+                          pad: 8
                         }
+                        // Removed bgcolor and font overrides to use backend styling
                       }}
                       config={{
                         responsive: true,
                         displayModeBar: true,
-                        modeBarButtonsToRemove: ['lasso2d', 'select2d', 'pan2d', 'zoom2d'],
+                        modeBarButtonsToRemove: ['lasso2d', 'select2d'],
                         displaylogo: false,
                         toImageButtonOptions: {
                           format: 'png',
-                          filename: 'candlestick_chart',
-                          height: 450,
-                          width: 800,
+                          filename: 'stock_analysis_chart',
+                          height: 1800,
+                          width: 1200,
                           scale: 2
                         }
                       }}
-                      className="w-full h-full"
-                      style={{ width: '100%', height: '100%' }}
+                      className="w-full"
+                      style={{ width: '100%', minHeight: '1800px' }}
                     />
                   </div>
                 </div>
@@ -1918,6 +1924,29 @@ const BacktestingBetaPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Tutorial Video Section - Bottom of Page */}
+        <div className="max-w-7xl mx-auto px-4 mt-12 mb-8">
+          <TutorialVideoSection
+            title="How to Use Advanced Backtesting"
+            description="Master the art of strategy validation with our backtesting engine. Test your trading strategies against historical data, analyze performance metrics, and optimize your approach before risking real capital."
+            videoId="dQw4w9WgXcQ"
+            features={[
+              {
+                title: "Historical Strategy Testing",
+                description: "Validate strategies with years of market data"
+              },
+              {
+                title: "Performance Metrics",
+                description: "Analyze win rate, Sharpe ratio, and drawdowns"
+              },
+              {
+                title: "Multiple Strategies",
+                description: "Test RSI, MACD, SMA crossovers and more"
+              }
+            ]}
+          />
+        </div>
 
         <LoginModal
           isOpen={showLoginModal}

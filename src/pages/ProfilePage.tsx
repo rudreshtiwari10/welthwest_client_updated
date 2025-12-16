@@ -96,8 +96,8 @@ const ProfilePage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       {/* Hero Header with Finance Pattern */}
       <div className="relative pt-12 md:pt-6 pb-6 overflow-hidden">
-        {/* Finance-themed Background Pattern - White theme */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-blue-800 to-indigo-900">
+        {/* Finance-themed Background Pattern - Light and Dark theme */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-500 dark:from-slate-700 dark:via-blue-800 dark:to-indigo-900">
           {/* Line Chart Pattern in White */}
           <div className="absolute inset-0 opacity-5">
             <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -150,12 +150,12 @@ const ProfilePage: React.FC = () => {
           <div className="text-center py-4">
             {/* Avatar with glow effect */}
             <div className="relative inline-block mb-3">
-              <div className="absolute inset-0 bg-white/30 dark:bg-white/10 blur-2xl rounded-full scale-110"></div>
+              <div className="absolute inset-0 bg-white/40 dark:bg-white/10 blur-2xl rounded-full scale-110"></div>
               <ProfileInitialsAvatar
                 firstName={firstName}
                 lastName={lastName}
                 size="hero"
-                className="relative shadow-2xl ring-4 ring-white/50 dark:ring-white/20"
+                className="relative shadow-2xl ring-4 ring-white/70 dark:ring-white/20"
                 noHover
               />
             </div>
