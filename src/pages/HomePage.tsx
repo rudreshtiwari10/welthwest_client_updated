@@ -561,19 +561,19 @@ const HomePage: React.FC = () => {
                         <div className="grid grid-cols-3 gap-3 mt-4 relative z-10">
                           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
                             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Open</div>
-                            <div className="font-semibold text-gray-900 dark:text-white">
+                            <div className="font-semibold text-sm text-gray-900 dark:text-white truncate overflow-hidden">
                               ₹{index_data.price?.toFixed(2) || '0.00'}
                             </div>
                           </div>
                           <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
                             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">High</div>
-                            <div className="font-semibold text-green-700 dark:text-green-400">
+                            <div className="font-semibold text-sm text-green-700 dark:text-green-400 truncate overflow-hidden">
                               ₹{(index_data.price * 1.01)?.toFixed(2) || '0.00'}
                             </div>
                           </div>
                           <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
                             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Low</div>
-                            <div className="font-semibold text-red-700 dark:text-red-400">
+                            <div className="font-semibold text-sm text-red-700 dark:text-red-400 truncate overflow-hidden">
                               ₹{(index_data.price * 0.99)?.toFixed(2) || '0.00'}
                             </div>
                           </div>

@@ -114,9 +114,9 @@ const RegisterPage: React.FC = () => {
       
       // Complete registration using AuthContext (handles tokens automatically)
       await completeRegistration(email, username, password, confirmPassword);
-      
-      // Navigate to dashboard (user is now authenticated)
-      navigate('/dashboard');
+
+      // Navigate to home page (user is now authenticated)
+      navigate('/');
     } catch (err: any) {
       const serverMessage = err?.response?.data?.error || err?.response?.data?.message || 'Failed to complete registration';
       setError(serverMessage);
@@ -370,7 +370,7 @@ const RegisterPage: React.FC = () => {
               onSuccess={(credentialResponse) => {
                 if (credentialResponse.credential) {
                   handleGoogleLogin(credentialResponse.credential)
-                    .then(() => navigate('/dashboard'))
+                    .then(() => navigate('/'))
                     .catch((err) => setError(err.message || 'Failed to register with Google'));
                 }
               }}

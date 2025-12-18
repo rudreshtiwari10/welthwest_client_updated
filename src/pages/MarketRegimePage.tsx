@@ -5,6 +5,7 @@ import { marketService, activityService, API_URL } from '../services/api';
 import UpgradeModal from '../components/UpgradeModal';
 import LoginModal from '../components/LoginModal';
 import TutorialVideoSection from '../components/TutorialVideoSection';
+import useSessionStorage from '../hooks/useSessionStorage';
 import {
   SparklesIcon,
   ChartBarIcon,
@@ -116,10 +117,10 @@ const MarketRegimePage: React.FC = () => {
   const { canUseLLM, incrementLLMUsage, subscriptionTier } = useSubscription();
 
   // State management (without .NS suffix, backend will add it automatically)
-  const [ticker, setTicker] = useState<string>('RELIANCE');
+  const [ticker, setTicker] = useSessionStorage<string>('market-regime-ticker', 'RELIANCE');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [forecastData, setForecastData] = useState<FullTradeForecast | null>(null);
+  const [forecastData, setForecastData] = useSessionStorage<FullTradeForecast | null>('market-regime-forecast', null);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
@@ -295,6 +296,12 @@ const MarketRegimePage: React.FC = () => {
   const handleFetchForecast = async () => {
     if (!ticker.trim()) {
       setError('Please enter a stock ticker symbol');
+      return;
+    }
+
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginModal(true);
       return;
     }
 

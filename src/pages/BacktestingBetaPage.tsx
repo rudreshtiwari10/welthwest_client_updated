@@ -9,6 +9,7 @@ import UsageTracker from '../components/subscription/UsageTracker';
 import LoginModal from '../components/LoginModal';
 import TutorialVideoSection from '../components/TutorialVideoSection';
 import { trackEvent } from '../utils/analytics';
+import useSessionStorage from '../hooks/useSessionStorage';
 const Plot = require('react-plotly.js').default as React.ComponentType<any>;
 
 // Helper function to parse chart data
@@ -256,9 +257,9 @@ const BacktestingBetaPage: React.FC = () => {
   const { user, getToken } = useAuth();
   const { canUseBacktest, incrementBacktestUsage, subscriptionDetails } = useSubscription();
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<BacktestResult | null>(null);
+  const [result, setResult] = useSessionStorage<BacktestResult | null>('backtesting-beta-result', null);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'parameters' | 'results' | 'charts'>('parameters');
+  const [activeTab, setActiveTab] = useSessionStorage<'parameters' | 'results' | 'charts'>('backtesting-beta-tab', 'parameters');
   const [stockSearch, setStockSearch] = useState('');
   const [showStockSuggestions, setShowStockSuggestions] = useState(false);
   
@@ -376,7 +377,7 @@ const BacktestingBetaPage: React.FC = () => {
   };
 
   // Form state
-  const [params, setParams] = useState<BacktestParams>({
+  const [params, setParams] = useSessionStorage<BacktestParams>('backtesting-beta-params', {
     stock_symbol: 'RELIANCE',
     selected_indicators: {
       RSI: {
@@ -438,6 +439,12 @@ const BacktestingBetaPage: React.FC = () => {
   ];
 
   const runBacktest = async () => {
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);

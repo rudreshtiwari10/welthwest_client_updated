@@ -34,7 +34,7 @@ const LoginPage: React.FC = () => {
       setError('');
       setIsLoading(true);
       await login(usernameOrEmail, password);
-      navigate('/dashboard');
+      navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.detail || err.message || 'Failed to log in');
     } finally {
@@ -155,7 +155,7 @@ const LoginPage: React.FC = () => {
                 onSuccess={(credentialResponse) => {
                   if (credentialResponse.credential) {
                     handleGoogleLogin(credentialResponse.credential)
-                      .then(() => navigate('/dashboard'))
+                      .then(() => navigate('/'))
                       .catch((err) => setError(err.message || 'Failed to log in with Google'));
                   }
                 }}

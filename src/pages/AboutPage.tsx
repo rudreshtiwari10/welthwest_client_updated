@@ -47,16 +47,7 @@ const AboutPage: React.FC = () => {
             Where AI meets financial intelligence to transform the future of investing
           </p>
           
-          {/* Animated dots pattern */}
-          <div className="grid grid-cols-5 gap-4 max-w-xs mx-auto mt-8 opacity-70">
-            {[...Array(15)].map((_, i) => (
-              <div 
-                key={i}
-                className="h-2 w-2 rounded-full bg-primary-500 animate-pulse"
-                style={{ animationDelay: `${i * 0.1}s` }}
-              ></div>
-            ))}
-          </div>
+          
         </div>
       </div>
       

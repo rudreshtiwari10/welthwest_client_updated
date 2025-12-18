@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import UsageIndicator from './components/UsageIndicator';
 import TrialExceededModal from './components/TrialExceededModal';
+import LoginModal from './components/LoginModal';
 import FinanceAIChart from './components/FinanceAIChart';
 import FinanceAIIndicators from './components/FinanceAIIndicators';
+import useSessionStorage from './hooks/useSessionStorage';
 import {
   PaperAirplaneIcon,
   SparklesIcon,
@@ -87,17 +89,33 @@ interface UsageInfo {
 
 const NextGenChatPage: React.FC = () => {
   const { user, getToken } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useSessionStorage<Message[]>('welth-ai-assistant-messages', []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [currentSessionId, setCurrentSessionId] = useState<string | undefined>(undefined);
+  const [currentSessionId, setCurrentSessionId] = useSessionStorage<string | undefined>('welth-ai-assistant-session', undefined);
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showTrialModal, setShowTrialModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [refreshUsage, setRefreshUsage] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [isFooterVisible, setIsFooterVisible] = useState(false);
+
+  // Convert timestamp strings back to Date objects when loading from sessionStorage
+  useEffect(() => {
+    if (messages.length > 0) {
+      const needsConversion = messages.some(msg => typeof msg.timestamp === 'string');
+      if (needsConversion) {
+        const convertedMessages = messages.map(msg => ({
+          ...msg,
+          timestamp: typeof msg.timestamp === 'string' ? new Date(msg.timestamp) : msg.timestamp
+        }));
+        setMessages(convertedMessages);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once on mount
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -128,6 +146,12 @@ const NextGenChatPage: React.FC = () => {
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
+
+    // Check if user is logged in
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
 
     const userMessage: Message = {
       id: `user_${Date.now()}`,
@@ -292,8 +316,9 @@ const NextGenChatPage: React.FC = () => {
     }
   };
 
-  const formatTimestamp = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString('en-US', {
+  const formatTimestamp = (timestamp: Date | string) => {
+    const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
+    return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit'
     });
@@ -390,6 +415,13 @@ const NextGenChatPage: React.FC = () => {
         feature="welth-ai-assistant"
         featureDisplayName="AI Chat Assistant"
         limit={10}
+      />
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        message="Please log in to use the AI Chat Assistant feature."
       />
 
       {/* Header */}

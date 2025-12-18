@@ -320,6 +320,19 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <span>About</span>
               </Link>
 
+              {/* Backtesting Link */}
+              <Link
+                to="/backtest-beta"
+                className={`flex items-center text-sm font-medium ${
+                  isActive('/backtest-beta')
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
+              >
+                <BeakerIcon className="h-4 w-4 mr-1" />
+                <span>Backtesting</span>
+              </Link>
+
               {/* News & Blogs Link */}
               {/*<Link
                 to="/news-and-blogs"
@@ -337,7 +350,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           </div>
 
           {/* Right side - Auth buttons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 md:space-x-4">
             {/* Search Bar - Desktop */}
             <div className="hidden md:block max-w-[260px]">
               <SearchBarWithSuggestions
@@ -486,13 +499,13 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
               <>
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 px-4 py-2 rounded-md hover:bg-white/50 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 px-2 py-2 md:px-4 rounded-md hover:bg-white/50 dark:hover:bg-gray-700 transition-colors shadow-sm whitespace-nowrap"
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-md shadow-md transition-colors"
+                  className="text-sm bg-primary-600 hover:bg-primary-700 text-white px-2 py-2 md:px-4 rounded-md shadow-md transition-colors whitespace-nowrap"
                 >
                   Register
                 </Link>

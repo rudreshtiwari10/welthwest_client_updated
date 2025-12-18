@@ -170,6 +170,19 @@ const Premium: React.FC = () => {
     }).format(price);
   };
 
+  // Sort plans in the correct order: FREE -> STARTER -> PRO -> ADVANCED -> ENTERPRISE
+  const getSortedPlans = () => {
+    const planOrder = ['FREE', 'STARTER', 'PRO', 'ADVANCED', 'ENTERPRISE'];
+    return [...plans].sort((a, b) => {
+      const indexA = planOrder.indexOf(a._id);
+      const indexB = planOrder.indexOf(b._id);
+      // If plan not found in order array, put it at the end
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-background-primary flex items-center justify-center">
@@ -237,7 +250,7 @@ const Premium: React.FC = () => {
 
       {/* Plans Grid */}
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {plans.map((plan) => {
+        {getSortedPlans().map((plan) => {
           const price = plan.prices[selectedDuration];
           const isPopular = plan._id === 'PRO';
           const isFree = plan._id === 'FREE';
@@ -353,7 +366,7 @@ const Premium: React.FC = () => {
         </div>
 
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Secure payments powered by Cashfree • Cancel anytime • Money-back guarantee
+          Secure payments powered by Cashfree • Cancel anytime 
         </p>
       </div>
 
