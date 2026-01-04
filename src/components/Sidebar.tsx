@@ -139,7 +139,7 @@ const featureNavigation = [
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }) => {
-  const { isAuthenticated, getToken, user, logout } = useAuth();
+  const { isAuthenticated, isAdmin, getToken, user, logout } = useAuth();
   const navigate = useNavigate();
   const [selectedStock, setSelectedStock] = useState('RELIANCE.NS');
   const [searchQuery, setSearchQuery] = useState('');
@@ -646,6 +646,97 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                   >
                     <i className="fas fa-user mr-3 text-gray-600 dark:text-gray-400 group-hover:scale-110 transition-transform"></i>
                     <span>Profile Settings</span>
+                  </Link>
+                </nav>
+              </div>
+            )}
+
+            {/* Admin Section - Only visible to admin users */}
+            {isAdmin && (
+              <div>
+                <h3 className="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  Administration
+                </h3>
+                <nav className="mt-2 space-y-1">
+                  <Link
+                    to="/admin"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-shield-alt mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Dashboard</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/users"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-users mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Users</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/subscriptions"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-chart-line mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Subscriptions</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/transactions"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-credit-card mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Transactions</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/reports"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-file-alt mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Reports</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/content"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-newspaper mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Content</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/support-tickets"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-ticket-alt mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Support Tickets</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/create-ticket"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-plus-circle mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Create Ticket</span>
+                  </Link>
+
+                  <Link
+                    to="/admin/activity-logs"
+                    onClick={handleNavClick}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-all group"
+                  >
+                    <i className="fas fa-history mr-3 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Activity Logs</span>
                   </Link>
                 </nav>
               </div>

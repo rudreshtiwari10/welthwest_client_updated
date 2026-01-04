@@ -12,11 +12,13 @@ interface User {
   bio?: string;
   avatar_url?: string;
   billing_address?: string;
+  role?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, username: string, password: string, confirmPassword: string, firstName?: string, lastName?: string) => Promise<void>;
@@ -31,6 +33,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   isAuthenticated: false,
+  isAdmin: false,
   isLoading: true,
   login: async () => {},
   register: async () => {},
@@ -202,6 +205,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       value={{
         user,
         isAuthenticated: !!user,
+        isAdmin: user?.role === 'admin',
         isLoading,
         login,
         register,

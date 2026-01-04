@@ -1427,3 +1427,6 @@ export const activityService = {
     }
   }
 };
+
+// Export the axios instance as default for use in other services (like adminService)
+export default api;

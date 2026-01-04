@@ -90,6 +90,11 @@ interface UsageInfo {
 const NextGenChatPage: React.FC = () => {
   const { user, getToken } = useAuth();
   const [messages, setMessages] = useSessionStorage<Message[]>('welth-ai-assistant-messages', []);
+
+  // Debug logging for messages
+  useEffect(() => {
+    console.log('[NextGenChatPage] Messages state updated:', messages.length, messages);
+  }, [messages]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentSessionId, setCurrentSessionId] = useSessionStorage<string | undefined>('welth-ai-assistant-session', undefined);
@@ -160,7 +165,13 @@ const NextGenChatPage: React.FC = () => {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => {
+      const newMessages = [...prev, userMessage];
+      console.log('Adding user message:', userMessage);
+      console.log('Total messages after adding user message:', newMessages.length);
+      console.log('All messages:', newMessages);
+      return newMessages;
+    });
     setInput('');
     setIsLoading(true);
     setError(null);
@@ -181,11 +192,14 @@ const NextGenChatPage: React.FC = () => {
 
       console.log('Sending message to Finance AI API');
 
-      // Build conversation history for context
-      const conversationHistory = messages.map(msg => ({
+      // Build conversation history for context (including the message we just added)
+      const conversationHistory = [...messages, userMessage].map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
         content: msg.text
       }));
+
+      console.log('[DEBUG] Conversation history length:', conversationHistory.length);
+      console.log('[DEBUG] Last message in history:', conversationHistory[conversationHistory.length - 1]);
 
       const data = await marketService.financeAIQuery(userMessage.text, conversationHistory);
 
@@ -491,7 +505,9 @@ const NextGenChatPage: React.FC = () => {
             </div>
           )}
 
-          {messages.map((message) => (
+          {messages.map((message) => {
+            console.log('Rendering message:', message.id, 'sender:', message.sender, 'text:', message.text);
+            return (
             <div
               key={message.id}
               className={`flex items-start gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -517,7 +533,9 @@ const NextGenChatPage: React.FC = () => {
                 {message.sender === 'ai' ? (
                   <div className="text-sm text-gray-900 dark:text-gray-100">{formatAIResponse(message.text)}</div>
                 ) : (
-                  <div className="text-sm text-gray-900 dark:text-gray-100">{message.text}</div>
+                  <div className="bg-gradient-to-r from-blue-600 to-blue-500 text-white px-4 py-3 rounded-2xl rounded-tr-sm shadow-md">
+                    <div className="text-sm">{message.text}</div>
+                  </div>
                 )}
 
                 {/* Finance AI Indicators */}
@@ -774,7 +792,8 @@ const NextGenChatPage: React.FC = () => {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
 
           {isLoading && (
             <div className="flex justify-start">

@@ -34,9 +34,19 @@ import FeedbackPage from './pages/FeedbackPage';
 
 import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
 import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
-import NewsDetailPage from './pages/NewsDetailPage';
+import BlogDetailPage from './pages/BlogDetailPage';
+import BlogEditorPage from './pages/BlogEditorPage';
 import MarketRegimePage from './pages/MarketRegimePage';
 import MarketForecastingPage from './pages/MarketForecastingPage';
+import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminSubscriptionsPage from './pages/AdminSubscriptionsPage';
+import AdminTransactionsPage from './pages/AdminTransactionsPage';
+import AdminReportsPage from './pages/AdminReportsPage';
+import AdminContentPage from './pages/AdminContentPage';
+import AdminSupportTicketsPage from './pages/AdminSupportTicketsPage';
+import AdminActivityLogsPage from './pages/AdminActivityLogsPage';
+import AdminCreateTicketPage from './pages/AdminCreateTicketPage';
 
 // Components
 import Header from './components/Header';
@@ -175,6 +185,17 @@ const AppWithRouter: React.FC = () => {
                 {/* PROTECTED ROUTES - Only dashboard and profile require login */}
                 <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
                 <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+
+                {/* ADMIN ROUTES - Require admin role */}
+                <Route path="/admin" element={<PrivateRoute><AdminDashboardPage /></PrivateRoute>} />
+                <Route path="/admin/users" element={<PrivateRoute><AdminUsersPage /></PrivateRoute>} />
+                <Route path="/admin/subscriptions" element={<PrivateRoute><AdminSubscriptionsPage /></PrivateRoute>} />
+                <Route path="/admin/transactions" element={<PrivateRoute><AdminTransactionsPage /></PrivateRoute>} />
+                <Route path="/admin/reports" element={<PrivateRoute><AdminReportsPage /></PrivateRoute>} />
+                <Route path="/admin/content" element={<PrivateRoute><AdminContentPage /></PrivateRoute>} />
+                <Route path="/admin/support-tickets" element={<PrivateRoute><AdminSupportTicketsPage /></PrivateRoute>} />
+                <Route path="/admin/create-ticket" element={<PrivateRoute><AdminCreateTicketPage /></PrivateRoute>} />
+                <Route path="/admin/activity-logs" element={<PrivateRoute><AdminActivityLogsPage /></PrivateRoute>} />
                 {/* PUBLIC ROUTES WITH ANONYMOUS TRIAL - All feature pages are now public with 10 free runs */}
                 <Route path="/stock" element={<StockPage />} />
                 <Route path="/stock/:symbol" element={<StockPage />} />
@@ -192,8 +213,9 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/news-and-blogs" element={<NewsAndBlogsPage />} />
-                <Route path="/news/:id" element={<NewsDetailPage />} />
-                <Route path="/blog/:id" element={<NewsDetailPage />} />
+                <Route path="/blog/:slug" element={<BlogDetailPage />} />
+                <Route path="/blog-editor" element={<PrivateRoute><BlogEditorPage /></PrivateRoute>} />
+                <Route path="/blog-editor/:id" element={<PrivateRoute><BlogEditorPage /></PrivateRoute>} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                 <Route path="/feedback" element={<FeedbackPage />} />

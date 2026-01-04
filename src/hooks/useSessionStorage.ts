@@ -37,21 +37,23 @@ function useSessionStorage<T>(
     (value: T | ((val: T) => T)) => {
       try {
         // Allow value to be a function so we have same API as useState
-        const valueToStore =
-          value instanceof Function ? value(storedValue) : value;
+        setStoredValue((currentValue) => {
+          const valueToStore =
+            value instanceof Function ? value(currentValue) : value;
 
-        // Save state
-        setStoredValue(valueToStore);
+          // Save to session storage
+          if (typeof window !== 'undefined') {
+            console.log(`[useSessionStorage] Saving to key "${key}":`, valueToStore);
+            window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
+          }
 
-        // Save to session storage
-        if (typeof window !== 'undefined') {
-          window.sessionStorage.setItem(key, JSON.stringify(valueToStore));
-        }
+          return valueToStore;
+        });
       } catch (error) {
         console.error(`Error setting sessionStorage key "${key}":`, error);
       }
     },
-    [key, storedValue]
+    [key]
   );
 
   // Clear the stored value from both state and sessionStorage
