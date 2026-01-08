@@ -87,11 +87,13 @@ const BlogEditorPage: React.FC = () => {
 
       const blogData: Partial<Blog> = {
         title: title.trim(),
-        slug: slug.trim() || generateSlug(title),
         content: content.trim(),
-        summary: summary.trim(),
+        author: user?.first_name && user?.last_name
+          ? `${user.first_name} ${user.last_name}`
+          : user?.username || user?.email || 'Admin',
         category,
         tags: tags.split(',').map(t => t.trim()).filter(t => t),
+        summary: summary.trim() || undefined,
         imageUrl: imageUrl.trim() || undefined,
         status: publishNow ? 'published' : status
       };

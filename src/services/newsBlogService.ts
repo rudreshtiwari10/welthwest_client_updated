@@ -29,6 +29,34 @@ api.interceptors.request.use(
   }
 );
 
+// Helper function to convert camelCase to snake_case for backend
+const toSnakeCase = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(toSnakeCase);
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).reduce((acc, key) => {
+      const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+      acc[snakeKey] = toSnakeCase(obj[key]);
+      return acc;
+    }, {} as any);
+  }
+  return obj;
+};
+
+// Helper function to convert snake_case to camelCase for frontend
+const toCamelCase = (obj: any): any => {
+  if (Array.isArray(obj)) {
+    return obj.map(toCamelCase);
+  } else if (obj !== null && typeof obj === 'object') {
+    return Object.keys(obj).reduce((acc, key) => {
+      const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      acc[camelKey] = toCamelCase(obj[key]);
+      return acc;
+    }, {} as any);
+  }
+  return obj;
+};
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -178,7 +206,17 @@ class NewsBlogService {
       }
 
       const response = await api.get(`/blogs?${params.toString()}`);
-      return response.data;
+
+      // Manually transform response to handle field name differences
+      const data = response.data;
+      return {
+        success: data.success,
+        blogs: data.blogs || [],
+        total: data.total || 0,
+        page: data.page || 1,
+        limit: data.limit || 10,
+        totalPages: data.totalPages || 0
+      };
     } catch (error) {
       console.error('Error fetching blogs:', error);
       throw error;
@@ -191,7 +229,10 @@ class NewsBlogService {
   async getBlogBySlug(slug: string): Promise<BlogResponse> {
     try {
       const response = await api.get(`/blogs/${slug}`);
-      return response.data;
+
+      // Convert response back to camelCase
+      const result = toCamelCase(response.data);
+      return result;
     } catch (error) {
       console.error('Error fetching blog:', error);
       throw error;
@@ -214,7 +255,10 @@ class NewsBlogService {
       });
 
       const response = await api.get(`/blogs/search?${params.toString()}`);
-      return response.data;
+
+      // Convert response back to camelCase
+      const result = toCamelCase(response.data);
+      return result;
     } catch (error) {
       console.error('Error searching blogs:', error);
       throw error;
@@ -243,8 +287,13 @@ class NewsBlogService {
    */
   async createBlog(blogData: Partial<Blog>): Promise<BlogResponse> {
     try {
-      const response = await api.post('/admin/blogs', blogData);
-      return response.data;
+      // Convert camelCase to snake_case for backend
+      const backendData = toSnakeCase(blogData);
+      const response = await api.post('/blogs', backendData);
+
+      // Convert response back to camelCase
+      const result = toCamelCase(response.data);
+      return result;
     } catch (error) {
       console.error('Error creating blog:', error);
       throw error;
@@ -256,8 +305,13 @@ class NewsBlogService {
    */
   async updateBlog(blogId: string, blogData: Partial<Blog>): Promise<BlogResponse> {
     try {
-      const response = await api.put(`/admin/blogs/${blogId}`, blogData);
-      return response.data;
+      // Convert camelCase to snake_case for backend
+      const backendData = toSnakeCase(blogData);
+      const response = await api.put(`/blogs/${blogId}`, backendData);
+
+      // Convert response back to camelCase
+      const result = toCamelCase(response.data);
+      return result;
     } catch (error) {
       console.error('Error updating blog:', error);
       throw error;
@@ -269,7 +323,7 @@ class NewsBlogService {
    */
   async deleteBlog(blogId: string): Promise<{ success: boolean; message: string }> {
     try {
-      const response = await api.delete(`/admin/blogs/${blogId}`);
+      const response = await api.delete(`/blogs/${blogId}`);
       return response.data;
     } catch (error) {
       console.error('Error deleting blog:', error);
@@ -282,8 +336,11 @@ class NewsBlogService {
    */
   async getBlogById(blogId: string): Promise<BlogResponse> {
     try {
-      const response = await api.get(`/admin/blogs/${blogId}`);
-      return response.data;
+      const response = await api.get(`/blogs/${blogId}`);
+
+      // Convert response back to camelCase
+      const result = toCamelCase(response.data);
+      return result;
     } catch (error) {
       console.error('Error fetching blog:', error);
       throw error;
@@ -305,8 +362,11 @@ class NewsBlogService {
         status,
       });
 
-      const response = await api.get(`/admin/blogs?${params.toString()}`);
-      return response.data;
+      const response = await api.get(`/blogs?${params.toString()}`);
+
+      // Convert response back to camelCase
+      const result = toCamelCase(response.data);
+      return result;
     } catch (error) {
       console.error('Error fetching blogs (admin):', error);
       throw error;
