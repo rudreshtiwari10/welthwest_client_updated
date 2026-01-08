@@ -824,7 +824,7 @@ const ChatInterface: React.FC = () => {
               title: `Open AI Analysis for ${symbol}`,
               description: 'Get regime prediction and insights',
               actions: [
-                { label: 'AI Analysis', onClickType: 'navigate', route: '/welth-market-regime' },
+                { label: 'AI Analysis', onClickType: 'navigate', route: '/mtf-screener' },
               ],
             },
           ]);

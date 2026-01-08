@@ -26,7 +26,7 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
         'Trading strategy recommendations based on regime'
       ],
       youtubeId: '1h0j-zsTIwE', // Replace with your YouTube video ID
-      link: '/welth-market-regime',
+      link: '/mtf-screener',
       buttonText: 'Start AI Analysis',
       gradient: 'from-primary-500 to-primary-700'
     },

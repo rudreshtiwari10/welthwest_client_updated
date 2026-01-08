@@ -309,7 +309,7 @@ const HomePage: React.FC = () => {
 
                 {/* Welth AI Analysis */}
                 <Link
-                  to="/welth-market-regime"
+                  to="/mtf-screener"
                   className="group flex items-center bg-white dark:bg-dark-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
                 >
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
@@ -635,7 +635,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link
-                    to="/welth-market-regime"
+                    to="/mtf-screener"
                     className="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-all duration-300 w-fit group-hover:bg-primary-700 group-hover:shadow-lg"
                   >
                     Explore AI Analysis

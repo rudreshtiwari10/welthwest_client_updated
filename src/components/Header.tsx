@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/welth-market-regime') || path.startsWith('/backtesting');
+    return path.startsWith('/mtf-screener') || path.startsWith('/backtesting');
   };
 
   // Popular Indian stocks for quick access
@@ -131,7 +131,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 onMouseLeave={() => handleDropdownHover(false, setShowWelthAIMenu, welthAITimeoutRef)}
               >
                 <Link
-                  to="/welth-market-regime"
+                  to="/mtf-screener"
                   className="flex items-center px-4 py-1.5 bg-[#7e22ce] hover:bg-[#6b21a8] text-white rounded-full font-medium transition-colors shadow-md"
                   onMouseEnter={() => setShowWelthAIMenu(true)}
                 >
@@ -145,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     className="absolute left-0 mt-2 w-56 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50"
                   >
                     <Link
-                      to="/welth-market-regime"
+                      to="/mtf-screener"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
                       onClick={() => setShowWelthAIMenu(false)}
                     >

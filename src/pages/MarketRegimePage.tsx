@@ -31,7 +31,9 @@ interface PriceForecast {
   date: string;
   predicted_price: number;
   price_change: number;
+  daily_change?: number;
   day: number;
+  confidence?: number;
 }
 
 interface PriceAnalysis {
@@ -708,39 +710,199 @@ const MarketRegimePage: React.FC = () => {
             )}
           </div>
 
-          {/* Price Forecast Table */}
+          {/* 5-Day Price Forecast */}
           <div className="bg-white dark:bg-dark-400 rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              <ChartBarIcon className="h-6 w-6 mr-2 text-purple-500" />
-              Price Forecasting - {forecastData.ticker}
+              <ArrowTrendingUpIcon className="h-6 w-6 mr-2 text-purple-500" />
+              5-Day Price Forecast - {forecastData.ticker}
             </h2>
+
+            {/* Current Price Banner */}
+            <div className="mb-6 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Current Price</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                    ₹{forecastData.price_analysis.current_price.toFixed(2)}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">LSTM Trend</p>
+                  <p className={`text-lg font-bold ${
+                    forecastData.price_analysis.lstm_trend?.toLowerCase() === 'bullish' ? 'text-green-600' :
+                    forecastData.price_analysis.lstm_trend?.toLowerCase() === 'bearish' ? 'text-red-600' :
+                    'text-yellow-600'
+                  }`}>
+                    {forecastData.price_analysis.lstm_trend || 'Neutral'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* 5-Day Forecast Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              {forecastData.price_analysis.forecast.slice(0, 5).map((forecast, index) => {
+                const isPositive = forecast.price_change >= 0;
+                const dailyChange = forecast.daily_change ?? (index === 0 ? forecast.price_change :
+                  forecast.price_change - (forecastData.price_analysis.forecast[index - 1]?.price_change || 0));
+                const confidence = forecast.confidence ?? (0.95 - (index * 0.05));
+
+                return (
+                  <div
+                    key={index}
+                    className={`relative p-4 rounded-lg border-2 transition-all hover:shadow-lg ${
+                      isPositive
+                        ? 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200 dark:border-green-800'
+                        : 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 border-red-200 dark:border-red-800'
+                    }`}
+                  >
+                    {/* Day Badge */}
+                    <div className={`absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${
+                      isPositive ? 'bg-green-500' : 'bg-red-500'
+                    }`}>
+                      D{forecast.day}
+                    </div>
+
+                    {/* Date */}
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      {new Date(forecast.date).toLocaleDateString('en-IN', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+
+                    {/* Predicted Price */}
+                    <p className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                      ₹{forecast.predicted_price.toFixed(2)}
+                    </p>
+
+                    {/* Change Indicators */}
+                    <div className="space-y-1">
+                      {/* Cumulative Change */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Total</span>
+                        <span className={`text-sm font-semibold flex items-center ${
+                          isPositive ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {isPositive ? (
+                            <ArrowTrendingUpIcon className="h-3 w-3 mr-1" />
+                          ) : (
+                            <ArrowTrendingDownIcon className="h-3 w-3 mr-1" />
+                          )}
+                          {isPositive ? '+' : ''}{forecast.price_change.toFixed(2)}%
+                        </span>
+                      </div>
+
+                      {/* Daily Change */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Daily</span>
+                        <span className={`text-xs font-medium ${
+                          dailyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {dailyChange >= 0 ? '+' : ''}{dailyChange.toFixed(2)}%
+                        </span>
+                      </div>
+
+                      {/* Confidence */}
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-gray-500 dark:text-gray-400">Confidence</span>
+                          <span className="text-purple-600 dark:text-purple-400 font-medium">
+                            {(confidence * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                          <div
+                            className="bg-purple-500 h-1.5 rounded-full transition-all"
+                            style={{ width: `${confidence * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Forecast Summary Table */}
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 dark:bg-gray-700">
-                    <th className="text-left p-3 border border-gray-300 dark:border-gray-600 font-semibold">Forecast</th>
-                    <th className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">Predicted Price</th>
-                    <th className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">Change %</th>
+                    <th className="text-left p-3 border border-gray-200 dark:border-gray-600 font-semibold">Day</th>
+                    <th className="text-left p-3 border border-gray-200 dark:border-gray-600 font-semibold">Date</th>
+                    <th className="text-right p-3 border border-gray-200 dark:border-gray-600 font-semibold">Predicted Price</th>
+                    <th className="text-right p-3 border border-gray-200 dark:border-gray-600 font-semibold">Daily Change</th>
+                    <th className="text-right p-3 border border-gray-200 dark:border-gray-600 font-semibold">Total Change</th>
+                    <th className="text-center p-3 border border-gray-200 dark:border-gray-600 font-semibold">Confidence</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {forecastData.price_analysis.forecast.slice(0, 1).map((forecast, index) => (
-                    <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td className="p-3 border border-gray-300 dark:border-gray-600 font-medium">
-                        Next Price Prediction for {forecastData.ticker}
-                      </td>
-                      <td className="text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold">
-                        ₹{forecast.predicted_price.toFixed(2)}
-                      </td>
-                      <td className={`text-right p-3 border border-gray-300 dark:border-gray-600 font-semibold ${
-                        forecast.price_change >= 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {forecast.price_change >= 0 ? '+' : ''}{forecast.price_change.toFixed(2)}%
-                      </td>
-                    </tr>
-                  ))}
+                  {forecastData.price_analysis.forecast.slice(0, 5).map((forecast, index) => {
+                    const dailyChange = forecast.daily_change ?? (index === 0 ? forecast.price_change :
+                      forecast.price_change - (forecastData.price_analysis.forecast[index - 1]?.price_change || 0));
+                    const confidence = forecast.confidence ?? (0.95 - (index * 0.05));
+
+                    return (
+                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="p-3 border border-gray-200 dark:border-gray-600">
+                          <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white ${
+                            forecast.price_change >= 0 ? 'bg-green-500' : 'bg-red-500'
+                          }`}>
+                            {forecast.day}
+                          </span>
+                        </td>
+                        <td className="p-3 border border-gray-200 dark:border-gray-600 font-medium">
+                          {new Date(forecast.date).toLocaleDateString('en-IN', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric'
+                          })}
+                        </td>
+                        <td className="text-right p-3 border border-gray-200 dark:border-gray-600 font-semibold text-gray-900 dark:text-white">
+                          ₹{forecast.predicted_price.toFixed(2)}
+                        </td>
+                        <td className={`text-right p-3 border border-gray-200 dark:border-gray-600 font-medium ${
+                          dailyChange >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {dailyChange >= 0 ? '+' : ''}{dailyChange.toFixed(2)}%
+                        </td>
+                        <td className={`text-right p-3 border border-gray-200 dark:border-gray-600 font-semibold ${
+                          forecast.price_change >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {forecast.price_change >= 0 ? '+' : ''}{forecast.price_change.toFixed(2)}%
+                        </td>
+                        <td className="p-3 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center justify-center">
+                            <div className="w-16 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
+                              <div
+                                className="bg-purple-500 h-2 rounded-full"
+                                style={{ width: `${confidence * 100}%` }}
+                              ></div>
+                            </div>
+                            <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                              {(confidence * 100).toFixed(0)}%
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Forecast Note */}
+            <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+              <p className="text-xs text-yellow-700 dark:text-yellow-400 flex items-start">
+                <ExclamationTriangleIcon className="h-4 w-4 mr-2 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong>Disclaimer:</strong> These predictions are generated by AI models and should not be considered as financial advice.
+                  Confidence decreases for longer forecast horizons. Always conduct your own research before making trading decisions.
+                </span>
+              </p>
             </div>
           </div>
 

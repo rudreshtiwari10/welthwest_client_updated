@@ -38,6 +38,7 @@ import BlogDetailPage from './pages/BlogDetailPage';
 import BlogEditorPage from './pages/BlogEditorPage';
 import MarketRegimePage from './pages/MarketRegimePage';
 import MarketForecastingPage from './pages/MarketForecastingPage';
+import MTFScreenerPage from './pages/MTFScreenerPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminSubscriptionsPage from './pages/AdminSubscriptionsPage';
@@ -207,6 +208,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
                 <Route path="/welth-market-regime" element={<MarketRegimePage />} />
                 <Route path="/market-forecasting" element={<MarketForecastingPage />} />
+                <Route path="/mtf-screener" element={<MTFScreenerPage />} />
                 <Route path="/welthchatbot" element={<WelthChatbotPage />} />
                 <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />
                 <Route path="/technical-analysis" element={<TechnicalAnalysisPage />} />
