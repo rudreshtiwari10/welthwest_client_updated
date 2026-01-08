@@ -94,14 +94,14 @@ const NewsAndBlogsPage: React.FC = () => {
 
     if (!query) {
       // If search is empty, show all items
-      setNews(allNews);
-      setBlogs(allBlogs);
+      setNews(allNews || []);
+      setBlogs(allBlogs || []);
       return;
     }
 
     if (activeTab === 'news') {
       // Filter news by title, summary, category, or source name
-      const filtered = allNews.filter(item =>
+      const filtered = (allNews || []).filter(item =>
         item.title.toLowerCase().includes(query) ||
         item.summary.toLowerCase().includes(query) ||
         item.category.toLowerCase().includes(query) ||
@@ -110,7 +110,7 @@ const NewsAndBlogsPage: React.FC = () => {
       setNews(filtered);
     } else {
       // Filter blogs by title, summary, content, category, tags, or author
-      const filtered = allBlogs.filter(blog =>
+      const filtered = (allBlogs || []).filter(blog =>
         blog.title.toLowerCase().includes(query) ||
         (blog.summary && blog.summary.toLowerCase().includes(query)) ||
         blog.content.toLowerCase().includes(query) ||
@@ -266,7 +266,7 @@ const NewsAndBlogsPage: React.FC = () => {
         {/* Search Results Counter */}
         {searchQuery && !newsLoading && !blogsLoading && (
           <div className="mb-4 text-gray-600 dark:text-gray-400">
-            Found {activeTab === 'news' ? news.length : blogs.length} {activeTab === 'news' ? 'news articles' : 'blog posts'} matching "{searchQuery}"
+            Found {activeTab === 'news' ? (news?.length || 0) : (blogs?.length || 0)} {activeTab === 'news' ? 'news articles' : 'blog posts'} matching "{searchQuery}"
           </div>
         )}
 
@@ -280,7 +280,7 @@ const NewsAndBlogsPage: React.FC = () => {
         {/* News Grid */}
         {activeTab === 'news' && !newsLoading && (
           <>
-            {news.length > 0 ? (
+            {news && news.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {news.map((item, index) => (
                   <a
@@ -345,7 +345,7 @@ const NewsAndBlogsPage: React.FC = () => {
         {/* Blogs Grid */}
         {activeTab === 'blogs' && !blogsLoading && (
           <>
-            {blogs.length > 0 ? (
+            {blogs && blogs.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {blogs.map((blog) => (
