@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import PasswordResetModal from '../components/PasswordResetModal';
@@ -10,10 +10,15 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
-  
+  const [searchParams] = useSearchParams();
+
   const { login, handleGoogleLogin } = useAuth();
   const navigate = useNavigate();
-  
+
+  // Get redirect parameter from URL (from side projects)
+  const redirectTarget = searchParams.get('redirect');
+  const reason = searchParams.get('reason');
+
   // Force dark mode for login page
   useEffect(() => {
     document.documentElement.classList.add('dark');
@@ -21,20 +26,61 @@ const LoginPage: React.FC = () => {
       // Don't remove dark mode when leaving - ThemeContext will handle it
     };
   }, []);
-  
+
+  // Helper function to redirect to side project after login
+  const redirectToSideProject = (target: string) => {
+    try {
+      // Get the JWT token directly from localStorage (it's stored there after login)
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        console.error('No token available after login');
+        navigate('/');
+        return;
+      }
+
+      // Map redirect targets to URLs
+      const redirectUrls: { [key: string]: string } = {
+        'strategy': `http://localhost:3001?token=${encodeURIComponent(token)}`,
+        'services': `http://localhost:3002?token=${encodeURIComponent(token)}`
+      };
+
+      const targetUrl = redirectUrls[target];
+      if (targetUrl) {
+        console.log(`Redirecting to ${target} with token...`);
+        // Use window.location.href for full page redirect
+        window.location.href = targetUrl;
+      } else {
+        console.warn(`Unknown redirect target: ${target}`);
+        navigate('/');
+      }
+    } catch (err) {
+      console.error('Error during redirect:', err);
+      navigate('/');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!usernameOrEmail || !password) {
       setError('Please enter both username/email and password');
       return;
     }
-    
+
     try {
       setError('');
       setIsLoading(true);
       await login(usernameOrEmail, password);
-      navigate('/');
+
+      // Check if we need to redirect to a side project
+      if (redirectTarget) {
+        // Small delay to ensure token is saved to localStorage
+        setTimeout(() => {
+          redirectToSideProject(redirectTarget);
+        }, 100);
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || err.message || 'Failed to log in');
     } finally {
@@ -56,7 +102,17 @@ const LoginPage: React.FC = () => {
             </Link>
           </p>
         </div>
-        
+
+        {/* Show redirect notice if coming from side project */}
+        {redirectTarget && (
+          <div className="bg-blue-900/30 border border-blue-500 text-blue-200 p-3 rounded-md text-sm">
+            <i className="fas fa-info-circle mr-2"></i>
+            You'll be redirected to <strong className="capitalize">{redirectTarget}</strong> after logging in.
+            {reason === 'auth' && ' (Login required to access premium features)'}
+            {reason === 'expired' && ' (Your session has expired)'}
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-900 text-red-200 p-3 rounded-md text-sm">
@@ -152,11 +208,23 @@ const LoginPage: React.FC = () => {
 
             <div className="mt-4">
               <GoogleLogin
-                onSuccess={(credentialResponse) => {
+                onSuccess={async (credentialResponse) => {
                   if (credentialResponse.credential) {
-                    handleGoogleLogin(credentialResponse.credential)
-                      .then(() => navigate('/'))
-                      .catch((err) => setError(err.message || 'Failed to log in with Google'));
+                    try {
+                      await handleGoogleLogin(credentialResponse.credential);
+
+                      // Check if we need to redirect to a side project
+                      if (redirectTarget) {
+                        // Small delay to ensure token is saved to localStorage
+                        setTimeout(() => {
+                          redirectToSideProject(redirectTarget);
+                        }, 100);
+                      } else {
+                        navigate('/');
+                      }
+                    } catch (err: any) {
+                      setError(err.message || 'Failed to log in with Google');
+                    }
                   }
                 }}
                 onError={() => {

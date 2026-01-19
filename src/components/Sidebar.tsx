@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useSubscription } from '../contexts/SubscriptionContext';
 import { marketService } from '../services/api';
 import ProfileInitialsAvatar from './account/ProfileInitialsAvatar';
+import { SubdomainLink } from './SubdomainLink';
+import UpgradeModal from './UpgradeModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -149,7 +152,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
-  
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeModalInfo, setUpgradeModalInfo] = useState({ featureName: '', message: '' });
+  const { subscriptionTier } = useSubscription();
+
   // Mock watchlist data
   const watchlistItems = [
     { id: 1, symbol: 'AAPL', name: 'Apple Inc.' },
@@ -374,6 +380,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
   const handleNavClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     closeSidebar();
+  };
+
+  // Handle upgrade modal
+  const handleShowUpgrade = (featureName: string, message: string) => {
+    setUpgradeModalInfo({ featureName, message });
+    setShowUpgradeModal(true);
   };
 
   return (
@@ -632,6 +644,42 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
               </nav>
             </div>
 
+            {/* Local Testing Section - Only in development */}
+            {process.env.NODE_ENV === 'development' && isAuthenticated && (
+              <div className="border-2 border-dashed border-yellow-400 dark:border-yellow-600 rounded-lg p-2">
+                <h3 className="px-2 py-1 text-xs font-semibold text-yellow-600 dark:text-yellow-400 uppercase tracking-wider flex items-center">
+                  <i className="fas fa-flask mr-2"></i>
+                  Local Testing
+                  <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">DEV</span>
+                </h3>
+                <nav className="mt-2 space-y-1">
+                  <SubdomainLink
+                    subdomain="strategy"
+                    showUpgradeModal={handleShowUpgrade}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all group border border-dashed border-blue-300 dark:border-blue-700"
+                  >
+                    <i className="fas fa-vial mr-3 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Test: Risk Strategy</span>
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">:3001</span>
+                  </SubdomainLink>
+
+                  <SubdomainLink
+                    subdomain="services"
+                    showUpgradeModal={handleShowUpgrade}
+                    className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 rounded-lg transition-all group border border-dashed border-purple-300 dark:border-purple-700"
+                  >
+                    <i className="fas fa-vial mr-3 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Test: Market Services</span>
+                    <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">:3002</span>
+                  </SubdomainLink>
+                </nav>
+                <p className="mt-2 px-2 text-[10px] text-yellow-600 dark:text-yellow-400 italic">
+                  <i className="fas fa-info-circle mr-1"></i>
+                  These buttons test localhost auth flow. Start all servers before testing.
+                </p>
+              </div>
+            )}
+
             {/* User Section */}
             {isAuthenticated && (
               <div>
@@ -776,6 +824,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
            </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        featureName={upgradeModalInfo.featureName}
+        currentPlan={subscriptionTier || 'FREE'}
+        upgradeMessage={upgradeModalInfo.message}
+      />
     </>
   );
 };
