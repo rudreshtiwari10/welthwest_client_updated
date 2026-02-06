@@ -62,6 +62,8 @@ import { SparklesIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import { useNotificationTracking } from './hooks/useNotificationTracking';
 import PrivateRoute from './components/PrivateRoute';
 import RouteChangeTracker from './components/RouteChangeTracker';
 import NextGenChatPage from './NextGenChatPage';
@@ -133,13 +135,19 @@ const AIFeatureBanner: React.FC = () => {
 // Floating Chat Button with location awareness
 const FloatingChatWithLocation: React.FC = () => {
   const location = useLocation();
-  
+
   // Don't show the floating chat on the WelthAI page
   const isWelthAIPage = location.pathname === '/welth-market-regime';
-  
+
   if (isWelthAIPage) return null;
-  
+
   return <FloatingChatButton />;
+};
+
+// Notification Tracker Component - must be inside all providers
+const NotificationTracker: React.FC = () => {
+  useNotificationTracking();
+  return null;
 };
 
 // App with Router
@@ -157,9 +165,12 @@ const AppWithRouter: React.FC = () => {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <SubscriptionProvider>
-          <div className="min-h-screen bg-white dark:bg-background-primary text-gray-900 dark:text-white flex flex-col">
-            <Header toggleSidebar={toggleSidebar} />
+        <NotificationProvider>
+          <SubscriptionProvider>
+            {/* Track user activities for notifications - must be inside all providers */}
+            <NotificationTracker />
+            <div className="min-h-screen bg-white dark:bg-background-primary text-gray-900 dark:text-white flex flex-col">
+              <Header toggleSidebar={toggleSidebar} />
             
             {/* Hamburger Button */}
             <HamburgerButton isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
@@ -250,7 +261,8 @@ const AppWithRouter: React.FC = () => {
             {/* Mobile Navigation */}
             <MobileFooterNav />
           </div>
-        </SubscriptionProvider>
+          </SubscriptionProvider>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );
