@@ -17,7 +17,7 @@ interface TimeframeTabsProps {
   isLoading?: boolean;
 }
 
-const TIMEFRAMES: Timeframe[] = ['5m', '15m', '1h', '1d'];
+const TIMEFRAMES: Timeframe[] = ['1d', '1h'];
 
 const TimeframeTabs: React.FC<TimeframeTabsProps> = ({
   activeTimeframe,

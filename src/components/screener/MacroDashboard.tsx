@@ -2,9 +2,13 @@
  * Macro Dashboard Component
  *
  * Displays macroeconomic indicators affecting SHORT opportunities:
- * - Overall SHORT bias score with visual progress bar
- * - 7 indicator sections with traffic light system
- * - Real-time updates and trend indicators
+ * - Interest Rate Yields
+ * - FII Flow
+ * - USD/INR
+ * - Growth & Inflation
+ * - VIX (Volatility)
+ * - Gold Prices
+ * All displayed in graphical format
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -15,13 +19,27 @@ import {
   ShortBiasScore,
   MacroSection
 } from '../../services/screenerService';
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  PieChart,
+  Pie
+} from 'recharts';
 
-// Light color mapping
+// Color mapping for indicators
 const LIGHT_COLORS = {
-  green: { bg: 'bg-green-500', ring: 'ring-green-500/30', text: 'text-green-400', pulse: '' },
-  yellow: { bg: 'bg-amber-500', ring: 'ring-amber-500/30', text: 'text-amber-400', pulse: 'animate-pulse' },
-  red: { bg: 'bg-red-500', ring: 'ring-red-500/30', text: 'text-red-400', pulse: 'animate-pulse' },
-  gray: { bg: 'bg-gray-500', ring: 'ring-gray-500/30', text: 'text-gray-400', pulse: '' }
+  green: { bg: '#22c55e', text: '#22c55e', fill: '#22c55e' },
+  yellow: { bg: '#eab308', text: '#eab308', fill: '#eab308' },
+  red: { bg: '#ef4444', text: '#ef4444', fill: '#ef4444' },
+  gray: { bg: '#6b7280', text: '#6b7280', fill: '#6b7280' }
 };
 
 // Trend icons
@@ -39,149 +57,200 @@ const TREND_ICONS: Record<string, string> = {
   deteriorating: '📉'
 };
 
-// Traffic Light Component
-const TrafficLight: React.FC<{ light: 'green' | 'yellow' | 'red' | 'gray' }> = ({ light }) => {
-  const colors = LIGHT_COLORS[light];
-  return (
-    <div className={`w-3 h-3 rounded-full ${colors.bg} ${colors.pulse} ring-2 ${colors.ring}`} />
-  );
+// Indicator ranges for visual representation
+const INDICATOR_RANGES: Record<string, { min: number; max: number; optimal?: [number, number] }> = {
+  'india_10y_yield': { min: 6.0, max: 8.5, optimal: [6.8, 7.2] },
+  'us_10y_yield': { min: 3.5, max: 5.5, optimal: [4.0, 4.5] },
+  'rate_differential': { min: 0.5, max: 3.5, optimal: [1.5, 2.5] },
+  'usd_inr': { min: 80, max: 86, optimal: [82.5, 83.5] },
+  'fii_daily': { min: -3000, max: 3000, optimal: [-500, 2000] },
+  'fii_weekly': { min: -10000, max: 10000, optimal: [-1000, 5000] },
+  'vix_india': { min: 10, max: 35, optimal: [12, 18] },
+  'vix_global': { min: 10, max: 40, optimal: [12, 20] },
+  'inflation_headline': { min: 0, max: 8, optimal: [2.0, 4.0] },
+  'crude_oil': { min: 50, max: 120, optimal: [70, 80] },
+  'gold_price': { min: 50000, max: 75000, optimal: [55000, 65000] }
 };
 
-// Individual Indicator Card
-const IndicatorCard: React.FC<{
+// Gauge Chart Component for single indicator
+const GaugeChart: React.FC<{
   indicator: MacroIndicator;
   keyName: string;
-  compact?: boolean;
-}> = ({ indicator, keyName, compact = false }) => {
+  range?: { min: number; max: number; optimal?: [number, number] };
+}> = ({ indicator, keyName, range }) => {
+  const value = typeof indicator.value === 'number' ? indicator.value : parseFloat(String(indicator.value));
   const colors = LIGHT_COLORS[indicator.light] || LIGHT_COLORS.gray;
+
+  const defaultRange = range || INDICATOR_RANGES[keyName] || { min: 0, max: 100 };
+  const percentage = ((value - defaultRange.min) / (defaultRange.max - defaultRange.min)) * 100;
+  const clampedPercentage = Math.max(0, Math.min(100, percentage));
+
+  // Create data for gauge visualization
+  const gaugeData = [
+    { name: 'Value', value: clampedPercentage, fill: colors.fill },
+    { name: 'Remaining', value: 100 - clampedPercentage, fill: '#374151' }
+  ];
+
   const trendIcon = indicator.trend ? TREND_ICONS[indicator.trend.toLowerCase()] || '➜' : '➜';
 
   return (
-    <div className={`
-      bg-gray-800/50 rounded-lg border border-gray-700/50
-      hover:border-gray-600 transition-all duration-200
-      ${compact ? 'p-2' : 'p-3'}
-    `}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <TrafficLight light={indicator.light} />
-          <span className={`text-xs font-medium ${colors.text}`}>
-            {indicator.display_name}
-          </span>
-        </div>
-        {indicator.impact_shorts === 'positive' && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-900/50 text-red-400">
-            SHORT+
-          </span>
-        )}
-      </div>
-
-      <div className="mt-2 flex items-baseline gap-1">
-        <span className="text-lg font-bold text-white">
-          {typeof indicator.value === 'number' ? indicator.value.toLocaleString() : indicator.value}
-        </span>
-        {indicator.unit && (
-          <span className="text-xs text-gray-500">{indicator.unit}</span>
-        )}
-      </div>
-
-      <div className="mt-1 flex items-center justify-between">
-        <span className={`text-xs ${colors.text}`}>
+    <div className="bg-gray-800/50 rounded-lg border border-gray-700/50 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-white">{indicator.display_name}</h4>
+        <span className={`text-xs px-2 py-1 rounded`} style={{ backgroundColor: colors.bg + '30', color: colors.text }}>
           {indicator.status}
         </span>
-        {indicator.trend && (
-          <span className="text-xs text-gray-500">
-            {trendIcon} {indicator.trend}
-          </span>
+      </div>
+
+      {/* Gauge Visualization */}
+      <div className="mb-3">
+        <ResponsiveContainer width="100%" height={120}>
+          <PieChart>
+            <Pie
+              data={gaugeData}
+              cx="50%"
+              cy="50%"
+              startAngle={180}
+              endAngle={0}
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={0}
+              dataKey="value"
+            >
+              {gaugeData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.fill} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+
+        {/* Value Display */}
+        <div className="text-center -mt-16">
+          <div className="text-2xl font-bold" style={{ color: colors.text }}>
+            {value.toLocaleString()}
+          </div>
+          {indicator.unit && (
+            <div className="text-xs text-gray-500">{indicator.unit}</div>
+          )}
+        </div>
+      </div>
+
+      {/* Stats Row */}
+      <div className="flex items-center justify-between text-xs">
+        <div className="text-gray-400">
+          {defaultRange.min.toLocaleString()} - {defaultRange.max.toLocaleString()}
+        </div>
+        {indicator.change !== undefined && indicator.change !== 0 && (
+          <div className={`flex items-center gap-1 ${indicator.change > 0 ? 'text-red-400' : 'text-green-400'}`}>
+            <span>{trendIcon}</span>
+            <span>
+              {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(2)}
+              {indicator.change_pct !== undefined && ` (${indicator.change_pct > 0 ? '+' : ''}${indicator.change_pct.toFixed(2)}%)`}
+            </span>
+          </div>
         )}
       </div>
 
-      {indicator.change !== undefined && indicator.change !== 0 && (
-        <div className="mt-1">
-          <span className={`text-xs ${indicator.change > 0 ? 'text-red-400' : 'text-green-400'}`}>
-            {indicator.change > 0 ? '+' : ''}{indicator.change.toFixed(2)}
-            {indicator.change_pct !== undefined && ` (${indicator.change_pct > 0 ? '+' : ''}${indicator.change_pct.toFixed(2)}%)`}
-          </span>
+      {/* Optimal Range Indicator */}
+      {defaultRange.optimal && (
+        <div className="mt-2 pt-2 border-t border-gray-700">
+          <div className="text-xs text-gray-500">
+            Optimal: {defaultRange.optimal[0].toLocaleString()} - {defaultRange.optimal[1].toLocaleString()} {indicator.unit}
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-// Section Component
-const MacroSectionCard: React.FC<{
-  section: MacroSection;
-  sectionKey: string;
-  isExpanded: boolean;
-  onToggle: () => void;
-}> = ({ section, sectionKey, isExpanded, onToggle }) => {
-  const indicators = Object.entries(section.data || {});
+// Bar Chart Component for flow/volume indicators
+const FlowBarChart: React.FC<{
+  indicator: MacroIndicator;
+  keyName: string;
+  range?: { min: number; max: number };
+}> = ({ indicator, keyName, range }) => {
+  const value = typeof indicator.value === 'number' ? indicator.value : parseFloat(String(indicator.value));
+  const colors = LIGHT_COLORS[indicator.light] || LIGHT_COLORS.gray;
+  const trendIcon = indicator.trend ? TREND_ICONS[indicator.trend.toLowerCase()] || '➜' : '➜';
 
-  // Count lights for summary
-  const lightCounts = indicators.reduce((acc, [_, ind]) => {
-    acc[ind.light] = (acc[ind.light] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const defaultRange = range || INDICATOR_RANGES[keyName] || { min: -5000, max: 5000 };
+
+  // Create data for bar chart
+  const chartData = [
+    {
+      name: 'Current',
+      value: value,
+      fill: colors.fill
+    }
+  ];
 
   return (
-    <div className="bg-gray-900/50 rounded-lg border border-gray-800 overflow-hidden">
-      {/* Section Header */}
-      <button
-        onClick={onToggle}
-        className="w-full px-4 py-3 flex items-center justify-between hover:bg-gray-800/50 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-lg">{section.icon}</span>
-          <span className="text-sm font-medium text-white">{section.title}</span>
-        </div>
+    <div className="bg-gray-800/50 rounded-lg border border-gray-700/50 p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-white">{indicator.display_name}</h4>
+        <span className={`text-xs px-2 py-1 rounded`} style={{ backgroundColor: colors.bg + '30', color: colors.text }}>
+          {indicator.status}
+        </span>
+      </div>
 
-        <div className="flex items-center gap-3">
-          {/* Light Summary */}
-          <div className="flex items-center gap-2">
-            {lightCounts.red && (
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-xs text-red-400">{lightCounts.red}</span>
-              </div>
-            )}
-            {lightCounts.yellow && (
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-amber-500" />
-                <span className="text-xs text-amber-400">{lightCounts.yellow}</span>
-              </div>
-            )}
-            {lightCounts.green && (
-              <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <span className="text-xs text-green-400">{lightCounts.green}</span>
-              </div>
-            )}
+      {/* Bar Chart Visualization */}
+      <div className="mb-3">
+        <ResponsiveContainer width="100%" height={120}>
+          <BarChart data={chartData} layout="horizontal">
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+            <XAxis
+              type="number"
+              domain={[defaultRange.min, defaultRange.max]}
+              tick={{ fill: '#9ca3af', fontSize: 10 }}
+              axisLine={{ stroke: '#4b5563' }}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              hide
+            />
+            <Tooltip
+              contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '0.5rem' }}
+              labelStyle={{ color: '#fff' }}
+              formatter={(value: any) => [value.toLocaleString() + (indicator.unit || ''), indicator.display_name]}
+            />
+            <Bar dataKey="value" fill={colors.fill} radius={[0, 4, 4, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+
+        {/* Value Display */}
+        <div className="text-center">
+          <div className="text-2xl font-bold" style={{ color: colors.text }}>
+            {value > 0 ? '+' : ''}{value.toLocaleString()}
           </div>
-
-          {/* Expand/Collapse Icon */}
-          <svg
-            className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          {indicator.unit && (
+            <div className="text-xs text-gray-500">{indicator.unit}</div>
+          )}
         </div>
-      </button>
+      </div>
 
-      {/* Expanded Content */}
-      {isExpanded && (
-        <div className="px-4 pb-4">
-          <div className="grid grid-cols-2 gap-2">
-            {indicators.map(([key, indicator]) => (
-              <IndicatorCard key={key} indicator={indicator} keyName={key} compact />
-            ))}
+      {/* Stats Row */}
+      <div className="flex items-center justify-between text-xs">
+        <div className="text-gray-400">
+          Range: {defaultRange.min.toLocaleString()} to {defaultRange.max.toLocaleString()}
+        </div>
+        {indicator.trend && (
+          <div className="flex items-center gap-1 text-gray-400">
+            <span>{trendIcon}</span>
+            <span>{indicator.trend}</span>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
+};
+
+// Helper to extract specific indicators from sections
+const getIndicatorFromSection = (data: MacroDashboardData | null, sectionKey: string, indicatorKey: string): MacroIndicator | null => {
+  if (!data || !data.sections) return null;
+  const section = data.sections[sectionKey as keyof typeof data.sections];
+  if (!section || !section.data) return null;
+  return section.data[indicatorKey] || null;
 };
 
 // Bias Score Display
@@ -263,7 +332,6 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
   const [data, setData] = useState<MacroDashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -274,10 +342,6 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
       if (result.status === 'success') {
         setData(result);
         setLastUpdated(new Date());
-        // Expand first section by default
-        if (Object.keys(expandedSections).length === 0) {
-          setExpandedSections({ interest_rates: true });
-        }
       } else {
         setError('Failed to load macro data');
       }
@@ -295,10 +359,6 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
     const interval = setInterval(fetchData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [fetchData]);
-
-  const toggleSection = (key: string) => {
-    setExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
-  };
 
   if (isLoading && !data) {
     return (
@@ -329,16 +389,23 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
 
   if (!data) return null;
 
-  const sections = data.sections;
-  const sectionOrder = [
-    'interest_rates',
-    'currency_flows',
-    'growth_inflation',
-    'volatility_sentiment',
-    'oil_commodities',
-    'us_macro',
-    'market_breadth'
-  ];
+  // Extract only the specified indicators
+  const india10YYield = getIndicatorFromSection(data, 'interest_rates', 'india_10y_yield');
+  const us10YYield = getIndicatorFromSection(data, 'interest_rates', 'us_10y_yield');
+  const rateDiff = getIndicatorFromSection(data, 'interest_rates', 'rate_differential');
+
+  const fiiDaily = getIndicatorFromSection(data, 'currency_flows', 'fii_daily');
+  const fiiWeekly = getIndicatorFromSection(data, 'currency_flows', 'fii_weekly');
+  const usdInr = getIndicatorFromSection(data, 'currency_flows', 'usd_inr');
+
+  const inflationHeadline = getIndicatorFromSection(data, 'growth_inflation', 'inflation_headline');
+  const inflationCore = getIndicatorFromSection(data, 'growth_inflation', 'inflation_core');
+
+  const vixIndia = getIndicatorFromSection(data, 'volatility_sentiment', 'vix_india');
+  const vixGlobal = getIndicatorFromSection(data, 'volatility_sentiment', 'vix_global');
+
+  const crudeOil = getIndicatorFromSection(data, 'oil_commodities', 'crude_oil');
+  const goldPrice = getIndicatorFromSection(data, 'oil_commodities', 'gold_price');
 
   return (
     <div className="bg-gray-900/80 backdrop-blur-sm rounded-xl border border-gray-800 overflow-hidden">
@@ -348,7 +415,7 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
           <span className="text-lg">📊</span>
           <div>
             <h3 className="text-sm font-semibold text-white">Macro Dashboard</h3>
-            <p className="text-xs text-gray-500">India SHORT Environment</p>
+            <p className="text-xs text-gray-500">Key Economic Indicators</p>
           </div>
         </div>
 
@@ -381,27 +448,77 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4 max-h-[600px] overflow-y-auto">
-        {/* Bias Score */}
-        {data.short_bias && (
-          <BiasScoreDisplay bias={data.short_bias} />
-        )}
+      <div className="p-4 space-y-6 max-h-[600px] overflow-y-auto">
+        {/* Interest Rate Yields Section */}
+        <div>
+          <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+            <span>📈</span>
+            <span>Interest Rate Yields</span>
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {india10YYield && <GaugeChart indicator={india10YYield} keyName="india_10y_yield" />}
+            {us10YYield && <GaugeChart indicator={us10YYield} keyName="us_10y_yield" />}
+            {rateDiff && <GaugeChart indicator={rateDiff} keyName="rate_differential" />}
+          </div>
+        </div>
 
-        {/* Sections */}
-        <div className="space-y-2">
-          {sectionOrder.map(key => {
-            const section = sections[key as keyof typeof sections];
-            if (!section) return null;
-            return (
-              <MacroSectionCard
-                key={key}
-                section={section}
-                sectionKey={key}
-                isExpanded={expandedSections[key] || false}
-                onToggle={() => toggleSection(key)}
-              />
-            );
-          })}
+        {/* FII Flow Section */}
+        <div>
+          <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+            <span>💰</span>
+            <span>FII Flow</span>
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {fiiDaily && <FlowBarChart indicator={fiiDaily} keyName="fii_daily" />}
+            {fiiWeekly && <FlowBarChart indicator={fiiWeekly} keyName="fii_weekly" />}
+          </div>
+        </div>
+
+        {/* USD/INR Section */}
+        <div>
+          <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+            <span>💱</span>
+            <span>USD/INR Exchange Rate</span>
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+            {usdInr && <GaugeChart indicator={usdInr} keyName="usd_inr" />}
+          </div>
+        </div>
+
+        {/* Growth & Inflation Section */}
+        <div>
+          <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+            <span>📊</span>
+            <span>Growth & Inflation</span>
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {inflationHeadline && <GaugeChart indicator={inflationHeadline} keyName="inflation_headline" />}
+            {inflationCore && <GaugeChart indicator={inflationCore} keyName="inflation_core" />}
+          </div>
+        </div>
+
+        {/* Volatility (VIX) Section */}
+        <div>
+          <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+            <span>📉</span>
+            <span>Market Volatility (VIX)</span>
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {vixIndia && <GaugeChart indicator={vixIndia} keyName="vix_india" />}
+            {vixGlobal && <GaugeChart indicator={vixGlobal} keyName="vix_global" />}
+          </div>
+        </div>
+
+        {/* Gold & Commodities Section */}
+        <div>
+          <h4 className="text-base font-semibold text-white mb-3 flex items-center gap-2">
+            <span>🪙</span>
+            <span>Gold & Oil Prices</span>
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {goldPrice && <GaugeChart indicator={goldPrice} keyName="gold_price" />}
+            {crudeOil && <GaugeChart indicator={crudeOil} keyName="crude_oil" />}
+          </div>
         </div>
 
         {/* Footer Legend */}
@@ -409,7 +526,7 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
           <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-green-500" />
-              <span>Safe</span>
+              <span>Optimal</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-amber-500" />
@@ -418,10 +535,6 @@ const MacroDashboard: React.FC<MacroDashboardProps> = ({ onClose, compact = fals
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full bg-red-500" />
               <span>Critical</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-red-400">SHORT+</span>
-              <span>= Good for shorts</span>
             </div>
           </div>
         </div>

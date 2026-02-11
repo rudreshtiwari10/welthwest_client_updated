@@ -5,6 +5,33 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { initializePerformanceOptimizations } from './utils/cssLoader';
 
+// Suppress MetaMask/Web3 extension errors that don't affect app functionality
+window.addEventListener('error', (event) => {
+  if (event.message && (
+    event.message.includes('MetaMask') ||
+    event.message.includes('ethereum') ||
+    event.message.includes('web3') ||
+    event.filename?.includes('chrome-extension://')
+  )) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.warn('Browser extension error suppressed:', event.message);
+  }
+});
+
+// Suppress unhandled promise rejections from browser extensions
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && (
+    String(event.reason).includes('MetaMask') ||
+    String(event.reason).includes('ethereum') ||
+    String(event.reason).includes('web3') ||
+    event.reason?.message?.includes('chrome-extension://')
+  )) {
+    event.preventDefault();
+    console.warn('Browser extension promise rejection suppressed:', event.reason);
+  }
+});
+
 // Initialize performance optimizations
 initializePerformanceOptimizations();
 

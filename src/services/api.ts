@@ -1092,7 +1092,18 @@ export const userDataService = {
       throw error;
     }
   },
-  
+
+  // Delete a saved backtest
+  deleteBacktest: async (backtestId: string) => {
+    try {
+      const response = await api.delete(`/user/backtests/${backtestId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting backtest:', error);
+      throw error;
+    }
+  },
+
   // Get user's saved AI analysis results
   getUserAIAnalyses: async () => {
     try {

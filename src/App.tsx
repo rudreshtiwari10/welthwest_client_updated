@@ -39,6 +39,21 @@ import BlogEditorPage from './pages/BlogEditorPage';
 import MarketRegimePage from './pages/MarketRegimePage';
 import MarketForecastingPage from './pages/MarketForecastingPage';
 import MTFScreenerPage from './pages/MTFScreenerPage';
+import MarketRegimeTraderPage from './pages/MarketRegimeTraderPage';
+import RiskCalculatorPage from './pages/RiskCalculatorPage';
+import Phase1Calculator from './pages/RiskCalculator/Phase1Calculator';
+import Phase2Settings from './pages/RiskCalculator/Phase2Settings';
+import Phase3Session from './pages/RiskCalculator/Phase3Session';
+import Phase4Portfolio from './pages/RiskCalculator/Phase4Portfolio';
+import Phase5Journal from './pages/RiskCalculator/Phase5Journal';
+import Phase6Simulations from './pages/RiskCalculator/Phase6Simulations';
+import Phase7Analytics from './pages/RiskCalculator/Phase7Analytics';
+import PortfolioPage from './pages/PortfolioPage';
+import TradeJournalPage from './pages/TradeJournalPage';
+import RiskScenariosPage from './pages/RiskScenariosPage';
+import PortfolioAnalyticsPage from './pages/PortfolioAnalyticsPage';
+import NotificationSettingsPage from './pages/NotificationSettingsPage';
+import BrokerIntegrationPage from './pages/BrokerIntegrationPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminSubscriptionsPage from './pages/AdminSubscriptionsPage';
@@ -48,6 +63,7 @@ import AdminContentPage from './pages/AdminContentPage';
 import AdminSupportTicketsPage from './pages/AdminSupportTicketsPage';
 import AdminActivityLogsPage from './pages/AdminActivityLogsPage';
 import AdminCreateTicketPage from './pages/AdminCreateTicketPage';
+import AIScreenerPage from './pages/AIScreenerPage';
 
 // Components
 import Header from './components/Header';
@@ -207,8 +223,25 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/welthai" element={<WelthAIPage />} />
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
                 <Route path="/welth-market-regime" element={<MarketRegimePage />} />
+                {/* New integrated Market Regime Trader page with AI Pattern Analysis + Risk Calculator */}
+                <Route path="/marketregime" element={<MarketRegimeTraderPage />} />
                 <Route path="/market-forecasting" element={<MarketForecastingPage />} />
                 <Route path="/mtf-screener" element={<MTFScreenerPage />} />
+                <Route path="/ai-screener" element={<AIScreenerPage />} />
+                <Route path="/riskcalculator" element={<RiskCalculatorPage />} />
+                <Route path="/risk-calculator/phase1" element={<Phase1Calculator />} />
+                <Route path="/risk-calculator/phase2" element={<PrivateRoute><Phase2Settings /></PrivateRoute>} />
+                <Route path="/risk-calculator/phase3" element={<PrivateRoute><Phase3Session /></PrivateRoute>} />
+                <Route path="/risk-calculator/phase4" element={<PrivateRoute><Phase4Portfolio /></PrivateRoute>} />
+                <Route path="/risk-calculator/phase5" element={<PrivateRoute><Phase5Journal /></PrivateRoute>} />
+                <Route path="/risk-calculator/phase6" element={<PrivateRoute><Phase6Simulations /></PrivateRoute>} />
+                <Route path="/risk-calculator/phase7" element={<PrivateRoute><Phase7Analytics /></PrivateRoute>} />
+                <Route path="/portfolio" element={<PrivateRoute><PortfolioPage /></PrivateRoute>} />
+                <Route path="/trade-journal" element={<PrivateRoute><TradeJournalPage /></PrivateRoute>} />
+                <Route path="/risk-scenarios" element={<PrivateRoute><RiskScenariosPage /></PrivateRoute>} />
+                <Route path="/portfolio-analytics" element={<PrivateRoute><PortfolioAnalyticsPage /></PrivateRoute>} />
+                <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettingsPage /></PrivateRoute>} />
+                <Route path="/broker-integration" element={<PrivateRoute><BrokerIntegrationPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<WelthChatbotPage />} />
                 <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />
                 <Route path="/technical-analysis" element={<TechnicalAnalysisPage />} />

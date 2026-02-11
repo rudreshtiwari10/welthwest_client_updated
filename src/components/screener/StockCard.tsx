@@ -1,11 +1,11 @@
 /**
  * Stock Card Component - Clean UI
  *
- * Compact card showing SHORT opportunity details
+ * Compact card showing SHORT opportunity details + anomaly badges
  */
 
 import React from 'react';
-import { StockCardData } from '../../services/screenerService';
+import { StockCardData, AnomalyRecord } from '../../services/screenerService';
 
 interface StockCardProps {
   stock: StockCardData;
@@ -13,9 +13,24 @@ interface StockCardProps {
   onClick?: (ticker: string) => void;
 }
 
+const SEVERITY_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  critical: { bg: 'bg-red-500/20', text: 'text-red-300', border: 'border-red-500/50' },
+  high:     { bg: 'bg-orange-500/15', text: 'text-orange-300', border: 'border-orange-500/40' },
+  medium:   { bg: 'bg-amber-500/15', text: 'text-amber-300', border: 'border-amber-500/40' },
+  low:      { bg: 'bg-blue-500/10', text: 'text-blue-300', border: 'border-blue-500/30' },
+};
+
 const StockCard: React.FC<StockCardProps> = ({ stock, rank, onClick }) => {
   const shortScore = stock.short_score || stock.score || 0;
   const gatesPassed = stock.gates_passed || 0;
+  const anomalies = stock.anomalies || [];
+  const hasAnomaly = stock.has_anomaly || anomalies.length > 0;
+
+  // Highest severity among anomalies
+  const maxSeverity = anomalies.reduce((max, a) => {
+    const order = ['low', 'medium', 'high', 'critical'];
+    return order.indexOf(a.severity) > order.indexOf(max) ? a.severity : max;
+  }, 'low' as string);
 
   // Score color
   const getScoreColor = (score: number) => {
@@ -25,10 +40,19 @@ const StockCard: React.FC<StockCardProps> = ({ stock, rank, onClick }) => {
     return 'text-gray-400 bg-gray-500/20';
   };
 
+  // Card border highlight if anomaly detected
+  const cardBorder = hasAnomaly
+    ? (maxSeverity === 'critical'
+        ? 'border-red-500/60 hover:border-red-400'
+        : maxSeverity === 'high'
+          ? 'border-orange-500/40 hover:border-orange-400'
+          : 'border-gray-800 hover:border-gray-700')
+    : 'border-gray-800 hover:border-gray-700';
+
   return (
     <div
       onClick={() => onClick?.(stock.ticker)}
-      className="bg-gray-900 rounded-lg p-4 border border-gray-800 hover:border-gray-700 transition-all cursor-pointer group"
+      className={`bg-gray-900 rounded-lg p-4 border ${cardBorder} transition-all cursor-pointer group`}
     >
       {/* Header: Rank + Symbol + Score */}
       <div className="flex items-start justify-between mb-3">
@@ -41,8 +65,21 @@ const StockCard: React.FC<StockCardProps> = ({ stock, rank, onClick }) => {
             <span className="text-xs text-gray-600">{stock.sector}</span>
           </div>
         </div>
-        <div className={`px-2 py-1 rounded text-sm font-bold ${getScoreColor(shortScore)}`}>
-          {shortScore}
+        <div className="flex items-center gap-1.5">
+          {/* Anomaly count badge */}
+          {hasAnomaly && (
+            <span
+              className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                SEVERITY_STYLES[maxSeverity]?.bg || 'bg-gray-500/20'
+              } ${SEVERITY_STYLES[maxSeverity]?.text || 'text-gray-400'}`}
+              title={anomalies.map(a => a.name).join(', ')}
+            >
+              {anomalies.length} Alert{anomalies.length > 1 ? 's' : ''}
+            </span>
+          )}
+          <div className={`px-2 py-1 rounded text-sm font-bold ${getScoreColor(shortScore)}`}>
+            {shortScore}
+          </div>
         </div>
       </div>
 
@@ -89,6 +126,36 @@ const StockCard: React.FC<StockCardProps> = ({ stock, rank, onClick }) => {
           </div>
         )}
       </div>
+
+      {/* Anomaly Badges */}
+      {hasAnomaly && anomalies.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-gray-800">
+          <div className="flex flex-wrap gap-1">
+            {anomalies.slice(0, 3).map((a: AnomalyRecord, i: number) => {
+              const style = SEVERITY_STYLES[a.severity] || SEVERITY_STYLES.low;
+              return (
+                <span
+                  key={i}
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] ${style.bg} ${style.text} ${style.border}`}
+                  title={`${a.name} (${a.severity}) - Value: ${a.details?.current_value}`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    a.severity === 'critical' ? 'bg-red-400 animate-pulse' :
+                    a.severity === 'high' ? 'bg-orange-400' :
+                    a.severity === 'medium' ? 'bg-amber-400' : 'bg-blue-400'
+                  }`} />
+                  {a.name.length > 20 ? a.name.slice(0, 18) + '...' : a.name}
+                </span>
+              );
+            })}
+            {anomalies.length > 3 && (
+              <span className="text-[10px] text-gray-500 px-1">
+                +{anomalies.length - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Footer: Gates + Regime */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-800">

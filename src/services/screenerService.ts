@@ -35,6 +35,20 @@ export interface TradeSetup {
   risk_percentage: number;
 }
 
+// Anomaly detection types
+export interface AnomalyRecord {
+  code: string;
+  name: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  timeframe: string;
+  window_bars: number;
+  details: {
+    current_value: number;
+    threshold: number;
+    supporting_features: string[];
+  };
+}
+
 export interface StockCardData {
   symbol: string;
   ticker: string;
@@ -73,6 +87,10 @@ export interface StockCardData {
   close_near_low?: boolean;        // FIX #2: Close near lows
   regime_gated?: boolean;          // FIX #4: Was regime gating applied
   short_strength?: string;         // 'STRONG' | 'MODERATE' | 'WEAK' | 'NONE'
+
+  // Anomaly detection fields
+  anomalies?: AnomalyRecord[];
+  has_anomaly?: boolean;
 }
 
 export interface ScreeningResult {
@@ -236,7 +254,17 @@ export const screenerService = {
   // ==========================================
 
   /**
-   * Get top SHORT opportunities for a timeframe
+   * Get top HIGH-PERFORMANCE (LONG) opportunities for a timeframe
+   * SEBI-Compliant: "High Performance" instead of "BUY/LONG"
+   */
+  getTopLongs: async (timeframe: Timeframe): Promise<LongsScreeningResult> => {
+    const response = await api.get(`/mtf-screener/longs/${timeframe}`);
+    return response.data;
+  },
+
+  /**
+   * Get top CORRECTION WATCH (SHORT) opportunities for a timeframe
+   * SEBI-Compliant: "Correction Watch" instead of "SELL/SHORT"
    */
   getTopShorts: async (timeframe: Timeframe): Promise<ShortsScreeningResult> => {
     const response = await api.get(`/mtf-screener/shorts/${timeframe}`);
@@ -266,10 +294,90 @@ export const screenerService = {
   getRegimeStripShort: async (): Promise<RegimeStripData & { short_interpretation: string; short_favorable: boolean }> => {
     const response = await api.get('/mtf-screener/regime-strip-short');
     return response.data;
+  },
+
+  // ==========================================
+  // DYNAMIC NIFTY 50 STOCK UNIVERSE ENDPOINTS
+  // ==========================================
+
+  /**
+   * Get current stock universe information
+   */
+  getStockUniverse: async (): Promise<StockUniverseInfo> => {
+    const response = await api.get('/mtf-screener/stock-universe');
+    return response.data;
+  },
+
+  /**
+   * Refresh NIFTY 50 stock universe from NSE API
+   */
+  refreshStockUniverse: async (): Promise<{ status: string; message: string; data: StockUniverseInfo }> => {
+    const response = await api.post('/mtf-screener/refresh-stock-universe');
+    return response.data;
+  },
+
+  /**
+   * Get simple NIFTY 50 stock list
+   */
+  getNifty50List: async (format: 'simple' | 'detailed' = 'simple', forceRefresh: boolean = false): Promise<Nifty50Response> => {
+    const params = new URLSearchParams();
+    params.append('format', format);
+    if (forceRefresh) params.append('refresh', 'true');
+
+    const response = await api.get(`/mtf-screener/nifty50?${params.toString()}`);
+    return response.data;
+  },
+
+  /**
+   * Get ALL data for a timeframe in one call: longs, shorts, heatmap, and regime.
+   * This replaces 3 separate calls (getTopLongs + getTopShorts + getSectorHeatmap)
+   * plus the regime-strip-short call, dramatically reducing load time.
+   */
+  getFullData: async (timeframe: Timeframe): Promise<FullDataResult> => {
+    const response = await api.get(`/mtf-screener/full-data/${timeframe}`);
+    return response.data;
   }
 };
 
-// Additional types for SHORT endpoints
+// Full data result from unified endpoint
+export interface FullDataResult {
+  status: string;
+  timeframe: string;
+  regime_strip: RegimeStripData & {
+    short_interpretation?: string;
+    short_favorable?: boolean;
+    short_score_multiplier?: number;
+    short_strategy?: string;
+    target_extension?: number;
+  };
+  top_longs: StockCardData[];
+  longs_found: number;
+  top_shorts: StockCardData[];
+  shorts_found: number;
+  sectors: {
+    [key: string]: SectorData;
+  };
+  total_screened: number;
+  qualified_count: number;
+  processing_time_seconds: number;
+  timestamp: string;
+  from_cache?: boolean;
+}
+
+// Additional types for LONG/SHORT endpoints
+export interface LongsScreeningResult {
+  status: string;
+  timeframe: string;
+  mode: 'HIGH_PERFORMANCE';
+  description: string;
+  disclaimer: string;
+  regime_strip: RegimeStripData;
+  top_longs: StockCardData[];
+  total_screened: number;
+  longs_found: number;
+  timestamp: string;
+}
+
 export interface ShortsScreeningResult {
   status: string;
   timeframe: string;
@@ -335,6 +443,40 @@ export const formatPrice = (price: number): string => {
 export const formatPercentage = (value: number): string => {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
 };
+
+// ==========================================
+// DYNAMIC STOCK UNIVERSE TYPES
+// ==========================================
+
+export interface StockUniverseInfo {
+  stocks: string[];
+  total_count: number;
+  sectors: {
+    [ticker: string]: string;
+  };
+  sector_distribution: {
+    [sector: string]: number;
+  };
+  last_updated: string | null;
+  cache_expires: string | null;
+  source: string;
+}
+
+export interface DetailedStock {
+  ticker: string;
+  symbol: string;
+  sector: string;
+}
+
+export interface Nifty50Response {
+  status: string;
+  format: 'simple' | 'detailed';
+  stocks: string[] | DetailedStock[];
+  total_count: number;
+  description?: string;
+  last_updated?: string;
+  source?: string;
+}
 
 // ==========================================
 // MACRO DASHBOARD TYPES & ENDPOINTS
