@@ -1439,5 +1439,63 @@ export const activityService = {
   }
 };
 
+// Notification service
+export const notificationService = {
+  // Get user notifications
+  getNotifications: async () => {
+    try {
+      const response = await api.get('/notifications');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting notifications:', error);
+      throw error;
+    }
+  },
+
+  // Mark notification as read
+  markAsRead: async (notificationId: string) => {
+    try {
+      const response = await api.put(`/notifications/${notificationId}/read`);
+      return response.data;
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      throw error;
+    }
+  },
+
+  // Mark all notifications as read
+  markAllAsRead: async () => {
+    try {
+      const response = await api.put('/notifications/read-all');
+      return response.data;
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
+      throw error;
+    }
+  },
+
+  // Delete notification
+  deleteNotification: async (notificationId: string) => {
+    try {
+      const response = await api.delete(`/notifications/${notificationId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      throw error;
+    }
+  },
+
+  // Get unread count
+  getUnreadCount: async () => {
+    try {
+      const response = await api.get('/notifications/unread-count');
+      return response.data;
+    } catch (error) {
+      console.error('Error getting unread count:', error);
+      return { count: 0 };
+    }
+  }
+};
+
 // Export the axios instance as default for use in other services (like adminService)
 export default api;

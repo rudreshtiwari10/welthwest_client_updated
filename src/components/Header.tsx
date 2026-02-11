@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './NotificationBell';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon, CpuChipIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import WelthAIPage from '../pages/WelthAIPage';
 import WelthChatbotPage from '../pages/WelthChatbotPage';
@@ -375,7 +376,10 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
             {/* Theme Toggle */}
             <ThemeToggle />
-            
+
+            {/* Notification Bell */}
+            {isAuthenticated && <NotificationBell />}
+
             {/* Pro Button */}
             <Link
               to="/premium"

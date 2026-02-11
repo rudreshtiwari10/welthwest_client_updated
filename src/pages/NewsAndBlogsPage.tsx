@@ -77,8 +77,14 @@ const NewsAndBlogsPage: React.FC = () => {
       setBlogsLoading(true);
       const response = await newsBlogService.getBlogs(currentPage, 9);
       if (response.success) {
-        setAllBlogs(response.blogs); // Store all blogs
-        setBlogs(response.blogs); // Set initial display
+        console.log('Fetched blogs:', response.blogs); // Debug log
+        // Ensure all blogs have a slug (use _id as fallback)
+        const blogsWithSlug = response.blogs.map(blog => ({
+          ...blog,
+          slug: blog.slug || blog._id // Fallback to _id if slug is missing
+        }));
+        setAllBlogs(blogsWithSlug); // Store all blogs
+        setBlogs(blogsWithSlug); // Set initial display
         setTotalPages(response.totalPages);
       }
     } catch (error) {
@@ -351,7 +357,11 @@ const NewsAndBlogsPage: React.FC = () => {
                   {blogs.map((blog) => (
                     <div
                       key={blog._id}
-                      onClick={() => navigate(`/blog/${blog.slug}`)}
+                      onClick={() => {
+                        const blogSlug = blog.slug || blog._id;
+                        console.log('Navigating to blog:', { slug: blog.slug, _id: blog._id, using: blogSlug });
+                        navigate(`/blog/${blogSlug}`);
+                      }}
                       className="group bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer"
                     >
                       {blog.imageUrl && (
