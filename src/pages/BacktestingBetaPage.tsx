@@ -1121,35 +1121,31 @@ const BacktestingBetaPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
         {/* Header */}
-        <div className="relative mb-8 sm:mb-12 mt-8 sm:mt-12">
+        <div className="relative mb-6 sm:mb-8 mt-8 sm:mt-12">
           <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">
               Backtest (Beta)
             </h1>
-            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 px-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 px-2">
               Comprehensive backtesting with advanced analytics and visualization
             </p>
-            <div className="mt-4 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-              <span className="w-2 h-2 bg-blue-600 rounded-full mr-2"></span>
-              Beta Version - Enhanced Features
-            </div>
           </div>
 
           {/* Login Prompt for Non-Authenticated Users */}
           {!user && (
-            <div className="absolute top-0 right-4 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-lg shadow-lg px-4 py-3 text-white">
+            <div className="absolute top-0 right-4 bg-gray-900 dark:bg-gray-800 rounded-lg shadow-lg px-4 py-3 text-white border border-gray-700">
               <div className="flex items-center space-x-3">
                 <BoltIcon className="h-5 w-5" />
                 <div>
                   <div className="font-semibold text-sm">Login to Use This Feature</div>
-                  <div className="text-xs opacity-90">Sign in to access Backtesting</div>
+                  <div className="text-xs opacity-70">Sign in to access Backtesting</div>
                 </div>
                 <button
                   onClick={() => window.location.href = '/login'}
-                  className="px-4 py-2 bg-white text-blue-600 hover:bg-opacity-90 rounded-md text-sm font-medium transition-all whitespace-nowrap shadow-md"
+                  className="px-4 py-2 bg-white text-gray-900 hover:bg-gray-100 rounded-md text-sm font-medium transition-all whitespace-nowrap"
                 >
                   Login
                 </button>
@@ -1159,8 +1155,8 @@ const BacktestingBetaPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-8 sm:mb-12">
-          <nav className="flex space-x-2 sm:space-x-10 bg-white dark:bg-gray-800 rounded-lg shadow-md p-1 sm:p-2" aria-label="Tabs">
+        <div className="flex justify-center mb-6 sm:mb-8">
+          <nav className="flex space-x-1 sm:space-x-2 bg-gray-100 dark:bg-gray-900 rounded-lg p-1" aria-label="Tabs">
             {[
               { id: 'parameters', name: 'Parameters', icon: CogIcon },
               { id: 'results', name: 'Results', icon: DocumentTextIcon },
@@ -1172,11 +1168,11 @@ const BacktestingBetaPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`${
                   activeTab === tab.id
-                    ? 'bg-blue-50 dark:bg-blue-900 text-blue-600 dark:text-blue-300 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-                } whitespace-nowrap py-2 sm:py-3 px-3 sm:px-6 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
+                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                } whitespace-nowrap py-2 sm:py-2.5 px-3 sm:px-5 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
               >
-                <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" />
+                <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                 {tab.name}
               </button>
             ))}
@@ -1190,16 +1186,13 @@ const BacktestingBetaPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
+            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6 lg:p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
-                
+
                 {/* Basic Parameters */}
                 <div className="space-y-6">
-                  <div className="flex items-center space-x-2 pb-2 border-b border-gray-200 dark:border-gray-700">
-                    <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                  <div className="flex items-center space-x-2 pb-2 border-b border-gray-200 dark:border-gray-800">
+                    <CogIcon className="h-5 w-5 text-gray-400" />
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Parameters</h3>
                   </div>
                   
@@ -1548,7 +1541,7 @@ const BacktestingBetaPage: React.FC = () => {
                 <button
                   onClick={runBacktest}
                   disabled={isLoading || Object.keys(params.selected_indicators).length === 0}
-                  className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 border border-transparent text-sm sm:text-base font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="inline-flex items-center px-6 sm:px-8 py-3 sm:py-4 border border-transparent text-sm sm:text-base font-medium rounded-lg shadow-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                 >
                   {isLoading ? (
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
@@ -1560,13 +1553,8 @@ const BacktestingBetaPage: React.FC = () => {
               </div>
 
               {error && (
-                <div className="mt-6 p-5 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg shadow-sm">
-                  <div className="flex items-center">
-                    <svg className="h-6 w-6 text-red-600 dark:text-red-400 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-red-800 dark:text-red-200 font-medium">{error}</p>
-                  </div>
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+                  <p className="text-gray-900 dark:text-white text-sm">{error}</p>
                 </div>
               )}
             </div>
@@ -1588,12 +1576,12 @@ const BacktestingBetaPage: React.FC = () => {
                   <button
                     onClick={handleSaveBacktest}
                     disabled={saveStatus.saving}
-                    className={`px-4 py-2 rounded-md ${
-                      saveStatus.saving ? 'bg-gray-400' : 
-                      saveStatus.success === true ? 'bg-green-500' : 
-                      saveStatus.success === false ? 'bg-red-500' : 
-                      'bg-blue-600 hover:bg-blue-700'
-                    } text-white transition-colors`}
+                    className={`px-4 py-2 rounded-md text-sm font-medium ${
+                      saveStatus.saving ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400' :
+                      saveStatus.success === true ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' :
+                      saveStatus.success === false ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' :
+                      'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
+                    } transition-colors`}
                   >
                     {saveStatus.saving ? 'Saving...' : 
                      saveStatus.success === true ? 'Saved!' : 
@@ -1610,43 +1598,43 @@ const BacktestingBetaPage: React.FC = () => {
               )}
 
               {/* Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Return</h3>
-                  <p className={`text-xl sm:text-2xl font-bold ${result.metrics.Total_Return >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
+                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Return</h3>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {formatCurrency(result.metrics.Total_Return)}
                   </p>
-                  <p className={`text-sm ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    {result.metrics.Total_Return_Pct.toFixed(2)}%
+                  <p className={`text-sm ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                    {result.metrics.Total_Return_Pct >= 0 ? '+' : ''}{result.metrics.Total_Return_Pct.toFixed(2)}%
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Win Rate</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-blue-600">
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
+                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Win Rate</h3>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {result.metrics.Win_Rate.toFixed(1)}%
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {result.metrics.Number_of_Trades} trades
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Sharpe Ratio</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-purple-600">
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
+                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sharpe Ratio</h3>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {result.metrics.Sharpe_Ratio.toFixed(3)}
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Risk-adjusted return
                   </p>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg">
-                  <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Max Drawdown</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-red-600">
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
+                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Max Drawdown</h3>
+                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
                     {result.metrics.Max_Drawdown.toFixed(2)}%
                   </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Maximum loss
                   </p>
                 </div>
@@ -1657,18 +1645,18 @@ const BacktestingBetaPage: React.FC = () => {
                 isNaN(result.metrics.Number_of_Trades) || 
                 result.metrics.Win_Rate === 0 || 
                 isNaN(result.metrics.Win_Rate)) && (
-                <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-l-4 border-amber-400 p-4 sm:p-6 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 rounded-lg">
                   <div className="flex items-start">
                     <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
                       </svg>
                     </div>
                     <div className="ml-3 sm:ml-4">
-                      <h3 className="text-base sm:text-lg font-semibold text-amber-800 dark:text-amber-200">
-                        ⚠️ No Trading Signals Generated
+                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                        No Trading Signals Generated
                       </h3>
-                      <div className="mt-2 sm:mt-3 text-amber-700 dark:text-amber-300">
+                      <div className="mt-2 sm:mt-3 text-gray-600 dark:text-gray-300">
                         <p className="text-sm font-medium mb-2">
                           Your selected indicators are not generating any trading signals. This typically happens when:
                         </p>
@@ -1678,23 +1666,23 @@ const BacktestingBetaPage: React.FC = () => {
                           <li>Market conditions don't align with your indicator combination</li>
                         </ul>
                       </div>
-                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-lg border border-amber-200 dark:border-amber-800">
-                        <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">💡 Suggested Solutions:</h4>
-                        <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Suggested Solutions:</h4>
+                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                           <div className="flex items-start space-x-2">
-                            <span className="font-medium text-blue-600 dark:text-blue-400">1.</span>
+                            <span className="font-medium text-gray-900 dark:text-white">1.</span>
                             <span>**Lower the voting threshold** to {Math.max(0.3, (params.voting_threshold - 0.2)).toFixed(1)} ({(Math.max(0.3, (params.voting_threshold - 0.2)) * 100).toFixed(0)}%) or less</span>
                           </div>
                           <div className="flex items-start space-x-2">
-                            <span className="font-medium text-blue-600 dark:text-blue-400">2.</span>
+                            <span className="font-medium text-gray-900 dark:text-white">2.</span>
                             <span>**Reduce the number of indicators** - Try using 2-3 complementary indicators instead of {Object.keys(params.selected_indicators).length}</span>
                           </div>
                           <div className="flex items-start space-x-2">
-                            <span className="font-medium text-blue-600 dark:text-blue-400">3.</span>
+                            <span className="font-medium text-gray-900 dark:text-white">3.</span>
                             <span>**Adjust indicator parameters** - Try more sensitive settings (lower RSI periods, shorter MA periods)</span>
                           </div>
                           <div className="flex items-start space-x-2">
-                            <span className="font-medium text-blue-600 dark:text-blue-400">4.</span>
+                            <span className="font-medium text-gray-900 dark:text-white">4.</span>
                             <span>**Try different time periods** - Switch to shorter timeframes (1h instead of 1d) for more signals</span>
                           </div>
                         </div>
@@ -1705,13 +1693,13 @@ const BacktestingBetaPage: React.FC = () => {
                             setParams(prev => ({ ...prev, voting_threshold: Math.max(0.3, prev.voting_threshold - 0.2) }));
                             setActiveTab('parameters');
                           }}
-                          className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium rounded-lg transition-colors"
+                          className="px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
                         >
                           Lower Threshold to {(Math.max(0.3, (params.voting_threshold - 0.2)) * 100).toFixed(0)}%
                         </button>
                         <button
                           onClick={() => setActiveTab('parameters')}
-                          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors"
+                          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors"
                         >
                           Adjust Parameters
                         </button>
@@ -1722,41 +1710,39 @@ const BacktestingBetaPage: React.FC = () => {
               )}
 
               {/* Detailed Metrics with Charts */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+              <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">Detailed Performance Metrics</h3>
 
                 {/* Charts Section */}
                 <div className="mb-8 space-y-6">
                   {/* Candlestick Chart - Full Width */}
-                  <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 lg:mb-6 space-y-2 sm:space-y-0">
+                  <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3 sm:p-4 lg:p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
                       <div>
-                        <h4 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
-                          📊 Price Chart with Trading Signals
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                          Price Chart with Trading Signals
                         </h4>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          Candlestick chart showing buy/sell signals and price action
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          Candlestick chart showing buy/sell signals
                         </p>
                       </div>
-                      <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 sm:px-3 py-1 rounded-full">
-                        {result.summary.symbol} • {result.summary.timeframe}
+                      <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                        {result.summary.symbol} · {result.summary.timeframe}
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
+                    <div className="bg-white rounded-lg p-2 sm:p-3 lg:p-4 border border-gray-200 dark:border-gray-300">
                       <div className="w-full overflow-x-auto">
                         <Plot
                           data={(() => {
-                            // Filter to show only candlestick and signal markers (no indicators, no volume)
+                            // Filter to show only candlestick + buy/sell markers (no signal lines, no indicators, no volume)
                             const chartData = simplifyChartData(result.charts.candlestick).data;
                             return chartData.filter((trace: any) => {
-                              // Keep only: Candlestick, Buy Signals, Sell Signals
                               const traceName = trace.name?.toLowerCase() || '';
                               return (
                                 trace.type === 'candlestick' ||
                                 traceName.includes('buy') ||
-                                traceName.includes('sell') ||
-                                (traceName.includes('signal') && !traceName.includes('volume'))
+                                traceName.includes('sell')
                               );
                             });
                           })()}
@@ -1767,25 +1753,31 @@ const BacktestingBetaPage: React.FC = () => {
                               l: 60, r: 40, t: 50, b: 70,
                               pad: 8
                             },
-                            paper_bgcolor: 'rgba(0,0,0,0)',
-                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            paper_bgcolor: '#ffffff',
+                            plot_bgcolor: '#ffffff',
                             xaxis: {
-                              title: 'Date',
+                              title: { text: 'Date', font: { color: '#374151' } },
                               gridcolor: '#e5e7eb',
-                              showgrid: true
+                              showgrid: true,
+                              tickfont: { color: '#374151' },
+                              linecolor: '#d1d5db'
                             },
                             yaxis: {
-                              title: 'Price (INR)',
+                              title: { text: 'Price (INR)', font: { color: '#374151' } },
                               gridcolor: '#e5e7eb',
-                              showgrid: true
+                              showgrid: true,
+                              tickfont: { color: '#374151' },
+                              linecolor: '#d1d5db'
                             },
+                            font: { color: '#374151' },
                             showlegend: true,
                             legend: {
                               x: 0,
                               y: 1,
-                              bgcolor: 'rgba(255,255,255,0.8)',
+                              bgcolor: 'rgba(255,255,255,0.95)',
                               bordercolor: '#e5e7eb',
-                              borderwidth: 1
+                              borderwidth: 1,
+                              font: { color: '#374151' }
                             },
                             hovermode: 'x unified'
                           }}
@@ -1812,17 +1804,17 @@ const BacktestingBetaPage: React.FC = () => {
                   {/* Equity Curve and Drawdown - Side by Side */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Equity Curve */}
-                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4">
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3 sm:p-4">
                       <div className="mb-3">
-                        <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                          📈 Portfolio Equity Curve
+                        <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                          Portfolio Equity Curve
                         </h4>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           Portfolio value over time
                         </p>
                       </div>
 
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
+                      <div className="bg-white rounded-lg p-2 border border-gray-200 dark:border-gray-300">
                         <div className="h-[250px] w-full">
                           <Plot
                             data={JSON.parse(result.charts.equity_curve).data}
@@ -1833,8 +1825,8 @@ const BacktestingBetaPage: React.FC = () => {
                                 l: 50, r: 20, t: 20, b: 40,
                                 pad: 4
                               },
-                              paper_bgcolor: 'rgba(0,0,0,0)',
-                              plot_bgcolor: 'rgba(0,0,0,0)',
+                              paper_bgcolor: '#ffffff',
+                              plot_bgcolor: '#ffffff',
                               font: {
                                 color: '#374151',
                                 family: 'Inter, system-ui, sans-serif',
@@ -1842,12 +1834,16 @@ const BacktestingBetaPage: React.FC = () => {
                               },
                               showlegend: false,
                               xaxis: {
-                                tickfont: { size: 8 },
-                                title: { font: { size: 9 } }
+                                tickfont: { size: 8, color: '#374151' },
+                                title: { font: { size: 9, color: '#374151' } },
+                                gridcolor: '#e5e7eb',
+                                linecolor: '#d1d5db'
                               },
                               yaxis: {
-                                tickfont: { size: 8 },
-                                title: { font: { size: 9 } }
+                                tickfont: { size: 8, color: '#374151' },
+                                title: { font: { size: 9, color: '#374151' } },
+                                gridcolor: '#e5e7eb',
+                                linecolor: '#d1d5db'
                               }
                             }}
                             config={{
@@ -1862,15 +1858,15 @@ const BacktestingBetaPage: React.FC = () => {
 
                       {/* Equity Stats */}
                       <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                        <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-lg">
-                          <div className="font-medium text-green-700 dark:text-green-300">Final Value</div>
-                          <div className="text-sm font-bold text-green-600 dark:text-green-400">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="font-medium text-gray-500 dark:text-gray-400">Final Value</div>
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
                             {formatCurrency(result.metrics.Total_Return + (params.initial_capital || 100000))}
                           </div>
                         </div>
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg">
-                          <div className="font-medium text-blue-700 dark:text-blue-300">Total Return</div>
-                          <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="font-medium text-gray-500 dark:text-gray-400">Total Return</div>
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
                             {result.metrics.Total_Return_Pct.toFixed(2)}%
                           </div>
                         </div>
@@ -1878,17 +1874,17 @@ const BacktestingBetaPage: React.FC = () => {
                     </div>
 
                     {/* Drawdown Chart */}
-                    <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4">
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-800 p-3 sm:p-4">
                       <div className="mb-3">
-                        <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                          📉 Drawdown Analysis
+                        <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
+                          Drawdown Analysis
                         </h4>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                           Peak-to-trough decline
                         </p>
                       </div>
 
-                      <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2">
+                      <div className="bg-white rounded-lg p-2 border border-gray-200 dark:border-gray-300">
                         <div className="h-[250px] w-full">
                           <Plot
                             data={JSON.parse(result.charts.drawdown).data}
@@ -1899,8 +1895,8 @@ const BacktestingBetaPage: React.FC = () => {
                                 l: 50, r: 20, t: 20, b: 40,
                                 pad: 4
                               },
-                              paper_bgcolor: 'rgba(0,0,0,0)',
-                              plot_bgcolor: 'rgba(0,0,0,0)',
+                              paper_bgcolor: '#ffffff',
+                              plot_bgcolor: '#ffffff',
                               font: {
                                 color: '#374151',
                                 family: 'Inter, system-ui, sans-serif',
@@ -1908,12 +1904,16 @@ const BacktestingBetaPage: React.FC = () => {
                               },
                               showlegend: false,
                               xaxis: {
-                                tickfont: { size: 8 },
-                                title: { font: { size: 9 } }
+                                tickfont: { size: 8, color: '#374151' },
+                                title: { font: { size: 9, color: '#374151' } },
+                                gridcolor: '#e5e7eb',
+                                linecolor: '#d1d5db'
                               },
                               yaxis: {
-                                tickfont: { size: 8 },
-                                title: { font: { size: 9 } }
+                                tickfont: { size: 8, color: '#374151' },
+                                title: { font: { size: 9, color: '#374151' } },
+                                gridcolor: '#e5e7eb',
+                                linecolor: '#d1d5db'
                               }
                             }}
                             config={{
@@ -1928,15 +1928,15 @@ const BacktestingBetaPage: React.FC = () => {
 
                       {/* Drawdown Stats */}
                       <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                        <div className="bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
-                          <div className="font-medium text-red-700 dark:text-red-300">Max Drawdown</div>
-                          <div className="text-sm font-bold text-red-600 dark:text-red-400">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="font-medium text-gray-500 dark:text-gray-400">Max Drawdown</div>
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
                             {result.metrics.Max_Drawdown.toFixed(2)}%
                           </div>
                         </div>
-                        <div className="bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg">
-                          <div className="font-medium text-purple-700 dark:text-purple-300">Calmar Ratio</div>
-                          <div className="text-sm font-bold text-purple-600 dark:text-purple-400">
+                        <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <div className="font-medium text-gray-500 dark:text-gray-400">Calmar Ratio</div>
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
                             {result.metrics.Calmar_Ratio.toFixed(3)}
                           </div>
                         </div>
@@ -1996,7 +1996,7 @@ const BacktestingBetaPage: React.FC = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Best Trade:</span>
-                        <span className="text-sm font-medium text-green-600">{formatCurrency(result.metrics.Best_Trade)}</span>
+                        <span className="text-sm font-medium text-gray-900 dark:text-white">{formatCurrency(result.metrics.Best_Trade)}</span>
                       </div>
                     </div>
                   </div>
@@ -2005,12 +2005,12 @@ const BacktestingBetaPage: React.FC = () => {
 
               {/* Trades Table */}
               {result.trades.length > 0 && (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+                <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Trade History</h3>
-                  
+
                   <div className="overflow-x-auto -mx-4 sm:mx-0">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                      <thead className="bg-gray-50 dark:bg-gray-700">
+                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                      <thead className="bg-gray-50 dark:bg-gray-800/60">
                         <tr>
                           <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Entry Date
@@ -2038,7 +2038,7 @@ const BacktestingBetaPage: React.FC = () => {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                      <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
                         {result.trades.slice(0, 10).map((trade, index) => (
                           <tr key={index}>
                             <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -2091,7 +2091,7 @@ const BacktestingBetaPage: React.FC = () => {
 
               {/* Monte Carlo Results */}
               {result.monte_carlo && (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
+                <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Monte Carlo Analysis</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -2114,13 +2114,13 @@ const BacktestingBetaPage: React.FC = () => {
                       <div className="space-y-1">
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600 dark:text-gray-400">VaR (95%):</span>
-                          <span className="text-sm font-medium text-red-600">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
                             {result.monte_carlo.statistics['VaR_95.0%'].toFixed(2)}%
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-sm text-gray-600 dark:text-gray-400">Loss Probability:</span>
-                          <span className="text-sm font-medium text-red-600">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
                             {result.monte_carlo.statistics.Probability_of_Loss.toFixed(1)}%
                           </span>
                         </div>

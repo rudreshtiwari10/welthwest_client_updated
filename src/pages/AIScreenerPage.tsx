@@ -43,13 +43,13 @@ const regimeLabels: Record<string, string> = {
 };
 
 const scoreColor = (s: number) =>
-  s >= 70 ? 'text-green-400' : s >= 50 ? 'text-yellow-400' : s >= 30 ? 'text-orange-400' : 'text-red-400';
+  s >= 70 ? 'text-green-500 dark:text-green-400' : s >= 50 ? 'text-yellow-600 dark:text-yellow-400' : s >= 30 ? 'text-orange-500 dark:text-orange-400' : 'text-red-500 dark:text-red-400';
 
 const severityColor: Record<string, string> = {
-  critical: 'bg-red-600 text-white',
-  high: 'bg-orange-500 text-white',
-  medium: 'bg-yellow-500 text-black',
-  low: 'bg-blue-500 text-white',
+  critical: 'bg-red-600 text-white dark:bg-red-600 dark:text-white',
+  high: 'bg-orange-500 text-white dark:bg-orange-500 dark:text-white',
+  medium: 'bg-yellow-400 text-black dark:bg-yellow-500 dark:text-black',
+  low: 'bg-blue-500 text-white dark:bg-blue-500 dark:text-white',
 };
 
 const TIMEFRAME_OPTIONS: { value: AIScreenerTimeframe; label: string; sub: string }[] = [
@@ -208,169 +208,115 @@ const AIScreenerPage: React.FC = () => {
 
   /* ────────────────────── RENDER ────────────────────── */
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-indigo-800 px-6 py-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold">AI Stock Screener</h1>
-          <p className="text-purple-200 mt-1 text-sm">
-            Regime-aware pre-momentum detection for NSE / NIFTY 50
+    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
+      <div className="max-w-7xl mx-auto px-4 pt-6 pb-8 space-y-5">
+
+        {/* ── Page Title + Run Button (centered together) ─── */}
+        <div className="text-center pt-2 pb-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Stock Screener</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
+            Regime-aware pre-momentum detection &middot; NSE / NIFTY 50
           </p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* ── Market Overview Cards ─── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Regime */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Market Regime</div>
-            {regime ? (
-              <>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className={`w-3 h-3 rounded-full ${regimeColors[regime.regime] || 'bg-gray-500'}`} />
-                  <span className="text-lg font-semibold">{regimeLabels[regime.regime] || regime.regime}</span>
-                </div>
-                <p className="text-sm text-gray-400">{regime.description}</p>
-                <div className="mt-2 text-xs text-gray-500">
-                  Confidence: {(regime.confidence * 100).toFixed(0)}%
-                  {regime.nifty_current && ` · NIFTY: ₹${regime.nifty_current.toLocaleString()}`}
-                </div>
-              </>
-            ) : (
-              <span className="text-gray-500 text-sm">Loading...</span>
-            )}
-          </div>
-
-          {/* VIX */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">India VIX</div>
-            {vix ? (
-              <>
-                <div className="text-lg font-semibold">{vix.current}</div>
-                <div className={`text-sm ${vix.change_pct >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                  {pct(vix.change_pct)} from prev close
-                </div>
-                <div className="mt-1 text-xs text-gray-500">{vix.interpretation}</div>
-              </>
-            ) : (
-              <span className="text-gray-500 text-sm">Loading...</span>
-            )}
-          </div>
-
-          {/* Screen Stats */}
-          <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-            <div className="text-xs text-gray-400 uppercase tracking-wider mb-2">Last Screen</div>
-            {screenData ? (
-              <>
-                <div className="text-lg font-semibold">{screenData.results_count} stocks</div>
-                <div className="text-sm text-gray-400">
-                  Screened {screenData.total_screened} · {new Date(screenData.timestamp).toLocaleTimeString()}
-                </div>
-              </>
-            ) : (
-              <span className="text-gray-500 text-sm">No results yet</span>
-            )}
-          </div>
+          <button
+            onClick={runFullScreen}
+            disabled={loading}
+            className="mt-3 px-10 py-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-lg font-semibold text-base shadow-md shadow-primary-600/20 transition"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                Screening...
+              </span>
+            ) : 'Run Full Screen'}
+          </button>
         </div>
 
-        {/* ── Timeframe Selector ─── */}
-        <div className="flex gap-3">
-          {TIMEFRAME_OPTIONS.map((tf) => {
-            const active = tf.value === timeframe;
-            const cached = screenCache[tf.value];
-            const isCached = cached && Date.now() - cached.timestamp < CACHE_TTL_MS;
-            const cacheAgeMin = cached ? Math.floor((Date.now() - cached.timestamp) / 60000) : 0;
-            return (
-              <button
-                key={tf.value}
-                onClick={() => setTimeframe(tf.value)}
-                disabled={loading}
-                className={`
-                  relative flex flex-col items-center px-6 py-3 rounded-xl border transition-all
-                  ${active
-                    ? 'bg-purple-600/20 border-purple-500 text-white'
-                    : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600 hover:text-gray-200'}
-                  ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                `}
-              >
-                <span className="font-bold text-base">{tf.label}</span>
-                <span className="text-xs opacity-70">{tf.sub}</span>
-                {isCached && !active && (
-                  <span className="text-[10px] text-green-400 mt-1">{cacheAgeMin < 1 ? 'just now' : `${cacheAgeMin}m ago`}</span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* ── Controls ─── */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Full Screen */}
-            <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">Full NIFTY 50 Screen</label>
-              <div className="flex gap-2">
-                <button
-                  onClick={runFullScreen}
-                  disabled={loading}
-                  className="px-5 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 rounded-lg font-medium text-sm transition"
-                >
-                  {loading ? 'Screening...' : 'Run Full Screen'}
-                </button>
-                <select
-                  value={minScore}
-                  onChange={(e) => setMinScore(Number(e.target.value))}
-                  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value={0}>Min Score: 0</option>
-                  <option value={30}>Min Score: 30</option>
-                  <option value={50}>Min Score: 50</option>
-                  <option value={60}>Min Score: 60</option>
-                </select>
-                {sectors.length > 0 && (
-                  <select
-                    value={sectorFilter}
-                    onChange={(e) => setSectorFilter(e.target.value)}
-                    className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm"
+        {/* ── Timeframe + Filters ─── */}
+        <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* Timeframe pills — left */}
+            <div className="flex items-center gap-2">
+              {TIMEFRAME_OPTIONS.map((tf) => {
+                const active = tf.value === timeframe;
+                const cached = screenCache[tf.value];
+                const isCached = cached && Date.now() - cached.timestamp < CACHE_TTL_MS;
+                const cacheAgeMin = cached ? Math.floor((Date.now() - cached.timestamp) / 60000) : 0;
+                return (
+                  <button
+                    key={tf.value}
+                    onClick={() => setTimeframe(tf.value)}
+                    disabled={loading}
+                    className={`
+                      relative px-4 py-2 rounded-lg text-sm font-medium border transition-all
+                      ${active
+                        ? 'bg-primary-600 border-primary-500 text-white shadow-sm'
+                        : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-primary-300 dark:hover:border-gray-500'}
+                      ${loading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                    `}
                   >
-                    <option value="">All Sectors</option>
-                    {sectors.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                )}
-              </div>
+                    {tf.label}
+                    {isCached && !active && (
+                      <span className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[8px] px-1 rounded-full leading-tight">
+                        {cacheAgeMin < 1 ? 'new' : `${cacheAgeMin}m`}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Quick Screen */}
-            <div className="flex-1">
-              <label className="text-xs text-gray-400 block mb-1">Quick Screen (up to 10 symbols)</label>
-              <div className="flex gap-2">
-                <input
-                  value={quickSymbols}
-                  onChange={(e) => setQuickSymbols(e.target.value)}
-                  placeholder="RELIANCE, TCS, INFY"
-                  className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm"
-                />
-                <button
-                  onClick={runQuickScreen}
-                  disabled={loading}
-                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 rounded-lg font-medium text-sm transition"
+            {/* Filters — right */}
+            <div className="flex items-center gap-2 ml-auto">
+              <select
+                value={minScore}
+                onChange={(e) => setMinScore(Number(e.target.value))}
+                className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300"
+              >
+                <option value={0}>Min Score: 0</option>
+                <option value={30}>Min Score: 30</option>
+                <option value={50}>Min Score: 50</option>
+                <option value={60}>Min Score: 60</option>
+              </select>
+              {sectors.length > 0 && (
+                <select
+                  value={sectorFilter}
+                  onChange={(e) => setSectorFilter(e.target.value)}
+                  className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-300"
                 >
-                  Quick Screen
-                </button>
-              </div>
+                  <option value="">All Sectors</option>
+                  {sectors.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 
-          {/* Preset buttons */}
-          <div className="mt-3 flex flex-wrap gap-2">
+          {/* Row 2: Quick Screen */}
+          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row items-center gap-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">Quick Screen:</span>
+            <input
+              value={quickSymbols}
+              onChange={(e) => setQuickSymbols(e.target.value)}
+              placeholder="RELIANCE, TCS, INFY  (up to 10)"
+              className="flex-1 w-full sm:w-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500"
+            />
+            <button
+              onClick={runQuickScreen}
+              disabled={loading}
+              className="px-4 py-2 bg-secondary-600 hover:bg-secondary-700 disabled:opacity-50 text-white rounded-lg font-medium text-sm transition"
+            >
+              Quick Screen
+            </button>
+          </div>
+
+          {/* Row 3: Preset chips */}
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
             {['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'BHARTIARTL', 'ITC', 'TATAMOTORS', 'BAJFINANCE'].map((s) => (
               <button
                 key={s}
                 onClick={() => openDetail(s)}
-                className="px-3 py-1 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-md text-xs transition"
+                className="px-2.5 py-1 bg-gray-100 dark:bg-gray-800 hover:bg-primary-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 rounded-md text-[11px] font-medium text-gray-600 dark:text-gray-400 hover:text-primary-700 dark:hover:text-primary-400 transition"
               >
                 {s}
               </button>
@@ -378,29 +324,83 @@ const AIScreenerPage: React.FC = () => {
           </div>
         </div>
 
+        {/* ── Compact Market Overview Cards ─── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Regime */}
+          <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-3">
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-medium mb-1">Market Regime</div>
+            {regime ? (
+              <>
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2.5 h-2.5 rounded-full ${regimeColors[regime.regime] || 'bg-gray-500'}`} />
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">{regimeLabels[regime.regime] || regime.regime}</span>
+                </div>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{regime.description}</p>
+                <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                  Conf: {(regime.confidence * 100).toFixed(0)}%
+                  {regime.nifty_current && ` · NIFTY ₹${regime.nifty_current.toLocaleString()}`}
+                </div>
+              </>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500 text-xs">Loading...</span>
+            )}
+          </div>
+
+          {/* VIX */}
+          <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-3">
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-medium mb-1">India VIX</div>
+            {vix ? (
+              <>
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">{vix.current}</div>
+                <div className={`text-xs ${vix.change_pct >= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                  {pct(vix.change_pct)} from prev close
+                </div>
+                <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 line-clamp-1">{vix.interpretation}</div>
+              </>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500 text-xs">Loading...</span>
+            )}
+          </div>
+
+          {/* Screen Stats */}
+          <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-4 py-3">
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider font-medium mb-1">Last Screen</div>
+            {screenData ? (
+              <>
+                <div className="text-sm font-semibold text-gray-900 dark:text-white">{screenData.results_count} stocks</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Screened {screenData.total_screened} · {new Date(screenData.timestamp).toLocaleTimeString()}
+                </div>
+              </>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500 text-xs">No results yet</span>
+            )}
+          </div>
+        </div>
+
         {/* Error */}
         {error && (
-          <div className="bg-red-900/30 border border-red-700 text-red-300 rounded-lg p-3 text-sm">{error}</div>
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg p-3 text-sm">{error}</div>
         )}
 
         {/* Loading */}
         {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-purple-500 border-t-transparent" />
-            <p className="mt-3 text-gray-400 text-sm">
-              Fetching live data from Yahoo Finance and computing features...
+          <div className="text-center py-10">
+            <div className="inline-block animate-spin rounded-full h-9 w-9 border-4 border-primary-500 border-t-transparent" />
+            <p className="mt-2.5 text-gray-500 dark:text-gray-400 text-sm">
+              Fetching live data and computing features...
               <br />
-              This may take 2-5 minutes for a full NIFTY 50 scan.
+              <span className="text-xs">This may take 2-5 minutes for a full NIFTY 50 scan.</span>
             </p>
           </div>
         )}
 
         {/* ── Results Table ─── */}
         {screenData && !loading && (
-          <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-            <div className="p-4 border-b border-gray-800 flex justify-between items-center">
-              <h2 className="font-semibold">Screening Results</h2>
-              <span className="text-xs text-gray-500">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+              <h2 className="font-semibold text-sm text-gray-900 dark:text-white">Screening Results</h2>
+              <span className="text-[11px] text-gray-400 dark:text-gray-500">
                 {timeframe.toUpperCase()} · Regime: {regimeLabels[screenData.regime] || screenData.regime} · {screenData.results_count} results
               </span>
             </div>
@@ -408,20 +408,20 @@ const AIScreenerPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-800/60 text-gray-400 text-xs uppercase tracking-wider">
-                    <th className="px-4 py-3 text-left">#</th>
-                    <th className="px-4 py-3 text-left">Symbol</th>
-                    <th className="px-4 py-3 text-left">Sector</th>
-                    <th className="px-4 py-3 text-right">Price</th>
-                    <th className="px-4 py-3 text-right">Score</th>
-                    <th className="px-4 py-3 text-right">Mom.</th>
-                    <th className="px-4 py-3 text-right">Risk</th>
-                    <th className="px-4 py-3 text-right">5D</th>
-                    <th className="px-4 py-3 text-right">20D</th>
-                    <th className="px-4 py-3 text-right">RSI</th>
-                    <th className="px-4 py-3 text-right">Vol R.</th>
-                    <th className="px-4 py-3 text-center">Anomaly</th>
-                    <th className="px-4 py-3 text-left">Top Signal</th>
+                  <tr className="bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                    <th className="px-3 py-2.5 text-left">#</th>
+                    <th className="px-3 py-2.5 text-left">Symbol</th>
+                    <th className="px-3 py-2.5 text-left">Sector</th>
+                    <th className="px-3 py-2.5 text-right">Price</th>
+                    <th className="px-3 py-2.5 text-right">Score</th>
+                    <th className="px-3 py-2.5 text-right">Mom.</th>
+                    <th className="px-3 py-2.5 text-right">Risk</th>
+                    <th className="px-3 py-2.5 text-right">5D</th>
+                    <th className="px-3 py-2.5 text-right">20D</th>
+                    <th className="px-3 py-2.5 text-right">RSI</th>
+                    <th className="px-3 py-2.5 text-right">Vol R.</th>
+                    <th className="px-3 py-2.5 text-center">Anomaly</th>
+                    <th className="px-3 py-2.5 text-left">Top Signal</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -429,29 +429,29 @@ const AIScreenerPage: React.FC = () => {
                     <tr
                       key={r.symbol}
                       onClick={() => openDetail(r.symbol)}
-                      className="border-t border-gray-800/50 hover:bg-gray-800/40 cursor-pointer transition"
+                      className="border-t border-gray-100 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition"
                     >
-                      <td className="px-4 py-3 text-gray-500">{i + 1}</td>
-                      <td className="px-4 py-3">
-                        <div className="font-medium">{r.symbol}</div>
-                        <div className="text-xs text-gray-500 truncate max-w-[120px]">{r.name}</div>
+                      <td className="px-3 py-2.5 text-gray-400 dark:text-gray-500">{i + 1}</td>
+                      <td className="px-3 py-2.5">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">{r.symbol}</div>
+                        <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate max-w-[120px]">{r.name}</div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-400">{r.sector || '—'}</td>
-                      <td className="px-4 py-3 text-right font-mono">₹{fmt(r.current_price)}</td>
-                      <td className={`px-4 py-3 text-right font-bold ${scoreColor(r.overall_score)}`}>
+                      <td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400">{r.sector || '—'}</td>
+                      <td className="px-3 py-2.5 text-right font-mono text-gray-800 dark:text-gray-200">₹{fmt(r.current_price)}</td>
+                      <td className={`px-3 py-2.5 text-right font-bold ${scoreColor(r.overall_score)}`}>
                         {fmt(r.overall_score, 0)}
                       </td>
-                      <td className="px-4 py-3 text-right">{fmt(r.momentum_score, 0)}</td>
-                      <td className="px-4 py-3 text-right">{fmt(r.risk_score, 0)}</td>
-                      <td className={`px-4 py-3 text-right ${r.price_change_5d >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.momentum_score, 0)}</td>
+                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.risk_score, 0)}</td>
+                      <td className={`px-3 py-2.5 text-right ${r.price_change_5d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
                         {pct(r.price_change_5d)}
                       </td>
-                      <td className={`px-4 py-3 text-right ${r.price_change_20d >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <td className={`px-3 py-2.5 text-right ${r.price_change_20d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
                         {pct(r.price_change_20d)}
                       </td>
-                      <td className="px-4 py-3 text-right">{fmt(r.rsi_14, 1)}</td>
-                      <td className="px-4 py-3 text-right">{fmt(r.volume_ratio, 2)}</td>
-                      <td className="px-4 py-3 text-center">
+                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.rsi_14, 1)}</td>
+                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.volume_ratio, 2)}</td>
+                      <td className="px-3 py-2.5 text-center">
                         {r.has_anomaly && r.anomalies && r.anomalies.length > 0 ? (
                           <div className="flex flex-col items-center gap-0.5">
                             <div className="flex flex-wrap gap-1 justify-center">
@@ -465,18 +465,18 @@ const AIScreenerPage: React.FC = () => {
                                 </span>
                               ))}
                               {r.anomalies.length > 2 && (
-                                <span className="text-[10px] text-gray-500">+{r.anomalies.length - 2}</span>
+                                <span className="text-[10px] text-gray-400 dark:text-gray-500">+{r.anomalies.length - 2}</span>
                               )}
                             </div>
-                            <span className="text-[9px] text-gray-500">
+                            <span className="text-[9px] text-gray-400 dark:text-gray-500">
                               {barsAgoText(Math.min(...r.anomalies.map(a => a.bars_ago)), r.timeframe || timeframe)}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-gray-600 text-xs">--</span>
+                          <span className="text-gray-300 dark:text-gray-600 text-xs">--</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-xs text-gray-400 truncate max-w-[160px]">
+                      <td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px]">
                         {r.top_signals?.[0]?.feature?.replace(/^(tech_|vol_|meta_|insider_)/, '') || '—'}
                       </td>
                     </tr>
@@ -489,18 +489,18 @@ const AIScreenerPage: React.FC = () => {
 
         {/* ── Stock Detail Modal ─── */}
         {selectedSymbol && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto">
-              <div className="sticky top-0 bg-gray-900 border-b border-gray-800 px-6 py-4 flex justify-between items-center">
+          <div className="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto shadow-xl">
+              <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-bold">{selectedSymbol} Detail</h2>
-                  <span className="px-2 py-0.5 bg-purple-600/30 border border-purple-500/50 rounded text-xs text-purple-300 font-medium">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">{selectedSymbol} Detail</h2>
+                  <span className="px-2 py-0.5 bg-primary-50 dark:bg-purple-600/30 border border-primary-200 dark:border-purple-500/50 rounded text-xs text-primary-700 dark:text-purple-300 font-medium">
                     {timeframe.toUpperCase()}
                   </span>
                 </div>
                 <button
                   onClick={() => { setSelectedSymbol(null); setDetail(null); }}
-                  className="text-gray-400 hover:text-white text-xl"
+                  className="text-gray-400 hover:text-gray-700 dark:hover:text-white text-xl transition"
                 >
                   &times;
                 </button>
@@ -508,20 +508,20 @@ const AIScreenerPage: React.FC = () => {
 
               {detailLoading ? (
                 <div className="p-12 text-center">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-purple-500 border-t-transparent" />
-                  <p className="mt-2 text-gray-400 text-sm">Loading stock detail...</p>
+                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary-500 border-t-transparent" />
+                  <p className="mt-2 text-gray-500 dark:text-gray-400 text-sm">Loading stock detail...</p>
                 </div>
               ) : detail ? (
                 <div className="p-6 space-y-5">
                   {/* Header row */}
                   <div className="flex flex-wrap gap-4">
                     <div>
-                      <div className="text-2xl font-bold">{detail.name || detail.symbol}</div>
-                      <div className="text-sm text-gray-400">{detail.sector} · {detail.industry}</div>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">{detail.name || detail.symbol}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{detail.sector} · {detail.industry}</div>
                     </div>
                     <div className="ml-auto text-right">
-                      <div className="text-2xl font-bold">₹{fmt(detail.current_price)}</div>
-                      <div className={`text-sm ${detail.price_change_5d >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      <div className="text-2xl font-bold text-gray-900 dark:text-white">₹{fmt(detail.current_price)}</div>
+                      <div className={`text-sm ${detail.price_change_5d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
                         5D: {pct(detail.price_change_5d)} · 20D: {pct(detail.price_change_20d)}
                       </div>
                     </div>
@@ -534,27 +534,27 @@ const AIScreenerPage: React.FC = () => {
                       { label: 'Momentum', value: detail.momentum_score },
                       { label: 'Risk', value: detail.risk_score },
                     ].map((s) => (
-                      <div key={s.label} className="bg-gray-800 rounded-lg p-3 text-center">
-                        <div className="text-xs text-gray-400">{s.label}</div>
+                      <div key={s.label} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 text-center">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{s.label}</div>
                         <div className={`text-2xl font-bold ${scoreColor(s.value)}`}>{fmt(s.value, 0)}</div>
                       </div>
                     ))}
                   </div>
 
                   {/* Explanation */}
-                  <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4 text-sm text-gray-300">
+                  <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300">
                     {detail.explanation}
                   </div>
 
                   {/* Anomaly Alerts */}
                   {detail.has_anomaly && detail.anomalies?.length > 0 && (
-                    <div className="bg-red-950/30 border border-red-800/50 rounded-lg p-4">
-                      <h3 className="text-sm font-semibold text-red-300 mb-2">
+                    <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800/50 rounded-lg p-4">
+                      <h3 className="text-sm font-semibold text-red-700 dark:text-red-300 mb-2">
                         Anomaly Alerts ({detail.anomalies.length})
                       </h3>
                       <div className="space-y-2">
                         {detail.anomalies.map((a: AnomalyRecord, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3 bg-gray-900/50 rounded-lg p-3">
+                          <div key={idx} className="flex items-start gap-3 bg-white dark:bg-gray-900/50 rounded-lg p-3">
                             <span
                               className={`mt-0.5 shrink-0 inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${severityColor[a.severity]}`}
                             >
@@ -562,12 +562,12 @@ const AIScreenerPage: React.FC = () => {
                             </span>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-medium text-gray-200">{a.name}</span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-700 text-gray-300 font-medium">
+                                <span className="text-sm font-medium text-gray-800 dark:text-gray-200">{a.name}</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 font-medium">
                                   {barsAgoText(a.bars_ago, a.timeframe)}
                                 </span>
                               </div>
-                              <div className="text-xs text-gray-400 mt-0.5">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                                 {a.timeframe.toUpperCase()} · Value: {a.details.current_value.toFixed(2)} (threshold: {a.details.threshold.toFixed(2)})
                                 {a.timestamp && ` · ${new Date(a.timestamp).toLocaleString()}`}
                               </div>
@@ -580,50 +580,33 @@ const AIScreenerPage: React.FC = () => {
 
                   {/* Probabilities & Key Metrics */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">Momentum Prob</div>
-                      <div className="font-semibold">{(detail.momentum_probability * 100).toFixed(1)}%</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">Crash Prob</div>
-                      <div className="font-semibold">{(detail.crash_probability * 100).toFixed(1)}%</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">RSI (14)</div>
-                      <div className="font-semibold">{fmt(detail.rsi_14, 1)}</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">Vol Ratio</div>
-                      <div className="font-semibold">{fmt(detail.volume_ratio)}</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">PE Ratio</div>
-                      <div className="font-semibold">{fmt(detail.pe_ratio)}</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">Market Cap</div>
-                      <div className="font-semibold">{crore(detail.market_cap)}</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">52W High</div>
-                      <div className="font-semibold">₹{fmt(detail['52w_high'])}</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs text-gray-400">52W Low</div>
-                      <div className="font-semibold">₹{fmt(detail['52w_low'])}</div>
-                    </div>
+                    {[
+                      { label: 'Momentum Prob', value: `${(detail.momentum_probability * 100).toFixed(1)}%` },
+                      { label: 'Crash Prob', value: `${(detail.crash_probability * 100).toFixed(1)}%` },
+                      { label: 'RSI (14)', value: fmt(detail.rsi_14, 1) },
+                      { label: 'Vol Ratio', value: fmt(detail.volume_ratio) },
+                      { label: 'PE Ratio', value: fmt(detail.pe_ratio) },
+                      { label: 'Market Cap', value: crore(detail.market_cap) },
+                      { label: '52W High', value: `₹${fmt(detail['52w_high'])}` },
+                      { label: '52W Low', value: `₹${fmt(detail['52w_low'])}` },
+                    ].map((m) => (
+                      <div key={m.label} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">{m.label}</div>
+                        <div className="font-semibold text-gray-900 dark:text-gray-100">{m.value}</div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Top Signals */}
                   {detail.top_signals?.length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-300 mb-2">Top Signals</h3>
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Top Signals</h3>
                       <div className="space-y-1">
                         {detail.top_signals.map((sig: any, i: number) => (
                           <div key={i} className="flex items-center gap-2 text-sm">
-                            <span className={`w-2 h-2 rounded-full ${sig.direction === 'bullish' ? 'bg-green-400' : 'bg-red-400'}`} />
-                            <span className="text-gray-300">{sig.feature.replace(/^(tech_|vol_|meta_|insider_)/, '')}</span>
-                            <span className="text-gray-500 ml-auto">{fmt(sig.value, 3)}</span>
+                            <span className={`w-2 h-2 rounded-full ${sig.direction === 'bullish' ? 'bg-green-500 dark:bg-green-400' : 'bg-red-500 dark:bg-red-400'}`} />
+                            <span className="text-gray-700 dark:text-gray-300">{sig.feature.replace(/^(tech_|vol_|meta_|insider_)/, '')}</span>
+                            <span className="text-gray-400 dark:text-gray-500 ml-auto">{fmt(sig.value, 3)}</span>
                           </div>
                         ))}
                       </div>
@@ -633,15 +616,15 @@ const AIScreenerPage: React.FC = () => {
                   {/* Fundamentals */}
                   {detail.fundamentals && Object.keys(detail.fundamentals).length > 0 && (
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-300 mb-2">Fundamentals</h3>
+                      <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Fundamentals</h3>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
                         {Object.entries(detail.fundamentals)
                           .filter(([k]) => !['name', 'sector', 'industry'].includes(k))
                           .slice(0, 12)
                           .map(([k, v]) => (
-                            <div key={k} className="bg-gray-800 rounded p-2">
-                              <div className="text-gray-500">{k.replace(/_/g, ' ')}</div>
-                              <div className="font-medium">{typeof v === 'number' ? fmt(v as number) : String(v)}</div>
+                            <div key={k} className="bg-gray-50 dark:bg-gray-800 rounded p-2">
+                              <div className="text-gray-400 dark:text-gray-500">{k.replace(/_/g, ' ')}</div>
+                              <div className="font-medium text-gray-800 dark:text-gray-200">{typeof v === 'number' ? fmt(v as number) : String(v)}</div>
                             </div>
                           ))}
                       </div>
@@ -649,7 +632,7 @@ const AIScreenerPage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="p-12 text-center text-gray-500">Failed to load detail</div>
+                <div className="p-12 text-center text-gray-400 dark:text-gray-500">Failed to load detail</div>
               )}
             </div>
           </div>
