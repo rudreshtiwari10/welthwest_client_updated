@@ -32,7 +32,7 @@ import FeedbackPage from './pages/FeedbackPage';
 // import ReviewPaymentPage from './pages/ReviewPaymentPage';
 // import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 
-import TechnicalAnalysisPage from './pages/TechnicalAnalysisPage';
+
 import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import BlogEditorPage from './pages/BlogEditorPage';
@@ -243,7 +243,6 @@ const AppWithRouter: React.FC = () => {
                 {/* New integrated Market Regime Trader page with AI Pattern Analysis + Risk Calculator */}
                 <Route path="/marketregime" element={<MarketRegimeTraderPage />} />
                 <Route path="/market-forecasting" element={<MarketForecastingPage />} />
-                <Route path="/mtf-screener" element={<MTFScreenerPage />} />
                 <Route path="/ai-screener" element={<AIScreenerPage />} />
                 <Route path="/riskcalculator" element={<RiskCalculatorPage />} />
                 <Route path="/risk-calculator/phase1" element={<Phase1Calculator />} />
@@ -261,7 +260,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/broker-integration" element={<PrivateRoute><BrokerIntegrationPage /></PrivateRoute>} />
                 <Route path="/welthchatbot" element={<WelthChatbotPage />} />
                 <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />
-                <Route path="/technical-analysis" element={<TechnicalAnalysisPage />} />
+
                 <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/news-and-blogs" element={<NewsAndBlogsPage />} />

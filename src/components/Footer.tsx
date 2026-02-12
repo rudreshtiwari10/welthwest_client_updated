@@ -92,7 +92,7 @@ const Footer: React.FC = () => {
                 </button>
                 {openSections.aiFeatures && (
                   <div className="pb-3 space-y-2 pl-2">
-                    <Link to="/mtf-screener" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    <Link to="/ai-screener" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       AI Market Analysis
                     </Link>
                     <Link to="/welth-ai-assistant" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
@@ -207,7 +207,7 @@ const Footer: React.FC = () => {
                   AI Features
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/mtf-screener" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  <Link to="/ai-screener" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     AI Market Analysis
                   </Link>
                   <Link to="/welth-ai-assistant" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>

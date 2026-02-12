@@ -460,7 +460,7 @@ const ChatInterfaceNoSave: React.FC = () => {
               title: `Open AI Analysis for ${symbol}`,
               description: 'Get regime prediction and insights',
               actions: [
-                { label: 'AI Analysis', onClickType: 'navigate', route: '/mtf-screener' },
+                { label: 'AI Analysis', onClickType: 'navigate', route: '/ai-screener' },
               ],
             },
           ]);

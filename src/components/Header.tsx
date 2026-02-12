@@ -5,7 +5,7 @@ import { useSubscription } from '../contexts/SubscriptionContext';
 import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
-import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, ChartPieIcon, CpuChipIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, CpuChipIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import WelthAIPage from '../pages/WelthAIPage';
 import WelthChatbotPage from '../pages/WelthChatbotPage';
 import { activityService } from '../services/api';
@@ -69,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/mtf-screener') || path.startsWith('/backtesting');
+    return path.startsWith('/ai-screener') || path.startsWith('/backtesting');
   };
 
   // Popular Indian stocks for quick access
@@ -132,7 +132,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 onMouseLeave={() => handleDropdownHover(false, setShowWelthAIMenu, welthAITimeoutRef)}
               >
                 <Link
-                  to="/mtf-screener"
+                  to="/ai-screener"
                   className="flex items-center px-4 py-1.5 bg-[#7e22ce] hover:bg-[#6b21a8] text-white rounded-full font-medium transition-colors shadow-md"
                   onMouseEnter={() => setShowWelthAIMenu(true)}
                 >
@@ -146,7 +146,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                     className="absolute left-0 mt-2 w-56 bg-white dark:bg-[#1a1f2e] rounded-lg shadow-lg dark:shadow-gray-900/50 py-1 border border-gray-200 dark:border-gray-700 z-50"
                   >
                     <Link
-                      to="/mtf-screener"
+                      to="/ai-screener"
                       className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400"
                       onClick={() => setShowWelthAIMenu(false)}
                     >
@@ -250,23 +250,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                         </div>
                       </div>
                     </Link> */}
-
-                    {/* Technical Analysis */}
-                    <Link
-                      to="/technical-analysis"
-                      className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-primary-600 dark:hover:text-primary-400 border-b border-gray-100 dark:border-gray-700"
-                      onClick={() => setShowStocksMenu(false)}
-                    >
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
-                          <ChartPieIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                          <div className="font-medium">Technical Analysis</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">RSI, MACD, Bollinger Bands & more</div>
-                        </div>
-                      </div>
-                    </Link>
 
                     {/* Strategy */}
                     <a

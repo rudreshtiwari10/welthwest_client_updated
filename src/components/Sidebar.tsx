@@ -130,7 +130,7 @@ const featureNavigation = [
   {
     category: 'WelthAI bots',
     items: [
-      { name: 'WelthAI Market Analysis', path: '/mtf-screener', icon: 'brain' },
+      { name: 'WelthAI Market Analysis', path: '/ai-screener', icon: 'brain' },
     ]
   },
   {
@@ -491,7 +491,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                 {/* Welth AI Analysis Card */}
                 <div className="w-full flex-shrink-0 p-2">
                   <Link
-                    to="/mtf-screener"
+                    to="/ai-screener"
                     onClick={handleNavClick}
                     className="block p-5 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-2xl hover:shadow-indigo-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '200px' }}
@@ -624,7 +624,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                 </Link>
 
                 <Link
-                  to="/mtf-screener"
+                  to="/ai-screener"
                   onClick={handleNavClick}
                   className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all group"
                 >

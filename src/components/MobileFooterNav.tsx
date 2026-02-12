@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { SparklesIcon, Bars3Icon, ChartBarIcon, ChatBubbleBottomCenterTextIcon, ChartPieIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon, Bars3Icon, ChartBarIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 
 const MobileFooterNav: React.FC = () => {
   const location = useLocation();
@@ -11,7 +11,7 @@ const MobileFooterNav: React.FC = () => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/mtf-screener') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta') || path.startsWith('/technical-analysis');
+    return path.startsWith('/ai-screener') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta');
   };
 
   // Close features menu when clicking outside
@@ -105,7 +105,7 @@ const MobileFooterNav: React.FC = () => {
                 {/* Welth AI Analysis Card */}
                 <div className="w-full flex-shrink-0 p-2">
                   <Link
-                    to="/mtf-screener"
+                    to="/ai-screener"
                     onClick={handleNavigation}
                     className="block p-5 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-2xl hover:shadow-indigo-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '180px' }}
@@ -229,7 +229,7 @@ const MobileFooterNav: React.FC = () => {
               </Link>
               
               <Link
-                to="/mtf-screener"
+                to="/ai-screener"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50"
                 onClick={handleNavigation}
               >
@@ -277,19 +277,6 @@ const MobileFooterNav: React.FC = () => {
                 </div>
               </Link>
 
-              <Link
-                to="/technical-analysis"
-                className="flex items-center p-3 rounded-lg bg-gray-800/50"
-                onClick={handleNavigation}
-              >
-                <div className="mr-3 text-green-400">
-                  <ChartPieIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="font-medium text-white">Technical Analysis</div>
-                  <div className="text-xs text-gray-400">RSI, MACD, Bollinger Bands & more</div>
-                </div>
-              </Link>
             </div>
           </div>
         </>
@@ -321,12 +308,12 @@ const MobileFooterNav: React.FC = () => {
 
           {/* WelthAI Button - Mobile */}
           <Link
-            to="/mtf-screener"
+            to="/ai-screener"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex flex-col items-center justify-center -mt-6"
           >
             <div className={`rounded-full p-4 bg-primary-600 shadow-lg ${
-              isActive('/mtf-screener') ? 'bg-primary-700' : 'bg-primary-600'
+              isActive('/ai-screener') ? 'bg-primary-700' : 'bg-primary-600'
             }`}>
               <div className="flex items-center justify-center">
                 <SparklesIcon className="h-6 w-6 text-white" />

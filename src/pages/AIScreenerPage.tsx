@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import aiScreenerService, {
   ScreenerResult,
   ScreenResponse,
@@ -7,6 +7,14 @@ import aiScreenerService, {
   AnomalyRecord,
   AIScreenerTimeframe,
 } from '../services/aiScreenerService';
+
+/* ─── In-memory screen cache (keyed by timeframe) ──── */
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+interface CacheEntry {
+  data: ScreenResponse;
+  timestamp: number;
+}
+const screenCache: Record<string, CacheEntry> = {};
 
 /* ─── tiny helpers ─────────────────────────────────────── */
 const fmt = (n?: number | null, d = 2) => (n != null ? n.toFixed(d) : '—');
@@ -82,6 +90,30 @@ const AIScreenerPage: React.FC = () => {
   const [minScore, setMinScore] = useState(0);
   const [sectorFilter, setSectorFilter] = useState('');
 
+  /* ── Re-fetch when timeframe changes — serve from cache if fresh ─── */
+  const [hasScreened, setHasScreened] = useState(false);
+  useEffect(() => {
+    if (!hasScreened || loading) return;
+
+    const cached = screenCache[timeframe];
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+      // Serve from cache instantly
+      setScreenData(cached.data);
+      if (cached.data.regime) {
+        setRegime({
+          regime: cached.data.regime,
+          confidence: cached.data.regime_confidence,
+          description: cached.data.regime_description,
+        });
+      }
+      return;
+    }
+
+    // No valid cache — fetch fresh
+    runFullScreen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeframe]);
+
   /* ── Load regime & VIX on mount ─── */
   useEffect(() => {
     const loadMarketInfo = async () => {
@@ -115,6 +147,9 @@ const AIScreenerPage: React.FC = () => {
         timeframe,
       });
       setScreenData(data);
+      setHasScreened(true);
+      // Store in cache
+      screenCache[timeframe] = { data, timestamp: Date.now() };
       if (data.regime) {
         setRegime({
           regime: data.regime,
@@ -142,6 +177,9 @@ const AIScreenerPage: React.FC = () => {
     try {
       const data = await aiScreenerService.quickScreen(symbols, 10, timeframe);
       setScreenData(data);
+      setHasScreened(true);
+      // Store in cache
+      screenCache[timeframe] = { data, timestamp: Date.now() };
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || 'Quick screen failed');
     } finally {
@@ -240,13 +278,16 @@ const AIScreenerPage: React.FC = () => {
         <div className="flex gap-3">
           {TIMEFRAME_OPTIONS.map((tf) => {
             const active = tf.value === timeframe;
+            const cached = screenCache[tf.value];
+            const isCached = cached && Date.now() - cached.timestamp < CACHE_TTL_MS;
+            const cacheAgeMin = cached ? Math.floor((Date.now() - cached.timestamp) / 60000) : 0;
             return (
               <button
                 key={tf.value}
                 onClick={() => setTimeframe(tf.value)}
                 disabled={loading}
                 className={`
-                  flex flex-col items-center px-6 py-3 rounded-xl border transition-all
+                  relative flex flex-col items-center px-6 py-3 rounded-xl border transition-all
                   ${active
                     ? 'bg-purple-600/20 border-purple-500 text-white'
                     : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-600 hover:text-gray-200'}
@@ -255,6 +296,9 @@ const AIScreenerPage: React.FC = () => {
               >
                 <span className="font-bold text-base">{tf.label}</span>
                 <span className="text-xs opacity-70">{tf.sub}</span>
+                {isCached && !active && (
+                  <span className="text-[10px] text-green-400 mt-1">{cacheAgeMin < 1 ? 'just now' : `${cacheAgeMin}m ago`}</span>
+                )}
               </button>
             );
           })}
