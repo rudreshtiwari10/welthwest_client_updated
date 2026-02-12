@@ -171,6 +171,7 @@ const AppWithRouter: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
   const isProfilePage = location.pathname === '/profile';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -188,15 +189,15 @@ const AppWithRouter: React.FC = () => {
             {/* Track user activities for notifications - must be inside all providers */}
             <NotificationTracker />
             <div className="min-h-screen bg-white dark:bg-background-primary text-gray-900 dark:text-white flex flex-col">
-              <Header toggleSidebar={toggleSidebar} />
-            
-            {/* Hamburger Button - hidden on profile page */}
-            {!isProfilePage && (
+              {!isAuthPage && <Header toggleSidebar={toggleSidebar} />}
+
+            {/* Hamburger Button - hidden on profile and auth pages */}
+            {!isProfilePage && !isAuthPage && (
               <HamburgerButton isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
             )}
 
-            {/* Desktop Sidebar - hidden on profile page */}
-            {!isProfilePage && (
+            {/* Desktop Sidebar - hidden on profile and auth pages */}
+            {!isProfilePage && !isAuthPage && (
               <div className="hidden md:block">
                 <Sidebar
                   isOpen={isSidebarOpen}
@@ -207,9 +208,11 @@ const AppWithRouter: React.FC = () => {
             )}
             
             {/* Main Content */}
-            <main 
-              className={`pt-16 pb-16 md:pb-0 transition-all duration-300 flex-grow ${
-                isSidebarOpen && !isProfilePage ? 'md:ml-[35vh]' : 'md:ml-0'
+            <main
+              className={`transition-all duration-300 flex-grow ${
+                isAuthPage ? '' : 'pt-16 pb-16 md:pb-0'
+              } ${
+                isSidebarOpen && !isProfilePage && !isAuthPage ? 'md:ml-[35vh]' : 'md:ml-0'
               }`}
             >
               <Routes>
@@ -288,16 +291,16 @@ const AppWithRouter: React.FC = () => {
             </main>
 
             {/* AI Feature Banner */}
-            <AIFeatureBanner />
-            
+            {!isAuthPage && <AIFeatureBanner />}
+
             {/* Floating Chat Button - Temporarily hidden */}
             {/* <FloatingChatWithLocation /> */}
 
-            {/* Footer */}
-            <Footer />
+            {/* Footer - hidden on auth pages */}
+            {!isAuthPage && <Footer />}
 
-            {/* Mobile Navigation */}
-            <MobileFooterNav />
+            {/* Mobile Navigation - hidden on auth pages */}
+            {!isAuthPage && <MobileFooterNav />}
           </div>
           </SubscriptionProvider>
         </NotificationProvider>
