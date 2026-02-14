@@ -122,7 +122,7 @@ const marketSectors = [
 
 const mainNavigation = [
   { name: 'Dashboard', path: '/dashboard', icon: 'chart-line' },
-  { name: 'Stocks', path: '/stock/RELIANCE', icon: 'search-dollar' },
+  { name: 'Stocks', path: '/stock', icon: 'search-dollar' },
 ];
 
 // New Features section with categories
@@ -589,7 +589,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                 </Link>
 
                 <Link
-                  to="/stock/RELIANCE"
+                  to="/stock"
                   onClick={handleNavClick}
                   className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:hover:text-blue-400 rounded-lg transition-all group"
                 >

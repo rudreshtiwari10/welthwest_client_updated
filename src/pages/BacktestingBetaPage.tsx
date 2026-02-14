@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useSubscription } from '../contexts/SubscriptionContext';
 import { backtestingService } from '../services/backtesting';
-import { marketService, activityService, userDataService } from '../services/api';
+import { marketService, activityService, userDataService, API_URL } from '../services/api';
 import { motion } from 'framer-motion';
 import { ChartBarIcon, CogIcon, PlayIcon, DocumentTextIcon, BoltIcon, BookmarkIcon } from '@heroicons/react/24/outline';
 import UsageTracker from '../components/subscription/UsageTracker';
@@ -122,7 +122,6 @@ interface BacktestParams {
   position_size_pct: number;
   risk_reward_ratio: number;
   max_drawdown_pct: number;
-  monte_carlo_simulations: number;
   confidence_level: number;
 }
 
@@ -170,12 +169,11 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
 
   return (
     <div className="relative">
-      <div 
-        className={`inline-flex items-center px-3 sm:px-4 py-2 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-          isExpanded
-            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-            : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
-        }`}
+      <div
+        className={`inline-flex items-center px-3 sm:px-4 py-2 rounded-lg border-2 cursor-pointer transition-all duration-200 ${isExpanded
+          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
+          : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500'
+          }`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center space-x-2 sm:space-x-3">
@@ -187,21 +185,21 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
               {getDefaultDisplayValues()}
             </p>
           </div>
-          
+
           {/* Expand/Collapse Icon */}
           {indicator.hasParams && (
             <div className="ml-2">
-              <svg 
-                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           )}
-          
+
           {/* Remove Button */}
           <button
             onClick={(e) => {
@@ -217,7 +215,7 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
           </button>
         </div>
       </div>
-      
+
       {/* Expandable Parameter Form */}
       {isExpanded && indicator.hasParams && (
         <div className="absolute top-full left-0 mt-2 w-72 sm:w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3 sm:p-4 z-10">
@@ -234,11 +232,11 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
               </svg>
             </button>
           </div>
-          
+
           <div className="space-y-3">
             {renderForm()}
           </div>
-          
+
           <div className="mt-4 pt-3 border-t border-gray-200 dark:border-gray-600 flex justify-end">
             <button
               onClick={() => setIsExpanded(false)}
@@ -262,7 +260,10 @@ const BacktestingBetaPage: React.FC = () => {
   const [activeTab, setActiveTab] = useSessionStorage<'parameters' | 'results' | 'charts' | 'saved'>('backtesting-beta-tab', 'parameters');
   const [stockSearch, setStockSearch] = useState('');
   const [showStockSuggestions, setShowStockSuggestions] = useState(false);
-  
+  const [stockSuggestions, setStockSuggestions] = useState<Array<{ symbol: string; name: string; exchange: string; type: string }>>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Anonymous usage tracking
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -273,7 +274,7 @@ const BacktestingBetaPage: React.FC = () => {
   });
 
   // Save state
-  const [saveStatus, setSaveStatus] = useState<{saving: boolean, success?: boolean, message?: string}>({saving: false});
+  const [saveStatus, setSaveStatus] = useState<{ saving: boolean, success?: boolean, message?: string }>({ saving: false });
   const [showSaveModal, setShowSaveModal] = useState<boolean>(false);
   const [strategyName, setStrategyName] = useState<string>('');
 
@@ -336,26 +337,26 @@ const BacktestingBetaPage: React.FC = () => {
   // Handle confirming save with strategy name
   const handleConfirmSave = async () => {
     if (!result || !strategyName.trim()) return;
-    
+
     try {
       setSaveStatus({ saving: true });
       setShowSaveModal(false);
-      
+
       // Prepare backtest data to save with all relevant parameters and results
       const backtest_data = {
-        // Original input parameters
+        // Original input parameters (convert % values back to decimals for server)
         stock_symbol: params.stock_symbol,
         selected_indicators: params.selected_indicators,
-        voting_threshold: params.voting_threshold,
+        voting_threshold: params.voting_threshold / 100,
         period: params.period,
         timeframe: params.timeframe,
         initial_capital: params.initial_capital,
-        position_size_pct: params.position_size_pct,
+        position_size_pct: params.position_size_pct / 100,
         risk_reward_ratio: params.risk_reward_ratio,
         max_drawdown_pct: params.max_drawdown_pct,
-        monte_carlo_simulations: params.monte_carlo_simulations,
+        monte_carlo_simulations: 1000,
         confidence_level: params.confidence_level,
-        
+
         // Complete results data structure
         results: result,
         metrics: result.metrics,
@@ -365,35 +366,35 @@ const BacktestingBetaPage: React.FC = () => {
         charts: result.charts,
         monte_carlo: result.monte_carlo,
         summary: result.summary,
-        
+
         // Metadata
         timestamp: new Date().toISOString(),
         name: strategyName.trim(),
         strategy_type: 'beta_backtest'
       };
-      
+
       // Import backtesting service
       const { backtestingService } = await import('../services/backtesting');
-      
+
       // Save backtest result
       const response = await backtestingService.saveBacktestResult(backtest_data);
-      
-      setSaveStatus({ 
-        saving: false, 
-        success: response.success, 
-        message: response.message 
+
+      setSaveStatus({
+        saving: false,
+        success: response.success,
+        message: response.message
       });
-      
+
       // Clear status after 3 seconds
       setTimeout(() => {
         setSaveStatus({ saving: false });
       }, 3000);
-      
+
     } catch (error) {
-      setSaveStatus({ 
-        saving: false, 
-        success: false, 
-        message: error instanceof Error ? error.message : 'Failed to save backtest' 
+      setSaveStatus({
+        saving: false,
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to save backtest'
       });
     }
   };
@@ -430,14 +431,13 @@ const BacktestingBetaPage: React.FC = () => {
     setParams({
       stock_symbol: backtestData.stock_symbol || strategy.symbol || '',
       selected_indicators: backtestData.selected_indicators || {},
-      voting_threshold: backtestData.voting_threshold || 0.6,
+      voting_threshold: backtestData.voting_threshold ? backtestData.voting_threshold * 100 : 60,
       period: backtestData.period || '1y',
       timeframe: backtestData.timeframe || '1d',
       initial_capital: backtestData.initial_capital || 100000,
-      position_size_pct: backtestData.position_size_pct || 0.1,
+      position_size_pct: backtestData.position_size_pct ? backtestData.position_size_pct * 100 : 10,
       risk_reward_ratio: backtestData.risk_reward_ratio || 2.0,
       max_drawdown_pct: backtestData.max_drawdown_pct || 0.05,
-      monte_carlo_simulations: backtestData.monte_carlo_simulations || 1000,
       confidence_level: backtestData.confidence_level || 0.95
     });
 
@@ -514,14 +514,13 @@ const BacktestingBetaPage: React.FC = () => {
         periods: [20, 50]
       }
     },
-    voting_threshold: 0.6,
+    voting_threshold: 60,
     period: '1y',
     timeframe: '1d',
     initial_capital: 100000,
-    position_size_pct: 0.1,
+    position_size_pct: 10,
     risk_reward_ratio: 2.0,
     max_drawdown_pct: 0.05,
-    monte_carlo_simulations: 1000,
     confidence_level: 0.95
   });
 
@@ -541,18 +540,29 @@ const BacktestingBetaPage: React.FC = () => {
     Keltner: { name: 'Keltner Channels', hasParams: true }
   };
 
-  const stockOptions = [
-    { value: 'RELIANCE', label: 'Reliance Industries' },
-    { value: 'TCS', label: 'Tata Consultancy Services' },
-    { value: 'HDFCBANK', label: 'HDFC Bank' },
-    { value: 'INFY', label: 'Infosys' },
-    { value: 'ICICIBANK', label: 'ICICI Bank' },
-    { value: 'HINDUNILVR', label: 'Hindustan Unilever' },
-    { value: 'ITC', label: 'ITC Limited' },
-    { value: 'SBIN', label: 'State Bank of India' },
-    { value: 'BHARTIARTL', label: 'Bharti Airtel' },
-    { value: 'ASIANPAINT', label: 'Asian Paints' }
-  ];
+  // Fetch stock suggestions from Yahoo API
+  const fetchStockSuggestions = async (query: string) => {
+    if (query.length < 2) {
+      setStockSuggestions([]);
+      return;
+    }
+
+    setSuggestionsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/yahoo-suggest?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      if (data.quotes && Array.isArray(data.quotes)) {
+        setStockSuggestions(data.quotes);
+      } else {
+        setStockSuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching stock suggestions:', error);
+      setStockSuggestions([]);
+    } finally {
+      setSuggestionsLoading(false);
+    }
+  };
 
   const runBacktest = async () => {
     // Check if user is logged in
@@ -595,15 +605,23 @@ const BacktestingBetaPage: React.FC = () => {
           setIsLoading(false);
           return;
         }
-        
+
         // Increment usage for authenticated users
         await incrementBacktestUsage();
       }
 
+      // Convert frontend % values to decimals for the server
+      const serverParams = {
+        ...params,
+        position_size_pct: params.position_size_pct / 100,
+        voting_threshold: params.voting_threshold / 100,
+        monte_carlo_simulations: 1000,
+      };
+
       let data: any;
       if (!user) {
         // Use anonymous API for non-authenticated users (cookie-based, no sessionId needed)
-        data = await marketService.anonymousBacktest(params);
+        data = await marketService.anonymousBacktest(serverParams);
 
         // Update usage information if provided
         if (data.usage) {
@@ -614,11 +632,11 @@ const BacktestingBetaPage: React.FC = () => {
         }
       } else {
         // Use regular authenticated API
-        data = await backtestingService.runNewBacktest(params);
+        data = await backtestingService.runNewBacktest(serverParams);
       }
       setResult(data.data || data);
       setActiveTab('results');
-      
+
       // Track successful backtest completion
       trackEvent('backtest_completed', {
         symbol: params.stock_symbol,
@@ -722,7 +740,7 @@ const BacktestingBetaPage: React.FC = () => {
               type="number"
               value={config.period}
               onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -732,7 +750,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.oversold}
                 onChange={(e) => updateIndicatorParam(indicator, 'oversold', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -741,7 +759,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.overbought}
                 onChange={(e) => updateIndicatorParam(indicator, 'overbought', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -759,7 +777,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.fast_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'fast_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -768,7 +786,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.slow_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'slow_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -777,7 +795,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.signal_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'signal_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -798,7 +816,7 @@ const BacktestingBetaPage: React.FC = () => {
                 updateIndicatorParam(indicator, 'periods', periods);
               }}
               placeholder="20, 50, 200"
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -815,7 +833,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.period}
                 onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -825,7 +843,7 @@ const BacktestingBetaPage: React.FC = () => {
                 step="0.1"
                 value={config.std_dev}
                 onChange={(e) => updateIndicatorParam(indicator, 'std_dev', parseFloat(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -843,7 +861,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.k_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'k_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -852,7 +870,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.d_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'd_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -863,7 +881,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.oversold}
                 onChange={(e) => updateIndicatorParam(indicator, 'oversold', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -872,7 +890,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.overbought}
                 onChange={(e) => updateIndicatorParam(indicator, 'overbought', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -890,7 +908,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.period}
                 onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -899,7 +917,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.threshold}
                 onChange={(e) => updateIndicatorParam(indicator, 'threshold', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -916,7 +934,7 @@ const BacktestingBetaPage: React.FC = () => {
               type="number"
               value={config.period}
               onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -926,7 +944,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.oversold}
                 onChange={(e) => updateIndicatorParam(indicator, 'oversold', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -935,7 +953,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.overbought}
                 onChange={(e) => updateIndicatorParam(indicator, 'overbought', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -956,7 +974,7 @@ const BacktestingBetaPage: React.FC = () => {
                 updateIndicatorParam(indicator, 'periods', periods);
               }}
               placeholder="12, 26, 50"
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -973,7 +991,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.period}
                 onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -983,7 +1001,7 @@ const BacktestingBetaPage: React.FC = () => {
                 step="0.1"
                 value={config.multiplier}
                 onChange={(e) => updateIndicatorParam(indicator, 'multiplier', parseFloat(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -1001,7 +1019,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.period1}
                 onChange={(e) => updateIndicatorParam(indicator, 'period1', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -1010,7 +1028,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.period2}
                 onChange={(e) => updateIndicatorParam(indicator, 'period2', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -1019,7 +1037,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.period3}
                 onChange={(e) => updateIndicatorParam(indicator, 'period3', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -1036,7 +1054,7 @@ const BacktestingBetaPage: React.FC = () => {
               type="number"
               value={config.period}
               onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
@@ -1052,7 +1070,7 @@ const BacktestingBetaPage: React.FC = () => {
               type="number"
               value={config.period}
               onChange={(e) => updateIndicatorParam(indicator, 'period', parseInt(e.target.value))}
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1062,7 +1080,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.oversold}
                 onChange={(e) => updateIndicatorParam(indicator, 'oversold', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -1071,7 +1089,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.overbought}
                 onChange={(e) => updateIndicatorParam(indicator, 'overbought', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -1089,7 +1107,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.ema_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'ema_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -1098,7 +1116,7 @@ const BacktestingBetaPage: React.FC = () => {
                 type="number"
                 value={config.atr_period}
                 onChange={(e) => updateIndicatorParam(indicator, 'atr_period', parseInt(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
@@ -1108,7 +1126,7 @@ const BacktestingBetaPage: React.FC = () => {
                 step="0.1"
                 value={config.atr_mult}
                 onChange={(e) => updateIndicatorParam(indicator, 'atr_mult', parseFloat(e.target.value))}
-                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
@@ -1121,13 +1139,13 @@ const BacktestingBetaPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white transition-colors">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 pb-8 sm:pb-12">
         {/* Header */}
         <div className="relative mb-6 sm:mb-8 mt-8 sm:mt-12">
           <div className="text-center">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-1">
-              Backtest (Beta)
+              Backtesting
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 px-2">
               Comprehensive backtesting with advanced analytics and visualization
@@ -1166,11 +1184,10 @@ const BacktestingBetaPage: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`${
-                  activeTab === tab.id
-                    ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                } whitespace-nowrap py-2 sm:py-2.5 px-3 sm:px-5 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
+                className={`${activeTab === tab.id
+                  ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  } whitespace-nowrap py-2 sm:py-2.5 px-3 sm:px-5 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
               >
                 <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                 {tab.name}
@@ -1186,7 +1203,7 @@ const BacktestingBetaPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6 lg:p-8">
+            <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm p-4 sm:p-6 lg:p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
 
                 {/* Basic Parameters */}
@@ -1195,72 +1212,92 @@ const BacktestingBetaPage: React.FC = () => {
                     <CogIcon className="h-5 w-5 text-gray-400" />
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Basic Parameters</h3>
                   </div>
-                  
+
                   <div className="relative">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Stock Symbol
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        {suggestionsLoading ? (
+                          <div className="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                          </svg>
+                        )}
                       </div>
                       <input
                         type="text"
                         value={stockSearch || params.stock_symbol}
                         onChange={(e) => {
-                          setStockSearch(e.target.value);
+                          const value = e.target.value.toUpperCase();
+                          setStockSearch(value);
                           setShowStockSuggestions(true);
-                          if (e.target.value) {
-                            setParams(prev => ({ ...prev, stock_symbol: e.target.value.toUpperCase() }));
+                          setParams(prev => ({ ...prev, stock_symbol: value }));
+
+                          // Debounced API call
+                          if (searchTimeoutRef.current) {
+                            clearTimeout(searchTimeoutRef.current);
+                          }
+                          searchTimeoutRef.current = setTimeout(() => {
+                            fetchStockSuggestions(value);
+                          }, 300);
+                        }}
+                        onFocus={() => {
+                          setShowStockSuggestions(true);
+                          if (stockSearch.length >= 2 && stockSuggestions.length === 0) {
+                            fetchStockSuggestions(stockSearch || params.stock_symbol);
                           }
                         }}
-                        onFocus={() => setShowStockSuggestions(true)}
                         onBlur={() => setTimeout(() => setShowStockSuggestions(false), 200)}
-                        placeholder="Search for stocks (e.g., RELIANCE, TCS)"
-                        className="block w-full pl-10 pr-4 py-2.5 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="Type to search stocks (e.g., RELIANCE, TCS, INFY)"
+                        className="block w-full pl-10 pr-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
-                    
-                    {/* Stock Suggestions */}
-                    {showStockSuggestions && stockSearch && (
-                      <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
-                        {stockOptions
-                          .filter(option => 
-                            option.label.toLowerCase().includes(stockSearch.toLowerCase()) ||
-                            option.value.toLowerCase().includes(stockSearch.toLowerCase())
-                          )
-                          .map((option) => (
-                            <button
-                              key={option.value}
-                              onClick={() => {
-                                setParams(prev => ({ ...prev, stock_symbol: option.value }));
-                                setStockSearch('');
-                                setShowStockSuggestions(false);
-                              }}
-                              className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-600"
-                            >
-                              <div className="flex justify-between">
-                                <span className="font-medium text-gray-900 dark:text-white">{option.value}</span>
-                                <span className="text-sm text-gray-500 dark:text-gray-400">{option.label}</span>
-                              </div>
-                            </button>
-                          ))
-                        }
-                        {stockOptions.filter(option => 
-                          option.label.toLowerCase().includes(stockSearch.toLowerCase()) ||
-                          option.value.toLowerCase().includes(stockSearch.toLowerCase())
-                        ).length === 0 && (
-                          <div className="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">
-                            No stocks found. You can still enter a custom symbol.
+
+                    {/* Dynamic Stock Suggestions */}
+                    {showStockSuggestions && stockSearch && stockSearch.length >= 2 && (
+                      <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg max-h-60 rounded-lg py-1 text-base ring-1 ring-gray-200 dark:ring-gray-700 overflow-auto focus:outline-none">
+                        {suggestionsLoading ? (
+                          <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400 flex items-center space-x-2">
+                            <div className="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <span>Searching stocks...</span>
+                          </div>
+                        ) : stockSuggestions.length > 0 ? (
+                          stockSuggestions.map((suggestion, index) => {
+                            const cleanSymbol = suggestion.symbol.replace('.NS', '').replace('.BO', '');
+                            return (
+                              <button
+                                key={`${suggestion.symbol}-${index}`}
+                                onClick={() => {
+                                  setParams(prev => ({ ...prev, stock_symbol: cleanSymbol }));
+                                  setStockSearch('');
+                                  setShowStockSuggestions(false);
+                                  setStockSuggestions([]);
+                                }}
+                                className="w-full text-left px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-gray-700 focus:outline-none focus:bg-blue-50 dark:focus:bg-gray-700 transition-colors"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center space-x-3 min-w-0">
+                                    <span className="font-semibold text-gray-900 dark:text-white text-sm">{cleanSymbol}</span>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400 truncate">{suggestion.name}</span>
+                                  </div>
+                                  <span className="text-xs text-gray-400 dark:text-gray-500 ml-2 flex-shrink-0">{suggestion.exchange}</span>
+                                </div>
+                              </button>
+                            );
+                          })
+                        ) : (
+                          <div className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                            No stocks found for "{stockSearch}". You can still enter a custom symbol.
                           </div>
                         )}
                       </div>
                     )}
-                    
+
                     <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Search for stocks or enter a symbol directly. Current: <span className="font-medium">{params.stock_symbol}</span>
+                      Type at least 2 characters to search. Selected: <span className="font-semibold text-gray-700 dark:text-gray-200">{params.stock_symbol}</span>
                     </p>
                   </div>
 
@@ -1273,7 +1310,7 @@ const BacktestingBetaPage: React.FC = () => {
                         <select
                           value={params.period}
                           onChange={(e) => setParams(prev => ({ ...prev, period: e.target.value }))}
-                          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white pl-4 pr-10 py-2.5 appearance-none"
+                          className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-4 pr-10 py-2.5 appearance-none"
                         >
                           <option value="1mo">1 Month</option>
                           <option value="3mo">3 Months</option>
@@ -1299,7 +1336,7 @@ const BacktestingBetaPage: React.FC = () => {
                         <select
                           value={params.timeframe}
                           onChange={(e) => setParams(prev => ({ ...prev, timeframe: e.target.value }))}
-                          className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white pl-4 pr-10 py-2.5 appearance-none"
+                          className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-4 pr-10 py-2.5 appearance-none"
                         >
                           <option value="1d">1 Day</option>
                           <option value="1h">1 Hour</option>
@@ -1328,7 +1365,7 @@ const BacktestingBetaPage: React.FC = () => {
                         type="number"
                         value={params.initial_capital}
                         onChange={(e) => setParams(prev => ({ ...prev, initial_capital: parseFloat(e.target.value) }))}
-                        className="block w-full pl-8 pr-4 py-2.5 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        className="block w-full pl-8 pr-4 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         min="1000"
                         step="1000"
                       />
@@ -1343,48 +1380,49 @@ const BacktestingBetaPage: React.FC = () => {
                     <div className="relative rounded-md shadow-sm">
                       <input
                         type="number"
-                        step="0.01"
-                        min="0.01"
-                        max="1"
+                        step="1"
+                        min="1"
+                        max="100"
                         value={params.position_size_pct}
                         onChange={(e) => setParams(prev => ({ ...prev, position_size_pct: parseFloat(e.target.value) }))}
-                        className="block w-full pr-10 py-2.5 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                        placeholder="e.g. 10"
+                        className="block w-full pr-10 py-2.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                         <span className="text-gray-500 dark:text-gray-400 sm:text-sm">%</span>
                       </div>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage of capital to use per trade (0.1 = 10%)</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage of capital to use per trade (e.g. 10 = 10%)</p>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Voting Threshold
+                      Voting Threshold (%)
                     </label>
                     <div className="mt-1">
                       <input
                         type="range"
-                        step="0.1"
-                        min="0.1"
-                        max="1"
+                        step="10"
+                        min="10"
+                        max="100"
                         value={params.voting_threshold}
                         onChange={(e) => setParams(prev => ({ ...prev, voting_threshold: parseFloat(e.target.value) }))}
                         className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
                       />
                       <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 px-1 mt-1">
-                        <span>0.1</span>
-                        <span>0.5</span>
-                        <span>1.0</span>
+                        <span>10%</span>
+                        <span>50%</span>
+                        <span>100%</span>
                       </div>
                       <div className="text-center mt-2 text-sm font-medium text-blue-600 dark:text-blue-400">
-                        {params.voting_threshold.toFixed(1)}
+                        {params.voting_threshold}%
                       </div>
                     </div>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage of indicators needed for signal (0.6 = 60%)</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Percentage of indicators that must agree for a signal</p>
                   </div>
-                  
+
                   {/* Proactive Warning for High Threshold */}
-                  {Object.keys(params.selected_indicators).length > 2 && params.voting_threshold > 0.7 && (
+                  {Object.keys(params.selected_indicators).length > 2 && params.voting_threshold > 70 && (
                     <div className="bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-l-4 border-yellow-400 p-4 rounded-lg">
                       <div className="flex items-start">
                         <div className="flex-shrink-0">
@@ -1397,8 +1435,8 @@ const BacktestingBetaPage: React.FC = () => {
                             ⚠️ High Voting Threshold Warning
                           </h4>
                           <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
-                            You have {Object.keys(params.selected_indicators).length} indicators with {(params.voting_threshold * 100).toFixed(0)}% threshold. 
-                            This means <strong>{Math.ceil(Object.keys(params.selected_indicators).length * params.voting_threshold)} out of {Object.keys(params.selected_indicators).length}</strong> indicators must agree for a signal.
+                            You have {Object.keys(params.selected_indicators).length} indicators with {params.voting_threshold}% threshold.
+                            This means <strong>{Math.ceil(Object.keys(params.selected_indicators).length * params.voting_threshold / 100)} out of {Object.keys(params.selected_indicators).length}</strong> indicators must agree for a signal.
                             This might result in very few or no trading signals.
                           </p>
                           <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2">
@@ -1418,7 +1456,7 @@ const BacktestingBetaPage: React.FC = () => {
                     </svg>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Technical Indicators</h3>
                   </div>
-                  
+
                   {/* Add Indicator Dropdown */}
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -1432,7 +1470,7 @@ const BacktestingBetaPage: React.FC = () => {
                             e.target.value = '';
                           }
                         }}
-                        className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white pl-4 pr-10 py-2.5 appearance-none"
+                        className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pl-4 pr-10 py-2.5 appearance-none"
                       >
                         <option value="">Select an indicator to add...</option>
                         {Object.entries(availableIndicators)
@@ -1451,7 +1489,7 @@ const BacktestingBetaPage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Indicator Pool Container */}
                   <div className="min-h-[200px] bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4">
                     {Object.keys(params.selected_indicators).length === 0 ? (
@@ -1467,10 +1505,10 @@ const BacktestingBetaPage: React.FC = () => {
                         {Object.entries(params.selected_indicators).map(([key, config]) => {
                           const indicator = availableIndicators[key];
                           if (!indicator) return null;
-                          
+
                           return (
-                            <IndicatorChip 
-                              key={key} 
+                            <IndicatorChip
+                              key={key}
                               indicatorKey={key}
                               indicator={indicator}
                               config={config}
@@ -1494,19 +1532,23 @@ const BacktestingBetaPage: React.FC = () => {
                   </svg>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Advanced Parameters</h3>
                 </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Risk-Reward Ratio
                     </label>
-                    <input
-                      type="number"
-                      step="0.1"
+                    <select
                       value={params.risk_reward_ratio}
                       onChange={(e) => setParams(prev => ({ ...prev, risk_reward_ratio: parseFloat(e.target.value) }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5"
+                    >
+                      <option value="1">1:1</option>
+                      <option value="2">1:2</option>
+                      <option value="3">1:3</option>
+                      <option value="4">1:4</option>
+                      <option value="5">1:5</option>
+                    </select>
                   </div>
 
                   <div>
@@ -1518,21 +1560,10 @@ const BacktestingBetaPage: React.FC = () => {
                       step="0.01"
                       value={params.max_drawdown_pct * 100}
                       onChange={(e) => setParams(prev => ({ ...prev, max_drawdown_pct: parseFloat(e.target.value) / 100 }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                      className="block w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Monte Carlo Simulations
-                    </label>
-                    <input
-                      type="number"
-                      value={params.monte_carlo_simulations}
-                      onChange={(e) => setParams(prev => ({ ...prev, monte_carlo_simulations: parseInt(e.target.value) }))}
-                      className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -1576,21 +1607,20 @@ const BacktestingBetaPage: React.FC = () => {
                   <button
                     onClick={handleSaveBacktest}
                     disabled={saveStatus.saving}
-                    className={`px-4 py-2 rounded-md text-sm font-medium ${
-                      saveStatus.saving ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400' :
+                    className={`px-4 py-2 rounded-md text-sm font-medium ${saveStatus.saving ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400' :
                       saveStatus.success === true ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' :
-                      saveStatus.success === false ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' :
-                      'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
-                    } transition-colors`}
+                        saveStatus.success === false ? 'bg-gray-900 dark:bg-white text-white dark:text-gray-900' :
+                          'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100'
+                      } transition-colors`}
                   >
-                    {saveStatus.saving ? 'Saving...' : 
-                     saveStatus.success === true ? 'Saved!' : 
-                     saveStatus.success === false ? 'Failed to Save' : 
-                     'Save Strategy'}
+                    {saveStatus.saving ? 'Saving...' :
+                      saveStatus.success === true ? 'Saved!' :
+                        saveStatus.success === false ? 'Failed to Save' :
+                          'Save Strategy'}
                   </button>
                 </div>
               )}
-              
+
               {saveStatus.message && (
                 <div className={`p-3 rounded-md ${saveStatus.success ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`}>
                   {saveStatus.message}
@@ -1601,7 +1631,7 @@ const BacktestingBetaPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
                   <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Return</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  <p className={`text-xl sm:text-2xl font-bold mt-1 ${result.metrics.Total_Return >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {formatCurrency(result.metrics.Total_Return)}
                   </p>
                   <p className={`text-sm ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
@@ -1611,7 +1641,7 @@ const BacktestingBetaPage: React.FC = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
                   <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Win Rate</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  <p className="text-xl sm:text-2xl font-bold text-green-600 dark:text-green-400 mt-1">
                     {result.metrics.Win_Rate.toFixed(1)}%
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1621,7 +1651,7 @@ const BacktestingBetaPage: React.FC = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
                   <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Sharpe Ratio</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  <p className={`text-xl sm:text-2xl font-bold mt-1 ${result.metrics.Sharpe_Ratio >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                     {result.metrics.Sharpe_Ratio.toFixed(3)}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1631,83 +1661,83 @@ const BacktestingBetaPage: React.FC = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 sm:p-5 rounded-lg border border-gray-200 dark:border-gray-800">
                   <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Max Drawdown</h3>
-                  <p className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                  <p className="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400 mt-1">
                     {result.metrics.Max_Drawdown.toFixed(2)}%
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-red-500 dark:text-red-400">
                     Maximum loss
                   </p>
                 </div>
               </div>
 
               {/* Low/No Signal Warning */}
-              {(result.metrics.Number_of_Trades === 0 || 
-                isNaN(result.metrics.Number_of_Trades) || 
-                result.metrics.Win_Rate === 0 || 
+              {(result.metrics.Number_of_Trades === 0 ||
+                isNaN(result.metrics.Number_of_Trades) ||
+                result.metrics.Win_Rate === 0 ||
                 isNaN(result.metrics.Win_Rate)) && (
-                <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 rounded-lg">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0">
-                      <svg className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                      </svg>
-                    </div>
-                    <div className="ml-3 sm:ml-4">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
-                        No Trading Signals Generated
-                      </h3>
-                      <div className="mt-2 sm:mt-3 text-gray-600 dark:text-gray-300">
-                        <p className="text-sm font-medium mb-2">
-                          Your selected indicators are not generating any trading signals. This typically happens when:
-                        </p>
-                        <ul className="text-sm space-y-1 ml-4 list-disc">
-                          <li>**Voting threshold is too high** - Currently set to {(params.voting_threshold * 100).toFixed(0)}% with {Object.keys(params.selected_indicators).length} indicators</li>
-                          <li>The selected indicators rarely agree on the same signal timing</li>
-                          <li>Market conditions don't align with your indicator combination</li>
-                        </ul>
+                  <div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 rounded-lg">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
                       </div>
-                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Suggested Solutions:</h4>
-                        <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
-                          <div className="flex items-start space-x-2">
-                            <span className="font-medium text-gray-900 dark:text-white">1.</span>
-                            <span>**Lower the voting threshold** to {Math.max(0.3, (params.voting_threshold - 0.2)).toFixed(1)} ({(Math.max(0.3, (params.voting_threshold - 0.2)) * 100).toFixed(0)}%) or less</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="font-medium text-gray-900 dark:text-white">2.</span>
-                            <span>**Reduce the number of indicators** - Try using 2-3 complementary indicators instead of {Object.keys(params.selected_indicators).length}</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="font-medium text-gray-900 dark:text-white">3.</span>
-                            <span>**Adjust indicator parameters** - Try more sensitive settings (lower RSI periods, shorter MA periods)</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="font-medium text-gray-900 dark:text-white">4.</span>
-                            <span>**Try different time periods** - Switch to shorter timeframes (1h instead of 1d) for more signals</span>
+                      <div className="ml-3 sm:ml-4">
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
+                          No Trading Signals Generated
+                        </h3>
+                        <div className="mt-2 sm:mt-3 text-gray-600 dark:text-gray-300">
+                          <p className="text-sm font-medium mb-2">
+                            Your selected indicators are not generating any trading signals. This typically happens when:
+                          </p>
+                          <ul className="text-sm space-y-1 ml-4 list-disc">
+                            <li>**Voting threshold is too high** - Currently set to {params.voting_threshold}% with {Object.keys(params.selected_indicators).length} indicators</li>
+                            <li>The selected indicators rarely agree on the same signal timing</li>
+                            <li>Market conditions don't align with your indicator combination</li>
+                          </ul>
+                        </div>
+                        <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700">
+                          <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">Suggested Solutions:</h4>
+                          <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                            <div className="flex items-start space-x-2">
+                              <span className="font-medium text-gray-900 dark:text-white">1.</span>
+                              <span>**Lower the voting threshold** to {Math.max(30, params.voting_threshold - 20)}% or less</span>
+                            </div>
+                            <div className="flex items-start space-x-2">
+                              <span className="font-medium text-gray-900 dark:text-white">2.</span>
+                              <span>**Reduce the number of indicators** - Try using 2-3 complementary indicators instead of {Object.keys(params.selected_indicators).length}</span>
+                            </div>
+                            <div className="flex items-start space-x-2">
+                              <span className="font-medium text-gray-900 dark:text-white">3.</span>
+                              <span>**Adjust indicator parameters** - Try more sensitive settings (lower RSI periods, shorter MA periods)</span>
+                            </div>
+                            <div className="flex items-start space-x-2">
+                              <span className="font-medium text-gray-900 dark:text-white">4.</span>
+                              <span>**Try different time periods** - Switch to shorter timeframes (1h instead of 1d) for more signals</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="mt-4 flex space-x-3">
-                        <button
-                          onClick={() => {
-                            setParams(prev => ({ ...prev, voting_threshold: Math.max(0.3, prev.voting_threshold - 0.2) }));
-                            setActiveTab('parameters');
-                          }}
-                          className="px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
-                        >
-                          Lower Threshold to {(Math.max(0.3, (params.voting_threshold - 0.2)) * 100).toFixed(0)}%
-                        </button>
-                        <button
-                          onClick={() => setActiveTab('parameters')}
-                          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors"
-                        >
-                          Adjust Parameters
-                        </button>
+                        <div className="mt-4 flex space-x-3">
+                          <button
+                            onClick={() => {
+                              setParams(prev => ({ ...prev, voting_threshold: Math.max(30, prev.voting_threshold - 20) }));
+                              setActiveTab('parameters');
+                            }}
+                            className="px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 text-sm font-medium rounded-lg transition-colors"
+                          >
+                            Lower Threshold to {Math.max(30, params.voting_threshold - 20)}%
+                          </button>
+                          <button
+                            onClick={() => setActiveTab('parameters')}
+                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-900 dark:text-white text-sm font-medium rounded-lg transition-colors"
+                          >
+                            Adjust Parameters
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Detailed Metrics with Charts */}
               <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6">
@@ -1866,8 +1896,8 @@ const BacktestingBetaPage: React.FC = () => {
                         </div>
                         <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
                           <div className="font-medium text-gray-500 dark:text-gray-400">Total Return</div>
-                          <div className="text-sm font-bold text-gray-900 dark:text-white">
-                            {result.metrics.Total_Return_Pct.toFixed(2)}%
+                          <div className={`text-sm font-bold ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                            {result.metrics.Total_Return_Pct >= 0 ? '+' : ''}{result.metrics.Total_Return_Pct.toFixed(2)}%
                           </div>
                         </div>
                       </div>
@@ -1930,7 +1960,7 @@ const BacktestingBetaPage: React.FC = () => {
                       <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
                         <div className="bg-gray-50 dark:bg-gray-800 p-2 rounded-lg border border-gray-200 dark:border-gray-700">
                           <div className="font-medium text-gray-500 dark:text-gray-400">Max Drawdown</div>
-                          <div className="text-sm font-bold text-gray-900 dark:text-white">
+                          <div className="text-sm font-bold text-red-600 dark:text-red-400">
                             {result.metrics.Max_Drawdown.toFixed(2)}%
                           </div>
                         </div>
@@ -1952,11 +1982,11 @@ const BacktestingBetaPage: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Total Return:</span>
-                        <span className="text-sm font-medium">{formatCurrency(result.metrics.Total_Return)}</span>
+                        <span className={`text-sm font-medium ${result.metrics.Total_Return >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{formatCurrency(result.metrics.Total_Return)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Total Return %:</span>
-                        <span className="text-sm font-medium">{result.metrics.Total_Return_Pct.toFixed(2)}%</span>
+                        <span className={`text-sm font-medium ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{result.metrics.Total_Return_Pct >= 0 ? '+' : ''}{result.metrics.Total_Return_Pct.toFixed(2)}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Average Trade:</span>
@@ -1970,7 +2000,7 @@ const BacktestingBetaPage: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Sharpe Ratio:</span>
-                        <span className="text-sm font-medium">{result.metrics.Sharpe_Ratio.toFixed(3)}</span>
+                        <span className={`text-sm font-medium ${result.metrics.Sharpe_Ratio >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>{result.metrics.Sharpe_Ratio.toFixed(3)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Sortino Ratio:</span>
@@ -1988,7 +2018,7 @@ const BacktestingBetaPage: React.FC = () => {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Win Rate:</span>
-                        <span className="text-sm font-medium">{result.metrics.Win_Rate.toFixed(1)}%</span>
+                        <span className="text-sm font-medium text-green-600 dark:text-green-400">{result.metrics.Win_Rate.toFixed(1)}%</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-sm text-gray-600 dark:text-gray-400">Profit Factor:</span>
@@ -2048,9 +2078,8 @@ const BacktestingBetaPage: React.FC = () => {
                               {new Date(trade.Exit_Date).toLocaleDateString()}
                             </td>
                             <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                trade.Direction === 'Long' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                              }`}>
+                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${trade.Direction === 'Long' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }`}>
                                 {trade.Direction}
                               </span>
                             </td>
@@ -2060,14 +2089,12 @@ const BacktestingBetaPage: React.FC = () => {
                             <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                               ₹{trade.Exit_Price.toFixed(2)}
                             </td>
-                            <td className={`px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                              trade.PnL >= 0 ? 'text-green-600' : 'text-red-600'
-                            }`}>
+                            <td className={`px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${trade.PnL >= 0 ? 'text-green-600' : 'text-red-600'
+                              }`}>
                               {formatCurrency(trade.PnL)}
                             </td>
-                            <td className={`px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${
-                              trade.Return_Pct >= 0 ? 'text-green-600' : 'text-red-600'
-                            }`}>
+                            <td className={`px-3 sm:px-6 py-4 whitespace-nowrap text-sm font-medium ${trade.Return_Pct >= 0 ? 'text-green-600' : 'text-red-600'
+                              }`}>
                               {trade.Return_Pct.toFixed(2)}%
                             </td>
                             <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
@@ -2078,7 +2105,7 @@ const BacktestingBetaPage: React.FC = () => {
                       </tbody>
                     </table>
                   </div>
-                  
+
                   {result.trades.length > 10 && (
                     <div className="mt-4 text-center">
                       <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -2093,7 +2120,7 @@ const BacktestingBetaPage: React.FC = () => {
               {result.monte_carlo && (
                 <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 p-4 sm:p-6">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 sm:mb-6">Monte Carlo Analysis</h3>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     <div className="space-y-2">
                       <h4 className="font-medium text-gray-700 dark:text-gray-300">Expected Returns</h4>
@@ -2147,7 +2174,7 @@ const BacktestingBetaPage: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
             </div>
           </motion.div>
         )}
@@ -2222,31 +2249,31 @@ const BacktestingBetaPage: React.FC = () => {
 
               {/* Equity and Drawdown in Grid */}
               <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
-              {/* Equity Curve */}
-              <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
-                <div className="mb-3 sm:mb-4 lg:mb-6">
-                  <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
-                    📈 Portfolio Equity Curve
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Portfolio value over time showing growth and performance
-                  </p>
-                </div>
+                {/* Equity Curve */}
+                <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 p-3 sm:p-4 lg:p-6">
+                  <div className="mb-3 sm:mb-4 lg:mb-6">
+                    <h3 className="text-base sm:text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
+                      📈 Portfolio Equity Curve
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1">
+                      Portfolio value over time showing growth and performance
+                    </p>
+                  </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
-                  <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
-                    <Plot
+                  <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
+                    <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
+                      <Plot
                         data={JSON.parse(result.charts.equity_curve).data}
                         layout={{
                           ...JSON.parse(result.charts.equity_curve).layout,
                           height: 350,
-                          margin: { 
+                          margin: {
                             l: 60, r: 30, t: 30, b: 50,
                             pad: 4
                           },
                           paper_bgcolor: 'rgba(0,0,0,0)',
                           plot_bgcolor: 'rgba(0,0,0,0)',
-                          font: { 
+                          font: {
                             color: '#374151',
                             family: 'Inter, system-ui, sans-serif',
                             size: 9
@@ -2261,7 +2288,7 @@ const BacktestingBetaPage: React.FC = () => {
                             title: { font: { size: 9 } }
                           }
                         }}
-                        config={{ 
+                        config={{
                           responsive: true,
                           displayModeBar: false
                         }}
@@ -2270,7 +2297,7 @@ const BacktestingBetaPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   {/* Equity Stats */}
                   <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                     <div className="bg-green-50 dark:bg-green-900/20 p-2 sm:p-3 rounded-lg">
@@ -2279,10 +2306,10 @@ const BacktestingBetaPage: React.FC = () => {
                         {formatCurrency(result.metrics.Total_Return + (params.initial_capital || 100000))}
                       </div>
                     </div>
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-3 rounded-lg">
-                      <div className="font-medium text-blue-700 dark:text-blue-300">Total Return</div>
-                      <div className="text-sm sm:text-lg font-bold text-blue-600 dark:text-blue-400">
-                        {result.metrics.Total_Return_Pct.toFixed(2)}%
+                    <div className={`p-2 sm:p-3 rounded-lg ${result.metrics.Total_Return_Pct >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20'}`}>
+                      <div className={`font-medium ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>Total Return</div>
+                      <div className={`text-sm sm:text-lg font-bold ${result.metrics.Total_Return_Pct >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        {result.metrics.Total_Return_Pct >= 0 ? '+' : ''}{result.metrics.Total_Return_Pct.toFixed(2)}%
                       </div>
                     </div>
                   </div>
@@ -2298,7 +2325,7 @@ const BacktestingBetaPage: React.FC = () => {
                       Peak-to-trough decline showing portfolio risk periods
                     </p>
                   </div>
-                  
+
                   <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-2 sm:p-3 lg:p-4">
                     <div className="h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full">
                       <Plot
@@ -2306,13 +2333,13 @@ const BacktestingBetaPage: React.FC = () => {
                         layout={{
                           ...JSON.parse(result.charts.drawdown).layout,
                           height: 350,
-                          margin: { 
+                          margin: {
                             l: 60, r: 30, t: 30, b: 50,
                             pad: 4
                           },
                           paper_bgcolor: 'rgba(0,0,0,0)',
                           plot_bgcolor: 'rgba(0,0,0,0)',
-                          font: { 
+                          font: {
                             color: '#374151',
                             family: 'Inter, system-ui, sans-serif',
                             size: 9
@@ -2327,7 +2354,7 @@ const BacktestingBetaPage: React.FC = () => {
                             title: { font: { size: 9 } }
                           }
                         }}
-                        config={{ 
+                        config={{
                           responsive: true,
                           displayModeBar: false
                         }}
@@ -2336,7 +2363,7 @@ const BacktestingBetaPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  
+
                   {/* Drawdown Stats */}
                   <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
                     <div className="bg-red-50 dark:bg-red-900/20 p-2 sm:p-3 rounded-lg">
@@ -2436,7 +2463,7 @@ const BacktestingBetaPage: React.FC = () => {
                         </div>
                         <div className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                           <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Win Rate</p>
-                          <p className="text-lg font-bold text-blue-600">
+                          <p className="text-lg font-bold text-green-600 dark:text-green-400">
                             {winRate.toFixed(1)}%
                           </p>
                         </div>
@@ -2520,7 +2547,7 @@ const BacktestingBetaPage: React.FC = () => {
             </div>
           </div>
         )}
-        
+
         {/* Save Strategy Modal */}
         {showSaveModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -2536,7 +2563,7 @@ const BacktestingBetaPage: React.FC = () => {
                 value={strategyName}
                 onChange={(e) => setStrategyName(e.target.value)}
                 placeholder="Enter strategy name..."
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 autoFocus
               />
               <div className="flex justify-end space-x-3">
@@ -2552,11 +2579,10 @@ const BacktestingBetaPage: React.FC = () => {
                 <button
                   onClick={handleConfirmSave}
                   disabled={!strategyName.trim()}
-                  className={`px-4 py-2 rounded-md text-white transition-colors ${
-                    strategyName.trim()
-                      ? 'bg-blue-600 hover:bg-blue-700'
-                      : 'bg-gray-400 cursor-not-allowed'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-white transition-colors ${strategyName.trim()
+                    ? 'bg-blue-600 hover:bg-blue-700'
+                    : 'bg-gray-400 cursor-not-allowed'
+                    }`}
                 >
                   Save Strategy
                 </button>
@@ -2569,21 +2595,21 @@ const BacktestingBetaPage: React.FC = () => {
         {/* Limit Exceeded Modal - Inline */}
         {showLimitModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-              <h3 className="text-xl font-bold mb-4">Daily Limit Reached</h3>
-              <p className="text-gray-600 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md mx-4">
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Daily Limit Reached</h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 You have reached your daily limit for backtesting. Please upgrade your plan to continue using this feature.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => window.location.href = '/premium'}
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   View Plans
                 </button>
                 <button
                   onClick={() => setShowLimitModal(false)}
-                  className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+                  className="flex-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
                   Close
                 </button>

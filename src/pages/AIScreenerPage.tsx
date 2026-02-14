@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import aiScreenerService, {
   ScreenerResult,
   ScreenResponse,
@@ -53,8 +54,8 @@ const severityColor: Record<string, string> = {
 };
 
 const TIMEFRAME_OPTIONS: { value: AIScreenerTimeframe; label: string; sub: string }[] = [
-  { value: '1d', label: 'Daily', sub: 'Position (5-20 days)' },
-  { value: '1h', label: 'Hourly', sub: 'Swing (1-5 days)' },
+  { value: '1d', label: '1D', sub: '' },
+  { value: '1h', label: '1H', sub: '' },
 ];
 
 /** Convert bars_ago + timeframe to human-readable "X days/hours ago" */
@@ -66,6 +67,9 @@ const barsAgoText = (barsAgo: number, tf: string): string => {
 
 /* ─── Component ─────────────────────────────────────────── */
 const AIScreenerPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navQueryHandled = useRef(false);
+
   // screening
   const [screenData, setScreenData] = useState<ScreenResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -84,11 +88,33 @@ const AIScreenerPage: React.FC = () => {
   const [detailLoading, setDetailLoading] = useState(false);
 
   // quick screen
-  const [quickSymbols, setQuickSymbols] = useState('');
+  const [quickSymbols, setQuickSymbols] = useState(searchParams.get('q') || '');
 
   // filters
   const [minScore, setMinScore] = useState(0);
   const [sectorFilter, setSectorFilter] = useState('');
+
+  // loading phase animation
+  const [loadingPhase, setLoadingPhase] = useState(0);
+  const AI_PHASES = useMemo(() => [
+    { text: 'Initializing AI engine...', icon: '⚡' },
+    { text: 'Connecting to market feeds...', icon: '📡' },
+    { text: 'Fetching live NIFTY 50 prices...', icon: '📊' },
+    { text: 'Analyzing volume patterns...', icon: '🔍' },
+    { text: 'Computing momentum signals...', icon: '📈' },
+    { text: 'Detecting market regime...', icon: '🧠' },
+    { text: 'Running anomaly detection...', icon: '⚠️' },
+    { text: 'Scoring & ranking stocks...', icon: '🏆' },
+    { text: 'Almost there, finalizing results...', icon: '✨' },
+  ], []);
+
+  useEffect(() => {
+    if (!loading) { setLoadingPhase(0); return; }
+    const interval = setInterval(() => {
+      setLoadingPhase((p) => (p + 1) % AI_PHASES.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [loading, AI_PHASES.length]);
 
   /* ── Re-fetch when timeframe changes — serve from cache if fresh ─── */
   const [hasScreened, setHasScreened] = useState(false);
@@ -134,6 +160,34 @@ const AIScreenerPage: React.FC = () => {
     };
     loadMarketInfo();
   }, []);
+
+  /* ── Auto-run quick screen from navbar search (?q= param) ─── */
+  useEffect(() => {
+    const navQuery = searchParams.get('q');
+    if (navQuery && !navQueryHandled.current) {
+      navQueryHandled.current = true;
+      // Clean the symbol (remove .NS/.BO suffixes if present)
+      const cleanSymbol = navQuery.replace(/\.(NS|BO)$/i, '').toUpperCase();
+      setQuickSymbols(cleanSymbol);
+      // Auto-run quick screen
+      (async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const data = await aiScreenerService.quickScreen([cleanSymbol], 10, timeframe);
+          setScreenData(data);
+          setHasScreened(true);
+          screenCache[timeframe] = { data, timestamp: Date.now() };
+        } catch (e: any) {
+          setError(e?.response?.data?.error || e.message || 'Quick screen failed');
+        } finally {
+          setLoading(false);
+        }
+      })();
+      // Clean the URL param after handling
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams, timeframe]);
 
   /* ── Run full screen ─── */
   const runFullScreen = useCallback(async () => {
@@ -227,7 +281,7 @@ const AIScreenerPage: React.FC = () => {
                 <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
                 Screening...
               </span>
-            ) : 'Run Full Screen'}
+            ) : 'Start AI'}
           </button>
         </div>
 
@@ -383,14 +437,56 @@ const AIScreenerPage: React.FC = () => {
           <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 rounded-lg p-3 text-sm">{error}</div>
         )}
 
-        {/* Loading */}
+        {/* Loading — AI thinking animation */}
         {loading && (
-          <div className="text-center py-10">
-            <div className="inline-block animate-spin rounded-full h-9 w-9 border-4 border-primary-500 border-t-transparent" />
-            <p className="mt-2.5 text-gray-500 dark:text-gray-400 text-sm">
-              Fetching live data and computing features...
-              <br />
-              <span className="text-xs">This may take 2-5 minutes for a full NIFTY 50 scan.</span>
+          <div className="flex flex-col items-center py-14 select-none">
+            {/* Pulsing brain / orbit animation */}
+            <div className="relative w-20 h-20 mb-6">
+              {/* Outer ring */}
+              <div className="absolute inset-0 rounded-full border-2 border-primary-300 dark:border-primary-700 opacity-40 animate-ping" style={{ animationDuration: '2.5s' }} />
+              {/* Middle orbit */}
+              <div className="absolute inset-1 rounded-full border border-dashed border-primary-400 dark:border-primary-600 animate-spin" style={{ animationDuration: '6s' }} />
+              {/* Inner glow */}
+              <div className="absolute inset-3 rounded-full bg-primary-500/10 dark:bg-primary-400/10 animate-pulse" />
+              {/* Center icon */}
+              <div className="absolute inset-0 flex items-center justify-center text-2xl">
+                <span
+                  key={loadingPhase}
+                  className="animate-fade-in"
+                >
+                  {AI_PHASES[loadingPhase].icon}
+                </span>
+              </div>
+              {/* Orbiting dot */}
+              <div className="absolute inset-0 animate-spin" style={{ animationDuration: '3s' }}>
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary-500 shadow-md shadow-primary-500/50" />
+              </div>
+            </div>
+
+            {/* Phase text */}
+            <p
+              key={loadingPhase}
+              className="text-sm font-medium text-gray-700 dark:text-gray-200 animate-fade-in"
+            >
+              {AI_PHASES[loadingPhase].text}
+            </p>
+
+            {/* Progress dots */}
+            <div className="flex gap-1.5 mt-3">
+              {AI_PHASES.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-1 rounded-full transition-all duration-500 ${
+                    i <= loadingPhase
+                      ? 'w-4 bg-primary-500'
+                      : 'w-1.5 bg-gray-300 dark:bg-gray-700'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <p className="mt-4 text-[11px] text-gray-400 dark:text-gray-500">
+              This may take 2-5 minutes for a full NIFTY 50 scan
             </p>
           </div>
         )}

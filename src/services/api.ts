@@ -649,16 +649,6 @@ export const marketService = {
     }
   },
   
-  // Get comprehensive fundamental analysis data
-  getStockFundamentals: async (symbol: string) => {
-    try {
-      const response = await api.get(`/stock/fundamentals?ticker=${symbol}`);
-      return response.data;
-    } catch (error) {
-      console.error(`Error fetching fundamentals for ${symbol}:`, error);
-      throw error;
-    }
-  },
 
   // Get full trade forecast (LSTM + HMM combined analysis)
   // getFullTradeForecast: async (ticker: string) => {

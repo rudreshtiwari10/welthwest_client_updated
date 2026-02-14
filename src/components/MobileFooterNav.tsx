@@ -263,19 +263,6 @@ const MobileFooterNav: React.FC = () => {
                 </div>
               </Link>
               
-              <Link
-                to="/stock/Reliance"
-                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
-                onClick={handleNavigation}
-              >
-                <div className="mr-3 text-purple-400">
-                  <i className="fas fa-trophy h-5 w-5"></i>
-                </div>
-                <div>
-                  <div className="font-medium text-white">Stocks</div>
-                  <div className="text-xs text-gray-400">Top performing stocks & market insights</div>
-                </div>
-              </Link>
 
             </div>
           </div>

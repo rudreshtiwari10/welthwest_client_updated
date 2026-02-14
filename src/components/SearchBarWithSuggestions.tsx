@@ -149,8 +149,8 @@ const SearchBarWithSuggestions: React.FC<SearchBarWithSuggestionsProps> = ({
     if (onSearch) {
       onSearch(searchTerm);
     } else {
-      // Navigate to stock page instead of markets page
-      navigate(`/stock/${searchTerm.split('.')[0]}`); // Remove exchange suffix if present
+      // Navigate to AI Screener page with the search query
+      navigate(`/ai-screener?q=${encodeURIComponent(searchTerm)}`);
     }
 
     setShowSuggestions(false);

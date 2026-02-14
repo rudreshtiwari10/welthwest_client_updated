@@ -107,7 +107,7 @@ const AIFeatureBanner: React.FC = () => {
   };
   
   const handleTryNow = () => {
-    navigate('/stock/RELIANCE');
+    navigate('/stock');
     handleDismiss();
   };
   
@@ -235,7 +235,6 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/admin/activity-logs" element={<PrivateRoute><AdminActivityLogsPage /></PrivateRoute>} />
                 {/* PUBLIC ROUTES WITH ANONYMOUS TRIAL - All feature pages are now public with 10 free runs */}
                 <Route path="/stock" element={<StockPage />} />
-                <Route path="/stock/:symbol" element={<StockPage />} />
                 <Route path="/backtesting" element={<BacktestingPage />} />
                 <Route path="/backtesting-beta" element={<BacktestingBetaPage />} />
                 {/* Alias for backtest beta as requested */}

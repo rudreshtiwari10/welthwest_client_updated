@@ -72,14 +72,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
     return path.startsWith('/ai-screener') || path.startsWith('/backtesting');
   };
 
-  // Popular Indian stocks for quick access
-  const popularStocks = [
-    { symbol: 'RELIANCE', name: 'Reliance Industries' },
-    { symbol: 'TCS', name: 'Tata Consultancy Services' },
-    { symbol: 'HDFCBANK', name: 'HDFC Bank' },
-    { symbol: 'INFY', name: 'Infosys' },
-    { symbol: 'ICICIBANK', name: 'ICICI Bank' }
-  ];
 
   // Handle click outside to close dropdowns
   useEffect(() => {
@@ -272,22 +264,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       </div>
                     </a>
 
-                    {/* Popular Stocks Quick Access */}
-                    <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Popular Stocks</div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {popularStocks.map((stock) => (
-                          <Link
-                            key={stock.symbol}
-                            to={`/stock/${stock.symbol}`}
-                            className="text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-primary-600 dark:hover:text-primary-400 rounded transition-colors"
-                            onClick={() => setShowStocksMenu(false)}
-                          >
-                            {stock.symbol}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
