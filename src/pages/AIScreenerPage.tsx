@@ -247,8 +247,6 @@ const AIScreenerPage: React.FC = () => {
     try {
       const data = await aiScreenerService.runScreen({
         top_n: 50,
-        min_score: minScore,
-        sectors: sectorFilter ? [sectorFilter] : undefined,
         timeframe,
       });
       setScreenData(data);
@@ -267,7 +265,7 @@ const AIScreenerPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [minScore, sectorFilter, timeframe]);
+  }, [timeframe]);
 
   /* ── Quick screen ─── */
   const runQuickScreen = useCallback(async () => {
@@ -310,6 +308,19 @@ const AIScreenerPage: React.FC = () => {
   const sectors = screenData
     ? Array.from(new Set(screenData.results.map((r) => r.sector).filter(Boolean))).sort()
     : [];
+
+  /* ── Client-side filtered results ─── */
+  const filteredResults = useMemo(() => {
+    if (!screenData) return [];
+    let results = screenData.results;
+    if (minScore > 0) {
+      results = results.filter((r) => r.overall_score >= minScore);
+    }
+    if (sectorFilter) {
+      results = results.filter((r) => r.sector === sectorFilter);
+    }
+    return results;
+  }, [screenData, minScore, sectorFilter]);
 
   /* ────────────────────── RENDER ────────────────────── */
   return (
@@ -598,7 +609,7 @@ const AIScreenerPage: React.FC = () => {
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
               <h2 className="font-semibold text-sm text-gray-900 dark:text-white">Screening Results</h2>
               <span className="text-[11px] text-gray-400 dark:text-gray-500">
-                {timeframe.toUpperCase()} · Regime: {regimeLabels[screenData.regime] || screenData.regime} · {screenData.results_count} results
+                {timeframe.toUpperCase()} · Regime: {regimeLabels[screenData.regime] || screenData.regime} · {filteredResults.length}{filteredResults.length !== screenData.results_count ? ` of ${screenData.results_count}` : ''} results
               </span>
             </div>
 
@@ -618,11 +629,10 @@ const AIScreenerPage: React.FC = () => {
                     <th className="px-3 py-2.5 text-right">RSI</th>
                     <th className="px-3 py-2.5 text-right">Vol R.</th>
                     <th className="px-3 py-2.5 text-center">Anomaly</th>
-                    <th className="px-3 py-2.5 text-left">Top Signal</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {screenData.results.map((r, i) => (
+                  {filteredResults.map((r, i) => (
                     <tr
                       key={r.symbol}
                       onClick={() => openDetail(r.symbol)}
@@ -672,9 +682,6 @@ const AIScreenerPage: React.FC = () => {
                         ) : (
                           <span className="text-gray-300 dark:text-gray-600 text-xs">--</span>
                         )}
-                      </td>
-                      <td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px]">
-                        {r.top_signals?.[0]?.feature?.replace(/^(tech_|vol_|meta_|insider_)/, '') || '—'}
                       </td>
                     </tr>
                   ))}
