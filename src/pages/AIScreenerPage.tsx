@@ -97,22 +97,73 @@ const AIScreenerPage: React.FC = () => {
   // loading phase animation
   const [loadingPhase, setLoadingPhase] = useState(0);
   const AI_PHASES = useMemo(() => [
-    { text: 'Initializing AI engine...', icon: '⚡' },
-    { text: 'Connecting to market feeds...', icon: '📡' },
-    { text: 'Fetching live NIFTY 50 prices...', icon: '📊' },
-    { text: 'Analyzing volume patterns...', icon: '🔍' },
-    { text: 'Computing momentum signals...', icon: '📈' },
-    { text: 'Detecting market regime...', icon: '🧠' },
-    { text: 'Running anomaly detection...', icon: '⚠️' },
-    { text: 'Scoring & ranking stocks...', icon: '🏆' },
-    { text: 'Almost there, finalizing results...', icon: '✨' },
+    {
+      text: 'Initializing AI engine',
+      detail: 'Loading scoring models, feature pipeline, and signal extractors into memory',
+      icon: '⚡',
+      color: 'from-violet-500 to-purple-600',
+    },
+    {
+      text: 'Connecting to market feeds',
+      detail: 'Establishing connection to NSE/BSE live data via Yahoo Finance API',
+      icon: '📡',
+      color: 'from-blue-500 to-cyan-500',
+    },
+    {
+      text: 'Fetching NIFTY 50 prices',
+      detail: 'Downloading 1-year OHLCV history for all 50 constituent stocks',
+      icon: '📊',
+      color: 'from-emerald-500 to-green-500',
+    },
+    {
+      text: 'Computing technical indicators',
+      detail: 'Calculating RSI, MACD, Bollinger Bands, ATR, and 40+ features per stock',
+      icon: '🔍',
+      color: 'from-amber-500 to-orange-500',
+    },
+    {
+      text: 'Analyzing volume patterns',
+      detail: 'Detecting volume spikes, dry-ups, and institutional accumulation signals',
+      icon: '📈',
+      color: 'from-pink-500 to-rose-500',
+    },
+    {
+      text: 'Detecting market regime',
+      detail: 'Classifying current market as Bull/Bear + volatility level using NIFTY 50 index',
+      icon: '🧠',
+      color: 'from-indigo-500 to-blue-600',
+    },
+    {
+      text: 'Running anomaly detection',
+      detail: 'Scanning for flash crashes, parabolic moves, climax patterns, and gap alerts',
+      icon: '⚠️',
+      color: 'from-red-500 to-orange-500',
+    },
+    {
+      text: 'Fetching fundamentals',
+      detail: 'Loading PE ratio, market cap, sector data, and 52-week range for each stock',
+      icon: '🏛️',
+      color: 'from-teal-500 to-cyan-600',
+    },
+    {
+      text: 'Scoring & ranking stocks',
+      detail: 'Applying regime-adjusted composite scoring with momentum + risk weighting',
+      icon: '🏆',
+      color: 'from-yellow-500 to-amber-500',
+    },
+    {
+      text: 'Finalizing results',
+      detail: 'Generating explanations, sorting by score, and preparing the final ranked list',
+      icon: '✨',
+      color: 'from-purple-500 to-pink-500',
+    },
   ], []);
 
   useEffect(() => {
     if (!loading) { setLoadingPhase(0); return; }
     const interval = setInterval(() => {
       setLoadingPhase((p) => (p + 1) % AI_PHASES.length);
-    }, 4000);
+    }, 1500);
     return () => clearInterval(interval);
   }, [loading, AI_PHASES.length]);
 
@@ -266,23 +317,65 @@ const AIScreenerPage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-8 space-y-5">
 
         {/* ── Page Title + Run Button (centered together) ─── */}
-        <div className="text-center pt-2 pb-1">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Stock Screener</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
+        <div className="text-center pt-4 pb-2">
+          <div className="inline-flex items-center gap-2 mb-1">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-purple-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+              <svg className="w-4.5 h-4.5 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 0 0-2.455 2.456Z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">AI Stock Screener</h1>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 text-xs">
             Regime-aware pre-momentum detection &middot; NSE / NIFTY 50
           </p>
+
+          {/* Start AI Button */}
           <button
             onClick={runFullScreen}
             disabled={loading}
-            className="mt-3 px-10 py-3 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white rounded-lg font-semibold text-base shadow-md shadow-primary-600/20 transition"
+            className="group relative mt-4 inline-flex items-center gap-3 overflow-hidden rounded-xl px-8 py-3.5 font-semibold text-white shadow-lg transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-60 hover:scale-[1.03] hover:shadow-xl active:scale-[0.98]"
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <span className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-                Screening...
-              </span>
-            ) : 'Start AI'}
+            {/* Gradient background */}
+            <span className="absolute inset-0 bg-gradient-to-r from-primary-600 via-purple-600 to-indigo-600" />
+            {/* Animated shimmer */}
+            {!loading && (
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            )}
+            {/* Glow effect */}
+            <span className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]" />
+
+            <span className="relative flex items-center gap-2.5">
+              {loading ? (
+                <>
+                  <span className="inline-block animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white" />
+                  <span className="text-base">AI is screening...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-12" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                  </svg>
+                  <span className="text-base">Start AI Screening</span>
+                  <svg className="w-4 h-4 opacity-60 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </>
+              )}
+            </span>
           </button>
+
+          {/* Subtle info badges below button */}
+          {!loading && (
+            <div className="flex items-center justify-center gap-4 mt-3 text-[11px] text-gray-400 dark:text-gray-500">
+              <span className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                50 Stocks
+              </span>
+              <span>40+ Indicators</span>
+              <span>Anomaly Detection</span>
+            </div>
+          )}
         </div>
 
         {/* ── Timeframe + Filters ─── */}
@@ -465,14 +558,22 @@ const AIScreenerPage: React.FC = () => {
 
             {/* Phase text */}
             <p
-              key={loadingPhase}
+              key={`phase-${loadingPhase}`}
               className="text-sm font-medium text-gray-700 dark:text-gray-200 animate-fade-in"
             >
               {AI_PHASES[loadingPhase].text}
             </p>
 
+            {/* Detail text */}
+            <p
+              key={`detail-${loadingPhase}`}
+              className="text-xs text-gray-400 dark:text-gray-500 mt-1 animate-fade-in max-w-sm text-center"
+            >
+              {AI_PHASES[loadingPhase].detail}
+            </p>
+
             {/* Progress dots */}
-            <div className="flex gap-1.5 mt-3">
+            <div className="flex gap-1.5 mt-4">
               {AI_PHASES.map((_, i) => (
                 <div
                   key={i}
