@@ -145,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                       <div className="flex items-center">
                         <SparklesIcon className="h-5 w-5 mr-3 text-purple-600 dark:text-purple-400" />
                         <div>
-                          <div className="font-medium">WelthAI Analysis</div>
+                          <div className="font-medium">Welth Market Regime</div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">AI-powered market analysis</div>
                         </div>
                       </div>
@@ -311,28 +311,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
           {/* Right side - Auth buttons */}
           <div className="flex items-center space-x-2 md:space-x-4">
-            {/* Search Bar - Desktop */}
-            <div className="hidden md:block max-w-[260px]">
-              <SearchBarWithSuggestions
-                placeholders={searchPlaceholders}
-                className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600
-                  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-              />
-            </div>
-
-            {/* Search Button - Mobile */}
-            <button
-              onClick={() => setShowMobileSearch(!showMobileSearch)}
-              className="md:hidden p-2 text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              {showMobileSearch ? (
-                <XMarkIcon className="h-6 w-6" />
-              ) : (
-                <MagnifyingGlassIcon className="h-6 w-6" />
-              )}
-            </button>
-
             {/* Theme Toggle */}
             <ThemeToggle />
 
@@ -478,27 +456,6 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         </div>
       </div>
 
-      {/* Mobile Search Bar - Expandable */}
-      {showMobileSearch && (
-        <div className="md:hidden px-4 py-3 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-[#1a1f2e] shadow-lg transition-all duration-300 ease-in-out">
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <SearchBarWithSuggestions
-                placeholders={searchPlaceholders}
-                className="w-full pl-10 pr-12 py-2 bg-white dark:bg-[#2a2f3e] border border-gray-200 dark:border-gray-600
-                  rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                  text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
-              />
-            </div>
-            <button
-              onClick={() => setShowMobileSearch(false)}
-              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <XMarkIcon className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      )}
     </header>
   );
 };

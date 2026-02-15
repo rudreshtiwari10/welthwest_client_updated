@@ -307,7 +307,7 @@ const HomePage: React.FC = () => {
                   </div>
                 </Link>
 
-                {/* Welth AI Analysis */}
+                {/* Welth Market Regime */}
                 <Link
                   to="/ai-screener"
                   className="group flex items-center bg-white dark:bg-dark-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
@@ -316,8 +316,8 @@ const HomePage: React.FC = () => {
                     <SparklesIcon className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth AI Analysis</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Market predictions</p>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth Market Regime</h3>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Market Analysis & screener</p>
                   </div>
                 </Link>
 

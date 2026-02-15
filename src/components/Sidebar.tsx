@@ -629,7 +629,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                   className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-all group"
                 >
                   <i className="fas fa-brain mr-3 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform"></i>
-                  <span>Welth AI Analysis</span>
+                  <span>Welth Market Regime</span>
                 </Link>
 
                 <Link

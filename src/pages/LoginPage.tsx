@@ -87,15 +87,15 @@ const LoginPage: React.FC = () => {
       <div className="absolute bottom-1/4 left-[30%] w-[500px] h-[500px] bg-secondary-300/10 dark:bg-secondary-500/[0.04] rounded-full blur-[180px] pointer-events-none" />
       <div className="absolute top-[60%] left-[45%] w-[400px] h-[400px] bg-primary-300/[0.06] dark:bg-primary-400/[0.03] rounded-full blur-[160px] pointer-events-none" />
 
-      {/* Back Button */}
+      {/* Home Button */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/')}
         className="absolute top-4 left-4 z-50 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-700 dark:text-gray-200 hover:bg-white dark:hover:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-700 transition-colors text-sm font-medium"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         </svg>
-        Back
+        Home
       </button>
 
       {/* Left Brand Panel */}
