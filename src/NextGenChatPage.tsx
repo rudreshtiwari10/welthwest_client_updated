@@ -103,6 +103,7 @@ const NextGenChatPage: React.FC = () => {
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [refreshUsage, setRefreshUsage] = useState(0);
+  const [anonymousUsesLeft, setAnonymousUsesLeft] = useState(5);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [isFooterVisible, setIsFooterVisible] = useState(false);
@@ -152,9 +153,9 @@ const NextGenChatPage: React.FC = () => {
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
-    // Check if user is logged in
+    // Block anonymous users — must login to use
     if (!user) {
-      setShowLoginModal(true);
+      window.location.href = '/login';
       return;
     }
 
@@ -261,6 +262,11 @@ const NextGenChatPage: React.FC = () => {
         }
       }, 100);
 
+      // Decrement anonymous usage
+      if (!user) {
+        setAnonymousUsesLeft(prev => Math.max(0, prev - 1));
+      }
+
       // Handle usage from both field names (usage or usage_info)
       if (data.usage || data.usage_info) {
         const usage = data.usage || data.usage_info;
@@ -284,6 +290,10 @@ const NextGenChatPage: React.FC = () => {
 
       // Check if trial exceeded
       if (err.response?.status === 403) {
+        if (!user) {
+          setAnonymousUsesLeft(0);
+          window.location.href = '/login';
+        }
         if (err.response?.data?.error === 'trial_exceeded' || err.response?.data?.error?.includes('limit')) {
           setShowTrialModal(true);
           displayError = 'Free trial limit reached. Please sign in to continue.';
@@ -431,12 +441,6 @@ const NextGenChatPage: React.FC = () => {
         limit={10}
       />
 
-      {/* Login Modal */}
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        message="Please log in to use the AI Chat Assistant feature."
-      />
 
       {/* Header */}
       <div className="@ p-4 shadow-sm">
@@ -455,21 +459,15 @@ const NextGenChatPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Login Prompt for Non-Authenticated Users */}
+          {/* Login prompt for non-authenticated users */}
           {!user && (
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 rounded-lg shadow-lg flex items-center space-x-3">
+            <button
+              onClick={() => window.location.href = '/login'}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2.5 rounded-lg shadow-lg flex items-center space-x-2 hover:shadow-xl transition-all hover:scale-[1.02]"
+            >
               <SparklesIcon className="h-5 w-5 text-white" />
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-white">Login to Use This Feature</p>
-                <p className="text-xs text-white opacity-90">Sign in to access AI Assistant</p>
-              </div>
-              <button
-                onClick={() => window.location.href = '/login'}
-                className="px-4 py-1.5 bg-white text-blue-600 hover:bg-opacity-90 rounded-md text-sm font-medium transition-all whitespace-nowrap shadow-md"
-              >
-                Login
-              </button>
-            </div>
+              <span className="text-sm font-semibold text-white">Login to Use AI Assistant</span>
+            </button>
           )}
         </div>
       </div>

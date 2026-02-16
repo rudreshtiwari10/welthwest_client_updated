@@ -97,7 +97,7 @@ const WelthAIPage: React.FC = () => {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingAnalyses: 2, // Allow 2 free AI analyses
+    remainingAnalyses: 5, // Allow 5 free AI analyses
     sessionId: null as string | null
   });
   
@@ -499,11 +499,11 @@ const WelthAIPage: React.FC = () => {
             <div className="flex items-center space-x-2">
               <SparklesIcon className="h-4 w-4" />
               <div>
-                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/2 Free Analyses</div>
+                <div className="font-semibold">{anonymousUsage.remainingAnalyses}/5 Free Analyses</div>
                 <div className="w-20 bg-white bg-opacity-30 rounded-full h-1 mt-1">
                   <div
                     className="bg-white rounded-full h-1 transition-all duration-300"
-                    style={{ width: `${(anonymousUsage.remainingAnalyses / 2) * 100}%` }}
+                    style={{ width: `${(anonymousUsage.remainingAnalyses / 5) * 100}%` }}
                   ></div>
                 </div>
               </div>

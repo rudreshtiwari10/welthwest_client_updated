@@ -103,8 +103,8 @@ const MarketForecastingPage: React.FC = () => {
 
   // Anonymous usage tracking
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingAnalyses: 10,
-    totalLimit: 10,
+    remainingAnalyses: 5,
+    totalLimit: 5,
   });
 
   // Popular Indian stocks for quick selection (trained models)

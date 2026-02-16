@@ -116,19 +116,21 @@ export const SubscriptionProvider: React.FC<SubscriptionProviderProps> = ({ chil
   };
 
   const canUseBacktest = () => {
+    // Platform is free for all authenticated users — no subscription limits
+    if (auth.isAuthenticated) return true;
     if (!subscriptionDetails || !subscriptionDetails.usage || !subscriptionDetails.usage.daily || !subscriptionDetails.limits) return false;
     const { daily } = subscriptionDetails.usage;
     const { backtest_daily_limit } = subscriptionDetails.limits;
-    // Handle unlimited (very large numbers) case
     if (backtest_daily_limit >= 999999) return true;
     return daily.backtest_count < backtest_daily_limit;
   };
 
   const canUseLLM = () => {
+    // Platform is free for all authenticated users — no subscription limits
+    if (auth.isAuthenticated) return true;
     if (!subscriptionDetails || !subscriptionDetails.usage || !subscriptionDetails.usage.daily || !subscriptionDetails.limits) return false;
     const { daily } = subscriptionDetails.usage;
     const { llm_daily_limit } = subscriptionDetails.limits;
-    // Handle unlimited (very large numbers) case
     if (llm_daily_limit >= 999999) return true;
     return daily.llm_query_count < llm_daily_limit;
   };

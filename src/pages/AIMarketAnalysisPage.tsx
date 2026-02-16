@@ -131,8 +131,8 @@ const AIMarketAnalysisPage: React.FC = () => {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingAnalyses: 10, // Default, will be updated from backend
-    totalLimit: 10, // Default, will be updated from backend
+    remainingAnalyses: 5, // Default, will be updated from backend
+    totalLimit: 5, // Default, will be updated from backend
     sessionId: null as string | null
   });
   
@@ -174,10 +174,7 @@ const AIMarketAnalysisPage: React.FC = () => {
   useEffect(() => {
     fetchStockData();
 
-    // Fetch current usage for anonymous users
-    if (!user) {
-      fetchAnonymousUsage();
-    }
+    // Anonymous usage tracked locally with 5 free uses
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSymbol, user]);
 
@@ -836,7 +833,7 @@ const AIMarketAnalysisPage: React.FC = () => {
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onLoginSuccess={() => {
-          setAnonymousUsage({ remainingAnalyses: 0, totalLimit: 10, sessionId: null });
+          setAnonymousUsage({ remainingAnalyses: 0, totalLimit: 5, sessionId: null });
           setShowLoginModal(false);
         }}
         message="Sign up to get unlimited access to our advanced AI market analysis"

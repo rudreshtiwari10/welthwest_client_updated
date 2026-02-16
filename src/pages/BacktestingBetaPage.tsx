@@ -268,8 +268,8 @@ const BacktestingBetaPage: React.FC = () => {
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingTests: 10, // Default, will be updated from backend
-    totalLimit: 10, // Default, will be updated from backend
+    remainingTests: 5, // Default, will be updated from backend
+    totalLimit: 5, // Default, will be updated from backend
     sessionId: null as string | null
   });
 
@@ -284,13 +284,8 @@ const BacktestingBetaPage: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  // Fetch anonymous usage on component mount
-  useEffect(() => {
-    if (!user) {
-      fetchAnonymousUsage();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  // Anonymous usage is tracked locally with a default of 5 free uses
+  // Backend 403 responses will trigger login modal if limit is exceeded
 
   // Fetch saved strategies when tab is activated
   useEffect(() => {
@@ -567,7 +562,7 @@ const BacktestingBetaPage: React.FC = () => {
   const runBacktest = async () => {
     // Check if user is logged in
     if (!user) {
-      setShowLoginModal(true);
+      window.location.href = '/login';
       return;
     }
 
@@ -588,15 +583,10 @@ const BacktestingBetaPage: React.FC = () => {
 
       // Check if user is authenticated
       if (!user) {
-        // Anonymous user - check remaining tests
-        if (anonymousUsage.remainingTests <= 0) {
-          trackEvent('backtest_limit_reached', { user_type: 'anonymous' });
-          setShowLoginModal(true);
-          setIsLoading(false);
-          return;
-        }
-
-        // Don't decrement here - backend will handle it and return updated usage
+        // Anonymous users must login to use backtesting
+        window.location.href = '/login';
+        setIsLoading(false);
+        return;
       } else {
         // Authenticated user - check subscription limits
         if (!canUseBacktest()) {
@@ -660,7 +650,7 @@ const BacktestingBetaPage: React.FC = () => {
           ...prev,
           remainingTests: 0
         }));
-        setShowLoginModal(true);
+        window.location.href = '/login';
         setIsLoading(false);
         return;
       }
@@ -2618,7 +2608,7 @@ const BacktestingBetaPage: React.FC = () => {
           </div>
         )}
 
-        {/* Tutorial Video Section - Bottom of Page */}
+        {/* Tutorial Video Section - Bottom of Page
         <div className="max-w-7xl mx-auto px-4 mt-12 mb-8">
           <TutorialVideoSection
             title="How to Use Advanced Backtesting"
@@ -2639,17 +2629,8 @@ const BacktestingBetaPage: React.FC = () => {
               }
             ]}
           />
-        </div>
+        </div> */}
 
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          onLoginSuccess={() => {
-            setAnonymousUsage({ remainingTests: 0, totalLimit: 10, sessionId: null });
-            setShowLoginModal(false);
-          }}
-          message="Sign up to get unlimited access to our advanced backtesting features"
-        />
       </div>
     </div>
   );

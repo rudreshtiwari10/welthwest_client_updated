@@ -83,6 +83,12 @@ const MTFScreenerPage: React.FC = () => {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Anonymous usage tracking
+  const [anonymousUsage, setAnonymousUsage] = useState({
+    remainingUses: 5,
+    totalLimit: 5,
+  });
+
   // Track if data has been fetched at least once
   const [hasData, setHasData] = useState(false);
 
@@ -224,15 +230,12 @@ const MTFScreenerPage: React.FC = () => {
 
   // Handle "Get Regime" button click
   const handleGetRegime = async () => {
-    // Check authentication and subscription limits
+    // Anonymous user: check local usage limit
     if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    if (!canUseLLM) {
-      setShowUpgradeModal(true);
-      return;
+      if (anonymousUsage.remainingUses <= 0) {
+        setShowLoginModal(true);
+        return;
+      }
     }
 
     try {
@@ -250,17 +253,28 @@ const MTFScreenerPage: React.FC = () => {
       // Wait for loading simulation to complete
       await loadingPromise;
 
-      // Increment usage (deduct credit)
-      incrementLLMUsage();
+      // Decrement usage
+      if (!user) {
+        setAnonymousUsage(prev => ({
+          ...prev,
+          remainingUses: Math.max(0, prev.remainingUses - 1),
+        }));
+      } else {
+        incrementLLMUsage();
+      }
 
       setHasData(true);
     } catch (err: any) {
       console.error('Error in Get Regime:', err);
       setError(err.response?.data?.message || err.message || 'Failed to fetch data');
 
-      // Check if it's a limit exceeded error
       if (err.response?.status === 403) {
-        setShowUpgradeModal(true);
+        if (!user) {
+          setAnonymousUsage(prev => ({ ...prev, remainingUses: 0 }));
+          setShowLoginModal(true);
+        } else {
+          setShowUpgradeModal(true);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -332,6 +346,34 @@ const MTFScreenerPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Anonymous Usage Banner */}
+      {!user && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <div className="flex items-center justify-between bg-gradient-to-r from-purple-500/20 to-indigo-600/20 border border-purple-500/30 rounded-lg px-4 py-2">
+            <div className="flex items-center gap-2 text-sm">
+              <SparklesIcon className="h-4 w-4 text-purple-400" />
+              <span className="text-purple-200">
+                {anonymousUsage.remainingUses > 0
+                  ? `${anonymousUsage.remainingUses}/${anonymousUsage.totalLimit} free scans remaining`
+                  : 'Free scans used up — login for unlimited access'}
+              </span>
+              <div className="w-20 bg-white/20 rounded-full h-1.5 ml-2">
+                <div
+                  className="bg-purple-400 rounded-full h-1.5 transition-all duration-300"
+                  style={{ width: `${(anonymousUsage.remainingUses / anonymousUsage.totalLimit) * 100}%` }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="px-3 py-1 bg-purple-500/30 hover:bg-purple-500/50 rounded text-xs font-medium text-purple-200 transition-all"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -570,6 +612,7 @@ const MTFScreenerPage: React.FC = () => {
       <LoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
+        message="You've reached the free usage limit. Login to continue with unlimited access."
       />
     </div>
   );

@@ -14,12 +14,16 @@ interface ProfileSidebarProps {
   onMobileClose: () => void;
 }
 
-const navItems: { id: ProfileSection; label: string; icon: React.ElementType }[] = [
+const allNavItems: { id: ProfileSection; label: string; icon: React.ElementType }[] = [
   { id: 'profile', label: 'Profile Information', icon: UserCircleIcon },
   { id: 'security', label: 'Security', icon: ShieldCheckIcon },
   { id: 'subscription', label: 'Subscription & Usage', icon: CreditCardIcon },
   { id: 'payment-history', label: 'Payment History', icon: ClockIcon },
 ];
+
+// Hide subscription and payment sections while premium is deferred
+const hiddenSections: ProfileSection[] = ['subscription', 'payment-history'];
+const navItems = allNavItems.filter(item => !hiddenSections.includes(item.id));
 
 const ProfileSidebar: React.FC<ProfileSidebarProps> = ({
   activeSection,

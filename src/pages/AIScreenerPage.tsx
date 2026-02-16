@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import LoginModal from '../components/LoginModal';
 import aiScreenerService, {
   ScreenerResult,
   ScreenResponse,
@@ -67,8 +69,11 @@ const barsAgoText = (barsAgo: number, tf: string): string => {
 
 /* ─── Component ─────────────────────────────────────────── */
 const AIScreenerPage: React.FC = () => {
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navQueryHandled = useRef(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [anonymousUsesLeft, setAnonymousUsesLeft] = useState(5);
 
   // screening
   const [screenData, setScreenData] = useState<ScreenResponse | null>(null);
@@ -242,6 +247,14 @@ const AIScreenerPage: React.FC = () => {
 
   /* ── Run full screen ─── */
   const runFullScreen = useCallback(async () => {
+    // Anonymous user: check local usage limit
+    if (!user) {
+      if (anonymousUsesLeft <= 0) {
+        setShowLoginModal(true);
+        return;
+      }
+    }
+
     setLoading(true);
     setError('');
     try {
@@ -260,16 +273,33 @@ const AIScreenerPage: React.FC = () => {
           description: data.regime_description,
         });
       }
+      // Decrement anonymous usage
+      if (!user) {
+        setAnonymousUsesLeft(prev => Math.max(0, prev - 1));
+      }
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || 'Screening failed');
+      if (e?.response?.status === 403 && !user) {
+        setAnonymousUsesLeft(0);
+        setShowLoginModal(true);
+      }
     } finally {
       setLoading(false);
     }
-  }, [timeframe]);
+  }, [timeframe, user, anonymousUsesLeft]);
 
   /* ── Quick screen ─── */
   const runQuickScreen = useCallback(async () => {
     if (!quickSymbols.trim()) return;
+
+    // Anonymous user: check local usage limit
+    if (!user) {
+      if (anonymousUsesLeft <= 0) {
+        setShowLoginModal(true);
+        return;
+      }
+    }
+
     const symbols = quickSymbols.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
     if (symbols.length === 0 || symbols.length > 10) {
       setError('Enter 1-10 comma-separated symbols');
@@ -281,14 +311,20 @@ const AIScreenerPage: React.FC = () => {
       const data = await aiScreenerService.quickScreen(symbols, 10, timeframe);
       setScreenData(data);
       setHasScreened(true);
-      // Store in cache
       screenCache[timeframe] = { data, timestamp: Date.now() };
+      if (!user) {
+        setAnonymousUsesLeft(prev => Math.max(0, prev - 1));
+      }
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || 'Quick screen failed');
+      if (e?.response?.status === 403 && !user) {
+        setAnonymousUsesLeft(0);
+        setShowLoginModal(true);
+      }
     } finally {
       setLoading(false);
     }
-  }, [quickSymbols, timeframe]);
+  }, [quickSymbols, timeframe, user, anonymousUsesLeft]);
 
   /* ── Stock detail ─── */
   const openDetail = useCallback(async (symbol: string) => {
@@ -325,6 +361,43 @@ const AIScreenerPage: React.FC = () => {
   /* ────────────────────── RENDER ────────────────────── */
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
+      {/* Anonymous Usage Banner */}
+      {!user && (
+        <div className="max-w-7xl mx-auto px-4 pt-4">
+          <div className="flex items-center justify-between bg-gradient-to-r from-purple-500/20 to-indigo-600/20 border border-purple-500/30 rounded-lg px-4 py-2">
+            <div className="flex items-center gap-2 text-sm">
+              <svg className="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+              </svg>
+              <span className="text-purple-200 dark:text-purple-200">
+                {anonymousUsesLeft > 0
+                  ? `${anonymousUsesLeft}/5 free scans remaining`
+                  : 'Free scans used up — login for unlimited access'}
+              </span>
+              <div className="w-20 bg-white/20 rounded-full h-1.5 ml-2">
+                <div
+                  className="bg-purple-400 rounded-full h-1.5 transition-all duration-300"
+                  style={{ width: `${(anonymousUsesLeft / 5) * 100}%` }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => setShowLoginModal(true)}
+              className="px-3 py-1 bg-purple-500/30 hover:bg-purple-500/50 rounded text-xs font-medium text-purple-200 transition-all"
+            >
+              Sign Up
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        message="You've reached the free usage limit. Login to continue with unlimited access."
+      />
+
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-8 space-y-5">
 
         {/* ── Page Title + Run Button (centered together) ─── */}

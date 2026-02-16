@@ -216,143 +216,93 @@ const Premium: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-background-primary py-12 px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <div className="max-w-7xl mx-auto text-center mb-12">
+        <span className="inline-flex items-center rounded-full bg-green-50 dark:bg-green-900/30 px-3 py-1 text-xs font-medium text-green-700 dark:text-green-300 ring-1 ring-inset ring-green-600/20 dark:ring-green-400/30 mb-4">
+          Free for everyone
+        </span>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-          Choose Your <span className="bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">Premium Plan</span>
+          It's Free for all users on WelthWest
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Unlock advanced features and higher limits with our premium plans. All prices are dynamically configured.
+          All features are completely free for registered users. No limits, no credit card required.
         </p>
       </div>
 
-      {/* Duration Toggle */}
-      <div className="max-w-md mx-auto mb-12">
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-1 flex shadow-md">
-          {(['weekly', 'monthly', 'annual'] as const).map((duration) => (
-            <button
-              key={duration}
-              onClick={() => setSelectedDuration(duration)}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-                selectedDuration === duration
-                  ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-md'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              }`}
-            >
-              {duration.charAt(0).toUpperCase() + duration.slice(1)}
-              {duration === 'annual' && (
-                <span className="ml-2 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full">
-                  Save 60%
-                </span>
-              )}
-            </button>
-          ))}
+      {/* Free Plan Card */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {/* What you get */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <div className="bg-gradient-to-r from-gray-500 to-gray-600 p-6 text-white rounded-xl mb-6">
+            <div className="flex justify-center mb-3">
+              <StarIcon className="h-8 w-8" />
+            </div>
+            <h3 className="text-2xl font-bold text-center mb-2">Free Plan</h3>
+            <div className="text-center text-3xl font-bold">Unlimited Access</div>
+          </div>
+          <ul className="space-y-3 mb-6">
+            {['Unlimited Backtesting', 'Unlimited AI Market Analysis', 'Unlimited AI Chat Assistant', 'Full AI Screener Access', 'Market Data & Technical Indicators'].map((feature) => (
+              <li key={feature} className="flex items-center">
+                <CheckIcon className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={() => navigate('/stock')}
+            className="w-full py-3 px-4 rounded-lg font-medium bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:from-primary-500 hover:to-secondary-500 shadow-lg hover:shadow-xl transition-all"
+          >
+            Start Exploring
+          </button>
         </div>
-      </div>
 
-      {/* Plans Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-        {getSortedPlans().map((plan) => {
-          const price = plan.prices[selectedDuration];
-          const isPopular = plan._id === 'PRO';
-          const isFree = plan._id === 'FREE';
-
-          return (
-            <div
-              key={plan._id}
-              className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-all hover:scale-105 ${
-                isPopular ? 'ring-2 ring-primary-600 ring-offset-2 dark:ring-offset-gray-900' : ''
-              }`}
-            >
-              {/* Popular Badge */}
-              {isPopular && (
-                <div className="absolute top-4 right-4">
-                  <span className="bg-gradient-to-r from-primary-600 to-secondary-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                    POPULAR
-                  </span>
-                </div>
-              )}
-
-              {/* Plan Header */}
-              <div className={`bg-gradient-to-r ${getPlanColor(plan._id)} p-6 text-white`}>
-                <div className="flex justify-center mb-3">
-                  {getPlanIcon(plan._id)}
-                </div>
-                <h3 className="text-2xl font-bold text-center mb-2">{plan.display_name}</h3>
-                <div className="text-center">
-                  {isFree ? (
-                    <div className="text-3xl font-bold">Free</div>
-                  ) : (
-                    <>
-                      <div className="text-4xl font-bold">{formatPrice(price)}</div>
-                      <div className="text-sm opacity-90">
-                        /{selectedDuration === 'annual' ? 'year' : selectedDuration === 'monthly' ? 'month' : 'week'}
-                      </div>
-                    </>
-                  )}
-                </div>
+        {/* Blurred premium plans */}
+        <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 overflow-hidden">
+          {/* Blur overlay */}
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl">
+            <div className="text-center px-6">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/40 mb-4">
+                <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6l4 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Premium Plans Coming Soon</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 max-w-xs mx-auto">
+                The platform is free for everyone right now. We are curating the best plans for you — stay tuned!
+              </p>
+            </div>
+          </div>
 
-              {/* Plan Body */}
-              <div className="p-6">
-                {/* Description */}
-                {plan.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-6 text-center">
-                    {plan.description}
-                  </p>
-                )}
-
-                {/* Features List */}
-                <div className="space-y-3 mb-6">
-                  <h4 className="font-semibold text-gray-900 dark:text-white text-sm">Daily Limits:</h4>
-                  {Object.entries(plan.limits).map(([featureKey, limit]) => (
-                    <div key={featureKey} className="flex items-start">
-                      <CheckIcon className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-gray-600 dark:text-gray-400">
-                        <span className="font-medium text-gray-900 dark:text-white">{limit}</span>{' '}
-                        {featureNames[featureKey] || featureKey}
-                      </div>
+          {/* Blurred content behind */}
+          <div className="select-none pointer-events-none space-y-4" aria-hidden="true">
+            {getSortedPlans().filter(p => p._id !== 'FREE').slice(0, 3).map((plan) => (
+              <div key={plan._id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                <div className={`bg-gradient-to-r ${getPlanColor(plan._id)} p-4 rounded-lg text-white mb-3`}>
+                  <h3 className="text-lg font-bold text-center">{plan.display_name}</h3>
+                  <div className="text-center text-2xl font-bold">{formatPrice(plan.prices.monthly)}/mo</div>
+                </div>
+                <div className="space-y-2">
+                  {Object.entries(plan.limits).slice(0, 3).map(([key, limit]) => (
+                    <div key={key} className="flex items-center text-sm text-gray-500">
+                      <CheckIcon className="h-4 w-4 text-green-500 mr-2" />
+                      {limit} {featureNames[key] || key}
                     </div>
                   ))}
                 </div>
-
-                {/* Action Button */}
-                <button
-                  onClick={() => handlePurchase(plan._id)}
-                  disabled={isFree || processingPlanId === plan._id}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-                    isFree
-                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 cursor-not-allowed'
-                      : processingPlanId === plan._id
-                      ? 'bg-gray-400 text-white cursor-wait'
-                      : 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white hover:from-primary-500 hover:to-secondary-500 shadow-lg hover:shadow-xl'
-                  }`}
-                >
-                  {processingPlanId === plan._id ? (
-                    <span className="flex items-center justify-center">
-                      <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></span>
-                      Processing...
-                    </span>
-                  ) : isFree ? (
-                    'Current Plan'
-                  ) : (
-                    'Upgrade Now'
-                  )}
-                </button>
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Footer Info */}
-      <div className="max-w-4xl mx-auto mt-16 text-center">
+      <div className="max-w-4xl mx-auto text-center">
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            All Plans Include:
+            All Features Included Free:
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
             <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
               <CheckIcon className="h-5 w-5 text-green-500 mr-2" />
-              Real-time market data
+              Market data & analysis
             </div>
             <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
               <CheckIcon className="h-5 w-5 text-green-500 mr-2" />
@@ -360,33 +310,11 @@ const Premium: React.FC = () => {
             </div>
             <div className="flex items-center justify-center text-sm text-gray-600 dark:text-gray-400">
               <CheckIcon className="h-5 w-5 text-green-500 mr-2" />
-              24/7 Support
+              AI-powered insights
             </div>
           </div>
         </div>
-
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Secure payments powered by Cashfree • Cancel anytime 
-        </p>
       </div>
-
-      {/* Plan Checkout Modal */}
-      {selectedPlan && user && (
-        <PlanCheckoutModal
-          isOpen={showCheckoutModal}
-          onClose={() => {
-            setShowCheckoutModal(false);
-            setSelectedPlan(null);
-          }}
-          planId={selectedPlan.planId}
-          duration={selectedDuration}
-          planPrice={selectedPlan.price}
-          onProceedToPay={handleProceedToPay}
-          userName={`${user.first_name} ${user.last_name}`.trim()}
-          userEmail={user.email || ''}
-          billingAddress={user.billing_address || ''}
-        />
-      )}
     </div>
   );
 };

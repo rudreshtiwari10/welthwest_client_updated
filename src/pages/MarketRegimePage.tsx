@@ -138,8 +138,8 @@ const MarketRegimePage: React.FC = () => {
 
   // Anonymous usage tracking
   const [anonymousUsage, setAnonymousUsage] = useState({
-    remainingAnalyses: 10, // Default, will be updated from backend
-    totalLimit: 10, // Default, will be updated from backend
+    remainingAnalyses: 5, // Default, will be updated from backend
+    totalLimit: 5, // Default, will be updated from backend
     sessionId: null as string | null
   });
 
@@ -152,12 +152,8 @@ const MarketRegimePage: React.FC = () => {
     { symbol: 'ICICIBANK', name: 'ICICI Bank' },
   ];
 
-  // Fetch anonymous usage on mount
-  useEffect(() => {
-    if (!user) {
-      fetchAnonymousUsage();
-    }
-  }, [user]);
+  // Anonymous usage tracked locally with 5 free uses
+  // Backend 403 responses will trigger login modal if limit exceeded
 
   const fetchAnonymousUsage = async () => {
     try {

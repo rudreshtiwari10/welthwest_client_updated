@@ -14,6 +14,9 @@ const sectionTitles: Record<ProfileSection, string> = {
   'payment-history': 'Payment History',
 };
 
+// Sections hidden while premium is deferred
+const hiddenSections: ProfileSection[] = ['subscription', 'payment-history'];
+
 const ProfilePage: React.FC = () => {
   const { user, updateProfile } = useAuth();
   const [activeSection, setActiveSection] = useState<ProfileSection>('profile');
@@ -25,6 +28,10 @@ const ProfilePage: React.FC = () => {
   };
 
   const renderSection = () => {
+    // Redirect hidden sections to profile
+    if (hiddenSections.includes(activeSection)) {
+      return <ProfileInformationSection user={user} updateProfile={updateProfile} />;
+    }
     switch (activeSection) {
       case 'profile':
         return <ProfileInformationSection user={user} updateProfile={updateProfile} />;
