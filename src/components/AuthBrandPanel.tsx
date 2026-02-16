@@ -74,8 +74,8 @@ const AuthBrandPanel: React.FC<AuthBrandPanelProps> = ({ variant = 'login' }) =>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
               </svg>
             }
-            title="AI Market Forecasting"
-            description="78% accuracy with advanced HMM models"
+            title="AI Market Regime"
+            description=""
           />
           <FeatureItem
             icon={
@@ -84,7 +84,7 @@ const AuthBrandPanel: React.FC<AuthBrandPanelProps> = ({ variant = 'login' }) =>
               </svg>
             }
             title="Advanced Backtesting"
-            description="15+ strategies with real market data"
+            description=""
           />
           <FeatureItem
             icon={
@@ -93,7 +93,7 @@ const AuthBrandPanel: React.FC<AuthBrandPanelProps> = ({ variant = 'login' }) =>
               </svg>
             }
             title="AI Trading Assistant"
-            description="Real-time market insights & analysis"
+            description=""
           />
         </div>
 
