@@ -295,14 +295,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
               {/* News & Blogs Link */}
               <Link
-                to="/news-and-blogs"
+                to="#"
                 className={`flex items-center text-sm font-medium ${
                   isActive('/news-and-blogs') || location.pathname.startsWith('/blog/')
                     ? 'text-primary-600 dark:text-primary-400'
                     : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
                 }`}
               >
-                <span>News & Blogs</span>
+                <span></span>
               </Link>
 
               {/* Dashboard Dropdown removed; simple Dashboard link kept above */}
