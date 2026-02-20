@@ -106,7 +106,7 @@ const HomePage: React.FC = () => {
         setIsLoading(true);
 
         // Fetch market indices
-        const indicesData = await marketService.getMarketIndices();
+        const indicesData = await marketService.getMarketIndices(3);
         setMarketData(indicesData);
       } catch (error) {
       } finally {
@@ -405,7 +405,7 @@ const HomePage: React.FC = () => {
             >
               {isLoading ? (
                 // Loading skeletons with improved design
-                Array(6).fill(0).map((_, index) => (
+                Array(4).fill(0).map((_, index) => (
                   <div key={index} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-6 animate-pulse" style={{ minHeight: '300px' }}>
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-2">
@@ -429,12 +429,13 @@ const HomePage: React.FC = () => {
                   </div>
                 ))
               ) : (
-                // Real data
-                marketData?.indices && Object.keys(marketData.indices).map((key, index) => {
+                // Real data + blurred dummy card
+                <>
+                {marketData?.indices && Object.keys(marketData.indices).map((key, index) => {
                   const index_data = marketData.indices[key];
                   // Calculate percentage change more accurately
                   let percentChange = 0;
-                  
+
                   if (index_data.percentChange !== undefined && index_data.percentChange !== null) {
                     percentChange = index_data.percentChange;
                   } else if (index_data.change && index_data.price) {
@@ -446,11 +447,11 @@ const HomePage: React.FC = () => {
                     const sampleChanges = [-2.45, 1.78, -0.92, 3.21, -1.65, 2.89, 0.45, -1.23, 2.15, -0.78];
                     percentChange = sampleChanges[Object.keys(marketData.indices).indexOf(key) % sampleChanges.length];
                   }
-                  
+
                   // Absolute change is not displayed; omit to avoid unused variable warnings
-                  
+
                   const isPositive = percentChange >= 0;
-                  
+
                   return (
                     <div key={key} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-1 hover:scale-[1.02]" style={{ minHeight: '300px' }}>
                       <div className="p-6 relative">
@@ -507,7 +508,7 @@ const HomePage: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         <div className="h-32 w-full">
                           {index_data.chartData && index_data.chartData.dates && index_data.chartData.dates.length > 0 ? (
                             <Line
@@ -557,7 +558,7 @@ const HomePage: React.FC = () => {
                             />
                           )}
                         </div>
-                        
+
                         <div className="grid grid-cols-3 gap-3 mt-4 relative z-10">
                           <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
                             <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Open</div>
@@ -581,7 +582,54 @@ const HomePage: React.FC = () => {
                       </div>
                     </div>
                   );
-                })
+                })}
+
+                {/* Blurred dummy 4th card with redirect to /stock */}
+                <Link to="/stock" className="min-w-[320px] relative rounded-2xl overflow-hidden group cursor-pointer" style={{ minHeight: '300px' }}>
+                  {/* Blurred placeholder content */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 border border-gray-200 dark:border-gray-700 rounded-2xl">
+                    <div className="p-6 filter blur-[6px] select-none pointer-events-none">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+                          <div>
+                            <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-1"></div>
+                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="h-7 bg-gray-300 dark:bg-gray-600 rounded w-20 mb-1"></div>
+                          <div className="h-6 bg-green-200 dark:bg-green-900/40 rounded-full w-16"></div>
+                        </div>
+                      </div>
+                      <div className="h-32 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg mb-4">
+                        <svg className="w-full h-full" viewBox="0 0 300 120" preserveAspectRatio="none">
+                          <path d="M0,80 Q50,40 100,60 T200,50 T300,30" stroke="rgba(34,197,94,0.5)" strokeWidth="2" fill="none"/>
+                        </svg>
+                      </div>
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="h-14 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                        <div className="h-14 bg-green-100 dark:bg-green-900/20 rounded-lg"></div>
+                        <div className="h-14 bg-red-100 dark:bg-red-900/20 rounded-lg"></div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Overlay with CTA */}
+                  <div className="absolute inset-0 bg-black/10 dark:bg-black/30 backdrop-blur-[1px] rounded-2xl flex flex-col items-center justify-center group-hover:bg-black/20 dark:group-hover:bg-black/40 transition-all duration-300">
+                    <div className="bg-white dark:bg-dark-300 rounded-xl px-6 py-4 shadow-2xl border border-gray-200 dark:border-gray-600 text-center group-hover:scale-105 transition-transform duration-300">
+                      <ChartBarIcon className="h-8 w-8 text-primary-500 mx-auto mb-2" />
+                      <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">View All Markets</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">10+ indices & stocks</p>
+                      <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-400">
+                        Explore
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+                </>
               )}
             </div>
             
@@ -589,6 +637,7 @@ const HomePage: React.FC = () => {
             <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
           </div>
+
         </section>
         
 

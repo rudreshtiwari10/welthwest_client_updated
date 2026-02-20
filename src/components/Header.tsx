@@ -6,8 +6,6 @@ import SearchBarWithSuggestions from './SearchBarWithSuggestions';
 import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, CpuChipIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import WelthAIPage from '../pages/WelthAIPage';
-import WelthChatbotPage from '../pages/WelthChatbotPage';
 import { activityService } from '../services/api';
 
 interface HeaderProps {

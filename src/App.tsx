@@ -7,53 +7,19 @@ import './App.css';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
-import BacktestingPage from './pages/BacktestingPage';
 import BacktestingBetaPage from './pages/BacktestingBetaPage';
-import WelthAIPage from './pages/WelthAIPage';
-import AIMarketAnalysisPage from './pages/AIMarketAnalysisPage';
-// Legacy pricing pages (commented out - use Premium.tsx instead)
-// import PricingPage from './pages/Pricing';
-// import PlanDetailsPage from './pages/PlanDetailsPage';
-// import ReviewPaymentPage from './pages/ReviewPaymentPage';
-// import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
 import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
 import Premium from './pages/Premium';
 import PaymentSuccess from './pages/PaymentSuccess';
 import StockPage from './pages/StockPage';
-import WelthChatbotPage from './pages/WelthChatbotPage';
-import WelthAIChatbotPage from './pages/WelthAIChatbotPage';
-import WelthAiChatbotLaunchingSoon from './pages/WelthAiChatbotLaunchingSoon';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import FeedbackPage from './pages/FeedbackPage';
-// import ReviewPaymentPage from './pages/ReviewPaymentPage';
-// import PaymentConfirmationPage from './pages/PaymentConfirmationPage';
-
-
 import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import BlogEditorPage from './pages/BlogEditorPage';
-import MarketRegimePage from './pages/MarketRegimePage';
-import MarketForecastingPage from './pages/MarketForecastingPage';
-import MTFScreenerPage from './pages/MTFScreenerPage';
-import MarketRegimeTraderPage from './pages/MarketRegimeTraderPage';
-import RiskCalculatorPage from './pages/RiskCalculatorPage';
-import Phase1Calculator from './pages/RiskCalculator/Phase1Calculator';
-import Phase2Settings from './pages/RiskCalculator/Phase2Settings';
-import Phase3Session from './pages/RiskCalculator/Phase3Session';
-import Phase4Portfolio from './pages/RiskCalculator/Phase4Portfolio';
-import Phase5Journal from './pages/RiskCalculator/Phase5Journal';
-import Phase6Simulations from './pages/RiskCalculator/Phase6Simulations';
-import Phase7Analytics from './pages/RiskCalculator/Phase7Analytics';
-import PortfolioPage from './pages/PortfolioPage';
-import TradeJournalPage from './pages/TradeJournalPage';
-import RiskScenariosPage from './pages/RiskScenariosPage';
-import PortfolioAnalyticsPage from './pages/PortfolioAnalyticsPage';
-import NotificationSettingsPage from './pages/NotificationSettingsPage';
-import BrokerIntegrationPage from './pages/BrokerIntegrationPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminSubscriptionsPage from './pages/AdminSubscriptionsPage';
@@ -150,13 +116,6 @@ const AIFeatureBanner: React.FC = () => {
 
 // Floating Chat Button with location awareness
 const FloatingChatWithLocation: React.FC = () => {
-  const location = useLocation();
-
-  // Don't show the floating chat on the WelthAI page
-  const isWelthAIPage = location.pathname === '/welth-market-regime';
-
-  if (isWelthAIPage) return null;
-
   return <FloatingChatButton />;
 };
 
@@ -219,8 +178,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                {/* PROTECTED ROUTES - Only dashboard and profile require login */}
-                <Route path="/dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+                {/* PROTECTED ROUTES */}
                 <Route path="/profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
 
                 {/* ADMIN ROUTES - Require admin role */}
@@ -233,37 +191,14 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/admin/support-tickets" element={<PrivateRoute><AdminSupportTicketsPage /></PrivateRoute>} />
                 <Route path="/admin/create-ticket" element={<PrivateRoute><AdminCreateTicketPage /></PrivateRoute>} />
                 <Route path="/admin/activity-logs" element={<PrivateRoute><AdminActivityLogsPage /></PrivateRoute>} />
-                {/* PUBLIC ROUTES WITH ANONYMOUS TRIAL - All feature pages are now public with 10 free runs */}
-                <Route path="/stock" element={<StockPage />} />
-                <Route path="/backtesting" element={<BacktestingPage />} />
-                <Route path="/backtesting-beta" element={<BacktestingBetaPage />} />
-                {/* Alias for backtest beta as requested */}
-                <Route path="/backtest-beta" element={<BacktestingBetaPage />} />
-                <Route path="/welthai" element={<WelthAIPage />} />
-                <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
-                <Route path="/welth-market-regime" element={<MarketRegimePage />} />
-                {/* New integrated Market Regime Trader page with AI Pattern Analysis + Risk Calculator */}
-                <Route path="/marketregime" element={<MarketRegimeTraderPage />} />
-                <Route path="/market-forecasting" element={<MarketForecastingPage />} />
-                <Route path="/ai-screener" element={<AIScreenerPage />} />
-                <Route path="/riskcalculator" element={<RiskCalculatorPage />} />
-                <Route path="/risk-calculator/phase1" element={<Phase1Calculator />} />
-                <Route path="/risk-calculator/phase2" element={<PrivateRoute><Phase2Settings /></PrivateRoute>} />
-                <Route path="/risk-calculator/phase3" element={<PrivateRoute><Phase3Session /></PrivateRoute>} />
-                <Route path="/risk-calculator/phase4" element={<PrivateRoute><Phase4Portfolio /></PrivateRoute>} />
-                <Route path="/risk-calculator/phase5" element={<PrivateRoute><Phase5Journal /></PrivateRoute>} />
-                <Route path="/risk-calculator/phase6" element={<PrivateRoute><Phase6Simulations /></PrivateRoute>} />
-                <Route path="/risk-calculator/phase7" element={<PrivateRoute><Phase7Analytics /></PrivateRoute>} />
-                <Route path="/portfolio" element={<PrivateRoute><PortfolioPage /></PrivateRoute>} />
-                <Route path="/trade-journal" element={<PrivateRoute><TradeJournalPage /></PrivateRoute>} />
-                <Route path="/risk-scenarios" element={<PrivateRoute><RiskScenariosPage /></PrivateRoute>} />
-                <Route path="/portfolio-analytics" element={<PrivateRoute><PortfolioAnalyticsPage /></PrivateRoute>} />
-                <Route path="/settings/notifications" element={<PrivateRoute><NotificationSettingsPage /></PrivateRoute>} />
-                <Route path="/broker-integration" element={<PrivateRoute><BrokerIntegrationPage /></PrivateRoute>} />
-                <Route path="/welthchatbot" element={<WelthChatbotPage />} />
-                <Route path="/welth-ai-chatbot" element={<WelthAIChatbotPage />} />
 
-                <Route path="/WelthAiChatBot-lanching-soon" element={<WelthAiChatbotLaunchingSoon />} />
+                {/* PUBLIC ROUTES */}
+                <Route path="/stock" element={<StockPage />} />
+                <Route path="/backtesting-beta" element={<BacktestingBetaPage />} />
+                <Route path="/backtest-beta" element={<BacktestingBetaPage />} />
+                <Route path="/backtest" element={<BacktestingBetaPage />} />
+                <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
+                <Route path="/ai-screener" element={<AIScreenerPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/news-and-blogs" element={<NewsAndBlogsPage />} />
                 <Route path="/blog/:slug" element={<BlogDetailPage />} />
@@ -272,18 +207,10 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                 <Route path="/feedback" element={<FeedbackPage />} />
-                {/* Premium plans page (dynamic from backend) */}
                 <Route path="/premium" element={<Premium />} />
-                {/* Payment Success (Cashfree redirect) */}
                 <Route path="/payment-success" element={<PaymentSuccess />} />
-                {/* Legacy pricing routes - redirect to /premium */}
                 <Route path="/pricing" element={<Premium />} />
                 <Route path="/pricing-launching-soon" element={<PricingLaunchingSoon />} />
-                {/* Legacy routes commented out - use new premium flow instead */}
-                {/* <Route path="/pricing-old" element={<PricingPage />} /> */}
-                {/* <Route path="/plan-details/:tier/:billing" element={<PrivateRoute><PlanDetailsPage /></PrivateRoute>} /> */}
-                {/* <Route path="/review-payment" element={<PrivateRoute><ReviewPaymentPage /></PrivateRoute>} /> */}
-                {/* <Route path="/payment-confirmation" element={<PrivateRoute><PaymentConfirmationPage /></PrivateRoute>} /> */}
               </Routes>
               {/* Track route changes for GTM/GA4 */}
               <RouteChangeTracker />

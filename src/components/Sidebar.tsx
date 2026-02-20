@@ -318,7 +318,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
     try {
       setIsLoading(true);
       setError(null);
-      const response = await marketService.getMarketIndices();
+      const response = await marketService.getMarketIndices(1);
       if (response.market_breadth) {
         setMarketBreadth(response.market_breadth);
       }
