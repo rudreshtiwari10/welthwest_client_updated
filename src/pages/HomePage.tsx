@@ -8,6 +8,7 @@ import FeatureVideo from '../components/FeatureVideo';
 import QuickStartGuide from '../components/QuickStartGuide';
 import NetworkBackground from '../components/NetworkBackground';
 import AssistantWidget from '../components/AssistantWidget';
+import SnakeBorder from '../components/SnakeBorder';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
 // Register Chart.js components
@@ -278,8 +279,10 @@ const HomePage: React.FC = () => {
         {/* Elegant Hero Section with AI Feature Buttons */}
         <section className="mb-12 max-w-4xl mx-auto">
           <div className="relative overflow-hidden rounded-xl bg-white dark:bg-dark-300 shadow-xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+            {/* Galaxy snake border animation */}
+            <SnakeBorder />
             {/* Content */}
-            <div className="relative py-10 px-6 text-center" style={{ minHeight: '200px' }}>
+            <div className="relative py-10 px-6 text-center" style={{ minHeight: '200px', zIndex: 10 }}>
               
               
               <h1 className="text-3xl md:text-4xl font-bold mb-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-gray-900 dark:text-white">
@@ -291,8 +294,25 @@ const HomePage: React.FC = () => {
                 </div>
               </h1>
               
+              {/* Shine keyframe injected once */}
+              <style>{`
+                @keyframes hero-shine {
+                  0%   { transform: translateX(-120%) skewX(-15deg); }
+                  100% { transform: translateX(320%)  skewX(-15deg); }
+                }
+                .market-regime-shine::after {
+                  content: '';
+                  position: absolute;
+                  inset: 0;
+                  width: 45%;
+                  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.32), transparent);
+                  animation: hero-shine 2.8s ease-in-out infinite;
+                  pointer-events: none;
+                }
+              `}</style>
+
               {/* Feature Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 max-w-4xl mx-auto items-center">
                 {/* Welth AI Assistant */}
                 <Link
                   to="/welth-ai-assistant"
@@ -307,17 +327,23 @@ const HomePage: React.FC = () => {
                   </div>
                 </Link>
 
-                {/* Welth Market Regime */}
+                {/* Welth Market Regime — featured centre button */}
                 <Link
                   to="/ai-screener"
-                  className="group flex items-center bg-white dark:bg-dark-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
+                  className="market-regime-shine group relative flex items-center overflow-hidden bg-white dark:bg-dark-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-indigo-300/80 dark:border-indigo-600/60 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg scale-[1.03]"
+                  style={{ boxShadow: '0 0 10px 1px rgba(99,102,241,0.13)' }}
                 >
+                  {/* "New" badge */}
+                  <span className="absolute top-1.5 right-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gradient-to-r from-indigo-500 to-blue-500 text-white leading-none">
+                    ✦ New
+                  </span>
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
                     <SparklesIcon className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth Market Regime</h3>
                     <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Market Analysis & screener</p>
+                    <span className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400">Try it now →</span>
                   </div>
                 </Link>
 
