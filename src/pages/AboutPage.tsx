@@ -1,10 +1,18 @@
 import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const AboutPage: React.FC = () => {
+  usePageMeta({
+    title: 'About WelthWest – Team Building AI for Safer Markets',
+    description:
+      'Learn about WelthWest, the team behind the platform, our mission to democratise AI-powered market intelligence for Indian equity traders and fund managers.',
+  });
   // Refs for animation elements
   const missionRef = useRef<HTMLDivElement>(null);
   const challengesRef = useRef<HTMLDivElement>(null);
   const techRef = useRef<HTMLDivElement>(null);
+  const partnersRef = useRef<HTMLDivElement>(null);
   const teamRef = useRef<HTMLDivElement>(null);
   const disclaimerRef = useRef<HTMLDivElement>(null);
 
@@ -23,7 +31,7 @@ const AboutPage: React.FC = () => {
     );
 
     // Observe all section refs
-    [missionRef, challengesRef, techRef, teamRef, disclaimerRef].forEach(ref => {
+    [missionRef, challengesRef, partnersRef, techRef, teamRef, disclaimerRef].forEach(ref => {
       if (ref.current) {
         observer.observe(ref.current);
       }
@@ -218,7 +226,177 @@ const AboutPage: React.FC = () => {
           <div className="h-1 w-32 bg-gradient-to-r from-transparent via-primary-500 to-transparent rounded-full"></div>
         </div>
       </div>
-      
+
+      {/* ─── Partners Section ─────────────────────────────────────────────────── */}
+      <div
+        ref={partnersRef}
+        className="max-w-6xl mx-auto mb-16 opacity-0 translate-y-10 transition-all duration-1000 delay-250"
+      >
+        {/* Section Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-4">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Partnerships
+          </div>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500">
+            Our Partners
+          </h2>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            Organisations and platforms we collaborate with to bring smarter financial
+            intelligence to their ecosystems
+          </p>
+          <div className="flex justify-center mt-6">
+            <div className="h-1 w-24 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+          </div>
+        </div>
+
+        {/* Partner cards row */}
+        <div className="flex flex-wrap justify-center gap-8">
+
+          {/* ── BSG INFRA card ── */}
+          <div className="group relative w-full max-w-sm">
+            {/* Animated glow border */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl opacity-20 group-hover:opacity-40 blur transition-all duration-500"></div>
+
+            <div className="relative bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50">
+              {/* Banner */}
+              <div className="relative h-28 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 overflow-hidden">
+                {/* Dot-grid overlay */}
+                <div
+                  className="absolute inset-0 opacity-10"
+                  style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '20px 20px' }}
+                />
+                {/* Decorative shapes */}
+                <div className="absolute top-4 right-8 w-14 h-14 border border-white/20 rounded-lg rotate-12" />
+                <div className="absolute bottom-4 right-24 w-8 h-8 border border-white/15 rounded-full" />
+                <div className="absolute top-8 left-1/3 w-10 h-10 border border-white/10 rounded-lg -rotate-6" />
+                {/* Industry badge on banner */}
+                <div className="absolute bottom-3 left-4">
+                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-white/20 text-white backdrop-blur-sm">
+                    Construction &amp; Equipment
+                  </span>
+                </div>
+              </div>
+
+              {/* Logo icon — overlapping the banner */}
+              <div className="flex justify-center -mt-10 relative z-10 mb-2">
+                <div className="w-20 h-20 rounded-2xl p-0.5 bg-gradient-to-br from-emerald-500 to-teal-500 shadow-xl">
+                  <div className="w-full h-full rounded-2xl bg-white dark:bg-gray-900 flex items-center justify-center">
+                    {/* Building / construction icon */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-9 w-9 text-emerald-600 dark:text-emerald-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card body */}
+              <div className="px-6 pb-6 pt-2">
+                {/* Name & type */}
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white tracking-wide">
+                    BSG INFRA
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Construction &amp; Equipment Marketplace
+                  </p>
+                </div>
+
+                {/* Partner badge */}
+                <div className="flex justify-center mb-5">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-xs font-semibold shadow-sm">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Official Partner
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed text-center mb-5">
+                  BSG INFRA is a B2B marketplace connecting construction companies,
+                  contractors, and equipment suppliers across India. WelthWest
+                  provides market intelligence and financial analytics to support
+                  smarter procurement and project-cost decisions on their platform.
+                </p>
+
+                {/* Partnership highlights */}
+                <ul className="space-y-2.5 mb-6">
+                  {[
+                    'AI market regime signals for project cost planning',
+                    'Financial analytics for equipment procurement cycles',
+                    'Macro anomaly alerts for raw-material pricing',
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2.5 text-xs text-gray-600 dark:text-gray-400">
+                      <svg
+                        className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+
+              </div>
+            </div>
+          </div>
+
+          {/* ── Become a Partner CTA card ── */}
+          <div className="group relative w-full max-w-sm">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-300 to-gray-400 dark:from-gray-600 dark:to-gray-700 rounded-2xl opacity-0 group-hover:opacity-20 blur transition-all duration-500" />
+            <div className="relative h-full bg-white/50 dark:bg-gray-900/40 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center p-8 text-center hover:border-emerald-400 dark:hover:border-emerald-600 transition-all duration-300 min-h-[420px]">
+              {/* Plus icon */}
+              <div className="w-16 h-16 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-5 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 transition-colors duration-300">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-gray-400 dark:text-gray-500 group-hover:text-emerald-500 dark:group-hover:text-emerald-400 transition-colors duration-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-2">
+                Become a Partner
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6 max-w-xs">
+                Integrate WelthWest AI market signals — regime detection, anomaly
+                alerts, and backtesting — into your platform or workflow.
+              </p>
+              <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl text-sm font-medium transition-all duration-300 shadow-md hover:shadow-emerald-500/30 hover:scale-105"
+              >
+                Get in Touch
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      {/* ─────────────────────────────────────────────────────────────────────── */}
+
       {/* Technology Section */}
       <div 
         ref={techRef}

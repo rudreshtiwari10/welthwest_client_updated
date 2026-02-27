@@ -1,6 +1,12 @@
 import React from 'react';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const ContactUsPage: React.FC = () => {
+  usePageMeta({
+    title: 'Contact WelthWest – Get in Touch',
+    description:
+      'Reach the WelthWest team via email or social media for support, partnerships, or general enquiries.',
+  });
 
   const socialLinks = [
     {

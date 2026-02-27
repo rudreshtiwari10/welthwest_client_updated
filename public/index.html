@@ -7,10 +7,53 @@
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
-      content="Transform your investing with WelthWest AI-powered platform: no-code backtesting, real-time market sentiment analysis, 24/7 AI trading assistant, and high-win-rate strategies."
+      content="WelthWest is an AI-powered market intelligence platform for Indian equity traders. Detect market regimes, identify anomalies, and backtest strategies without writing code."
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/images/singlelogo.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Default OpenGraph tags (overridden per-page by usePageMeta hook) -->
+    <!-- TODO: Create a 1200×630 OG image at /images/og-default.png with logo + dashboard screenshot -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="WelthWest" />
+    <meta property="og:title" content="WelthWest – AI-Powered Wealth Intelligence Platform" />
+    <meta property="og:description" content="WelthWest is an AI-powered market intelligence platform for Indian equity traders. Detect market regimes, identify anomalies, and backtest strategies without writing code." />
+    <meta property="og:image" content="https://welthwest.com/images/og-default.png" />
+    <meta property="og:url" content="https://welthwest.com" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@WelthWest" />
+    <meta name="twitter:title" content="WelthWest – AI-Powered Wealth Intelligence Platform" />
+    <meta name="twitter:description" content="WelthWest is an AI-powered market intelligence platform for Indian equity traders. Detect market regimes, identify anomalies, and backtest strategies." />
+    <meta name="twitter:image" content="https://welthwest.com/images/og-default.png" />
+
+    <!-- JSON-LD: Organisation (global, visible to all crawlers without JS) -->
+    <!-- TODO: Fill in founder LinkedIn URL and any additional sameAs profiles -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "WelthWest",
+      "url": "https://welthwest.com",
+      "logo": "https://welthwest.com/images/singlelogo.png",
+      "description": "WelthWest is an AI-powered market intelligence platform helping Indian equity traders detect market regimes, identify anomalies, and backtest strategies.",
+      "email": "contact@welthwest.com",
+      "foundingDate": "2024",
+      "areaServed": "IN",
+      "sameAs": [
+        "https://www.linkedin.com/company/108673007",
+        "https://x.com/WelthWest",
+        "https://www.youtube.com/@WelthWest",
+        "https://www.instagram.com/welthwest"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "contact@welthwest.com",
+        "contactType": "customer support",
+        "areaServed": "IN",
+        "availableLanguage": "English"
+      }
+    }
+    </script>
     <title>WelthWest - AI Powered Wealth Intelligence Platform</title>
     
     <!-- Preload critical resources -->
@@ -124,7 +167,94 @@
   <body class="bg-white dark:bg-[#1a1f2e] text-gray-900 dark:text-white">
     <!-- GTM noscript placeholder - will be injected by React -->
     
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <!--
+      No-JS fallback: provides real crawlable content for non-JS crawlers and
+      users who have JavaScript disabled. The React app renders above this when
+      JS is available.
+
+      NOTE (SSR): This static fallback is the only content visible to non-JS
+      crawlers for ALL routes because this SPA uses client-side routing.
+      TODO (SSR migration): Migrate to Next.js App Router for true per-route
+      SSR so each URL returns its own meaningful HTML from the server.
+    -->
+    <noscript>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #fff; color: #111827; }
+        .noscript-header { background: #1a1f2e; color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        .noscript-header a { color: #a78bfa; text-decoration: none; margin-left: 1rem; }
+        .noscript-main { max-width: 900px; margin: 0 auto; padding: 2rem; }
+        h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.3rem; margin-top: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3rem; }
+        p, li { line-height: 1.7; color: #374151; }
+        ul { padding-left: 1.5rem; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.2rem; margin: 1.5rem 0; }
+        .feature-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; }
+        .noscript-footer { background: #1a1f2e; color: #9ca3af; text-align: center; padding: 1.5rem; font-size: 0.85rem; margin-top: 3rem; }
+        .noscript-footer a { color: #a78bfa; margin: 0 0.5rem; text-decoration: none; }
+        .notice { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 0.8rem 1rem; border-radius: 4px; margin: 1rem 0; font-size: 0.9rem; }
+      </style>
+      <div class="noscript-header">
+        <strong>WelthWest</strong>
+        <nav>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy-policy">Privacy</a>
+          <a href="/terms-and-conditions">Terms</a>
+          <a href="/security">Security</a>
+          <a href="/case-studies">Case Studies</a>
+        </nav>
+      </div>
+      <main class="noscript-main">
+        <h1>WelthWest – AI-Powered Wealth Intelligence</h1>
+        <p>WelthWest is an AI-powered analytics platform for Indian equity market participants. We help proprietary traders, portfolio managers, and individual investors detect market regime shifts and anomalies — without predicting prices.</p>
+
+        <div class="notice">
+          <strong>JavaScript required for full experience.</strong> Please enable JavaScript in your browser to use the interactive platform. The summary below is provided for reference.
+        </div>
+
+        <h2>What We Do</h2>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>WelthAI Market Regime</h3>
+            <p>AI-driven detection of bull, bear, and sideways market regimes using OHLCV and derivatives data.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Anomaly Detector</h3>
+            <p>Real-time alerts when market behaviour deviates significantly from historical norms.</p>
+          </div>
+          <div class="feature-card">
+            <h3>Backtesting Engine</h3>
+            <p>No-code backtesting across 10+ years of NIFTY and stock data with key performance metrics.</p>
+          </div>
+          <div class="feature-card">
+            <h3>WelthAI Assistant</h3>
+            <p>Conversational AI for market research, strategy ideas, and risk analysis.</p>
+          </div>
+        </div>
+
+        <h2>Contact</h2>
+        <ul>
+          <li><strong>Email:</strong> <a href="mailto:contact@welthwest.com">contact@welthwest.com</a></li>
+          <li><strong>Location:</strong> India</li>
+          <li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/company/108673007" rel="noopener noreferrer">WelthWest on LinkedIn</a></li>
+        </ul>
+
+        <h2>Important Disclaimer</h2>
+        <p>WelthWest is an AI-powered analytics platform. We do not offer brokerage or investment advice. Markets are inherently risky. Past backtested performance is not indicative of future results. Always conduct your own due diligence before making investment decisions.</p>
+      </main>
+      <footer class="noscript-footer">
+        <p>&copy; 2024 WelthWest. All rights reserved.</p>
+        <p>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy-policy">Privacy Policy</a>
+          <a href="/terms-and-conditions">Terms &amp; Conditions</a>
+          <a href="/security">Security</a>
+          <a href="/case-studies">Case Studies</a>
+        </p>
+        <p>WelthWest is an AI-powered analytics platform. We do not offer brokerage or investment advice. Markets are risky.</p>
+      </footer>
+    </noscript>
     <div id="root"></div>
   </body>
 </html> 

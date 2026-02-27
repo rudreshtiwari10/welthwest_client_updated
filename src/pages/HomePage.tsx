@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 import { marketService, activityService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
@@ -15,6 +16,12 @@ import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const HomePage: React.FC = () => {
+  usePageMeta({
+    title: 'WelthWest – AI-Powered Wealth Intelligence & Market Risk Signals',
+    description:
+      'WelthWest uses AI to detect market regime shifts and anomalies in Indian equities. No-code backtesting, real-time risk signals, and an AI assistant — built for traders and fund managers.',
+  });
+
   const [marketData, setMarketData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const indicesSliderRef = useRef<HTMLDivElement>(null);
@@ -64,15 +71,15 @@ const HomePage: React.FC = () => {
       category: "Regime Detection"
     }
   ], []);
-  
+
   // Get the longest word to set a fixed width
   // const longestWord = dynamicWords.reduce((a, b) => a.length > b.length ? a : b, '');
-  
+
   // Dynamic word typing effect
   useEffect(() => {
     const typingInterval = 150; // ms per character
     const wordChangeInterval = 4000; // ms between word changes
-    
+
     // Function to handle the typing effect
     const typeWord = (word: string, index: number = 0) => {
       if (index <= word.length) {
@@ -82,7 +89,7 @@ const HomePage: React.FC = () => {
         setIsTyping(false);
       }
     };
-    
+
     // Change word periodically
     const interval = setInterval(() => {
       setIsTyping(true);
@@ -91,16 +98,16 @@ const HomePage: React.FC = () => {
       setDynamicWord(nextWord);
       typeWord(nextWord);
     }, wordChangeInterval);
-    
+
     // Initial typing
     if (displayText === '') {
       setIsTyping(true);
       typeWord(dynamicWord);
     }
-    
+
     return () => clearInterval(interval);
   }, [dynamicWord, dynamicWords, displayText]);
-  
+
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
@@ -139,7 +146,7 @@ const HomePage: React.FC = () => {
   const goToTestimonial = (index: number) => {
     setCurrentTestimonial(index);
   };
-  
+
   // Memoized chart data generator using real API data
   const generateChartData = useMemo(() => {
     return (chartData: any, isPositive: boolean) => {
@@ -153,7 +160,7 @@ const HomePage: React.FC = () => {
 
       const labels = chartData.dates;
       const data = chartData.prices;
-      
+
       // Keep green/red colors based on percent change
       const colors = {
         border: isPositive ? 'rgba(34, 197, 94, 1)' : 'rgba(239, 68, 68, 1)',
@@ -191,7 +198,7 @@ const HomePage: React.FC = () => {
       };
     };
   }, []);
-  
+
   // Chart options
   const chartOptions = useMemo(() => ({
     responsive: true,
@@ -257,7 +264,7 @@ const HomePage: React.FC = () => {
       },
     },
   }), []);
-  
+
   const scrollIndices = (direction: 'left' | 'right') => {
     if (indicesSliderRef.current) {
       const scrollAmount = 340; // Scroll by one card width (320px card + 20px gap)
@@ -268,14 +275,14 @@ const HomePage: React.FC = () => {
       });
     }
   };
-  
+
   return (
     <div className="relative min-h-screen">
       {/* Geometric Network Background */}
       <NetworkBackground />
 
       <div className="container mx-auto px-4 py-8 relative z-10">
-        
+
         {/* Elegant Hero Section with AI Feature Buttons */}
         <section className="mb-12 max-w-4xl mx-auto">
           <div className="relative overflow-hidden rounded-xl bg-white dark:bg-dark-300 shadow-xl border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
@@ -283,8 +290,8 @@ const HomePage: React.FC = () => {
             <SnakeBorder />
             {/* Content */}
             <div className="relative py-10 px-6 text-center" style={{ minHeight: '200px', zIndex: 10 }}>
-              
-              
+
+
               <h1 className="text-3xl md:text-4xl font-bold mb-6 flex flex-col sm:flex-row items-center justify-center gap-2 text-gray-900 dark:text-white">
                 <span>Discover the Power of AI in</span>
                 <div className="relative inline-block" style={{ minWidth: '140px', width: '140px' }}>
@@ -293,7 +300,7 @@ const HomePage: React.FC = () => {
                   </span>
                 </div>
               </h1>
-              
+
               {/* Shine keyframe injected once */}
               <style>{`
                 @keyframes hero-shine {
@@ -361,7 +368,7 @@ const HomePage: React.FC = () => {
                   </div>
                 </Link>
               </div>
-              
+
               {/* Small sparkle decoration */}
               <div className="absolute top-4 right-4 opacity-30">
                 <SparklesIcon className="h-5 w-5 text-primary-500 dark:text-primary-400 animate-pulse-slow" />
@@ -398,21 +405,21 @@ const HomePage: React.FC = () => {
               Last updated: {new Date().toLocaleTimeString()}
             </div>
           </div>
-          
+
           {/* Slider Navigation */}
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">NSE & BSE Market Indices</h3>
             <div className="flex space-x-2">
-              <button 
-                onClick={() => scrollIndices('left')} 
+              <button
+                onClick={() => scrollIndices('left')}
                 className="p-2 rounded-full bg-gray-100 dark:bg-dark-400 hover:bg-gray-200 dark:hover:bg-dark-500"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
               </button>
-              <button 
-                onClick={() => scrollIndices('right')} 
+              <button
+                onClick={() => scrollIndices('right')}
                 className="p-2 rounded-full bg-gray-100 dark:bg-dark-400 hover:bg-gray-200 dark:hover:bg-dark-500"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -421,7 +428,7 @@ const HomePage: React.FC = () => {
               </button>
             </div>
           </div>
-          
+
           {/* Horizontal Scrollable Indices */}
           <div className="relative mb-8">
             <div
@@ -457,215 +464,212 @@ const HomePage: React.FC = () => {
               ) : (
                 // Real data + blurred dummy card
                 <>
-                {marketData?.indices && Object.keys(marketData.indices).map((key, index) => {
-                  const index_data = marketData.indices[key];
-                  // Calculate percentage change more accurately
-                  let percentChange = 0;
+                  {marketData?.indices && Object.keys(marketData.indices).map((key, index) => {
+                    const index_data = marketData.indices[key];
+                    // Calculate percentage change more accurately
+                    let percentChange = 0;
 
-                  if (index_data.percentChange !== undefined && index_data.percentChange !== null) {
-                    percentChange = index_data.percentChange;
-                  } else if (index_data.change && index_data.price) {
-                    // Calculate percent change: (change / (current_price - change)) * 100
-                    const previousPrice = index_data.price - index_data.change;
-                    percentChange = (index_data.change / previousPrice) * 100;
-                  } else {
-                    // Generate realistic sample data if no real data available
-                    const sampleChanges = [-2.45, 1.78, -0.92, 3.21, -1.65, 2.89, 0.45, -1.23, 2.15, -0.78];
-                    percentChange = sampleChanges[Object.keys(marketData.indices).indexOf(key) % sampleChanges.length];
-                  }
+                    if (index_data.percentChange !== undefined && index_data.percentChange !== null) {
+                      percentChange = index_data.percentChange;
+                    } else if (index_data.change && index_data.price) {
+                      // Calculate percent change: (change / (current_price - change)) * 100
+                      const previousPrice = index_data.price - index_data.change;
+                      percentChange = (index_data.change / previousPrice) * 100;
+                    } else {
+                      // Generate realistic sample data if no real data available
+                      const sampleChanges = [-2.45, 1.78, -0.92, 3.21, -1.65, 2.89, 0.45, -1.23, 2.15, -0.78];
+                      percentChange = sampleChanges[Object.keys(marketData.indices).indexOf(key) % sampleChanges.length];
+                    }
 
-                  // Absolute change is not displayed; omit to avoid unused variable warnings
+                    // Absolute change is not displayed; omit to avoid unused variable warnings
 
-                  const isPositive = percentChange >= 0;
+                    const isPositive = percentChange >= 0;
 
-                  return (
-                    <div key={key} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-1 hover:scale-[1.02]" style={{ minHeight: '300px' }}>
-                      <div className="p-6 relative">
-                        {/* Decorative background element */}
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+                    return (
+                      <div key={key} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-1 hover:scale-[1.02]" style={{ minHeight: '300px' }}>
+                        <div className="p-6 relative">
+                          {/* Decorative background element */}
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
 
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              {/* Exchange Icon */}
-                              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                isPositive
-                                  ? 'bg-green-100 dark:bg-green-900/30'
-                                  : 'bg-red-100 dark:bg-red-900/30'
-                              }`}>
-                                <ChartBarIcon className={`h-4 w-4 ${
-                                  isPositive
-                                    ? 'text-green-600 dark:text-green-400'
-                                    : 'text-red-600 dark:text-red-400'
-                                }`} />
+                          <div className="flex justify-between items-start mb-4 relative z-10">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                {/* Exchange Icon */}
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isPositive
+                                    ? 'bg-green-100 dark:bg-green-900/30'
+                                    : 'bg-red-100 dark:bg-red-900/30'
+                                  }`}>
+                                  <ChartBarIcon className={`h-4 w-4 ${isPositive
+                                      ? 'text-green-600 dark:text-green-400'
+                                      : 'text-red-600 dark:text-red-400'
+                                    }`} />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                    {index_data.name || key}
+                                  </h3>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {key.includes('NSEI') || key.includes('NSE') ? 'NSE' : 'BSE'} Index
+                                  </p>
+                                </div>
                               </div>
-                              <div>
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                  {index_data.name || key}
-                                </h3>
-                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  {key.includes('NSEI') || key.includes('NSE') ? 'NSE' : 'BSE'} Index
-                                </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                                ₹{index_data.price?.toFixed(2) || '0.00'}
                               </div>
+                              <div className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-semibold text-sm ${isPositive
+                                  ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                                  : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                                } group-hover:scale-110 transition-transform duration-300`}>
+                                {isPositive ? (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                                  </svg>
+                                ) : (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
+                                  </svg>
+                                )}
+                                <span>
+                                  {isPositive ? '+' : ''}
+                                  {percentChange.toFixed(2)}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="h-32 w-full">
+                            {index_data.chartData && index_data.chartData.dates && index_data.chartData.dates.length > 0 ? (
+                              <Line
+                                data={generateChartData(index_data.chartData, isPositive)}
+                                options={chartOptions}
+                                key={`chart-${key}-${index_data.timestamp}`}
+                              />
+                            ) : (
+                              <Line
+                                data={generateChartData({
+                                  dates: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                                  prices: (() => {
+                                    const basePrice = index_data.price || 100;
+                                    const percentChange = index_data.percentChange || 0;
+                                    const startPrice = basePrice - (basePrice * percentChange / 100);
+
+                                    // Generate realistic market fluctuations
+                                    const prices = [];
+                                    let currentPrice = startPrice;
+
+                                    for (let i = 0; i < 7; i++) {
+                                      // Add some randomness but trend towards final price
+                                      const progressToEnd = i / 6; // 0 to 1
+                                      const targetPrice = startPrice + (basePrice - startPrice) * progressToEnd;
+
+                                      // Add realistic volatility (±0.3% to ±1.2% per day)
+                                      const volatility = (Math.random() - 0.5) * 2 * (0.003 + Math.random() * 0.009);
+                                      const fluctuation = currentPrice * volatility;
+
+                                      // Move towards target with some randomness
+                                      currentPrice = targetPrice + fluctuation;
+
+                                      // Add intraday variation
+                                      const intraday = Math.sin(i * 1.5) * currentPrice * 0.003;
+
+                                      prices.push(currentPrice + intraday);
+                                    }
+
+                                    // Ensure last price matches actual current price
+                                    prices[6] = basePrice;
+
+                                    return prices;
+                                  })()
+                                }, isPositive)}
+                                options={chartOptions}
+                                key={`chart-${key}-fallback`}
+                              />
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-3 gap-3 mt-4 relative z-10">
+                            <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Open</div>
+                              <div className="font-semibold text-sm text-gray-900 dark:text-white truncate overflow-hidden">
+                                ₹{index_data.price?.toFixed(2) || '0.00'}
+                              </div>
+                            </div>
+                            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">High</div>
+                              <div className="font-semibold text-sm text-green-700 dark:text-green-400 truncate overflow-hidden">
+                                ₹{(index_data.price * 1.01)?.toFixed(2) || '0.00'}
+                              </div>
+                            </div>
+                            <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Low</div>
+                              <div className="font-semibold text-sm text-red-700 dark:text-red-400 truncate overflow-hidden">
+                                ₹{(index_data.price * 0.99)?.toFixed(2) || '0.00'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Blurred dummy 4th card with redirect to /stock */}
+                  <Link to="/stock" className="min-w-[320px] relative rounded-2xl overflow-hidden group cursor-pointer" style={{ minHeight: '300px' }}>
+                    {/* Blurred placeholder content */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 border border-gray-200 dark:border-gray-700 rounded-2xl">
+                      <div className="p-6 filter blur-[6px] select-none pointer-events-none">
+                        <div className="flex justify-between items-start mb-4">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+                            <div>
+                              <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-1"></div>
+                              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
-                              ₹{index_data.price?.toFixed(2) || '0.00'}
-                            </div>
-                            <div className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full font-semibold text-sm ${
-                              isPositive
-                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                            } group-hover:scale-110 transition-transform duration-300`}>
-                              {isPositive ? (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
-                                </svg>
-                              ) : (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1v-5a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
-                                </svg>
-                              )}
-                              <span>
-                                {isPositive ? '+' : ''}
-                                {percentChange.toFixed(2)}%
-                              </span>
-                            </div>
+                            <div className="h-7 bg-gray-300 dark:bg-gray-600 rounded w-20 mb-1"></div>
+                            <div className="h-6 bg-green-200 dark:bg-green-900/40 rounded-full w-16"></div>
                           </div>
                         </div>
-
-                        <div className="h-32 w-full">
-                          {index_data.chartData && index_data.chartData.dates && index_data.chartData.dates.length > 0 ? (
-                            <Line
-                              data={generateChartData(index_data.chartData, isPositive)}
-                              options={chartOptions}
-                              key={`chart-${key}-${index_data.timestamp}`}
-                            />
-                          ) : (
-                            <Line
-                              data={generateChartData({
-                                dates: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
-                                prices: (() => {
-                                  const basePrice = index_data.price || 100;
-                                  const percentChange = index_data.percentChange || 0;
-                                  const startPrice = basePrice - (basePrice * percentChange / 100);
-
-                                  // Generate realistic market fluctuations
-                                  const prices = [];
-                                  let currentPrice = startPrice;
-
-                                  for (let i = 0; i < 7; i++) {
-                                    // Add some randomness but trend towards final price
-                                    const progressToEnd = i / 6; // 0 to 1
-                                    const targetPrice = startPrice + (basePrice - startPrice) * progressToEnd;
-
-                                    // Add realistic volatility (±0.3% to ±1.2% per day)
-                                    const volatility = (Math.random() - 0.5) * 2 * (0.003 + Math.random() * 0.009);
-                                    const fluctuation = currentPrice * volatility;
-
-                                    // Move towards target with some randomness
-                                    currentPrice = targetPrice + fluctuation;
-
-                                    // Add intraday variation
-                                    const intraday = Math.sin(i * 1.5) * currentPrice * 0.003;
-
-                                    prices.push(currentPrice + intraday);
-                                  }
-
-                                  // Ensure last price matches actual current price
-                                  prices[6] = basePrice;
-
-                                  return prices;
-                                })()
-                              }, isPositive)}
-                              options={chartOptions}
-                              key={`chart-${key}-fallback`}
-                            />
-                          )}
+                        <div className="h-32 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg mb-4">
+                          <svg className="w-full h-full" viewBox="0 0 300 120" preserveAspectRatio="none">
+                            <path d="M0,80 Q50,40 100,60 T200,50 T300,30" stroke="rgba(34,197,94,0.5)" strokeWidth="2" fill="none" />
+                          </svg>
                         </div>
-
-                        <div className="grid grid-cols-3 gap-3 mt-4 relative z-10">
-                          <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 group-hover:bg-gray-100 dark:group-hover:bg-gray-800 transition-colors">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Open</div>
-                            <div className="font-semibold text-sm text-gray-900 dark:text-white truncate overflow-hidden">
-                              ₹{index_data.price?.toFixed(2) || '0.00'}
-                            </div>
-                          </div>
-                          <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 group-hover:bg-green-100 dark:group-hover:bg-green-900/30 transition-colors">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">High</div>
-                            <div className="font-semibold text-sm text-green-700 dark:text-green-400 truncate overflow-hidden">
-                              ₹{(index_data.price * 1.01)?.toFixed(2) || '0.00'}
-                            </div>
-                          </div>
-                          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
-                            <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Low</div>
-                            <div className="font-semibold text-sm text-red-700 dark:text-red-400 truncate overflow-hidden">
-                              ₹{(index_data.price * 0.99)?.toFixed(2) || '0.00'}
-                            </div>
-                          </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="h-14 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
+                          <div className="h-14 bg-green-100 dark:bg-green-900/20 rounded-lg"></div>
+                          <div className="h-14 bg-red-100 dark:bg-red-900/20 rounded-lg"></div>
                         </div>
                       </div>
                     </div>
-                  );
-                })}
-
-                {/* Blurred dummy 4th card with redirect to /stock */}
-                <Link to="/stock" className="min-w-[320px] relative rounded-2xl overflow-hidden group cursor-pointer" style={{ minHeight: '300px' }}>
-                  {/* Blurred placeholder content */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 border border-gray-200 dark:border-gray-700 rounded-2xl">
-                    <div className="p-6 filter blur-[6px] select-none pointer-events-none">
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
-                          <div>
-                            <div className="h-5 bg-gray-300 dark:bg-gray-600 rounded w-24 mb-1"></div>
-                            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-16"></div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="h-7 bg-gray-300 dark:bg-gray-600 rounded w-20 mb-1"></div>
-                          <div className="h-6 bg-green-200 dark:bg-green-900/40 rounded-full w-16"></div>
+                    {/* Overlay with CTA */}
+                    <div className="absolute inset-0 bg-black/10 dark:bg-black/30 backdrop-blur-[1px] rounded-2xl flex flex-col items-center justify-center group-hover:bg-black/20 dark:group-hover:bg-black/40 transition-all duration-300">
+                      <div className="bg-white dark:bg-dark-300 rounded-xl px-6 py-4 shadow-2xl border border-gray-200 dark:border-gray-600 text-center group-hover:scale-105 transition-transform duration-300">
+                        <ChartBarIcon className="h-8 w-8 text-primary-500 mx-auto mb-2" />
+                        <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">View All Markets</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">10+ indices & stocks</p>
+                        <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-400">
+                          Explore
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                          </svg>
                         </div>
                       </div>
-                      <div className="h-32 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-600 dark:to-gray-700 rounded-lg mb-4">
-                        <svg className="w-full h-full" viewBox="0 0 300 120" preserveAspectRatio="none">
-                          <path d="M0,80 Q50,40 100,60 T200,50 T300,30" stroke="rgba(34,197,94,0.5)" strokeWidth="2" fill="none"/>
-                        </svg>
-                      </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        <div className="h-14 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
-                        <div className="h-14 bg-green-100 dark:bg-green-900/20 rounded-lg"></div>
-                        <div className="h-14 bg-red-100 dark:bg-red-900/20 rounded-lg"></div>
-                      </div>
                     </div>
-                  </div>
-                  {/* Overlay with CTA */}
-                  <div className="absolute inset-0 bg-black/10 dark:bg-black/30 backdrop-blur-[1px] rounded-2xl flex flex-col items-center justify-center group-hover:bg-black/20 dark:group-hover:bg-black/40 transition-all duration-300">
-                    <div className="bg-white dark:bg-dark-300 rounded-xl px-6 py-4 shadow-2xl border border-gray-200 dark:border-gray-600 text-center group-hover:scale-105 transition-transform duration-300">
-                      <ChartBarIcon className="h-8 w-8 text-primary-500 mx-auto mb-2" />
-                      <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">View All Markets</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">10+ indices & stocks</p>
-                      <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary-600 dark:text-primary-400">
-                        Explore
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 group-hover:translate-x-1 transition-transform" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
                 </>
               )}
             </div>
-            
+
             {/* Gradient overlays for scroll indication */}
             <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
             <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white dark:from-gray-900 to-transparent pointer-events-none"></div>
           </div>
 
         </section>
-        
+
 
         {/* Main Features Showcase */}
         <section className="mb-8 max-w-7xl mx-auto px-4">
@@ -675,7 +679,7 @@ const HomePage: React.FC = () => {
               Discover AI-driven analysis, intelligent chatbot assistance, and comprehensive backtesting tools
             </p>
           </div>
-          
+
           {/* AI Analysis Feature */}
           <div className="mb-6">
             <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
@@ -719,7 +723,7 @@ const HomePage: React.FC = () => {
                     </svg>
                   </Link>
                 </div>
-                
+
                 {/* AI Analysis Video */}
                 <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 p-4 lg:p-5 flex items-center justify-center">
                   <FeatureVideo
@@ -734,7 +738,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Backtesting Feature */}
           <div className="mb-6">
             <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
@@ -768,8 +772,8 @@ const HomePage: React.FC = () => {
                       <span className="text-gray-700 dark:text-gray-300">Strategy optimization and parameter tuning</span>
                     </div>
                   </div>
-                  <Link 
-                    to="/backtest-beta" 
+                  <Link
+                    to="/backtest-beta"
                     className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-300 w-fit group-hover:bg-green-700 group-hover:shadow-lg"
                   >
                     Start Backtesting
@@ -778,7 +782,7 @@ const HomePage: React.FC = () => {
                     </svg>
                   </Link>
                 </div>
-                
+
                 {/* Backtesting Video */}
                 <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 lg:p-5 flex items-center justify-center">
                   <FeatureVideo
@@ -793,7 +797,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* AI Chat Bot Feature - Reverse Layout */}
           <div className="mb-8">
             <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
@@ -809,7 +813,7 @@ const HomePage: React.FC = () => {
                     fetchPriority="low"
                   />
                 </div>
-                
+
                 {/* Text Content - Right Side */}
                 <div className="p-6 lg:p-8 flex flex-col justify-center order-1 lg:order-2">
                   <div className="flex items-center mb-4">
@@ -839,8 +843,8 @@ const HomePage: React.FC = () => {
                       <span className="text-gray-700 dark:text-gray-300">Contextual financial education and explanations</span>
                     </div>
                   </div>
-                  <Link 
-                   to="/welth-ai-assistant" 
+                  <Link
+                    to="/welth-ai-assistant"
                     className="inline-flex items-center px-4 py-2 bg-secondary-600 text-white text-sm font-medium rounded-lg hover:bg-secondary-700 transition-all duration-300 w-fit group-hover:bg-secondary-700 group-hover:shadow-lg"
                   >
                     Chat with WelthAI
@@ -852,7 +856,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Strategy Feature */}
           <div className="mb-8">
             <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] group w-full">
@@ -888,8 +892,8 @@ const HomePage: React.FC = () => {
                       <span className="text-gray-700 dark:text-gray-300">Comprehensive performance analytics and reporting</span>
                     </div>
                   </div>
-                  <a 
-                    href="https://strategy.welthwest.com/" 
+                  <a
+                    href="https://strategy.welthwest.com/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 transition-all duration-300 w-fit group-hover:bg-orange-700 group-hover:shadow-lg"
@@ -900,7 +904,7 @@ const HomePage: React.FC = () => {
                     </svg>
                   </a>
                 </div>
-                
+
                 {/* Strategy Visual - Right Side */}
                 <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 p-6 lg:p-8 flex items-center justify-center">
                   <div className="w-full max-w-md aspect-video bg-white dark:bg-dark-400 rounded-lg shadow-lg flex items-center justify-center">
@@ -941,7 +945,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Text Content - Right Side */}
                 <div className="p-6 lg:p-8 flex flex-col justify-center order-1 lg:order-2">
                   <div className="flex items-center mb-4">
@@ -971,8 +975,8 @@ const HomePage: React.FC = () => {
                       <span className="text-gray-700 dark:text-gray-300">Real-time Market Intelligence</span>
                     </div>
                   </div>
-                  <a 
-                    href="https://services.welthwest.com" 
+                  <a
+                    href="https://services.welthwest.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg hover:bg-purple-700 transition-all duration-300 w-fit group-hover:bg-purple-700 group-hover:shadow-lg"
@@ -987,7 +991,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </section>
-        
+
         {/* Trading Challenges We Solve Section */}
         <section className="mb-12 max-w-6xl mx-auto">
           <div className="text-center mb-12">
@@ -1128,6 +1132,105 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
+        {/* Partners Section – Horizontal Auto-Scroll */}
+        <section className="mb-12 overflow-hidden">
+          <style>{`
+            @keyframes partners-marquee {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .partners-marquee-track {
+              animation: partners-marquee 28s linear infinite;
+              display: flex;
+              align-items: center;
+              width: max-content;
+            }
+            .partners-marquee-track:hover {
+              animation-play-state: paused;
+            }
+            .partners-scroller {
+              -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+              mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+            }
+          `}</style>
+
+          {/* Section Header */}
+          <div className="max-w-6xl mx-auto text-center mb-8 px-4">
+            <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-medium mb-3">
+              <svg className="w-3 h-3 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Partnerships
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500">
+              Our Partners
+            </h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+              Organisations we collaborate with to bring smarter financial intelligence to their ecosystems
+            </p>
+            <div className="flex justify-center mt-4">
+              <div className="h-0.5 w-16 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full"></div>
+            </div>
+          </div>
+
+          {/* Marquee scroller */}
+          <div className="partners-scroller overflow-hidden py-3">
+            <div className="partners-marquee-track gap-5 px-6">
+              {/* Render 4 sets so it loops seamlessly (animate -50% = 2 sets) */}
+              {[0, 1, 2, 3].map((setIdx) => (
+                <React.Fragment key={setIdx}>
+
+                  {/* ── BSG INFRA horizontal card ── */}
+                  <div className="group relative flex-shrink-0 w-72">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl opacity-20 group-hover:opacity-50 blur transition-all duration-500"></div>
+                    <div className="relative flex items-center gap-3 bg-white dark:bg-gray-900 rounded-xl p-3.5 border border-gray-200/60 dark:border-gray-700/60 shadow-sm">
+                      {/* Logo icon */}
+                      <div className="flex-shrink-0 w-11 h-11 rounded-xl p-0.5 bg-gradient-to-br from-emerald-500 to-teal-500 shadow-md">
+                        <div className="w-full h-full rounded-xl bg-white dark:bg-gray-900 flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <h3 className="text-sm font-bold text-gray-900 dark:text-white truncate">BSG INFRA</h3>
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-full text-[10px] font-semibold flex-shrink-0">
+                            <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            Partner
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate">Construction &amp; Equipment Marketplace</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Become a Partner card ── */}
+                  <div className="flex-shrink-0 w-60">
+                    <div className="flex items-center gap-3 bg-white/50 dark:bg-gray-900/40 rounded-xl p-3.5 border-2 border-dashed border-gray-300 dark:border-gray-700 hover:border-emerald-400 dark:hover:border-emerald-600 transition-all duration-300 group">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/30 transition-colors duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400 dark:text-gray-500 group-hover:text-emerald-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Become a Partner</p>
+                        <Link to="/contact" className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline">
+                          Get in touch →
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Testimonials Carousel Section */}
         <section className="mb-12 max-w-6xl mx-auto">
           <div className="text-center mb-12">
@@ -1191,11 +1294,10 @@ const HomePage: React.FC = () => {
                 <button
                   key={index}
                   onClick={() => goToTestimonial(index)}
-                  className={`transition-all duration-300 rounded-full ${
-                    index === currentTestimonial
+                  className={`transition-all duration-300 rounded-full ${index === currentTestimonial
                       ? 'w-8 h-2 bg-gradient-to-r from-primary-500 to-secondary-500'
                       : 'w-2 h-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
-                  }`}
+                    }`}
                   aria-label={`Go to testimonial ${index + 1}`}
                 />
               ))}

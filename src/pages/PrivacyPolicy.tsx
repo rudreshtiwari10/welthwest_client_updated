@@ -1,7 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const PrivacyPolicy: React.FC = () => {
+  usePageMeta({
+    title: 'Privacy Policy – WelthWest',
+    description:
+      'Read the WelthWest Privacy Policy to understand how we collect, use, and protect your data on our AI-powered market intelligence platform.',
+  });
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-12 max-w-4xl">

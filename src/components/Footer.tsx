@@ -20,6 +20,7 @@ const Footer: React.FC = () => {
     platform: false,
     account: false,
     legal: false,
+    resources: false,
   });
 
   const toggleSection = (section: string) => {
@@ -173,7 +174,7 @@ const Footer: React.FC = () => {
                   onClick={() => toggleSection('legal')}
                   className={`w-full flex items-center justify-between py-3 ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'} font-semibold text-xs`}
                 >
-                  Legal
+                  Legal &amp; Trust
                   {openSections.legal ? (
                     <ChevronUpIcon className="h-3 w-3" />
                   ) : (
@@ -182,17 +183,48 @@ const Footer: React.FC = () => {
                 </button>
                 {openSections.legal && (
                   <div className="pb-3 space-y-2 pl-2">
-                    <Link to="/contactus" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    <Link to="/contact" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       Contact Us
                     </Link>
                     <Link to="/privacy-policy" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       Privacy Policy
                     </Link>
                     <Link to="/terms-and-conditions" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                      Terms & Conditions
+                      Terms &amp; Conditions
+                    </Link>
+                    <Link to="/security" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Security &amp; Trust
                     </Link>
                     <Link to="/feedback" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       Feedback
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Resources - Mobile Accordion */}
+              <div className="border-b border-gray-200 dark:border-gray-700 col-span-2">
+                <button
+                  onClick={() => toggleSection('resources')}
+                  className={`w-full flex items-center justify-between py-3 ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'} font-semibold text-xs`}
+                >
+                  Resources
+                  {openSections['resources'] ? (
+                    <ChevronUpIcon className="h-3 w-3" />
+                  ) : (
+                    <ChevronDownIcon className="h-3 w-3" />
+                  )}
+                </button>
+                {openSections['resources'] && (
+                  <div className="pb-3 space-y-2 pl-2">
+                    <Link to="/case-studies" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Case Studies
+                    </Link>
+                    <Link to="/technical-overview" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      How It Works
+                    </Link>
+                    <Link to="/news-and-blogs" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Blog
                     </Link>
                   </div>
                 )}
@@ -201,38 +233,41 @@ const Footer: React.FC = () => {
 
             {/* Desktop: Grid Style (Always Expanded) */}
             <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6 text-sm">
-              {/* AI Features */}
+              {/* AI Features / Products */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                  AI Features
+                  Products
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/ai-screener" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    AI Market Analysis
+                  <Link to="/product/market-regime" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Market Regime
+                  </Link>
+                  <Link to="/product/anomaly-detector" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Anomaly Detector
+                  </Link>
+                  <Link to="/product/backtesting-engine" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Backtesting Engine
                   </Link>
                   <Link to="/welth-ai-assistant" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    WelthAI Chat
-                  </Link>
-                  <Link to="/backtesting-beta" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Backtesting
+                    WelthAI Assistant
                   </Link>
                 </div>
               </div>
 
-              {/* Platform */}
+              {/* Resources */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                  Platform
+                  Resources
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Home
+                  <Link to="/case-studies" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Case Studies
                   </Link>
-                  <Link to="/dashboard" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Dashboard
+                  <Link to="/technical-overview" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    How It Works
                   </Link>
-                  <Link to="/stock" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Stock Analysis
+                  <Link to="/news-and-blogs" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Blog
                   </Link>
                   <Link to="/pricing" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Pricing
@@ -240,44 +275,41 @@ const Footer: React.FC = () => {
                 </div>
               </div>
 
-              {/* Account */}
+              {/* Company */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                  Account
+                  Company
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/login" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Login
-                  </Link>
-                  <Link to="/register" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Register
-                  </Link>
-                  <Link to="/profile" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Profile
-                  </Link>
                   <Link to="/about" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     About
+                  </Link>
+                  <Link to="/contact" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Contact Us
+                  </Link>
+                  <Link to="/feedback" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Feedback
+                  </Link>
+                  <Link to="/login" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Login
                   </Link>
                 </div>
               </div>
 
-              {/* Legal */}
+              {/* Legal & Trust */}
               <div>
                 <h4 className={`font-semibold mb-3 text-xs uppercase tracking-wide ${isAuthPage ? 'text-gray-200' : 'text-gray-800 dark:text-gray-200'}`}>
-                  Legal
+                  Legal &amp; Trust
                 </h4>
                 <div className="space-y-2">
-                  <Link to="/contactus" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Contact Us
-                  </Link>
                   <Link to="/privacy-policy" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Privacy Policy
                   </Link>
                   <Link to="/terms-and-conditions" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Terms & Conditions
+                    Terms &amp; Conditions
                   </Link>
-                  <Link to="/feedback" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Feedback
+                  <Link to="/security" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Security &amp; Trust
                   </Link>
                 </div>
               </div>
@@ -346,6 +378,11 @@ const Footer: React.FC = () => {
         </div>
         
         <div className="mt-6 md:mt-8 pt-4 border-t border-gray-200 dark:border-gray-700 text-center text-gray-500 dark:text-gray-400">
+          {/* Trust disclaimer line (MD §5) */}
+          <p className={`text-xs mb-4 ${isAuthPage ? 'text-gray-400' : 'text-gray-500 dark:text-gray-500'}`}>
+            WelthWest is an AI-powered analytics platform. We do not offer brokerage or investment advice. Markets are risky.
+            {/* TODO: Have a legal/compliance reviewer sign off on this disclaimer wording. */}
+          </p>
           <div className="flex justify-between items-center flex-col sm:flex-row gap-3 sm:gap-0">
             <div className="flex items-center justify-center sm:justify-start">
               <span className={`text-base md:text-lg font-bold mr-2 ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
@@ -354,15 +391,24 @@ const Footer: React.FC = () => {
               <p className={`text-sm ${isAuthPage ? 'text-gray-300' : ''}`}>&copy; {new Date().getFullYear()} All rights reserved.</p>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-              <div className="hidden sm:flex space-x-4 text-sm">
-                <Link to="/contactus" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+              <div className="hidden sm:flex space-x-4 text-sm flex-wrap gap-y-1">
+                <Link to="/about" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  About
+                </Link>
+                <Link to="/contact" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                   Contact
+                </Link>
+                <Link to="/case-studies" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  Case Studies
                 </Link>
                 <Link to="/privacy-policy" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                   Privacy
                 </Link>
                 <Link to="/terms-and-conditions" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                   Terms
+                </Link>
+                <Link to="/security" onClick={handleLinkClick} className={`${isAuthPage ? 'text-gray-300' : 'text-gray-500 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                  Security
                 </Link>
               </div>
               <button
