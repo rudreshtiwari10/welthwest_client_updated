@@ -654,7 +654,15 @@ const BacktestingBetaPage: React.FC = () => {
         setIsLoading(false);
         return;
       }
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const rawMsg: string = err instanceof Error ? err.message : String(err);
+      if (rawMsg === 'Failed to fetch' || rawMsg.toLowerCase().includes('network') || rawMsg.toLowerCase().includes('fetch')) {
+        setError(
+          'The backtest ran on the server but the response was too large to transfer back. ' +
+          'Try reducing the time period (e.g. 6 months instead of 2 years) or using fewer indicators.'
+        );
+      } else {
+        setError(rawMsg || 'An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

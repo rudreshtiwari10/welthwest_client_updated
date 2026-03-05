@@ -1179,9 +1179,11 @@ export const activityService = {
         metadata: metadata || {}
       });
       return response.data;
-    } catch (error) {
-      console.error('Error tracking activity:', error);
-      // Don't throw - tracking shouldn't break functionality
+    } catch (error: any) {
+      // 404 means the activity route isn't deployed yet — expected, not an error
+      if (error?.response?.status !== 404) {
+        console.warn('Activity tracking unavailable:', error?.message);
+      }
       return { success: false, count: 0 };
     }
   },

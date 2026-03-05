@@ -264,6 +264,12 @@ const AIScreenerPage: React.FC = () => {
           description: data.regime_description,
         });
       }
+      if (data.total_screened === 0) {
+        setError(
+          'Market data could not be fetched right now — the data provider may be temporarily unavailable. ' +
+          'Please try again in a few minutes. You can also try a Quick Screen with specific symbols in the meantime.'
+        );
+      }
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || 'Screening failed');
     } finally {
