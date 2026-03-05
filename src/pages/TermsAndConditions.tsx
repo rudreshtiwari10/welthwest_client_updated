@@ -1,7 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const TermsAndConditions: React.FC = () => {
+  usePageMeta({
+    title: 'Terms & Conditions – WelthWest',
+    description:
+      'Read the WelthWest Terms and Conditions governing use of our AI-powered market analytics platform, including disclaimers for financial data.',
+  });
+
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-12 max-w-4xl">

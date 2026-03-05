@@ -30,6 +30,14 @@ import AdminSupportTicketsPage from './pages/AdminSupportTicketsPage';
 import AdminActivityLogsPage from './pages/AdminActivityLogsPage';
 import AdminCreateTicketPage from './pages/AdminCreateTicketPage';
 import AIScreenerPage from './pages/AIScreenerPage';
+// New SEO/E-E-A-T pages (MD §1–§7)
+import ContactPage from './pages/ContactPage';
+import CaseStudiesPage from './pages/CaseStudiesPage';
+import TechnicalOverviewPage from './pages/TechnicalOverviewPage';
+import SecurityPage from './pages/SecurityPage';
+import MarketRegimePage from './pages/product/MarketRegimePage';
+import AnomalyDetectorPage from './pages/product/AnomalyDetectorPage';
+import BacktestingEnginePage from './pages/product/BacktestingEnginePage';
 
 // Components
 import Header from './components/Header';
@@ -211,6 +219,21 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/payment-success" element={<PaymentSuccess />} />
                 <Route path="/pricing" element={<Premium />} />
                 <Route path="/pricing-launching-soon" element={<PricingLaunchingSoon />} />
+
+                {/* ── SEO / E-E-A-T pages (MD requirements) ── */}
+                {/* /contact replaces the old /contactus route for canonical trust page */}
+                <Route path="/contact" element={<ContactPage />} />
+                {/* Keep /contactus as an alias so existing footer links still work */}
+                <Route path="/contactus" element={<ContactPage />} />
+                <Route path="/case-studies" element={<CaseStudiesPage />} />
+                <Route path="/technical-overview" element={<TechnicalOverviewPage />} />
+                <Route path="/how-it-works" element={<TechnicalOverviewPage />} />
+                <Route path="/security" element={<SecurityPage />} />
+                <Route path="/trust" element={<SecurityPage />} />
+                {/* Product sub-pages */}
+                <Route path="/product/market-regime" element={<MarketRegimePage />} />
+                <Route path="/product/anomaly-detector" element={<AnomalyDetectorPage />} />
+                <Route path="/product/backtesting-engine" element={<BacktestingEnginePage />} />
               </Routes>
               {/* Track route changes for GTM/GA4 */}
               <RouteChangeTracker />
