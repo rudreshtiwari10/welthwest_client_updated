@@ -73,7 +73,6 @@ const AIScreenerPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navQueryHandled = useRef(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [anonymousUsesLeft, setAnonymousUsesLeft] = useState(5);
 
   // screening
   const [screenData, setScreenData] = useState<ScreenResponse | null>(null);
@@ -247,14 +246,6 @@ const AIScreenerPage: React.FC = () => {
 
   /* ── Run full screen ─── */
   const runFullScreen = useCallback(async () => {
-    // Anonymous user: check local usage limit
-    if (!user) {
-      if (anonymousUsesLeft <= 0) {
-        setShowLoginModal(true);
-        return;
-      }
-    }
-
     setLoading(true);
     setError('');
     try {
@@ -273,32 +264,16 @@ const AIScreenerPage: React.FC = () => {
           description: data.regime_description,
         });
       }
-      // Decrement anonymous usage
-      if (!user) {
-        setAnonymousUsesLeft(prev => Math.max(0, prev - 1));
-      }
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || 'Screening failed');
-      if (e?.response?.status === 403 && !user) {
-        setAnonymousUsesLeft(0);
-        setShowLoginModal(true);
-      }
     } finally {
       setLoading(false);
     }
-  }, [timeframe, user, anonymousUsesLeft]);
+  }, [timeframe, user]);
 
   /* ── Quick screen ─── */
   const runQuickScreen = useCallback(async () => {
     if (!quickSymbols.trim()) return;
-
-    // Anonymous user: check local usage limit
-    if (!user) {
-      if (anonymousUsesLeft <= 0) {
-        setShowLoginModal(true);
-        return;
-      }
-    }
 
     const symbols = quickSymbols.split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
     if (symbols.length === 0 || symbols.length > 10) {
@@ -312,19 +287,12 @@ const AIScreenerPage: React.FC = () => {
       setScreenData(data);
       setHasScreened(true);
       screenCache[timeframe] = { data, timestamp: Date.now() };
-      if (!user) {
-        setAnonymousUsesLeft(prev => Math.max(0, prev - 1));
-      }
     } catch (e: any) {
       setError(e?.response?.data?.error || e.message || 'Quick screen failed');
-      if (e?.response?.status === 403 && !user) {
-        setAnonymousUsesLeft(0);
-        setShowLoginModal(true);
-      }
     } finally {
       setLoading(false);
     }
-  }, [quickSymbols, timeframe, user, anonymousUsesLeft]);
+  }, [quickSymbols, timeframe, user]);
 
   /* ── Stock detail ─── */
   const openDetail = useCallback(async (symbol: string) => {
@@ -361,31 +329,23 @@ const AIScreenerPage: React.FC = () => {
   /* ────────────────────── RENDER ────────────────────── */
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
-      {/* Anonymous Usage Banner */}
+      {/* Anonymous Preview Banner */}
       {!user && (
         <div className="max-w-7xl mx-auto px-4 pt-4">
           <div className="flex items-center justify-between bg-gradient-to-r from-purple-500/20 to-indigo-600/20 border border-purple-500/30 rounded-lg px-4 py-2">
             <div className="flex items-center gap-2 text-sm">
               <svg className="h-4 w-4 text-purple-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
               </svg>
               <span className="text-purple-200 dark:text-purple-200">
-                {anonymousUsesLeft > 0
-                  ? `${anonymousUsesLeft}/5 free scans remaining`
-                  : 'Free scans used up — login for unlimited access'}
+                Preview mode — top 5 results visible · Login for the full ranked list
               </span>
-              <div className="w-20 bg-white/20 rounded-full h-1.5 ml-2">
-                <div
-                  className="bg-purple-400 rounded-full h-1.5 transition-all duration-300"
-                  style={{ width: `${(anonymousUsesLeft / 5) * 100}%` }}
-                />
-              </div>
             </div>
             <button
               onClick={() => setShowLoginModal(true)}
               className="px-3 py-1 bg-purple-500/30 hover:bg-purple-500/50 rounded text-xs font-medium text-purple-200 transition-all"
             >
-              Sign Up
+              Sign In
             </button>
           </div>
         </div>
@@ -677,92 +637,191 @@ const AIScreenerPage: React.FC = () => {
         )}
 
         {/* ── Results Table ─── */}
-        {screenData && !loading && (
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
-              <h2 className="font-semibold text-sm text-gray-900 dark:text-white">Screening Results</h2>
-              <span className="text-[11px] text-gray-400 dark:text-gray-500">
-                {timeframe.toUpperCase()} · Regime: {regimeLabels[screenData.regime] || screenData.regime} · {filteredResults.length}{filteredResults.length !== screenData.results_count ? ` of ${screenData.results_count}` : ''} results
-              </span>
-            </div>
+        {screenData && !loading && (() => {
+          const FREE_PREVIEW = 5;
+          const visibleRows = !user ? filteredResults.slice(0, FREE_PREVIEW) : filteredResults;
+          const lockedRows = !user ? filteredResults.slice(FREE_PREVIEW) : [];
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
-                    <th className="px-3 py-2.5 text-left">#</th>
-                    <th className="px-3 py-2.5 text-left">Symbol</th>
-                    <th className="px-3 py-2.5 text-left">Sector</th>
-                    <th className="px-3 py-2.5 text-right">Price</th>
-                    <th className="px-3 py-2.5 text-right">Score</th>
-                    <th className="px-3 py-2.5 text-right">Mom.</th>
-                    <th className="px-3 py-2.5 text-right">Risk</th>
-                    <th className="px-3 py-2.5 text-right">5D</th>
-                    <th className="px-3 py-2.5 text-right">20D</th>
-                    <th className="px-3 py-2.5 text-right">RSI</th>
-                    <th className="px-3 py-2.5 text-right">Vol R.</th>
-                    <th className="px-3 py-2.5 text-center">Anomaly</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredResults.map((r, i) => (
-                    <tr
-                      key={r.symbol}
-                      onClick={() => openDetail(r.symbol)}
-                      className="border-t border-gray-100 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition"
-                    >
-                      <td className="px-3 py-2.5 text-gray-400 dark:text-gray-500">{i + 1}</td>
-                      <td className="px-3 py-2.5">
-                        <div className="font-medium text-gray-900 dark:text-gray-100">{r.symbol}</div>
-                        <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate max-w-[120px]">{r.name}</div>
-                      </td>
-                      <td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400">{r.sector || '—'}</td>
-                      <td className="px-3 py-2.5 text-right font-mono text-gray-800 dark:text-gray-200">₹{fmt(r.current_price)}</td>
-                      <td className={`px-3 py-2.5 text-right font-bold ${scoreColor(r.overall_score)}`}>
-                        {fmt(r.overall_score, 0)}
-                      </td>
-                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.momentum_score, 0)}</td>
-                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.risk_score, 0)}</td>
-                      <td className={`px-3 py-2.5 text-right ${r.price_change_5d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                        {pct(r.price_change_5d)}
-                      </td>
-                      <td className={`px-3 py-2.5 text-right ${r.price_change_20d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
-                        {pct(r.price_change_20d)}
-                      </td>
-                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.rsi_14, 1)}</td>
-                      <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.volume_ratio, 2)}</td>
-                      <td className="px-3 py-2.5 text-center">
-                        {r.has_anomaly && r.anomalies && r.anomalies.length > 0 ? (
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className="flex flex-wrap gap-1 justify-center">
-                              {r.anomalies.slice(0, 2).map((a, idx) => (
-                                <span
-                                  key={idx}
-                                  className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold ${severityColor[a.severity] || 'bg-gray-600 text-white'}`}
-                                  title={`${a.name} (${a.severity}) — ${barsAgoText(a.bars_ago, r.timeframe || timeframe)}`}
-                                >
-                                  {a.code.replace(/_/g, ' ').slice(0, 12)}
-                                </span>
-                              ))}
-                              {r.anomalies.length > 2 && (
-                                <span className="text-[10px] text-gray-400 dark:text-gray-500">+{r.anomalies.length - 2}</span>
-                              )}
-                            </div>
-                            <span className="text-[9px] text-gray-400 dark:text-gray-500">
-                              {barsAgoText(Math.min(...r.anomalies.map(a => a.bars_ago)), r.timeframe || timeframe)}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-gray-300 dark:text-gray-600 text-xs">--</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          const renderCard = (r: ScreenerResult, globalIndex: number, isLocked: boolean) => (
+            <div
+              key={r.symbol}
+              onClick={() => !isLocked && openDetail(r.symbol)}
+              className="flex items-center gap-3 px-4 py-3 border-t border-gray-100 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition"
+            >
+              <span className="text-xs text-gray-400 dark:text-gray-500 w-5 shrink-0">{globalIndex + 1}</span>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-gray-900 dark:text-gray-100 text-sm">{r.symbol}</div>
+                <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate">{r.sector || r.name || '—'}</div>
+              </div>
+              <div className="text-right shrink-0">
+                <div className="text-sm font-mono text-gray-800 dark:text-gray-200">₹{fmt(r.current_price)}</div>
+                <div className={`text-[11px] font-medium ${r.price_change_5d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                  5D: {pct(r.price_change_5d)}
+                </div>
+              </div>
+              <div className={`text-base font-bold w-10 text-center shrink-0 ${scoreColor(r.overall_score)}`}>
+                {fmt(r.overall_score, 0)}
+              </div>
+              {r.has_anomaly && r.anomalies && r.anomalies.length > 0 && (
+                <span className={`shrink-0 inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold ${severityColor[r.anomalies[0].severity] || 'bg-gray-600 text-white'}`}>
+                  !
+                </span>
+              )}
             </div>
-          </div>
-        )}
+          );
+
+          const renderRow = (r: ScreenerResult, i: number, globalIndex: number) => (
+            <tr
+              key={r.symbol}
+              onClick={() => !lockedRows.includes(r) && openDetail(r.symbol)}
+              className="border-t border-gray-100 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition"
+            >
+              <td className="px-3 py-2.5 text-gray-400 dark:text-gray-500">{globalIndex + 1}</td>
+              <td className="px-3 py-2.5">
+                <div className="font-medium text-gray-900 dark:text-gray-100">{r.symbol}</div>
+                <div className="text-[11px] text-gray-400 dark:text-gray-500 truncate max-w-[120px]">{r.name}</div>
+              </td>
+              <td className="px-3 py-2.5 text-xs text-gray-500 dark:text-gray-400">{r.sector || '—'}</td>
+              <td className="px-3 py-2.5 text-right font-mono text-gray-800 dark:text-gray-200">₹{fmt(r.current_price)}</td>
+              <td className={`px-3 py-2.5 text-right font-bold ${scoreColor(r.overall_score)}`}>
+                {fmt(r.overall_score, 0)}
+              </td>
+              <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.momentum_score, 0)}</td>
+              <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.risk_score, 0)}</td>
+              <td className={`px-3 py-2.5 text-right ${r.price_change_5d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                {pct(r.price_change_5d)}
+              </td>
+              <td className={`px-3 py-2.5 text-right ${r.price_change_20d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}`}>
+                {pct(r.price_change_20d)}
+              </td>
+              <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.rsi_14, 1)}</td>
+              <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">{fmt(r.volume_ratio, 2)}</td>
+              <td className="px-3 py-2.5 text-center">
+                {r.has_anomaly && r.anomalies && r.anomalies.length > 0 ? (
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      {r.anomalies.slice(0, 2).map((a, idx) => (
+                        <span
+                          key={idx}
+                          className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-semibold ${severityColor[a.severity] || 'bg-gray-600 text-white'}`}
+                          title={`${a.name} (${a.severity}) — ${barsAgoText(a.bars_ago, r.timeframe || timeframe)}`}
+                        >
+                          {a.code.replace(/_/g, ' ').slice(0, 12)}
+                        </span>
+                      ))}
+                      {r.anomalies.length > 2 && (
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500">+{r.anomalies.length - 2}</span>
+                      )}
+                    </div>
+                    <span className="text-[9px] text-gray-400 dark:text-gray-500">
+                      {barsAgoText(Math.min(...r.anomalies.map(a => a.bars_ago)), r.timeframe || timeframe)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-gray-300 dark:text-gray-600 text-xs">--</span>
+                )}
+              </td>
+            </tr>
+          );
+
+          return (
+            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+                <h2 className="font-semibold text-sm text-gray-900 dark:text-white">Screening Results</h2>
+                <span className="text-[11px] text-gray-400 dark:text-gray-500">
+                  {timeframe.toUpperCase()} · Regime: {regimeLabels[screenData.regime] || screenData.regime} · {filteredResults.length}{filteredResults.length !== screenData.results_count ? ` of ${screenData.results_count}` : ''} results
+                </span>
+              </div>
+
+              {/* Mobile card list — shown only on small screens */}
+              <div className="sm:hidden">
+                {visibleRows.map((r, i) => renderCard(r, i, false))}
+                {lockedRows.length > 0 && (
+                  <>
+                    <div className="px-4 py-4 border-t-2 border-purple-200 dark:border-purple-800/60 bg-gradient-to-r from-purple-50/80 via-white to-indigo-50/80 dark:from-purple-950/40 dark:via-gray-900 dark:to-indigo-950/40 flex flex-col items-center gap-3 text-center">
+                      <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                        {lockedRows.length} more stock{lockedRows.length > 1 ? 's' : ''} hidden
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Sign in to unlock the full ranked list</p>
+                      <button
+                        onClick={() => setShowLoginModal(true)}
+                        className="px-5 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold text-sm shadow-md"
+                      >
+                        Login to See All Results
+                      </button>
+                    </div>
+                    <div style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+                      {lockedRows.map((r, i) => renderCard(r, FREE_PREVIEW + i, true))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Desktop table — hidden on small screens */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                      <th className="px-3 py-2.5 text-left">#</th>
+                      <th className="px-3 py-2.5 text-left">Symbol</th>
+                      <th className="px-3 py-2.5 text-left">Sector</th>
+                      <th className="px-3 py-2.5 text-right">Price</th>
+                      <th className="px-3 py-2.5 text-right">Score</th>
+                      <th className="px-3 py-2.5 text-right">Mom.</th>
+                      <th className="px-3 py-2.5 text-right">Risk</th>
+                      <th className="px-3 py-2.5 text-right">5D</th>
+                      <th className="px-3 py-2.5 text-right">20D</th>
+                      <th className="px-3 py-2.5 text-right">RSI</th>
+                      <th className="px-3 py-2.5 text-right">Vol R.</th>
+                      <th className="px-3 py-2.5 text-center">Anomaly</th>
+                    </tr>
+                  </thead>
+                  {/* Visible rows — always shown */}
+                  <tbody>
+                    {visibleRows.map((r, i) => renderRow(r, i, i))}
+                  </tbody>
+                  {/* Locked section — CTA banner first, then blurred rows */}
+                  {lockedRows.length > 0 && (
+                    <>
+                      <tbody>
+                        <tr>
+                          <td colSpan={12} className="px-6 py-4 border-t-2 border-purple-200 dark:border-purple-800/60 bg-gradient-to-r from-purple-50/80 via-white to-indigo-50/80 dark:from-purple-950/40 dark:via-gray-900 dark:to-indigo-950/40">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shrink-0">
+                                  <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-gray-900 dark:text-white text-sm">
+                                    {lockedRows.length} more stock{lockedRows.length > 1 ? 's' : ''} hidden
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Sign in to unlock the full ranked list
+                                  </p>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => setShowLoginModal(true)}
+                                className="px-5 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-lg font-semibold text-sm shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shrink-0"
+                              >
+                                Login to See All Results
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                      <tbody style={{ filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' }}>
+                        {lockedRows.map((r, i) => renderRow(r, i, FREE_PREVIEW + i))}
+                      </tbody>
+                    </>
+                  )}
+                </table>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* ── Stock Detail Modal ─── */}
         {selectedSymbol && (

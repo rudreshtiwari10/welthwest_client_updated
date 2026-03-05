@@ -388,20 +388,20 @@ const HomePage: React.FC = () => {
 
         {/* Market Overview - Horizontal Slider */}
         <section className="mb-12">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Live Market Data & Indices
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 sm:gap-0 mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Live Market Data & Indices
               <span className="ml-2 text-xs bg-secondary-600 text-white px-2 py-0.5 rounded-full">
                 {isLoading ? 'Loading...' : 'Real-Time NSE & BSE'}
               </span>
             </h2>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               Last updated: {new Date().toLocaleTimeString()}
             </div>
           </div>
-          
+
           {/* Slider Navigation */}
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">NSE & BSE Market Indices</h3>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">NSE & BSE Market Indices</h3>
             <div className="flex space-x-2">
               <button 
                 onClick={() => scrollIndices('left')} 
@@ -432,7 +432,7 @@ const HomePage: React.FC = () => {
               {isLoading ? (
                 // Loading skeletons with improved design
                 Array(4).fill(0).map((_, index) => (
-                  <div key={index} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-6 animate-pulse" style={{ minHeight: '300px' }}>
+                  <div key={index} className="min-w-[280px] sm:min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-gray-200 dark:border-gray-700 p-4 sm:p-6 animate-pulse" style={{ minHeight: '280px' }}>
                     <div className="flex justify-between items-start mb-4">
                       <div className="flex items-center gap-2">
                         <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -479,8 +479,8 @@ const HomePage: React.FC = () => {
                   const isPositive = percentChange >= 0;
 
                   return (
-                    <div key={key} className="min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-1 hover:scale-[1.02]" style={{ minHeight: '300px' }}>
-                      <div className="p-6 relative">
+                    <div key={key} className="min-w-[280px] sm:min-w-[320px] bg-gradient-to-br from-white to-gray-50 dark:from-dark-300 dark:to-dark-400 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-1 hover:scale-[1.02]" style={{ minHeight: '280px' }}>
+                      <div className="p-4 sm:p-6 relative">
                         {/* Decorative background element */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
 
@@ -991,10 +991,10 @@ const HomePage: React.FC = () => {
         {/* Trading Challenges We Solve Section */}
         <section className="mb-12 max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-600">
               Trading Challenges We Solve
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Common trader problems that our AI intelligence platform addresses
             </p>
           </div>
@@ -1131,10 +1131,10 @@ const HomePage: React.FC = () => {
         {/* Testimonials Carousel Section */}
         <section className="mb-12 max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500">
               What Our Users Say
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-base sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Real experiences from traders who trust WelthWest
             </p>
           </div>
@@ -1142,7 +1142,7 @@ const HomePage: React.FC = () => {
           {/* Testimonial Carousel */}
           <div className="relative">
             {/* Main testimonial card */}
-            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-8 md:p-12 min-h-[280px] flex flex-col justify-center relative overflow-hidden">
+            <div className="bg-white dark:bg-dark-300 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8 md:p-12 min-h-[240px] sm:min-h-[280px] flex flex-col justify-center relative overflow-hidden">
               {/* Decorative quote icon */}
               <div className="absolute top-6 left-6 opacity-10">
                 <svg className="w-16 h-16 text-primary-500" fill="currentColor" viewBox="0 0 24 24">
@@ -1152,7 +1152,7 @@ const HomePage: React.FC = () => {
 
               {/* Testimonial content with fade animation */}
               <div className="relative z-10 transition-all duration-500 ease-in-out">
-                <p className="text-lg md:text-xl text-gray-700 dark:text-gray-200 leading-relaxed mb-6 italic">
+                <p className="text-base sm:text-lg md:text-xl text-gray-700 dark:text-gray-200 leading-relaxed mb-6 italic">
                   "{testimonials[currentTestimonial].text}"
                 </p>
 

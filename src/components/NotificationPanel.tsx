@@ -25,6 +25,13 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
     clearAll
   } = useNotifications();
 
+  // Re-render every 30s so relative timestamps ("2m ago") stay accurate
+  const [, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
   // Get icon based on notification type
   const getNotificationIcon = (type: NotificationType) => {
     const iconClass = "h-5 w-5 flex-shrink-0";

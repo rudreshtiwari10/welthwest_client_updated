@@ -172,11 +172,16 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
           // Backend returns { notifications: [...], total: ..., etc }
           // axios wraps this in response.data
           if (response && response.notifications) {
-            const fetchedNotifications = response.notifications.map((n: any) => ({
-              ...n,
-              id: n._id || n.id,
-              timestamp: new Date(n.timestamp)
-            }));
+            const fetchedNotifications = response.notifications.map((n: any) => {
+              // Backend stores naive UTC datetimes — ensure JS parses as UTC not local time
+              const raw: string = n.timestamp || '';
+              const ts = raw && !raw.endsWith('Z') && !raw.includes('+') ? raw + 'Z' : raw;
+              return {
+                ...n,
+                id: n._id || n.id,
+                timestamp: new Date(ts),
+              };
+            });
             setNotifications(fetchedNotifications);
 
             // Sync to localStorage as cache
@@ -188,20 +193,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
           // Fallback to localStorage on API error
           const savedNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
           if (savedNotifications.length > 0) {
-            setNotifications(savedNotifications.map((n: any) => ({
-              ...n,
-              timestamp: new Date(n.timestamp)
-            })));
+            setNotifications(savedNotifications.map((n: any) => ({ ...n, timestamp: new Date(n.timestamp) })));
           }
         }
       } else {
         // Load from localStorage for non-authenticated users
         const savedNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
         if (savedNotifications.length > 0) {
-          setNotifications(savedNotifications.map((n: any) => ({
-            ...n,
-            timestamp: new Date(n.timestamp)
-          })));
+          setNotifications(savedNotifications.map((n: any) => ({ ...n, timestamp: new Date(n.timestamp) })));
         }
       }
     } catch (error) {

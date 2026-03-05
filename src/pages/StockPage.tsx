@@ -3,12 +3,14 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   ArrowPathIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { marketService } from '../services/api';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler } from 'chart.js';
 import SearchBarWithSuggestions from '../components/SearchBarWithSuggestions';
+import StockChart from '../components/StockChart';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
@@ -25,6 +27,13 @@ const StockPage: React.FC = () => {
   const [trendingStocks, setTrendingStocks] = useState<any>({ gainers: [], losers: [] });
   const [marketData, setMarketData] = useState<any>(null);
   const indicesSliderRef = useRef<HTMLDivElement>(null);
+
+  // Stock detail state (for inline search result)
+  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+  const [stockDetail, setStockDetail] = useState<any>(null);
+  const [stockQuote, setStockQuote] = useState<any>(null);
+  const [stockLoading, setStockLoading] = useState(false);
+  const [stockError, setStockError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +57,39 @@ const StockPage: React.FC = () => {
 
     fetchData();
   }, []);
+
+  // Fetch selected stock data when user searches
+  const handleStockSearch = async (query: string) => {
+    const symbol = query.trim().toUpperCase();
+    if (!symbol) return;
+
+    setSelectedSymbol(symbol);
+    setStockLoading(true);
+    setStockError(null);
+    setStockDetail(null);
+    setStockQuote(null);
+
+    // Scroll to top of page to show the result
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    try {
+      const [histResult, quoteResult] = await Promise.allSettled([
+        marketService.getStockInfo(symbol, '3mo', '1d'),
+        marketService.getStockQuote(symbol),
+      ]);
+
+      if (histResult.status === 'fulfilled') setStockDetail(histResult.value);
+      if (quoteResult.status === 'fulfilled') setStockQuote(quoteResult.value);
+
+      if (histResult.status === 'rejected' && quoteResult.status === 'rejected') {
+        setStockError(`No data found for "${symbol}". Try a different symbol.`);
+      }
+    } catch {
+      setStockError(`Could not fetch data for "${symbol}".`);
+    } finally {
+      setStockLoading(false);
+    }
+  };
 
   const scrollIndices = (direction: 'left' | 'right') => {
     if (indicesSliderRef.current) {
@@ -107,7 +149,7 @@ const StockPage: React.FC = () => {
         enabled: true,
         mode: 'index' as const,
         intersect: false,
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        backgroundColor: 'rgba(0, 0, 0, 0.85)',
         titleColor: '#ffffff',
         bodyColor: '#ffffff',
         borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -169,10 +211,139 @@ const StockPage: React.FC = () => {
               className="w-full pl-10 pr-12 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
                 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
                 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
+              onSearch={handleStockSearch}
             />
           </div>
         </div>
       </div>
+
+      {/* ── Inline Stock Detail Card ── */}
+      {selectedSymbol && (() => {
+        // Resolve live quote entry from stockQuote response
+        const liveData = stockQuote
+          ? (stockQuote[selectedSymbol] ?? stockQuote[`${selectedSymbol}.NS`] ?? (stockQuote.price !== undefined ? stockQuote : null))
+          : null;
+
+        // Derive price stats — prefer live quote, fall back to last row in historical data
+        const lastRow = stockDetail?.data?.[stockDetail.data.length - 1];
+        const firstRow = stockDetail?.data?.[0];
+        const closePrice: number | undefined = liveData?.price ?? lastRow?.Close;
+        const openPrice: number | undefined = liveData?.open ?? lastRow?.Open;
+        const highPrice: number | undefined = liveData?.dayHigh ?? liveData?.high ?? lastRow?.High;
+        const lowPrice: number | undefined = liveData?.dayLow ?? liveData?.low ?? lastRow?.Low;
+        const volume: number | undefined = liveData?.volume ?? lastRow?.Volume;
+        const companyName: string | undefined = liveData?.name ?? stockDetail?.name ?? stockDetail?.company_name;
+
+        // % change: from live quote → else derived from first/last historical close
+        let pctChange: number | undefined = liveData?.percentChange ?? liveData?.percent_change;
+        if (pctChange === undefined && closePrice !== undefined && firstRow?.Close) {
+          pctChange = ((closePrice - firstRow.Close) / firstRow.Close) * 100;
+        }
+        const detailIsPositive = (pctChange ?? 0) >= 0;
+
+        // Build stockData object for StockChart
+        const chartStockData = {
+          symbol: selectedSymbol,
+          name: companyName,
+          ...(stockDetail ?? {}),
+          percentChange: pctChange,
+        };
+
+        return (
+          <section className="mb-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+              {/* Card Header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-gray-700">
+                <div>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{selectedSymbol}</h2>
+                    {companyName && (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{companyName}</span>
+                    )}
+                  </div>
+                  {!stockLoading && closePrice !== undefined && (
+                    <div className="flex items-center gap-3 mt-1 flex-wrap">
+                      <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                        ₹{closePrice.toFixed(2)}
+                      </span>
+                      {pctChange !== undefined && (
+                        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold ${
+                          detailIsPositive
+                            ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                            : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                        }`}>
+                          {detailIsPositive ? '▲' : '▼'} {detailIsPositive ? '+' : ''}{pctChange.toFixed(2)}%
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-400">3-month</span>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => { setSelectedSymbol(null); setStockDetail(null); setStockQuote(null); setStockError(null); }}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  aria-label="Close"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Loading */}
+              {stockLoading && (
+                <div className="flex justify-center items-center py-16">
+                  <ArrowPathIcon className="h-8 w-8 animate-spin text-primary-500" />
+                  <span className="ml-3 text-gray-500 dark:text-gray-400">Fetching data for {selectedSymbol}…</span>
+                </div>
+              )}
+
+              {/* Error */}
+              {!stockLoading && stockError && (
+                <div className="px-5 py-10 text-center">
+                  <p className="text-red-500 dark:text-red-400">{stockError}</p>
+                </div>
+              )}
+
+              {/* No data */}
+              {!stockLoading && !stockError && !stockDetail && !stockQuote && (
+                <div className="px-5 py-10 text-center">
+                  <p className="text-gray-500 dark:text-gray-400">
+                    No data found for <span className="font-semibold">{selectedSymbol}</span>. Try a valid NSE symbol (e.g., TCS, RELIANCE, INFY).
+                  </p>
+                </div>
+              )}
+
+              {/* Chart + Stats */}
+              {!stockLoading && !stockError && stockDetail && (
+                <div className="p-5">
+                  {/* Full chart with axes, date labels, price labels */}
+                  <StockChart stockData={chartStockData} height={280} />
+
+                  {/* Stats grid */}
+                  <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: 'Open', value: openPrice },
+                      { label: 'Day High', value: highPrice },
+                      { label: 'Day Low', value: lowPrice },
+                      { label: 'Volume', value: volume },
+                    ].filter(s => s.value !== undefined).map(stat => (
+                      <div key={stat.label} className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-0.5">{stat.label}</div>
+                        <div className="font-semibold text-sm text-gray-900 dark:text-white">
+                          {typeof stat.value === 'number'
+                            ? stat.label === 'Volume'
+                              ? stat.value.toLocaleString()
+                              : `₹${stat.value.toFixed(2)}`
+                            : stat.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        );
+      })()}
 
       <div className="space-y-8">
         {/* Market Indices */}
@@ -225,7 +396,7 @@ const StockPage: React.FC = () => {
                     const previousPrice = index_data.price - index_data.change;
                     percentChange = (index_data.change / previousPrice) * 100;
                   }
-                  const isPositive = percentChange >= 0;
+                  const isPos = percentChange >= 0;
 
                   return (
                     <div key={key} className="min-w-[300px] bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-primary-300 dark:hover:border-primary-700 group hover:-translate-y-0.5">
@@ -233,10 +404,10 @@ const StockPage: React.FC = () => {
                         <div className="flex justify-between items-start mb-3 relative z-10">
                           <div className="flex items-center gap-2">
                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                              isPositive ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
+                              isPos ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'
                             }`}>
                               <ChartBarIcon className={`h-4 w-4 ${
-                                isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                isPos ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                               }`} />
                             </div>
                             <div>
@@ -251,11 +422,11 @@ const StockPage: React.FC = () => {
                               ₹{index_data.price?.toFixed(2) || '0.00'}
                             </div>
                             <div className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full font-semibold text-xs ${
-                              isPositive
+                              isPos
                                 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                                 : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                             }`}>
-                              {isPositive ? '+' : ''}{percentChange.toFixed(2)}%
+                              {isPos ? '+' : ''}{percentChange.toFixed(2)}%
                             </div>
                           </div>
                         </div>
@@ -263,7 +434,7 @@ const StockPage: React.FC = () => {
                         <div className="h-24 w-full mb-3">
                           {index_data.chartData && index_data.chartData.dates && index_data.chartData.dates.length > 0 ? (
                             <Line
-                              data={generateChartData(index_data.chartData, isPositive)}
+                              data={generateChartData(index_data.chartData, isPos)}
                               options={chartOptions}
                               key={`chart-${key}-${index_data.timestamp}`}
                             />
@@ -287,7 +458,7 @@ const StockPage: React.FC = () => {
                                   prices[6] = basePrice;
                                   return prices;
                                 })()
-                              }, isPositive)}
+                              }, isPos)}
                               options={chartOptions}
                               key={`chart-${key}-fallback`}
                             />
@@ -341,24 +512,28 @@ const StockPage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
+                      <th className="px-3 py-2.5 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+                      <th className="px-3 py-2.5 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
+                      <th className="px-3 py-2.5 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {trendingStocks?.gainers?.slice(0, 10).map((stock: any, index: number) => (
-                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-900 dark:text-white">
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                        onClick={() => handleStockSearch(stock.symbol.replace('.NS', ''))}
+                      >
+                        <td className="px-3 py-2.5 sm:px-6 sm:py-4 whitespace-nowrap">
+                          <div className="font-medium text-gray-900 dark:text-white text-sm">
                             {stock.symbol.replace('.NS', '')}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
+                        <td className="px-3 py-2.5 sm:px-6 sm:py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           ₹{typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="px-3 py-2.5 sm:px-6 sm:py-4 whitespace-nowrap text-right">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400">
                             +{typeof stock.percentChange === 'number' ? stock.percentChange.toFixed(2) : stock.percentChange}%
                           </span>
@@ -382,24 +557,28 @@ const StockPage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-700">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
+                      <th className="px-3 py-2.5 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stock</th>
+                      <th className="px-3 py-2.5 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
+                      <th className="px-3 py-2.5 sm:px-6 sm:py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {trendingStocks?.losers?.slice(0, 10).map((stock: any, index: number) => (
-                      <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-900 dark:text-white">
+                      <tr
+                        key={index}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                        onClick={() => handleStockSearch(stock.symbol.replace('.NS', ''))}
+                      >
+                        <td className="px-3 py-2.5 sm:px-6 sm:py-4 whitespace-nowrap">
+                          <div className="font-medium text-gray-900 dark:text-white text-sm">
                             {stock.symbol.replace('.NS', '')}
                           </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">{stock.name || 'Stock'}</div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 dark:text-white">
+                        <td className="px-3 py-2.5 sm:px-6 sm:py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                           ₹{typeof stock.price === 'number' ? stock.price.toFixed(2) : stock.price}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="px-3 py-2.5 sm:px-6 sm:py-4 whitespace-nowrap text-right">
                           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400">
                             {typeof stock.percentChange === 'number' ? stock.percentChange.toFixed(2) : stock.percentChange}%
                           </span>

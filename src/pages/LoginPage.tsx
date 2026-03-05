@@ -10,6 +10,7 @@ const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [searchParams] = useSearchParams();
@@ -274,29 +275,40 @@ const LoginPage: React.FC = () => {
 
             {/* Google Login */}
             <div className="flex justify-center">
-              <GoogleLogin
-                onSuccess={async (credentialResponse) => {
-                  if (credentialResponse.credential) {
-                    try {
-                      await handleGoogleLogin(credentialResponse.credential);
-
-                      if (redirectTarget) {
-                        setTimeout(() => {
+              {isGoogleLoading ? (
+                <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-sm font-medium">
+                  <svg className="animate-spin h-4 w-4 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Signing you in…
+                </div>
+              ) : (
+                <GoogleLogin
+                  onSuccess={async (credentialResponse) => {
+                    if (credentialResponse.credential) {
+                      setIsGoogleLoading(true);
+                      setError('');
+                      try {
+                        await handleGoogleLogin(credentialResponse.credential);
+                        if (redirectTarget) {
                           redirectToSideProject(redirectTarget);
-                        }, 100);
-                      } else {
-                        navigate('/');
+                        } else {
+                          navigate('/');
+                        }
+                      } catch (err: any) {
+                        setError(err.message || 'Failed to log in with Google');
+                        setIsGoogleLoading(false);
                       }
-                    } catch (err: any) {
-                      setError(err.message || 'Failed to log in with Google');
                     }
-                  }
-                }}
-                onError={() => {
-                  setError('Google login failed');
-                }}
-                useOneTap
-              />
+                  }}
+                  onError={() => {
+                    setError('Google login failed');
+                    setIsGoogleLoading(false);
+                  }}
+                  useOneTap
+                />
+              )}
             </div>
 
             {/* Register link */}

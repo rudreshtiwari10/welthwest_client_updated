@@ -1,32 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { SparklesIcon, Bars3Icon, ChartBarIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
+import { useAuth } from '../contexts/AuthContext';
 
 const MobileFooterNav: React.FC = () => {
   const location = useLocation();
-  const [showFeaturesMenu, setShowFeaturesMenu] = useState(false);
+  const { isAuthenticated } = useAuth();
+  const [showExploreMenu, setShowExploreMenu] = useState(false);
   const [activeFeatureIndex, setActiveFeatureIndex] = useState(0);
 
   const isActive = (path: string) => location.pathname === path;
-  const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
     return path.startsWith('/ai-screener') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta');
   };
 
-  // Close features menu when clicking outside
-  const handleCloseFeatures = () => {
-    setShowFeaturesMenu(false);
+  const handleCloseMenu = () => {
+    setShowExploreMenu(false);
   };
 
-  // Toggle features menu and scroll to top
-  const handleToggleFeatures = () => {
-    setShowFeaturesMenu(!showFeaturesMenu);
+  const handleToggleMenu = () => {
+    setShowExploreMenu(!showExploreMenu);
   };
 
-  // Close menu and scroll to top when navigating
   const handleNavigation = () => {
-    setShowFeaturesMenu(false);
+    setShowExploreMenu(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -35,27 +33,26 @@ const MobileFooterNav: React.FC = () => {
     const interval = setInterval(() => {
       setActiveFeatureIndex((prev) => (prev + 1) % 3);
     }, 4000);
-
     return () => clearInterval(interval);
   }, []);
 
   return (
     <>
-      {/* Features Popup Menu */}
-      {showFeaturesMenu && (
+      {/* Explore Popup Menu */}
+      {showExploreMenu && (
         <>
           {/* Backdrop */}
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40"
-            onClick={handleCloseFeatures}
-          ></div>
-          
+            onClick={handleCloseMenu}
+          />
+
           {/* Menu */}
           <div className="fixed bottom-16 left-4 right-4 bg-[#1a1f2e] rounded-lg border border-gray-700 shadow-lg z-50 p-4 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-3">
-              <h3 className="text-white font-medium">Features</h3>
+              <h3 className="text-white font-medium">Explore</h3>
               <button
-                onClick={handleCloseFeatures}
+                onClick={handleCloseMenu}
                 className="text-gray-400 hover:text-white"
               >
                 <i className="fas fa-times"></i>
@@ -66,21 +63,17 @@ const MobileFooterNav: React.FC = () => {
             <div className="relative overflow-hidden rounded-2xl shadow-xl mb-4">
               <div
                 className="flex transition-transform duration-1000 ease-in-out"
-                style={{
-                  transform: `translateX(-${activeFeatureIndex * 100}%)`,
-                }}
+                style={{ transform: `translateX(-${activeFeatureIndex * 100}%)` }}
               >
                 {/* Welth AI Assistant Card */}
                 <div className="w-full flex-shrink-0 p-2">
                   <Link
                     to="/welth-ai-assistant"
                     onClick={handleNavigation}
-                    className="block p-5 rounded-2xl bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 hover:from-purple-600 hover:via-indigo-600 hover:to-blue-600 shadow-2xl hover:shadow-purple-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
+                    className="block p-5 rounded-2xl bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 hover:from-purple-600 hover:via-indigo-600 hover:to-blue-600 shadow-2xl transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '180px' }}
                   >
-                    {/* Animated background pattern */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
-
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000" />
                     <div className="relative z-10">
                       <div className="flex items-center mb-3">
                         <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -107,12 +100,10 @@ const MobileFooterNav: React.FC = () => {
                   <Link
                     to="/ai-screener"
                     onClick={handleNavigation}
-                    className="block p-5 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-2xl hover:shadow-indigo-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
+                    className="block p-5 rounded-2xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-500 hover:from-indigo-600 hover:via-blue-600 hover:to-cyan-600 shadow-2xl transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '180px' }}
                   >
-                    {/* Animated background pattern */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
-
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000" />
                     <div className="relative z-10">
                       <div className="flex items-center mb-3">
                         <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -139,12 +130,10 @@ const MobileFooterNav: React.FC = () => {
                   <Link
                     to="/backtest-beta"
                     onClick={handleNavigation}
-                    className="block p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 shadow-2xl hover:shadow-green-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
+                    className="block p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 shadow-2xl transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '180px' }}
                   >
-                    {/* Animated background pattern */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000"></div>
-
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 transform -skew-x-12 group-hover:translate-x-full transition-transform duration-1000" />
                     <div className="relative z-10">
                       <div className="flex items-center mb-3">
                         <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mr-3 shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -177,9 +166,7 @@ const MobileFooterNav: React.FC = () => {
                     key={index}
                     onClick={() => setActiveFeatureIndex(index)}
                     className={`h-2 rounded-full transition-all duration-500 ${
-                      activeFeatureIndex === index
-                        ? 'bg-white w-8 shadow-lg'
-                        : 'bg-white/40 w-2 hover:bg-white/60'
+                      activeFeatureIndex === index ? 'bg-white w-8 shadow-lg' : 'bg-white/40 w-2 hover:bg-white/60'
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
                   />
@@ -187,33 +174,75 @@ const MobileFooterNav: React.FC = () => {
               </div>
             </div>
 
-            {/* User Dashboard */}
+            {/* Explore Section — matches sidebar "Explore" */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-                Account
+                Explore
               </h4>
-              
+
               <Link
                 to="/dashboard"
-                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
                 onClick={handleNavigation}
               >
-                <div className="mr-3 text-green-400">
-                  <i className="fas fa-tachometer-alt h-5 w-5"></i>
+                <div className="mr-3 text-indigo-400">
+                  <i className="fas fa-chart-line w-5"></i>
                 </div>
                 <div>
                   <div className="font-medium text-white">Dashboard</div>
                   <div className="text-xs text-gray-400">View saved strategies and account info</div>
                 </div>
               </Link>
+
+              <Link
+                to="/stock"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
+                onClick={handleNavigation}
+              >
+                <div className="mr-3 text-blue-400">
+                  <ChartBarIcon className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="font-medium text-white">Stocks & Market</div>
+                  <div className="text-xs text-gray-400">Top gainers, losers & market data</div>
+                </div>
+              </Link>
+
+              <Link
+                to="/feedback"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
+                onClick={handleNavigation}
+              >
+                <div className="mr-3 text-purple-400">
+                  <i className="fas fa-comment-dots w-5"></i>
+                </div>
+                <div>
+                  <div className="font-medium text-white">Feedback</div>
+                  <div className="text-xs text-gray-400">Share your thoughts with us</div>
+                </div>
+              </Link>
+
+              <Link
+                to="/about"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                onClick={handleNavigation}
+              >
+                <div className="mr-3 text-gray-400">
+                  <i className="fas fa-info-circle w-5"></i>
+                </div>
+                <div>
+                  <div className="font-medium text-white">About</div>
+                  <div className="text-xs text-gray-400">Learn about WelthWest</div>
+                </div>
+              </Link>
             </div>
-            
-            {/* WelthAI bots */}
+
+            {/* AI Features Section — matches sidebar "AI Features" */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-                WelthAI bots
+                AI Features
               </h4>
-              
+
               <Link
                 to="/welth-ai-assistant"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
@@ -227,44 +256,84 @@ const MobileFooterNav: React.FC = () => {
                   <div className="text-xs text-gray-400">AI-powered conversational assistant</div>
                 </div>
               </Link>
-              
+
               <Link
                 to="/ai-screener"
-                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
                 onClick={handleNavigation}
               >
                 <div className="mr-3 text-purple-400">
                   <SparklesIcon className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="font-medium text-white">WelthAI Market Analysis</div>
+                  <div className="font-medium text-white">Welth Market Regime</div>
                   <div className="text-xs text-gray-400">ML-based market regime detection</div>
                 </div>
               </Link>
+
+              <Link
+                to="/backtest-beta"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                onClick={handleNavigation}
+              >
+                <div className="mr-3 text-green-400">
+                  <i className="fas fa-flask w-5"></i>
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-white flex items-center gap-2">
+                    Backtesting
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-900/50 text-green-300 border border-green-700">Beta</span>
+                  </div>
+                  <div className="text-xs text-gray-400">Test & validate trading strategies</div>
+                </div>
+              </Link>
             </div>
-            
-            {/* Market Features */}
+
+            {/* Market Section */}
             <div className="mb-4">
               <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
                 Market
               </h4>
-              
-              <Link
-                to="/stock"
+
+              <a
+                href="https://strategy.welthwest.com/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50 mb-2"
-                onClick={handleNavigation}
+                onClick={handleCloseMenu}
               >
-                <div className="mr-3 text-blue-400">
-                  <ChartBarIcon className="h-5 w-5" />
+                <div className="mr-3 text-orange-400">
+                  <i className="fas fa-chart-bar w-5"></i>
                 </div>
                 <div>
-                  <div className="font-medium text-white">Top Gainer & Loser</div>
-                  <div className="text-xs text-gray-400">Search and analyze individual stocks</div>
+                  <div className="font-medium text-white">Strategy</div>
+                  <div className="text-xs text-gray-400">Live trading strategies & performance</div>
                 </div>
-              </Link>
-              
-
+              </a>
             </div>
+
+            {/* Account Section — only for authenticated users, matches sidebar */}
+            {isAuthenticated && (
+              <div className="mb-4">
+                <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+                  Account
+                </h4>
+
+                <Link
+                  to="/profile"
+                  className="flex items-center p-3 rounded-lg bg-gray-800/50"
+                  onClick={handleNavigation}
+                >
+                  <div className="mr-3 text-gray-400">
+                    <i className="fas fa-user w-5"></i>
+                  </div>
+                  <div>
+                    <div className="font-medium text-white">Profile Settings</div>
+                    <div className="text-xs text-gray-400">Manage your account</div>
+                  </div>
+                </Link>
+              </div>
+            )}
           </div>
         </>
       )}
@@ -293,18 +362,16 @@ const MobileFooterNav: React.FC = () => {
             <span className="text-xs">Backtest</span>
           </Link>
 
-          {/* WelthAI Button - Mobile */}
+          {/* WelthAI Button - Mobile center */}
           <Link
             to="/ai-screener"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex flex-col items-center justify-center -mt-6"
           >
-            <div className={`rounded-full p-4 bg-primary-600 shadow-lg ${
+            <div className={`rounded-full p-4 shadow-lg ${
               isActive('/ai-screener') ? 'bg-primary-700' : 'bg-primary-600'
             }`}>
-              <div className="flex items-center justify-center">
-                <SparklesIcon className="h-6 w-6 text-white" />
-              </div>
+              <SparklesIcon className="h-6 w-6 text-white" />
             </div>
             <span className="text-xs mt-1 text-gray-400">WelthAI</span>
           </Link>
@@ -320,15 +387,15 @@ const MobileFooterNav: React.FC = () => {
             <span className="text-xs">Strategy</span>
           </a>
 
-          {/* Features Button - Replace Profile */}
+          {/* Explore Button */}
           <button
-            onClick={handleToggleFeatures}
+            onClick={handleToggleMenu}
             className={`flex flex-col items-center justify-center ${
-              isFeatureActive() || showFeaturesMenu ? 'text-primary-400' : 'text-gray-400'
+              isFeatureActive() || showExploreMenu ? 'text-primary-400' : 'text-gray-400'
             }`}
           >
             <Bars3Icon className="h-6 w-6 mb-1" />
-            <span className="text-xs">Features</span>
+            <span className="text-xs">Explore</span>
           </button>
         </div>
       </nav>
@@ -336,4 +403,4 @@ const MobileFooterNav: React.FC = () => {
   );
 };
 
-export default MobileFooterNav; 
+export default MobileFooterNav;

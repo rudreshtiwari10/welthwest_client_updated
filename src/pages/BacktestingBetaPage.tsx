@@ -1163,13 +1163,13 @@ const BacktestingBetaPage: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex justify-center mb-6 sm:mb-8">
-          <nav className="flex space-x-1 sm:space-x-2 bg-gray-100 dark:bg-gray-900 rounded-lg p-1" aria-label="Tabs">
+        <div className="mb-6 sm:mb-8 px-1">
+          <nav className="flex overflow-x-auto bg-gray-100 dark:bg-gray-900 rounded-lg p-1 gap-1 sm:gap-2 sm:justify-center" style={{ scrollbarWidth: 'none' }} aria-label="Tabs">
             {[
               { id: 'parameters', name: 'Parameters', icon: CogIcon },
               { id: 'results', name: 'Results', icon: DocumentTextIcon },
               { id: 'charts', name: 'Charts', icon: ChartBarIcon },
-              ...(user ? [{ id: 'saved', name: 'Saved Strategies', icon: BookmarkIcon }] : [])
+              ...(user ? [{ id: 'saved', name: 'Saved', icon: BookmarkIcon }] : [])
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1177,7 +1177,7 @@ const BacktestingBetaPage: React.FC = () => {
                 className={`${activeTab === tab.id
                   ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  } whitespace-nowrap py-2 sm:py-2.5 px-3 sm:px-5 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
+                  } whitespace-nowrap shrink-0 py-2 sm:py-2.5 px-3 sm:px-5 rounded-md font-medium text-xs sm:text-sm flex items-center transition-colors duration-200`}
               >
                 <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
                 {tab.name}

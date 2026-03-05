@@ -309,6 +309,17 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
           {/* Right side - Auth buttons */}
           <div className="flex items-center space-x-2 md:space-x-4">
+            {/* Mobile Search Toggle */}
+            <button
+              className="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              aria-label="Search"
+            >
+              {showMobileSearch
+                ? <XMarkIcon className="h-5 w-5" />
+                : <MagnifyingGlassIcon className="h-5 w-5" />}
+            </button>
+
             {/* Theme Toggle */}
             <ThemeToggle />
 
@@ -454,6 +465,12 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
         </div>
       </div>
 
+      {/* Mobile Search Bar — slides in below header */}
+      {showMobileSearch && (
+        <div className="md:hidden border-t border-gray-200/50 dark:border-gray-700/50 px-4 py-3">
+          <SearchBarWithSuggestions placeholders={searchPlaceholders} />
+        </div>
+      )}
     </header>
   );
 };
