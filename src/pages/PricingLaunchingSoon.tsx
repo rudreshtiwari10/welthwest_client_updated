@@ -1,7 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const PricingLaunchingSoon: React.FC = () => {
+  usePageMeta({
+    title: 'Pricing – WelthWest AI Market Intelligence Platform',
+    description: 'WelthWest is free for all users. Get full access to AI market regime detection, anomaly alerts, backtesting engine, and WelthAI assistant at no cost.',
+  });
+
   const navigate = useNavigate();
 
   return (

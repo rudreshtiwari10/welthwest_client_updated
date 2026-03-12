@@ -9,6 +9,7 @@ import {
   TagIcon
 } from '@heroicons/react/24/outline';
 import newsBlogService, { Blog } from '../services/newsBlogService';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const BlogDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -16,6 +17,12 @@ const BlogDetailPage: React.FC = () => {
   const [blog, setBlog] = useState<Blog | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  usePageMeta({
+    title: blog ? `${blog.title} | WelthWest Blog` : 'Blog | WelthWest',
+    description: blog?.summary || blog?.excerpt || 'Read the latest trading insights and market analysis from WelthWest.',
+    ogUrl: blog ? `https://welthwest.com/blog/${slug}` : undefined,
+  });
 
   useEffect(() => {
     if (slug) {

@@ -4,8 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { authService } from '../services/api';
 import AuthBrandPanel from '../components/AuthBrandPanel';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const RegisterPage: React.FC = () => {
+  usePageMeta({
+    title: 'Create Account – WelthWest AI Market Intelligence Platform',
+    description: 'Sign up for WelthWest and get free access to AI market regime detection, anomaly alerts, no-code backtesting, and the WelthAI assistant.',
+  });
+
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');

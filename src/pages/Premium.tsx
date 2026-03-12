@@ -10,8 +10,14 @@ import { premiumService, Plan } from '../services/premiumService';
 import { paymentService } from '../services/paymentService';
 import { CheckIcon, SparklesIcon, RocketLaunchIcon, StarIcon } from '@heroicons/react/24/outline';
 import PlanCheckoutModal from '../components/PlanCheckoutModal';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const Premium: React.FC = () => {
+  usePageMeta({
+    title: 'WelthWest Plans – Free AI Market Intelligence for All Traders',
+    description: 'Explore WelthWest plans. Get access to AI market regime detection, anomaly alerts, backtesting, and the WelthAI assistant — free for all users.',
+  });
+
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 

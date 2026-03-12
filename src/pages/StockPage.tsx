@@ -11,6 +11,7 @@ import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler } from 'chart.js';
 import SearchBarWithSuggestions from '../components/SearchBarWithSuggestions';
 import StockChart from '../components/StockChart';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler);
 
@@ -22,6 +23,11 @@ const searchPlaceholders = [
 ];
 
 const StockPage: React.FC = () => {
+  usePageMeta({
+    title: 'Stock Analysis – AI Market Intelligence | WelthWest',
+    description: 'Analyse Indian equity stocks with AI-powered regime detection and anomaly signals. Real-time NIFTY and NSE data on WelthWest.',
+  });
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [trendingStocks, setTrendingStocks] = useState<any>({ gainers: [], losers: [] });

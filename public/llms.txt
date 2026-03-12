@@ -1,0 +1,52 @@
+# WelthWest
+
+> WelthWest is an AI-powered market intelligence platform for Indian equity traders and fund managers. It detects market regime shifts and anomalies — without predicting prices.
+
+## What WelthWest Does
+
+WelthWest provides quantitative, AI-driven tools for participants in Indian equity markets (NSE/BSE). Core capabilities:
+
+- **WelthAI Market Regime**: Classifies the current market as bull, bear, or sideways using OHLCV + derivatives data. No price prediction — pure regime awareness.
+- **Anomaly Detector**: Real-time alerts when market behaviour deviates significantly from historical norms, using statistical and ML-based methods.
+- **No-Code Backtesting Engine**: Test trading strategies against 10+ years of NIFTY and stock data. Key metrics: CAGR, Sharpe ratio, max drawdown, win rate.
+- **WelthAI Assistant**: Conversational AI for market research, strategy ideation, and risk analysis.
+- **AI Screener**: Screen stocks by regime, anomaly score, and technical criteria.
+
+## Target Users
+
+- Proprietary traders
+- Portfolio managers
+- Retail investors active in Indian equity markets
+
+## Important Disclaimer
+
+WelthWest is an analytics and research platform. It does NOT offer brokerage services, SEBI-registered investment advice, or guaranteed returns. All backtested results are historical and not indicative of future performance. Users must conduct their own due diligence.
+
+## Key Pages
+
+- Homepage: https://welthwest.com/
+- About: https://welthwest.com/about
+- Product – Market Regime: https://welthwest.com/product/market-regime
+- Product – Anomaly Detector: https://welthwest.com/product/anomaly-detector
+- Product – Backtesting Engine: https://welthwest.com/product/backtesting-engine
+- AI Screener Tool: https://welthwest.com/ai-screener
+- Backtesting Tool: https://welthwest.com/backtest
+- Stock Analysis: https://welthwest.com/stock
+- AI Assistant: https://welthwest.com/welth-ai-assistant
+- Blog & News: https://welthwest.com/news-and-blogs
+- Case Studies: https://welthwest.com/case-studies
+- Pricing: https://welthwest.com/premium
+- Security: https://welthwest.com/security
+- Technical Overview: https://welthwest.com/technical-overview
+- Contact: https://welthwest.com/contact
+- Privacy Policy: https://welthwest.com/privacy-policy
+- Terms & Conditions: https://welthwest.com/terms-and-conditions
+
+## Contact
+
+- Email: contact@welthwest.com
+- LinkedIn: https://www.linkedin.com/company/108673007
+- Twitter/X: https://x.com/WelthWest
+- YouTube: https://www.youtube.com/@WelthWest
+- Instagram: https://www.instagram.com/welthwest
+- Location: India

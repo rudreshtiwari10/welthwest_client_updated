@@ -11,8 +11,14 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
 import newsBlogService, { Blog } from '../services/newsBlogService';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const BlogsPage: React.FC = () => {
+  usePageMeta({
+    title: 'Trading Blog – AI Insights & Market Strategy | WelthWest',
+    description: 'Read WelthWest blog posts on AI trading strategies, Indian equity market analysis, regime detection, and quantitative finance.',
+  });
+
   const navigate = useNavigate();
   const { user } = useAuth();
   const [blogs, setBlogs] = useState<Blog[]>([]);

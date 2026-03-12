@@ -7,8 +7,14 @@ import {
   ArrowTopRightOnSquareIcon
 } from '@heroicons/react/24/outline';
 import newsBlogService, { NewsItem } from '../services/newsBlogService';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const NewsPage: React.FC = () => {
+  usePageMeta({
+    title: 'Indian Market News – Live Updates | WelthWest',
+    description: 'Get the latest Indian equity market news, NSE/BSE updates, and financial headlines curated for traders and investors on WelthWest.',
+  });
+
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

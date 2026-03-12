@@ -74,6 +74,17 @@ export const usePageMeta = ({
     const resolvedUrl = ogUrl ?? `${SITE_URL}${window.location.pathname}`;
     const resolvedImage = ogImage ?? DEFAULT_OG_IMAGE;
 
+    // ── Canonical tag ─────────────────────────────────────────────────────────
+    let canonicalEl = document.querySelector(
+      'link[rel="canonical"]'
+    ) as HTMLLinkElement | null;
+    if (!canonicalEl) {
+      canonicalEl = document.createElement('link');
+      canonicalEl.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalEl);
+    }
+    canonicalEl.setAttribute('href', resolvedUrl);
+
     // ── Standard meta ─────────────────────────────────────────────────────────
     setMeta('description', description);
 

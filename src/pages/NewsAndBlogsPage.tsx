@@ -13,9 +13,15 @@ import {
   FireIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../contexts/AuthContext';
+import { usePageMeta } from '../hooks/usePageMeta';
 import newsBlogService, { NewsItem, Blog } from '../services/newsBlogService';
 
 const NewsAndBlogsPage: React.FC = () => {
+  usePageMeta({
+    title: 'Market News & Trading Insights | WelthWest Blog',
+    description: 'Stay updated with Indian equity market news, AI trading insights, and strategy articles from the WelthWest team.',
+  });
+
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'news' | 'blogs'>('news');

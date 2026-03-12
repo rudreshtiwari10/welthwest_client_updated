@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { feedbackService } from '../services/api';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 interface FeedbackForm {
   tradingLearning: string;
@@ -17,6 +18,11 @@ interface UserInfo {
 }
 
 const FeedbackPage: React.FC = () => {
+  usePageMeta({
+    title: 'Share Feedback – WelthWest',
+    description: 'Help us improve WelthWest. Share your experience with our AI market intelligence tools and tell us what matters most to you.',
+  });
+
   const { user, isAuthenticated } = useAuth();
   
   const [feedback, setFeedback] = useState<FeedbackForm>({

@@ -10,6 +10,7 @@ import LoginModal from '../components/LoginModal';
 import TutorialVideoSection from '../components/TutorialVideoSection';
 import { trackEvent } from '../utils/analytics';
 import useSessionStorage from '../hooks/useSessionStorage';
+import { usePageMeta } from '../hooks/usePageMeta';
 const Plot = require('react-plotly.js').default as React.ComponentType<any>;
 
 // Helper function to parse chart data
@@ -252,6 +253,11 @@ const IndicatorChip: React.FC<IndicatorChipProps> = ({
 };
 
 const BacktestingBetaPage: React.FC = () => {
+  usePageMeta({
+    title: 'No-Code Backtesting Engine – Test Strategies on NIFTY Data | WelthWest',
+    description: 'Backtest trading strategies against 10+ years of NSE/NIFTY data with no code. Get CAGR, Sharpe ratio, max drawdown and win rate — free on WelthWest.',
+  });
+
   const { user, getToken } = useAuth();
   const { canUseBacktest, incrementBacktestUsage, subscriptionDetails } = useSubscription();
   const [isLoading, setIsLoading] = useState(false);

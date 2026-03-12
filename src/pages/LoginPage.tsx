@@ -4,8 +4,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import PasswordResetModal from '../components/PasswordResetModal';
 import AuthBrandPanel from '../components/AuthBrandPanel';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 const LoginPage: React.FC = () => {
+  usePageMeta({
+    title: 'Login – WelthWest AI Market Intelligence Platform',
+    description: 'Sign in to WelthWest to access AI-powered market regime detection, anomaly alerts, backtesting, and the WelthAI assistant.',
+  });
+
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

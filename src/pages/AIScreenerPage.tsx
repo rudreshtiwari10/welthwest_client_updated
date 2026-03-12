@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import LoginModal from '../components/LoginModal';
+import { usePageMeta } from '../hooks/usePageMeta';
 import aiScreenerService, {
   ScreenerResult,
   ScreenResponse,
@@ -69,6 +70,11 @@ const barsAgoText = (barsAgo: number, tf: string): string => {
 
 /* ─── Component ─────────────────────────────────────────── */
 const AIScreenerPage: React.FC = () => {
+  usePageMeta({
+    title: 'AI Stock Screener – Filter by Regime & Anomaly | WelthWest',
+    description: 'Screen Indian stocks using AI-driven market regime and anomaly scores. Find high-potential setups without writing code — powered by WelthWest.',
+  });
+
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navQueryHandled = useRef(false);
