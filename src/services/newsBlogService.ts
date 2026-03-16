@@ -120,6 +120,26 @@ export interface Category {
 }
 
 // ============================================================================
+// Simple in-memory cache (survives page navigation, clears on tab close)
+// ============================================================================
+const _cache: Record<string, { data: any; expiry: number }> = {};
+
+function getCached<T>(key: string): T | null {
+  const entry = _cache[key];
+  if (entry && Date.now() < entry.expiry) return entry.data as T;
+  if (entry) delete _cache[key];
+  return null;
+}
+
+function setCache(key: string, data: any, ttlMs: number) {
+  _cache[key] = { data, expiry: Date.now() + ttlMs };
+}
+
+// Cache TTLs
+const NEWS_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const BLOGS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// ============================================================================
 // News Service
 // ============================================================================
 
@@ -132,6 +152,10 @@ class NewsBlogService {
     region: string = 'indian',
     limit: number = 50
   ): Promise<NewsResponse> {
+    const cacheKey = `news_${category}_${region}_${limit}`;
+    const cached = getCached<NewsResponse>(cacheKey);
+    if (cached) return cached;
+
     try {
       const params = new URLSearchParams({
         category,
@@ -140,6 +164,7 @@ class NewsBlogService {
       });
 
       const response = await api.get(`/news?${params.toString()}`);
+      setCache(cacheKey, response.data, NEWS_CACHE_TTL);
       return response.data;
     } catch (error) {
       console.error('Error fetching news:', error);
@@ -195,6 +220,10 @@ class NewsBlogService {
     limit: number = 10,
     category?: string
   ): Promise<BlogsResponse> {
+    const cacheKey = `blogs_${page}_${limit}_${category || 'all'}`;
+    const cached = getCached<BlogsResponse>(cacheKey);
+    if (cached) return cached;
+
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -209,7 +238,7 @@ class NewsBlogService {
 
       // Manually transform response to handle field name differences
       const data = response.data;
-      return {
+      const result = {
         success: data.success,
         blogs: data.blogs || [],
         total: data.total || 0,
@@ -217,6 +246,8 @@ class NewsBlogService {
         limit: data.limit || 10,
         totalPages: data.totalPages || 0
       };
+      setCache(cacheKey, result, BLOGS_CACHE_TTL);
+      return result;
     } catch (error) {
       console.error('Error fetching blogs:', error);
       throw error;

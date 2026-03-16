@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/news", "destination": "https://welthwestnews.vercel.app/news" },
+    { "source": "/news/:path*", "destination": "https://welthwestnews.vercel.app/news/:path*" },
+    { "source": "/blogs", "destination": "https://welthwestnews.vercel.app/blogs" },
+    { "source": "/blogs/:path*", "destination": "https://welthwestnews.vercel.app/blogs/:path*" },
+    { "source": "/sitemap.xml", "destination": "https://welthwestnews.vercel.app/sitemap.xml" },
+    { "source": "/robots.txt", "destination": "https://welthwestnews.vercel.app/robots.txt" }
+  ]
+}

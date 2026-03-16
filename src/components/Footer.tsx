@@ -223,9 +223,12 @@ const Footer: React.FC = () => {
                     <Link to="/technical-overview" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       How It Works
                     </Link>
-                    <Link to="/news-and-blogs" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                      Blog
-                    </Link>
+                    <a href="/news" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      News
+                    </a>
+                    <a href="/blogs" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Blogs
+                    </a>
                   </div>
                 )}
               </div>
@@ -266,9 +269,12 @@ const Footer: React.FC = () => {
                   <Link to="/technical-overview" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     How It Works
                   </Link>
-                  <Link to="/news-and-blogs" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                    Blog
-                  </Link>
+                  <a href="/news" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    News
+                  </a>
+                  <a href="/blogs" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Blogs
+                  </a>
                   <Link to="/pricing" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Pricing
                   </Link>

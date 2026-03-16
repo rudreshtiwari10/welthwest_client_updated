@@ -291,6 +291,22 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <span>Backtesting</span>
               </Link>
 
+              {/* News Link */}
+              <a
+                href="/news"
+                className="text-sm font-medium text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400"
+              >
+                News
+              </a>
+
+              {/* Blogs Link */}
+              <a
+                href="/blogs"
+                className="text-sm font-medium text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400"
+              >
+                Blogs
+              </a>
+
             </nav>
           </div>
 
