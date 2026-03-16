@@ -20,7 +20,7 @@ const BlogDetailPage: React.FC = () => {
 
   usePageMeta({
     title: blog ? `${blog.title} | WelthWest Blog` : 'Blog | WelthWest',
-    description: blog?.summary || blog?.excerpt || 'Read the latest trading insights and market analysis from WelthWest.',
+    description: blog?.summary || 'Read the latest trading insights and market analysis from WelthWest.',
     ogUrl: blog ? `https://welthwest.com/blog/${slug}` : undefined,
   });
 
