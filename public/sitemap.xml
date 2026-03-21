@@ -101,8 +101,18 @@
 
   <!-- Blog & News -->
   <url>
-    <loc>https://welthwest.com/news-and-blogs</loc>
-    <changefreq>weekly</changefreq>
+    <loc>https://welthwest.com/blogs</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://welthwest.com/news</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://welthwest.com/news/live</loc>
+    <changefreq>hourly</changefreq>
     <priority>0.7</priority>
   </url>
 

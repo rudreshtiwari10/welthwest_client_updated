@@ -226,6 +226,12 @@ const Footer: React.FC = () => {
                     <a href="/blogs" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       News & Blogs
                     </a>
+                    <a href="/news" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Market Analysis
+                    </a>
+                    <a href="/news/live" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Live Market Feed
+                    </a>
                   </div>
                 )}
               </div>
@@ -268,6 +274,12 @@ const Footer: React.FC = () => {
                   </Link>
                   <a href="/blogs" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     News & Blogs
+                  </a>
+                  <a href="/news" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Market Analysis
+                  </a>
+                  <a href="/news/live" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    Live Market Feed
                   </a>
                   <Link to="/pricing" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Pricing

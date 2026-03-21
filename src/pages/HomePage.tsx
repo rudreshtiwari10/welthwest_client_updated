@@ -1231,6 +1231,74 @@ const HomePage: React.FC = () => {
           </div>
         </section>
 
+        {/* Latest Insights — cross-link to news & blogs */}
+        <section className="mb-12 max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-secondary-500 to-primary-500">
+              Latest Market Insights
+            </h2>
+            <p className="text-base sm:text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              AI-powered analysis, expert blogs, and real-time market news
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a
+              href="/news"
+              className="group bg-white dark:bg-dark-300 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-blue-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <CpuChipIcon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary-500 transition-colors">
+                News & Analysis
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                AI-generated market intelligence — sentiment analysis, impact scoring, and sector-wise deep dives on Indian equities.
+              </p>
+              <span className="text-sm font-semibold text-primary-500 group-hover:underline">
+                Read Analysis →
+              </span>
+            </a>
+
+            <a
+              href="/blogs"
+              className="group bg-white dark:bg-dark-300 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary-500 to-purple-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <ChartBarIcon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-secondary-500 transition-colors">
+                Expert Blogs
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Trading strategies, IPO analysis, mutual fund insights, and economy deep-dives from the WelthWest research team.
+              </p>
+              <span className="text-sm font-semibold text-secondary-500 group-hover:underline">
+                Read Blogs →
+              </span>
+            </a>
+
+            <a
+              href="/news/live"
+              className="group bg-white dark:bg-dark-300 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                <RocketLaunchIcon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-green-500 transition-colors">
+                Live Market Feed
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Real-time financial news from top sources — NSE, BSE, global markets, crypto, IPOs, and economic events.
+              </p>
+              <span className="text-sm font-semibold text-green-500 group-hover:underline">
+                View Live Feed →
+              </span>
+            </a>
+          </div>
+        </section>
+
         {/* Testimonials Carousel Section */}
         <section className="mb-12 max-w-6xl mx-auto">
           <div className="text-center mb-12">
