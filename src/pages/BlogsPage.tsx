@@ -195,7 +195,7 @@ const BlogsPage: React.FC = () => {
               {blogs.map((blog) => (
                 <div
                   key={blog._id}
-                  onClick={() => navigate(`/blog/${blog.slug}`)}
+                  onClick={() => window.location.href = `/blogs/${blog.slug}`}
                   className="group bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer"
                 >
                   {blog.imageUrl && (

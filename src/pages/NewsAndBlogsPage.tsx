@@ -366,7 +366,7 @@ const NewsAndBlogsPage: React.FC = () => {
                       onClick={() => {
                         const blogSlug = blog.slug || blog._id;
                         console.log('Navigating to blog:', { slug: blog.slug, _id: blog._id, using: blogSlug });
-                        navigate(`/blog/${blogSlug}`);
+                        window.location.href = `/blogs/${blogSlug}`;
                       }}
                       className="group bg-white dark:bg-[#1a1f2e] rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 border border-gray-200 dark:border-gray-700 overflow-hidden cursor-pointer"
                     >

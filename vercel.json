@@ -1,4 +1,12 @@
 {
+  "redirects": [
+    { "source": "/blog/:slug", "destination": "/blogs/:slug", "statusCode": 301 },
+    { "source": "/contactus", "destination": "/contact", "statusCode": 301 },
+    { "source": "/trust", "destination": "/security", "statusCode": 301 },
+    { "source": "/how-it-works", "destination": "/technical-overview", "statusCode": 301 },
+    { "source": "/pricing", "destination": "/premium", "statusCode": 301 },
+    { "source": "/news-and-blogs", "destination": "/news", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/news", "destination": "https://welthwestnews.vercel.app/news" },
     { "source": "/news/:path*", "destination": "https://welthwestnews.vercel.app/news/:path*" },
@@ -6,5 +14,29 @@
     { "source": "/blogs/:path*", "destination": "https://welthwestnews.vercel.app/blogs/:path*" },
     { "source": "/sitemap.xml", "destination": "https://welthwestnews.vercel.app/sitemap.xml" },
     { "source": "/robots.txt", "destination": "https://welthwestnews.vercel.app/robots.txt" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/static/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    }
   ]
 }

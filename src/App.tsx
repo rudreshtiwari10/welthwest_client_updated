@@ -18,7 +18,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import FeedbackPage from './pages/FeedbackPage';
 import NewsAndBlogsPage from './pages/NewsAndBlogsPage';
-import BlogDetailPage from './pages/BlogDetailPage';
+import BlogRedirect from './components/BlogRedirect';
 import BlogEditorPage from './pages/BlogEditorPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminUsersPage from './pages/AdminUsersPage';
@@ -209,7 +209,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/ai-screener" element={<AIScreenerPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/news-and-blogs" element={<NewsAndBlogsPage />} />
-                <Route path="/blog/:slug" element={<BlogDetailPage />} />
+                <Route path="/blog/:slug" element={<BlogRedirect />} />
                 <Route path="/blog-editor" element={<PrivateRoute><BlogEditorPage /></PrivateRoute>} />
                 <Route path="/blog-editor/:id" element={<PrivateRoute><BlogEditorPage /></PrivateRoute>} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
