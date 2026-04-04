@@ -204,6 +204,19 @@
         document.documentElement.classList.add(savedTheme);
       })();
     </script>
+    <!-- Google Publisher / Subscriptions with Google (SwG) -->
+    <script async type="application/javascript"
+            src="https://news.google.com/swg/js/v1/swg-basic.js"></script>
+    <script>
+      (self.SWG_BASIC = self.SWG_BASIC || []).push( basicSubscriptions => {
+        basicSubscriptions.init({
+          type: "NewsArticle",
+          isPartOfType: ["Product"],
+          isPartOfProductId: "CAow2YrGDA:openaccess",
+          clientOptions: { theme: "light", lang: "en" },
+        });
+      });
+    </script>
   </head>
   <body class="bg-white dark:bg-[#1a1f2e] text-gray-900 dark:text-white">
     <!-- GTM noscript placeholder - will be injected by React -->
