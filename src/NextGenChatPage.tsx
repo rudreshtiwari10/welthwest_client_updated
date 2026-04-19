@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+
 import { useAuth } from './contexts/AuthContext';
 import UsageIndicator from './components/UsageIndicator';
 import TrialExceededModal from './components/TrialExceededModal';
-import LoginModal from './components/LoginModal';
 import FinanceAIChart from './components/FinanceAIChart';
 import FinanceAIIndicators from './components/FinanceAIIndicators';
 import useSessionStorage from './hooks/useSessionStorage';
@@ -15,8 +14,6 @@ import {
   CpuChipIcon,
   ExclamationTriangleIcon,
   ClockIcon,
-  ArrowRightIcon,
-  BeakerIcon
 } from '@heroicons/react/24/outline';
 import {
   Chart as ChartJS,
@@ -56,28 +53,11 @@ interface Message {
   indicators?: any;
   stockData?: any;
   metadata?: {
-    model_used?: string;
     stock_data?: any;
     entities?: {
       stocks?: string[];
       time_period?: string;
     };
-    tool_suggestions?: Array<{
-      tool_name: string;
-      description: string;
-      url: string;
-      relevance: string;
-    }>;
-    follow_up_questions?: string[];
-  };
-  analysisButtons?: {
-    show_buttons: boolean;
-    suggested_tools: Array<{
-      name: string;
-      description: string;
-      url: string;
-      icon: string;
-    }>;
   };
 }
 
@@ -101,7 +81,6 @@ const NextGenChatPage: React.FC = () => {
   const [usageInfo, setUsageInfo] = useState<UsageInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showTrialModal, setShowTrialModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [refreshUsage, setRefreshUsage] = useState(0);
   const [anonymousUsesLeft, setAnonymousUsesLeft] = useState(5);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -191,37 +170,19 @@ const NextGenChatPage: React.FC = () => {
       // Track activity
       activityService.trackActivity(activityService.FEATURE_AI_ASSISTANT);
 
-      console.log('Sending message to Finance AI API');
+      console.log('Sending message to Welth Agent API');
 
-      // Build conversation history for context (including the message we just added)
-      const conversationHistory = [...messages, userMessage].map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'assistant',
-        content: msg.text
-      }));
+      const data = await marketService.welthChat(userMessage.text, currentSessionId);
 
-      console.log('[DEBUG] Conversation history length:', conversationHistory.length);
-      console.log('[DEBUG] Last message in history:', conversationHistory[conversationHistory.length - 1]);
+      console.log('Welth Agent response:', data);
 
-      const data = await marketService.financeAIQuery(userMessage.text, conversationHistory);
-
-      console.log('Finance AI response:', data);
-
-      // Check for login requirement in response
-      if (data.requires_login) {
-        setError(data.message || 'Please log in to continue chatting.');
-        if (data.usage || data.usage_info) {
-          const usage = data.usage || data.usage_info;
-          setUsageInfo({
-            remaining_messages: usage.remaining || usage.remaining_messages || 0,
-            total_limit: usage.limit || usage.total_limit || 10,
-            reset_time: usage.reset_time
-          });
-        }
-        return;
+      // Store conversation_id for continuity
+      if (data.conversation_id) {
+        setCurrentSessionId(data.conversation_id);
       }
 
-      // Extract AI response from various possible fields (more flexible)
-      const aiResponseText = data.ai_response || data.response || data.analysis || data.message || 'No response received';
+      // Extract AI response
+      const aiResponseText = data.response || 'No response received';
 
       if (!aiResponseText || aiResponseText === 'No response received') {
         console.error('No valid response field in data:', data);
@@ -229,30 +190,31 @@ const NextGenChatPage: React.FC = () => {
         return;
       }
 
+      // Only append disclaimer when financial tools were actually used
+      let displayText = aiResponseText;
+      if (data.disclaimer && data.tools_used && data.tools_used.length > 0) {
+        displayText += `\n\n---\n*${data.disclaimer}*`;
+      }
+
       const aiMessage: Message = {
         id: `ai_${Date.now()}`,
         sender: 'ai',
-        text: aiResponseText,
+        text: displayText,
         timestamp: new Date(),
-        intent: data.query_type || data.intent || data.category,
-        category: data.category,
         chartBase64: data.chart_base64,
-        indicators: data.data?.indicators,
-        stockData: data.data,
+        indicators: data.indicators,
+        stockData: data.symbol ? { symbol: data.symbol } : undefined,
         metadata: {
-          model_used: data.model_used,
-          stock_data: data.stock_data || data.data,
-          entities: data.entities,
-          tool_suggestions: data.tool_suggestions,
-          follow_up_questions: data.follow_up_questions
-        },
-        analysisButtons: data.analysis_buttons
+          stock_data: data.tools_used,
+        }
       };
 
       console.log('Adding AI message:', aiMessage);
       console.log('Message text:', aiMessage.text);
-      console.log('Has chart:', !!aiMessage.chartBase64);
-      console.log('Has indicators:', !!aiMessage.indicators);
+      console.log('Tools used:', data.tools_used);
+      console.log('Has chart:', !!data.chart_base64);
+      console.log('Has indicators:', !!data.indicators);
+      console.log('Elapsed ms:', data.elapsed_ms);
       setMessages(prev => [...prev, aiMessage]);
 
       // Scroll to bottom after adding AI response
@@ -261,21 +223,6 @@ const NextGenChatPage: React.FC = () => {
           messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
       }, 100);
-
-      // Decrement anonymous usage
-      if (!user) {
-        setAnonymousUsesLeft(prev => Math.max(0, prev - 1));
-      }
-
-      // Handle usage from both field names (usage or usage_info)
-      if (data.usage || data.usage_info) {
-        const usage = data.usage || data.usage_info;
-        setUsageInfo({
-          remaining_messages: usage.remaining || usage.remaining_messages || 0,
-          total_limit: usage.limit || usage.total_limit || 10,
-          reset_time: usage.reset_time
-        });
-      }
 
       // Refresh usage counter
       setRefreshUsage(prev => prev + 1);
@@ -350,15 +297,7 @@ const NextGenChatPage: React.FC = () => {
 
   const formatAIResponse = (text: string) => {
     // Remove common AI response prefixes and suffixes
-    let formatted = text
-      .replace(/^<s>\s*\[OUT\]\s*/gi, '') // Remove <s> [OUT] prefix
-      .replace(/^<s>\s*/gi, '') // Remove <s> prefix
-      .replace(/\[OUT\]\s*/gi, '') // Remove [OUT] prefix
-      .replace(/\[\/OUT\]\s*/gi, '') // Remove [/OUT] suffix
-      .replace(/<\/s>\s*$/gi, '') // Remove </s> suffix
-      .replace(/\*\*/g, '') // Remove ** for bold
-      .replace(/\*/g, '') // Remove * for emphasis
-      .trim();
+    let formatted = text.trim();
 
     // Split into paragraphs for better spacing
     const paragraphs = formatted.split('\n\n').filter(p => p.trim());
@@ -426,7 +365,7 @@ const NextGenChatPage: React.FC = () => {
       {user && (
         <UsageIndicator
           feature="welth-ai-assistant"
-          featureDisplayName="AI Chat Assistant"
+          featureDisplayName="Welth"
           refreshTrigger={refreshUsage}
           sessionId={currentSessionId}
         />
@@ -437,7 +376,7 @@ const NextGenChatPage: React.FC = () => {
         isOpen={showTrialModal}
         onClose={() => setShowTrialModal(false)}
         feature="welth-ai-assistant"
-        featureDisplayName="AI Chat Assistant"
+        featureDisplayName="Welth"
         limit={10}
       />
 
@@ -451,10 +390,10 @@ const NextGenChatPage: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                WelthAI Chat Assistant
+                Welth
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Powered by multiple AI models for enhanced accuracy
+                Your WelthWest research assistant for Indian markets
               </p>
             </div>
           </div>
@@ -466,7 +405,7 @@ const NextGenChatPage: React.FC = () => {
               className="bg-gradient-to-r from-blue-500 to-purple-600 px-5 py-2.5 rounded-lg shadow-lg flex items-center space-x-2 hover:shadow-xl transition-all hover:scale-[1.02]"
             >
               <SparklesIcon className="h-5 w-5 text-white" />
-              <span className="text-sm font-semibold text-white">Login to Use AI Assistant</span>
+              <span className="text-sm font-semibold text-white">Login to Use Welth</span>
             </button>
           )}
         </div>
@@ -483,11 +422,10 @@ const NextGenChatPage: React.FC = () => {
                 <SparklesIcon className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                Welcome to WelthAI Chat Assistant
+                Welcome to Welth
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
-                Ask me about stock prices, financial news analysis, trading concepts, or general finance questions.
-                I use multiple AI models to provide accurate, comprehensive answers.
+                Ask me about stock prices, financial news, trading concepts, or general finance questions.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 <span className="px-3 py-1 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 rounded-full text-sm">
@@ -524,7 +462,7 @@ const NextGenChatPage: React.FC = () => {
                     ? 'text-blue-600 dark:text-blue-400'
                     : 'text-purple-600 dark:text-purple-400'
                 }`}>
-                  {message.sender === 'user' ? 'You' : 'WelthAI'}
+                  {message.sender === 'user' ? 'You' : 'Welth'}
                 </div>
 
                 {/* Message content */}
@@ -549,17 +487,9 @@ const NextGenChatPage: React.FC = () => {
                 {message.sender === 'ai' && message.chartBase64 && (
                   <FinanceAIChart
                     chartBase64={message.chartBase64}
-                    title={message.category ? `${message.category.replace(/_/g, ' ').toUpperCase()} Analysis` : 'Technical Analysis'}
-                    category={message.category}
+                    title={`TECHNICAL ANALYSIS Analysis`}
+                    category={'technical_analysis'}
                   />
-                )}
-
-                {/* Model Information Badge */}
-                {message.sender === 'ai' && message.metadata?.model_used && (
-                  <div className="mt-2 inline-flex items-center px-2 py-1 rounded-md bg-blue-100 dark:bg-blue-900/30 text-xs text-blue-700 dark:text-blue-300">
-                    <CpuChipIcon className="h-3 w-3 mr-1" />
-                    Model: {message.metadata.model_used}
-                  </div>
                 )}
 
                 {/* Stock Data Display with Charts (Old format - hide for Finance AI responses) */}
@@ -699,84 +629,6 @@ const NextGenChatPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Tool Suggestions */}
-                {message.sender === 'ai' && message.metadata?.tool_suggestions && message.metadata.tool_suggestions.length > 0 && (
-                  <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <h4 className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2">Suggested Tools</h4>
-                    <div className="space-y-2">
-                      {message.metadata.tool_suggestions.map((tool, idx) => (
-                        <a
-                          key={idx}
-                          href={tool.url}
-                          className="block text-xs p-2 bg-white dark:bg-gray-800 rounded hover:bg-blue-100 dark:hover:bg-gray-700 transition-colors"
-                        >
-                          <div className="font-medium text-blue-600 dark:text-blue-400">{tool.tool_name}</div>
-                          <div className="text-gray-600 dark:text-gray-400">{tool.description}</div>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Follow-up Questions */}
-                {message.sender === 'ai' && message.metadata?.follow_up_questions && message.metadata.follow_up_questions.length > 0 && (
-                  <div className="mt-3">
-                    <h4 className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">You might also ask:</h4>
-                    <div className="space-y-1">
-                      {message.metadata.follow_up_questions.map((question, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setInput(question)}
-                          className="block w-full text-left text-xs p-2 bg-gray-50 dark:bg-gray-700 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors text-gray-700 dark:text-gray-300"
-                        >
-                          {question}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Analysis Feature Buttons */}
-                {message.sender === 'ai' && message.analysisButtons?.show_buttons && message.analysisButtons.suggested_tools.length > 0 && (
-                  <div className="mt-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <div className="flex items-center mb-3">
-                      <SparklesIcon className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-2" />
-                      <h4 className="text-sm font-semibold text-purple-900 dark:text-purple-200">
-                        Try These Advanced Features
-                      </h4>
-                    </div>
-                    <p className="text-xs text-purple-700 dark:text-purple-300 mb-3">
-                      Take your analysis to the next level with our AI-powered tools
-                    </p>
-                    <div className="grid grid-cols-1 gap-2">
-                      {message.analysisButtons.suggested_tools.map((tool, idx) => (
-                        <Link
-                          key={idx}
-                          to={tool.url}
-                          className="group flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-md transition-all duration-200"
-                        >
-                          <div className="flex items-center flex-1">
-                            {tool.icon === 'chart' ? (
-                              <ChartBarIcon className="h-5 w-5 text-purple-600 dark:text-purple-400 mr-3" />
-                            ) : (
-                              <BeakerIcon className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3" />
-                            )}
-                            <div>
-                              <div className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                                {tool.name}
-                              </div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                                {tool.description}
-                              </div>
-                            </div>
-                          </div>
-                          <ArrowRightIcon className="h-4 w-4 text-purple-400 dark:text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Timestamp */}
                 <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                   {formatTimestamp(message.timestamp)}
@@ -837,7 +689,7 @@ const NextGenChatPage: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Ask Welth AI..."
+                placeholder="Ask Welth..."
                 disabled={isLoading}
                 rows={1}
                 className="w-full px-5 py-3 bg-gray-50 dark:bg-gray-900 border-0 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 disabled:opacity-50 transition-all"

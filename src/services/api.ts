@@ -630,6 +630,20 @@ export const marketService = {
     }
   },
 
+  // Welth Agent Chat - New agentic endpoint with tool calling and conversation persistence
+  welthChat: async (message: string, conversationId?: string) => {
+    try {
+      const response = await api.post('/welth/chat', {
+        message,
+        conversation_id: conversationId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error with Welth chat:', error);
+      throw error;
+    }
+  },
+
   // Get trending stocks (top gainers and losers)
   getTrendingStocks: async (limit?: number) => {
     try {

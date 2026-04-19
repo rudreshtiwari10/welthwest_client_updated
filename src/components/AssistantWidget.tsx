@@ -22,7 +22,7 @@ const AssistantWidget: React.FC<AssistantWidgetProps> = ({ isOpen, onClose }) =>
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m WelthAI Assistant. I can help you with market analysis, trading strategies, and answer your investment questions. How can I assist you today?',
+      content: 'Hello! I\'m Welth, your WelthWest research assistant. I can help you with market analysis, trading concepts, and answer your finance questions. How can I assist you today?',
       timestamp: new Date(),
     },
   ]);
@@ -44,7 +44,7 @@ const AssistantWidget: React.FC<AssistantWidgetProps> = ({ isOpen, onClose }) =>
     // Check if user is authenticated
     if (!isAuthenticated) {
       // Show login prompt
-      const shouldLogin = window.confirm('Please sign in to chat with WelthAI Assistant. Would you like to sign in now?');
+      const shouldLogin = window.confirm('Please sign in to chat with Welth. Would you like to sign in now?');
       if (shouldLogin) {
         onClose();
         navigate('/login');
@@ -69,7 +69,7 @@ const AssistantWidget: React.FC<AssistantWidgetProps> = ({ isOpen, onClose }) =>
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `Thank you for your question about "${inputValue}". This is a demo response. For full AI-powered insights, please visit our dedicated WelthAI Assistant page.`,
+        content: `Thank you for your question about "${inputValue}". This is a demo response. For full insights, please visit the dedicated Welth assistant page.`,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, aiMessage]);
@@ -108,7 +108,7 @@ const AssistantWidget: React.FC<AssistantWidgetProps> = ({ isOpen, onClose }) =>
               <SparklesIcon className="h-6 w-6" />
             </div>
             <div>
-              <h3 className="font-semibold">Welth AI Assistant</h3>
+              <h3 className="font-semibold">Welth</h3>
               <p className="text-xs text-white/80">Always here to help</p>
             </div>
           </div>

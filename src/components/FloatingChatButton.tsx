@@ -45,7 +45,7 @@ const FloatingChatButton: React.FC<FloatingChatButtonProps> = () => {
         isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'
       }`}>
         <div className="relative">
-          WelthAI Assistant
+          Ask Welth
           <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 rotate-45 w-2 h-2 bg-gray-800"></div>
         </div>
       </div>
