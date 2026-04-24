@@ -13,6 +13,31 @@ import { useAuth } from '../contexts/AuthContext';
 import newsBlogService, { Blog } from '../services/newsBlogService';
 import { usePageMeta } from '../hooks/usePageMeta';
 
+// Some blog summaries were saved as raw HTML and others were left blank.
+// Strip markup, decode basic entities, and fall back to content for a clean excerpt.
+const stripHtml = (html: string): string => {
+  if (!html) return '';
+  const withoutTags = html
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ');
+  const decoded = withoutTags
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'");
+  return decoded.replace(/\s+/g, ' ').trim();
+};
+
+const buildPreview = (summary?: string, content?: string, max = 180): string => {
+  const fromSummary = stripHtml(summary || '');
+  const source = fromSummary || stripHtml(content || '');
+  if (!source) return '';
+  return source.length > max ? source.slice(0, max).trimEnd() + '…' : source;
+};
+
 const BlogsPage: React.FC = () => {
   usePageMeta({
     title: 'Trading Blog – AI Insights & Market Strategy | WelthWest',
@@ -223,11 +248,14 @@ const BlogsPage: React.FC = () => {
                       {blog.title}
                     </h3>
 
-                    {blog.summary && (
-                      <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                        {blog.summary}
-                      </p>
-                    )}
+                    {(() => {
+                      const preview = buildPreview(blog.summary, blog.content);
+                      return preview ? (
+                        <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                          {preview}
+                        </p>
+                      ) : null;
+                    })()}
 
                     {blog.tags.length > 0 && (
                       <div className="flex items-center gap-2 mb-4">

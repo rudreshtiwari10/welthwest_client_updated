@@ -16,6 +16,32 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePageMeta } from '../hooks/usePageMeta';
 import newsBlogService, { NewsItem, Blog } from '../services/newsBlogService';
 
+// Some blog summaries were saved as raw HTML (e.g. `<h1 style="...">...`) and
+// others were left blank. Strip any markup, decode basic entities, collapse
+// whitespace, and fall back to the body content so every card shows a clean excerpt.
+const stripHtml = (html: string): string => {
+  if (!html) return '';
+  const withoutTags = html
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<[^>]+>/g, ' ');
+  const decoded = withoutTags
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'");
+  return decoded.replace(/\s+/g, ' ').trim();
+};
+
+const buildPreview = (summary?: string, content?: string, max = 180): string => {
+  const fromSummary = stripHtml(summary || '');
+  const source = fromSummary || stripHtml(content || '');
+  if (!source) return '';
+  return source.length > max ? source.slice(0, max).trimEnd() + '…' : source;
+};
+
 const NewsAndBlogsPage: React.FC = () => {
   usePageMeta({
     title: 'Market News & Trading Insights | WelthWest Blog',
@@ -392,11 +418,14 @@ const NewsAndBlogsPage: React.FC = () => {
                         <h3 className="font-bold text-xl text-gray-900 dark:text-white mb-3 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors line-clamp-2">
                           {blog.title}
                         </h3>
-                        {blog.summary && (
-                          <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
-                            {blog.summary}
-                          </p>
-                        )}
+                        {(() => {
+                          const preview = buildPreview(blog.summary, blog.content);
+                          return preview ? (
+                            <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                              {preview}
+                            </p>
+                          ) : null;
+                        })()}
                         {blog.tags.length > 0 && (
                           <div className="flex items-center gap-2 mb-4">
                             <TagIcon className="h-4 w-4 text-gray-400" />
