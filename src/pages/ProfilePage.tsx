@@ -3,12 +3,14 @@ import { useAuth } from '../contexts/AuthContext';
 import { Bars3Icon } from '@heroicons/react/24/outline';
 import ProfileSidebar, { ProfileSection } from '../components/account/ProfileSidebar';
 import ProfileInformationSection from '../components/account/ProfileInformationSection';
+import MoneyProfileSection from '../components/account/MoneyProfileSection';
 import SecuritySection from '../components/account/SecuritySection';
 import SubscriptionSection from '../components/account/SubscriptionSection';
 import PaymentHistorySection from '../components/account/PaymentHistorySection';
 
 const sectionTitles: Record<ProfileSection, string> = {
   'profile': 'Profile Information',
+  'money-profile': 'Money Profile',
   'security': 'Security',
   'subscription': 'Subscription & Usage',
   'payment-history': 'Payment History',
@@ -35,6 +37,8 @@ const ProfilePage: React.FC = () => {
     switch (activeSection) {
       case 'profile':
         return <ProfileInformationSection user={user} updateProfile={updateProfile} />;
+      case 'money-profile':
+        return <MoneyProfileSection />;
       case 'security':
         return <SecuritySection userEmail={user?.email || ''} />;
       case 'subscription':

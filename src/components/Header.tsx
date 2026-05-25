@@ -7,6 +7,7 @@ import ThemeToggle from './ThemeToggle';
 import NotificationBell from './NotificationBell';
 import { SparklesIcon, ChartBarIcon, ChatBubbleLeftRightIcon, BeakerIcon, CpuChipIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { activityService } from '../services/api';
+import { NEWS_INDEX_URL } from '../config/externalApps';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -291,9 +292,11 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 <span>Backtesting</span>
               </Link>
 
-              {/* News & Blogs Link */}
+              {/* News & Blogs Link — points to the separate Next.js newsroom app */}
               <a
-                href="/blogs"
+                href={NEWS_INDEX_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-sm font-medium text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400"
               >
                 News & Blogs

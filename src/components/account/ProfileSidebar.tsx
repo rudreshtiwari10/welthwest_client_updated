@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { UserCircleIcon, ShieldCheckIcon, CreditCardIcon, ClockIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { UserCircleIcon, ShieldCheckIcon, CreditCardIcon, ClockIcon, XMarkIcon, BanknotesIcon } from '@heroicons/react/24/outline';
 import ProfileInitialsAvatar from './ProfileInitialsAvatar';
 
-export type ProfileSection = 'profile' | 'security' | 'subscription' | 'payment-history';
+export type ProfileSection = 'profile' | 'money-profile' | 'security' | 'subscription' | 'payment-history';
 
 interface ProfileSidebarProps {
   activeSection: ProfileSection;
@@ -16,6 +16,7 @@ interface ProfileSidebarProps {
 
 const allNavItems: { id: ProfileSection; label: string; icon: React.ElementType }[] = [
   { id: 'profile', label: 'Profile Information', icon: UserCircleIcon },
+  { id: 'money-profile', label: 'Money Profile', icon: BanknotesIcon },
   { id: 'security', label: 'Security', icon: ShieldCheckIcon },
   { id: 'subscription', label: 'Subscription & Usage', icon: CreditCardIcon },
   { id: 'payment-history', label: 'Payment History', icon: ClockIcon },

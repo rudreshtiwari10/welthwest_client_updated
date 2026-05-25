@@ -19,7 +19,7 @@ const SOFTWARE_JSON_LD = {
   name: 'WelthWest AI Market Intelligence',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
-  url: 'https://welthwest.com',
+  url: 'https://www.welthwest.com',
   description:
     'AI-powered market regime detection, anomaly identification, and backtesting for Indian equity markets.',
   offers: {
@@ -31,7 +31,7 @@ const SOFTWARE_JSON_LD = {
   provider: {
     '@type': 'Organization',
     name: 'WelthWest',
-    url: 'https://welthwest.com',
+    url: 'https://www.welthwest.com',
   },
 };
 

@@ -644,6 +644,77 @@ export const marketService = {
     }
   },
 
+  // ---- Welth Money Profile (per-user persistent context) -------------------
+
+  getMoneyProfile: async () => {
+    const r = await api.get('/welth/me/profile');
+    return r.data.profile || {};
+  },
+  saveMoneyProfile: async (profile: any) => {
+    const r = await api.put('/welth/me/profile', profile);
+    return r.data.profile || {};
+  },
+
+  getMoneyGoals: async () => {
+    const r = await api.get('/welth/me/goals');
+    return r.data.goals || [];
+  },
+  addMoneyGoal: async (goal: any) => {
+    const r = await api.post('/welth/me/goals', goal);
+    return r.data.goal;
+  },
+  updateMoneyGoal: async (goalId: string, updates: any) => {
+    const r = await api.put(`/welth/me/goals/${goalId}`, updates);
+    return r.data;
+  },
+  deleteMoneyGoal: async (goalId: string) => {
+    const r = await api.delete(`/welth/me/goals/${goalId}`);
+    return r.data;
+  },
+
+  getMoneyPortfolio: async () => {
+    const r = await api.get('/welth/me/portfolio');
+    return r.data.portfolio || { holdings: [] };
+  },
+  saveMoneyPortfolio: async (holdings: any[]) => {
+    const r = await api.put('/welth/me/portfolio', { holdings });
+    return r.data.portfolio || { holdings: [] };
+  },
+
+  // ---- Documents ---------------------------------------------------------
+
+  uploadDocument: async (file: File, documentType: string) => {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('document_type', documentType);
+    // The axios instance has a default Content-Type: application/json header.
+    // For FormData uploads, the browser MUST add Content-Type itself so it can
+    // include the auto-generated multipart boundary string. We strip the default
+    // via transformRequest — leaving Content-Type unset — so the browser fills
+    // it in with the correct 'multipart/form-data; boundary=...' value.
+    const r = await api.post('/welth/me/documents', form, {
+      transformRequest: [
+        (data, headers) => {
+          if (headers) {
+            delete (headers as any)['Content-Type'];
+            delete (headers as any)['content-type'];
+          }
+          return data;
+        },
+      ],
+    });
+    return r.data.document;
+  },
+  listDocuments: async (documentType?: string) => {
+    const params = documentType ? { type: documentType } : {};
+    const r = await api.get('/welth/me/documents', { params });
+    return r.data.documents || [];
+  },
+  deleteDocument: async (documentId: string) => {
+    const r = await api.delete(`/welth/me/documents/${documentId}`);
+    return r.data;
+  },
+
   // Get trending stocks (top gainers and losers)
   getTrendingStocks: async (limit?: number) => {
     try {

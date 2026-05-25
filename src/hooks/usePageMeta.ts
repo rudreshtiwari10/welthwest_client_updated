@@ -15,7 +15,7 @@
 import { useEffect } from 'react';
 
 // TODO: Replace with your actual production domain once deployed.
-const SITE_URL = 'https://welthwest.com';
+const SITE_URL = 'https://www.welthwest.com';
 
 // TODO: Create and upload a proper 1200×630 Open Graph image and update this path.
 const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og-default.png`;
