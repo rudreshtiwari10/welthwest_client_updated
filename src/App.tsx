@@ -10,6 +10,7 @@ import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
 import BacktestingBetaPage from './pages/BacktestingBetaPage';
+import BacktestIndiaPage from './pages/BacktestIndiaPage';
 import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
 import Premium from './pages/Premium';
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -205,6 +206,8 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/backtesting-beta" element={<BacktestingBetaPage />} />
                 <Route path="/backtest-beta" element={<BacktestingBetaPage />} />
                 <Route path="/backtest" element={<BacktestingBetaPage />} />
+                {/* v2 engine — separate page, separate API, old page untouched */}
+                <Route path="/backtest-india" element={<BacktestIndiaPage />} />
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
                 <Route path="/ai-screener" element={<AIScreenerPage />} />
                 <Route path="/about" element={<AboutPage />} />
