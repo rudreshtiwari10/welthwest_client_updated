@@ -356,7 +356,7 @@ const HomePage: React.FC = () => {
 
                 {/* Backtesting */}
                 <Link
-                  to="/backtest-beta"
+                  to="/backtest"
                   className="group flex items-center bg-white dark:bg-dark-300 hover:bg-green-50 dark:hover:bg-green-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
                 >
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
@@ -773,7 +773,7 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link
-                    to="/backtest-beta"
+                    to="/backtest"
                     className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-300 w-fit group-hover:bg-green-700 group-hover:shadow-lg"
                   >
                     Start Backtesting

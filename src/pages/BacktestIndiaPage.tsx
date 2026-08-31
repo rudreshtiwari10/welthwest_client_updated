@@ -1,8 +1,9 @@
 /**
  * Backtest India — WelthWest Realistic Hybrid Backtesting Engine (v2).
  *
- * A separate page from /backtesting-beta, backed by a separate API surface.
- * The old page and its engine are untouched.
+ * Rendered at /backtest — the only backtesting page. The old Beta page,
+ * its engine (services/backtesting_engine.py), and its API endpoints were
+ * retired in favor of this one.
  *
  * The page presents the run as a five-stage pipeline. This file owns all of
  * the state and builds the request; the pipeline components are presentation

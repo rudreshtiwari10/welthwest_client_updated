@@ -136,7 +136,7 @@ const featureNavigation = [
   {
     category: 'Trading Tools',
     items: [
-      { name: 'Backtest (Beta)', path: '/backtesting-beta', icon: 'chart-line' },
+      { name: 'Backtest', path: '/backtest', icon: 'chart-line' },
     ]
   }
 ];
@@ -523,7 +523,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                 {/* Backtesting Card */}
                 <div className="w-full flex-shrink-0 p-2">
                   <Link
-                    to="/backtest-beta"
+                    to="/backtest"
                     onClick={handleNavClick}
                     className="block p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 shadow-2xl hover:shadow-green-500/50 transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '200px' }}
@@ -633,7 +633,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, closeSidebar }
                 </Link>
 
                 <Link
-                  to="/backtest-beta"
+                  to="/backtest"
                   onClick={handleNavClick}
                   className="flex items-center px-3 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/20 hover:text-green-600 dark:hover:text-green-400 rounded-lg transition-all group"
                 >

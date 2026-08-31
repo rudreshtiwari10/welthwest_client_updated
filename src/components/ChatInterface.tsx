@@ -817,7 +817,7 @@ const ChatInterface: React.FC = () => {
               title: `Run Backtest on ${symbol}`,
               description: 'Quickly evaluate a strategy on historical data',
               actions: [
-                { label: 'Open Backtest (Beta)', onClickType: 'navigate', route: '/backtest-beta' },
+                { label: 'Open Backtest', onClickType: 'navigate', route: '/backtest' },
               ],
             },
             {
@@ -861,7 +861,7 @@ const ChatInterface: React.FC = () => {
               title: `Backtest ${symbol} Strategy`,
               description: 'Test strategies based on these signals',
               actions: [
-                { label: 'Open Backtest', onClickType: 'navigate', route: '/backtest-beta' },
+                { label: 'Open Backtest', onClickType: 'navigate', route: '/backtest' },
               ],
             },
           ]);

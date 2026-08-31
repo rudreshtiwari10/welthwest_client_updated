@@ -12,7 +12,7 @@ const MobileFooterNav: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/ai-screener') || path.startsWith('/backtesting') || path.startsWith('/backtesting-beta') || path.startsWith('/backtest-beta');
+    return path.startsWith('/ai-screener') || path.startsWith('/backtest');
   };
 
   const handleCloseMenu = () => {
@@ -128,7 +128,7 @@ const MobileFooterNav: React.FC = () => {
                 {/* Backtesting Card */}
                 <div className="w-full flex-shrink-0 p-2">
                   <Link
-                    to="/backtest-beta"
+                    to="/backtest"
                     onClick={handleNavigation}
                     className="block p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 shadow-2xl transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '180px' }}
@@ -272,7 +272,7 @@ const MobileFooterNav: React.FC = () => {
               </Link>
 
               <Link
-                to="/backtest-beta"
+                to="/backtest"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50"
                 onClick={handleNavigation}
               >
@@ -352,10 +352,10 @@ const MobileFooterNav: React.FC = () => {
           </Link>
 
           <Link
-            to="/backtest-beta"
+            to="/backtest"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className={`flex flex-col items-center justify-center ${
-              isActive('/backtest-beta') ? 'text-primary-400' : 'text-gray-400'
+              isActive('/backtest') ? 'text-primary-400' : 'text-gray-400'
             }`}
           >
             <i className="fas fa-vial text-lg mb-1"></i>

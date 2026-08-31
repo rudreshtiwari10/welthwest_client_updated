@@ -904,17 +904,6 @@ export const userService = {
 
 // User Data Service for saving and retrieving user-specific data
 export const userDataService = {
-  // Save backtest result
-  saveBacktestResult: async (backtest_data: any) => {
-    try {
-      const response = await api.post('/user/save-backtest', { backtest_data });
-      return response.data;
-    } catch (error) {
-      console.error('Error saving backtest result:', error);
-      throw error;
-    }
-  },
-  
   // Save AI analysis result
   saveAIAnalysisResult: async (analysis_data: any) => {
     try {
@@ -937,28 +926,6 @@ export const userDataService = {
     }
   },
   
-  // Get user's saved backtest results
-  getUserBacktests: async () => {
-    try {
-      const response = await api.get('/user/backtests');
-      return response.data;
-    } catch (error) {
-      console.error('Error getting user backtests:', error);
-      throw error;
-    }
-  },
-
-  // Delete a saved backtest
-  deleteBacktest: async (backtestId: string) => {
-    try {
-      const response = await api.delete(`/user/backtests/${backtestId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Error deleting backtest:', error);
-      throw error;
-    }
-  },
-
   // Get user's saved AI analysis results
   getUserAIAnalyses: async () => {
     try {

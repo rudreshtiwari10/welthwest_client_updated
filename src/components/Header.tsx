@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/ai-screener') || path.startsWith('/backtesting');
+    return path.startsWith('/ai-screener') || path.startsWith('/backtest');
   };
 
 
@@ -281,9 +281,9 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
               {/* Backtesting Link */}
               <Link
-                to="/backtest-beta"
+                to="/backtest"
                 className={`flex items-center text-sm font-medium ${
-                  isActive('/backtest-beta')
+                  isActive('/backtest')
                     ? 'text-primary-600 dark:text-primary-400'
                     : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
                 }`}

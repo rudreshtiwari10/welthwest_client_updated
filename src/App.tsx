@@ -9,7 +9,6 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/AboutPage';
-import BacktestingBetaPage from './pages/BacktestingBetaPage';
 import BacktestIndiaPage from './pages/BacktestIndiaPage';
 import PricingLaunchingSoon from './pages/PricingLaunchingSoon';
 import Premium from './pages/Premium';
@@ -203,11 +202,9 @@ const AppWithRouter: React.FC = () => {
 
                 {/* PUBLIC ROUTES */}
                 <Route path="/stock" element={<StockPage />} />
-                <Route path="/backtesting-beta" element={<BacktestingBetaPage />} />
-                <Route path="/backtest-beta" element={<BacktestingBetaPage />} />
-                <Route path="/backtest" element={<BacktestingBetaPage />} />
-                {/* v2 engine — separate page, separate API, old page untouched */}
-                <Route path="/backtest-india" element={<BacktestIndiaPage />} />
+                {/* /backtest is the only backtesting route; /backtest-beta, /backtesting-beta,
+                    and /backtest-india 301-redirect here (see vercel.json) */}
+                <Route path="/backtest" element={<BacktestIndiaPage />} />
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
                 <Route path="/ai-screener" element={<AIScreenerPage />} />
                 <Route path="/about" element={<AboutPage />} />

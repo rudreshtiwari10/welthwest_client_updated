@@ -63,7 +63,7 @@ const QuickStartGuide: React.FC<QuickStartGuideProps> = ({ isOpen, onClose }) =>
         'Optimal position sizing recommendations'
       ],
       youtubeId: 'YOUR_BACKTESTING_VIDEO_ID', // Replace with your YouTube video ID
-      link: '/backtest-beta',
+      link: '/backtest',
       buttonText: 'Start Backtesting',
       gradient: 'from-green-500 to-green-700'
     }

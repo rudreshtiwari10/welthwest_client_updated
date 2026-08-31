@@ -140,7 +140,7 @@ const BacktestingEnginePage: React.FC = () => {
       {/* ── CTA ── */}
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
-          to="/backtesting-beta"
+          to="/backtest"
           className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors shadow-md text-center"
         >
           Open Backtesting Engine
