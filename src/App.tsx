@@ -38,6 +38,7 @@ import SecurityPage from './pages/SecurityPage';
 import MarketRegimePage from './pages/product/MarketRegimePage';
 import AnomalyDetectorPage from './pages/product/AnomalyDetectorPage';
 import BacktestingEnginePage from './pages/product/BacktestingEnginePage';
+import ProductsPage from './pages/product/ProductsPage';
 
 // Components
 import Header from './components/Header';
@@ -231,6 +232,7 @@ const AppWithRouter: React.FC = () => {
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/trust" element={<SecurityPage />} />
                 {/* Product sub-pages */}
+                <Route path="/products" element={<ProductsPage />} />
                 <Route path="/product/market-regime" element={<MarketRegimePage />} />
                 <Route path="/product/anomaly-detector" element={<AnomalyDetectorPage />} />
                 <Route path="/product/backtesting-engine" element={<BacktestingEnginePage />} />

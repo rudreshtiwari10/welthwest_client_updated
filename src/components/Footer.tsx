@@ -41,7 +41,14 @@ const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between">
           {/* Left section - centered on mobile, left on desktop */}
           <div className="mb-4 md:mb-0 text-center md:text-left">
-            <div className="flex items-center mb-3 md:mb-4 justify-center md:justify-start">
+            <div className="flex flex-col items-center md:items-start mb-3 md:mb-4">
+              <Link to="/" onClick={handleLinkClick} className="mb-2 md:mb-3 h-14 w-14 md:h-16 md:w-16 rounded-full overflow-hidden shadow-md">
+                <img
+                  src="/images/WelthWestLogo.png"
+                  alt="WelthWest logo"
+                  className="h-full w-full object-cover scale-[1.4]"
+                />
+              </Link>
               <h1 className={`text-xl md:text-2xl font-bold ${isAuthPage ? 'text-white' : 'text-gray-900 dark:text-white'}`}>
                 WelthWest
               </h1>
@@ -126,6 +133,9 @@ const Footer: React.FC = () => {
                     </Link>
                     <Link to="/dashboard" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       Dashboard
+                    </Link>
+                    <Link to="/products" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      WelthChart &amp; Algo Bot
                     </Link>
                     <Link to="/stock" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       Stock Analysis
@@ -245,6 +255,9 @@ const Footer: React.FC = () => {
                   Products
                 </h4>
                 <div className="space-y-2">
+                  <Link to="/products" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                    WelthChart &amp; Algo Bot
+                  </Link>
                   <Link to="/product/market-regime" onClick={handleLinkClick} className={`block ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                     Market Regime
                   </Link>

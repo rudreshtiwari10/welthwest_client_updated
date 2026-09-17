@@ -109,7 +109,14 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           {/* Left side - Logo and Navigation */}
           <div className="flex items-center space-x-8 pl-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2.5">
+              <span className="h-9 w-9 shrink-0 rounded-full overflow-hidden shadow-sm">
+                <img
+                  src="/images/WelthWestLogo.png"
+                  alt="WelthWest logo"
+                  className="h-full w-full object-cover scale-[1.4]"
+                />
+              </span>
               <span className="font-bold text-2xl text-gray-900 dark:text-white">WelthWest</span>
             </Link>
 
@@ -266,6 +273,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                   </div>
                 )}
               </div>
+
+              {/* Products Link */}
+              <Link
+                to="/products"
+                className={`flex items-center text-sm font-medium ${
+                  isActive('/products')
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
+              >
+                <span>Products</span>
+              </Link>
 
               {/* About Link */}
               <Link
