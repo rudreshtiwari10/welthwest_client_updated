@@ -273,6 +273,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                 )}
               </div>
 
+              {/* Products Link */}
+              <Link
+                to="/products"
+                className={`flex items-center text-sm font-medium ${
+                  isActive('/products')
+                    ? 'text-primary-600 dark:text-primary-400'
+                    : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
+                }`}
+              >
+                <span>Products</span>
+              </Link>
+
               {/* About Link */}
               <Link
                 to="/about"

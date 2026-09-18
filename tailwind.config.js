@@ -6,6 +6,11 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        // Loaded on demand by ProductsPage
+        display: ['"Space Grotesk"', 'Inter', 'system-ui', 'sans-serif'],
+        plexmono: ['"IBM Plex Mono"', 'ui-monospace', 'monospace'],
+      },
       colors: {
         // Modern cream/off-white for light mode
         cream: '#fbfbfd',
@@ -96,6 +101,7 @@ module.exports = {
         'shimmer': 'shimmer 3s ease-in-out infinite',
         'orbit': 'orbit 20s linear infinite',
         'orbit-reverse': 'orbit 15s linear infinite reverse',
+        'marquee': 'marquee 32s linear infinite',
       },
       keyframes: {
         glow: {
@@ -137,6 +143,10 @@ module.exports = {
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
+        },
+        marquee: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
         },
         orbit: {
           '0%': { transform: 'rotate(0deg) translateX(120px) rotate(0deg)' },
