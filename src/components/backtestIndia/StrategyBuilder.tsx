@@ -5,22 +5,22 @@
  * an indicator on the server makes it appear here with no frontend change.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
   Catalogue, ConditionNode, Expression, FeatureNode, StrategyGraph,
 } from '../../services/backtestIndia';
-import { Card, Note, Pill } from './viz';
+import { Card, Pill } from './viz';
 
 const inputCls =
-  'w-full rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-tertiary ' +
-  'px-2.5 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 ' +
-  'focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none';
+  'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-tertiary ' +
+  'px-2.5 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 transition-colors ' +
+  'focus:border-primary-500 focus:ring-1 focus:ring-primary-500 focus:outline-none';
 
 const labelCls = 'block text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1';
 
 const btnGhost =
-  'rounded-md border border-gray-300 dark:border-gray-600 px-2.5 py-1 text-xs font-medium ' +
-  'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-background-tertiary transition-colors';
+  'rounded-lg border border-gray-300 dark:border-gray-600 px-2.5 py-1 text-xs font-medium ' +
+  'text-gray-700 dark:text-gray-200 hover:border-primary-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors';
 
 const btnDanger =
   'rounded-md border border-rose-300 dark:border-rose-800 px-2 py-1 text-xs text-rose-600 ' +
@@ -257,10 +257,11 @@ const ExpressionEditor: React.FC<{
 
   if (complex) {
     return (
-      <Field label={label} hint="This rule uses a nested or temporal expression that the simple editor cannot represent. It is preserved exactly as loaded.">
-        <pre className="max-h-32 overflow-auto rounded-md bg-gray-50 dark:bg-background-tertiary p-2 text-[11px] text-gray-700 dark:text-gray-200">
-          {JSON.stringify(expr, null, 2)}
-        </pre>
+      <Field label={label} hint="This rule uses a nested or time-windowed combination that the simple editor can't display directly.">
+        <p className="rounded-md bg-gray-50 dark:bg-background-tertiary p-2.5 text-[11px] leading-relaxed text-gray-600 dark:text-gray-300">
+          It's preserved exactly as configured — load a different preset above, or simplify it to a
+          plain combination of conditions to edit it here.
+        </p>
       </Field>
     );
   }
@@ -297,7 +298,7 @@ const ExpressionEditor: React.FC<{
                 onClick={() => toggle(id)}
                 className={`rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition-colors ${
                   on
-                    ? 'border-blue-500 bg-blue-500/15 text-blue-700 dark:text-blue-300'
+                    ? 'border-primary-500 bg-primary-500/15 text-primary-700 dark:text-primary-300'
                     : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-background-tertiary'
                 }`}
               >
@@ -318,7 +319,6 @@ export const StrategyBuilder: React.FC<{
   strategy: StrategyGraph;
   onChange: (s: StrategyGraph) => void;
 }> = ({ catalogue, strategy, onChange }) => {
-  const [showJson, setShowJson] = useState(false);
   const refs = useMemo(() => buildReferences(strategy, catalogue), [strategy, catalogue]);
   const conditionIds = (strategy.conditions || []).map((c) => c.id);
 
@@ -627,91 +627,6 @@ export const StrategyBuilder: React.FC<{
           />
         </div>
       </Card>
-
-      <Card
-        title="Strategy graph (JSON)"
-        subtitle="The exact object sent to the engine. Editing it here unlocks nested and temporal operators the visual editor does not cover."
-        right={
-          <button type="button" className={btnGhost} onClick={() => setShowJson((s) => !s)}>
-            {showJson ? 'Hide' : 'Show'}
-          </button>
-        }
-      >
-        {showJson && (
-          <JsonEditor
-            value={strategy}
-            onChange={onChange}
-            operators={catalogue.operators}
-          />
-        )}
-      </Card>
-    </div>
-  );
-};
-
-const JsonEditor: React.FC<{
-  value: StrategyGraph;
-  onChange: (s: StrategyGraph) => void;
-  operators: Catalogue['operators'];
-}> = ({ value, onChange, operators }) => {
-  const [text, setText] = useState(() => JSON.stringify(value, null, 2));
-  const [error, setError] = useState('');
-  const [dirty, setDirty] = useState(false);
-
-  React.useEffect(() => {
-    if (!dirty) setText(JSON.stringify(value, null, 2));
-  }, [value, dirty]);
-
-  return (
-    <div>
-      <textarea
-        className={`${inputCls} h-72 font-mono text-[11px] leading-relaxed`}
-        value={text}
-        spellCheck={false}
-        onChange={(e) => {
-          setText(e.target.value);
-          setDirty(true);
-          setError('');
-        }}
-      />
-      <div className="mt-2 flex items-center gap-2">
-        <button
-          type="button"
-          className={btnGhost}
-          onClick={() => {
-            try {
-              onChange(JSON.parse(text));
-              setDirty(false);
-              setError('');
-            } catch (err: any) {
-              setError(err.message || 'Invalid JSON');
-            }
-          }}
-        >
-          Apply JSON
-        </button>
-        <button
-          type="button"
-          className={btnGhost}
-          onClick={() => {
-            setText(JSON.stringify(value, null, 2));
-            setDirty(false);
-            setError('');
-          }}
-        >
-          Revert
-        </button>
-        {error && <span className="text-xs text-rose-600 dark:text-rose-400">{error}</span>}
-        {dirty && !error && (
-          <span className="text-xs text-amber-600 dark:text-amber-400">
-            Unapplied edits — click Apply JSON.
-          </span>
-        )}
-      </div>
-      <Note>
-        Temporal operators available in JSON: {operators.temporal.join(', ')}. Example —{' '}
-        <code className="font-mono">{'{"op":"AND","args":["trend",{"op":"WITHIN_LAST","bars":5,"args":["pullback"]}]}'}</code>
-      </Note>
     </div>
   );
 };

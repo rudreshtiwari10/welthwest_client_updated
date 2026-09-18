@@ -74,13 +74,15 @@ export const SizingStage: React.FC<{
               onChange={(e) => set('max_concurrent_positions', Number(e.target.value))}
             />
           </Field>
-          <Field label="Max weight per name" hint="Fraction of equity — 0.25 caps any single name at 25%.">
+          <Field label="Max % per symbol" hint="Share of equity — 25 caps any single symbol at 25% of the account.">
             <input
               type="number"
-              step="0.05"
+              step="1"
+              min={0}
+              max={100}
               className={inputCls}
-              value={settings.max_position_weight}
-              onChange={(e) => set('max_position_weight', Number(e.target.value))}
+              value={Math.round(settings.max_position_weight * 100)}
+              onChange={(e) => set('max_position_weight', Number(e.target.value) / 100)}
             />
           </Field>
         </div>
@@ -112,7 +114,7 @@ export const SizingStage: React.FC<{
         {schedule && (
           <>
             <details className="mt-3">
-              <summary className="cursor-pointer list-none text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+              <summary className="cursor-pointer list-none text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline">
                 See every charge in this schedule
               </summary>
               <dl className="mt-2 space-y-1 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-background-secondary p-3 text-xs">

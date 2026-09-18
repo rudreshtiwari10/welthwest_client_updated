@@ -53,3 +53,8 @@ out/
 # Netlify/Vercel deployments
 .netlify/
 .vercel/
+
+# Local AI agent skills (personal tooling, not app source)
+.agents/
+.claude/
+skills-lock.json

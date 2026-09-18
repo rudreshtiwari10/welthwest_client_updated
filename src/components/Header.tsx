@@ -104,12 +104,18 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
   return (
     <header className="fixed top-0 left-0 right-0 backdrop-blur-md bg-white/80 dark:bg-dark-100/80 border-b border-gray-200/50 dark:border-gray-700/50 text-gray-900 dark:text-white z-[100] shadow-sm">
-      <div className="container mx-auto pl-0 pr-4">
+      {/* Not `container mx-auto` — that centers a max-width box, which on
+          wide viewports insets the left edge well past the hamburger
+          button below (fixed, always 16px from the true viewport edge).
+          Full width with matching edge padding keeps the logo lined up
+          with it at every viewport size, not just one. */}
+      <div className="w-full px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left side - Logo and Navigation */}
-          <div className="flex items-center space-x-8 pl-4">
+          <div className="flex items-center space-x-12">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
+              <img src="/images/welthwest-logo.png" alt="WelthWest" className="h-9 w-9" />
               <span className="font-bold text-2xl text-gray-900 dark:text-white">WelthWest</span>
             </Link>
 

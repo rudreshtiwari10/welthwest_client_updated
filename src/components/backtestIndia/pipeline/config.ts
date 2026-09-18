@@ -176,6 +176,31 @@ export const STAGES: Record<StageId, StageMeta> = {
   },
 };
 
+/* ── Run animation choreography (purely cosmetic) ───────────────────────
+ * The backend reports no per-stage telemetry — one `run()` call either
+ * succeeds or fails. This sequence is a deliberate, slowed-down walk the
+ * page plays while that call is in flight, so a run reads as the engine
+ * visibly moving down the trunk and out to each card, rather than a
+ * spinner. `run()` waits for whichever is longer: the real response, or this
+ * full sequence — see BacktestIndiaPage. Nothing here reads or writes
+ * settings/strategy/report or affects what's sent to the engine.
+ *
+ * One phase per stage. For phase `i`, the trunk segment leading into stage
+ * `i`'s marker (the lead-in stub, for i=0) and stage `i`'s own branch fill
+ * AT THE SAME TIME, on the same clock, so they always arrive at their
+ * shared junction together — a river and a tributary reaching the same
+ * confluence point simultaneously, not one waiting for the other. Only once
+ * both are done does the next phase (stage i+1) begin. */
+
+export const RUN_PHASE_DURATION_MS = 3000;
+
+export const RUN_PHASE_TOTAL_MS = STAGE_ORDER.length * RUN_PHASE_DURATION_MS;
+
+/** Which stage's row is actually animating for a given phase index — used to
+ *  keep that row in view (scrollIntoView) for the whole run. */
+export const activeStageForPhase = (phaseIndex: number): StageId =>
+  STAGE_ORDER[Math.min(phaseIndex, STAGE_ORDER.length - 1)];
+
 /* ── Equality (for default-vs-custom detection) ──────────────────────── */
 
 /** Stable stringify so key order never registers as a change. */

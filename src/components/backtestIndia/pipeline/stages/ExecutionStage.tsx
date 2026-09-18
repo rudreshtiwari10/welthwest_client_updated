@@ -33,7 +33,7 @@ const Review: React.FC<{
       <button
         type="button"
         onClick={() => onEdit(stage)}
-        className="shrink-0 text-[11px] font-medium text-blue-600 dark:text-blue-400 hover:underline"
+        className="shrink-0 text-[11px] font-medium text-primary-600 dark:text-primary-400 hover:underline"
       >
         Edit
       </button>
@@ -157,7 +157,7 @@ export const ExecutionStage: React.FC<{
       <Review stage="sizing" onEdit={onEdit}>
         <Row label="Sizing model" value={sizing?.label || settings.sizing.model} />
         <Row label="Max open positions" value={settings.max_concurrent_positions} />
-        <Row label="Max weight per name" value={`${(settings.max_position_weight * 100).toFixed(0)}%`} />
+        <Row label="Max % per symbol" value={`${(settings.max_position_weight * 100).toFixed(0)}%`} />
         <Row label="Shorts" value={settings.allow_short ? 'Allowed' : 'Long only'} />
         <Row label="Cost schedule" value={schedule?.label || settings.cost_schedule} />
         <Row label="Slippage" value={`${settings.execution.slippage_bps} bps + ${settings.execution.synthetic_spread_bps} bps spread`} />

@@ -118,7 +118,7 @@ export const AiFillModal: React.FC<{
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           >
             <header className="flex items-start gap-3 border-b border-gray-200 dark:border-gray-700/70 px-5 py-4">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-blue-600 text-white">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-secondary-500 to-primary-600 text-white">
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-[18px] w-[18px]">
                   <path d="M12 2.5 13.9 8.1 19.5 10 13.9 11.9 12 17.5 10.1 11.9 4.5 10l5.6-1.9L12 2.5ZM18.5 14.5l.9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9.9-2.6ZM5.5 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" />
                 </svg>
@@ -199,8 +199,8 @@ export const AiFillModal: React.FC<{
                                   onClick={() => set(q.key, o.value)}
                                   className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-all ${
                                     on
-                                      ? 'border-blue-500 bg-blue-500/10 text-blue-700 dark:text-blue-300 ring-1 ring-blue-500'
-                                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-blue-400'
+                                      ? 'border-primary-500 bg-primary-500/10 text-primary-700 dark:text-primary-300 ring-1 ring-primary-500'
+                                      : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-primary-400'
                                   }`}
                                 >
                                   {o.label}
@@ -216,7 +216,7 @@ export const AiFillModal: React.FC<{
                               {(answers.symbols || []).map((s: string) => (
                                 <span
                                   key={s}
-                                  className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-700 dark:text-blue-300"
+                                  className="inline-flex items-center gap-1.5 rounded-full border border-primary-500/30 bg-primary-500/10 px-2.5 py-1 text-xs font-medium text-primary-700 dark:text-primary-300"
                                 >
                                   {s}
                                   <button
@@ -225,7 +225,7 @@ export const AiFillModal: React.FC<{
                                     onClick={() =>
                                       set('symbols', (answers.symbols || []).filter((x: string) => x !== s))
                                     }
-                                    className="text-blue-400 hover:text-rose-500"
+                                    className="text-primary-400 hover:text-rose-500"
                                   >
                                     ×
                                   </button>
@@ -260,7 +260,7 @@ export const AiFillModal: React.FC<{
 
               {phase === 'interview' && !questions && !error && (
                 <div className="py-12 text-center">
-                  <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                  <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
                 </div>
               )}
 
@@ -295,7 +295,7 @@ export const AiFillModal: React.FC<{
                     <button
                       type="button"
                       onClick={() => { onApply(result); onClose(); }}
-                      className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                      className="rounded-lg bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
                     >
                       Apply to pipeline
                     </button>
@@ -312,7 +312,7 @@ export const AiFillModal: React.FC<{
                     type="button"
                     onClick={ask}
                     disabled={!available || phase === 'thinking' || !!missing.length}
-                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-lg bg-primary-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {phase === 'thinking' ? 'Working…' : 'Build my pipeline'}
                   </button>
@@ -344,7 +344,7 @@ const Thinking: React.FC = () => {
 
   return (
     <div className="py-10">
-      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
       <ul className="mx-auto mt-6 max-w-xs space-y-2">
         {STEPS.map((s, i) => (
           <li
@@ -355,7 +355,7 @@ const Thinking: React.FC = () => {
           >
             <span
               className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                i < step ? 'bg-emerald-500' : i === step ? 'bg-blue-500 animate-pulse' : 'bg-gray-300 dark:bg-gray-700'
+                i < step ? 'bg-emerald-500' : i === step ? 'bg-primary-500 animate-pulse' : 'bg-gray-300 dark:bg-gray-700'
               }`}
             />
             {s}
@@ -444,7 +444,7 @@ const Proposal: React.FC<{ result: AiFillResult }> = ({ result }) => {
               key={key}
               className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/60 dark:bg-background-tertiary/40 px-3 py-2.5"
             >
-              <div className="text-[10px] font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+              <div className="text-[10px] font-semibold uppercase tracking-wide text-primary-600 dark:text-primary-400">
                 {label}
               </div>
               <div className="mt-0.5 text-xs leading-relaxed text-gray-700 dark:text-gray-200">
@@ -456,7 +456,7 @@ const Proposal: React.FC<{ result: AiFillResult }> = ({ result }) => {
       </div>
 
       <details>
-        <summary className="cursor-pointer list-none text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+        <summary className="cursor-pointer list-none text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline">
           See the exact rules it wrote
         </summary>
         <pre className="mt-2 max-h-64 overflow-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-background-tertiary p-3 text-[11px] leading-relaxed text-gray-700 dark:text-gray-200">

@@ -15,15 +15,15 @@ import { StageMeta } from './config';
  * A hover/focus explainer. Beginners meet a lot of jargon on this page, so
  * anything with a term of art gets one of these rather than a longer label.
  */
-export const Info: React.FC<{ text: string }> = ({ text }) => (
+export const Info: React.FC<{ text: string; glyph?: 'i' | '?' }> = ({ text, glyph = '?' }) => (
   <span className="group relative inline-flex align-middle">
     <button
       type="button"
       tabIndex={0}
       aria-label={text}
-      className="ml-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-400 dark:border-gray-500 text-[9px] font-bold leading-none text-gray-500 dark:text-gray-400 transition-colors hover:border-blue-500 hover:text-blue-500"
+      className="ml-1 flex h-3.5 w-3.5 items-center justify-center rounded-full border border-gray-400 dark:border-gray-500 text-[9px] font-bold leading-none text-gray-500 dark:text-gray-400 transition-colors hover:border-primary-500 hover:text-primary-500"
     >
-      ?
+      {glyph}
     </button>
     <span
       role="tooltip"
@@ -43,12 +43,12 @@ export const Section: React.FC<{
   right?: React.ReactNode;
   children: React.ReactNode;
 }> = ({ title, hint, right, children }) => (
-  <section className="rounded-xl border border-gray-200 dark:border-gray-700/70 bg-gray-50/50 dark:bg-background-tertiary/40 p-4">
-    <header className="mb-3 flex items-start justify-between gap-3">
+  <section className="rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-gray-50/60 dark:bg-background-tertiary/30 p-4 sm:p-5">
+    <header className="mb-4 flex items-start justify-between gap-3">
       <div>
-        <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h4>
+        <h4 className="text-sm font-semibold tracking-tight text-gray-900 dark:text-white">{title}</h4>
         {hint && (
-          <p className="mt-0.5 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-[11px] leading-relaxed text-gray-500 dark:text-gray-400">
             {hint}
           </p>
         )}
@@ -81,15 +81,15 @@ export const PresetRow: React.FC<{
           key={o.key}
           type="button"
           onClick={() => onPick(o.key)}
-          className={`rounded-lg border p-3 text-left transition-all duration-150 ${
+          className={`rounded-xl border p-3 text-left transition-all duration-200 ${
             active
-              ? 'border-blue-500 bg-blue-500/10 ring-1 ring-blue-500'
-              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-background-secondary hover:border-blue-400 hover:shadow-sm'
+              ? 'border-primary-500/70 bg-gradient-to-br from-primary-500/10 to-secondary-500/10 ring-1 ring-primary-500/40'
+              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-background-secondary hover:border-primary-400 hover:-translate-y-px hover:shadow-sm'
           }`}
         >
           <span
             className={`block text-xs font-semibold ${
-              active ? 'text-blue-700 dark:text-blue-300' : 'text-gray-800 dark:text-gray-100'
+              active ? 'text-primary-700 dark:text-primary-300' : 'text-gray-800 dark:text-gray-100'
             }`}
           >
             {o.label}
@@ -111,7 +111,7 @@ export const Toggle: React.FC<{
   checked: boolean;
   onChange: (v: boolean) => void;
 }> = ({ label, hint, checked, onChange }) => (
-  <label className="flex cursor-pointer items-start gap-3 rounded-lg px-1 py-1.5 transition-colors hover:bg-gray-100/70 dark:hover:bg-background-tertiary/60">
+  <label className="flex cursor-pointer items-start gap-3 rounded-xl px-1.5 py-2 transition-colors hover:bg-gray-100/70 dark:hover:bg-background-tertiary/50">
     <span className="relative mt-0.5 inline-flex shrink-0">
       <input
         type="checkbox"
@@ -119,7 +119,7 @@ export const Toggle: React.FC<{
         onChange={(e) => onChange(e.target.checked)}
         className="peer sr-only"
       />
-      <span className="block h-5 w-9 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors peer-checked:bg-blue-600 peer-focus-visible:ring-2 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-background-secondary" />
+      <span className="block h-5 w-9 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-200 peer-checked:bg-gradient-to-r peer-checked:from-primary-500 peer-checked:to-secondary-500 peer-focus-visible:ring-2 peer-focus-visible:ring-primary-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-background-secondary" />
       <span className="pointer-events-none absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform duration-200 peer-checked:translate-x-4" />
     </span>
     <span className="min-w-0">
@@ -135,11 +135,35 @@ export const Toggle: React.FC<{
 
 /* ── Stage panel ─────────────────────────────────────────────────────── */
 
-const WIDTH: Record<StageMeta['width'], string> = {
-  md: 'sm:max-w-xl',
-  lg: 'sm:max-w-3xl',
-  xl: 'sm:max-w-5xl',
+/** Final drawer width per stage, in px — the strategy graph needs far more
+ *  room than the rest. Mirrors the old `sm:max-w-*` Tailwind values, just
+ *  expressed as numbers because the entrance below animates real px rects,
+ *  not classes. */
+const WIDTH_PX: Record<StageMeta['width'], number> = {
+  md: 576, // sm:max-w-xl
+  lg: 768, // sm:max-w-3xl
+  xl: 1024, // sm:max-w-5xl
 };
+
+interface Rect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+/** Where the panel comes to rest: centered on the screen, not pinned to an
+ *  edge — computed as a plain rect so it can share a motion timeline with
+ *  the card it grows out of. Full-screen on mobile (a centered box would
+ *  just be cramped there); a proper margined modal everywhere else. */
+function restingRect(width: StageMeta['width']): Rect {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const mobile = vw < 640;
+  const w = mobile ? vw : Math.min(WIDTH_PX[width], vw * 0.92);
+  const h = mobile ? vh : Math.min(vh * 0.88, 860);
+  return { top: (vh - h) / 2, left: (vw - w) / 2, width: w, height: h };
+}
 
 export const StagePanel: React.FC<{
   stage: StageMeta;
@@ -152,8 +176,15 @@ export const StagePanel: React.FC<{
   footerNote?: React.ReactNode;
   /** Shows an "Ask AI" shortcut in the header when provided. */
   onAskAi?: () => void;
+  /** The clicked card's on-screen rect (BacktestIndiaPage looks this up by
+   *  `[data-stage-card]` right before opening) — the panel animates growing
+   *  out of exactly this rect, and shrinking back into it on close, rather
+   *  than sliding in from the screen edge. Null falls back to a plain
+   *  centered fade/scale so the panel still opens sensibly if the card
+   *  couldn't be found (shouldn't normally happen). */
+  originRect?: Rect | null;
   children: React.ReactNode;
-}> = ({ stage, open, onClose, onBack, onNext, nextLabel, footerNote, onAskAi, children }) => {
+}> = ({ stage, open, onClose, onBack, onNext, nextLabel, footerNote, onAskAi, originRect, children }) => {
   const panelRef = useRef<HTMLDivElement>(null);
 
   // Escape closes; body scroll is frozen while the drawer owns the screen.
@@ -176,6 +207,16 @@ export const StagePanel: React.FC<{
     if (open) panelRef.current?.scrollTo({ top: 0 });
   }, [open, stage.id]);
 
+  // Computed on every render (cheap) rather than gated on `open` — the
+  // AnimatePresence below needs this component to keep rendering through
+  // the exit transition even after `open` flips to false, so nothing here
+  // can early-return based on `open`.
+  const target = restingRect(stage.width);
+  const cardShape = originRect
+    ? { top: originRect.top, left: originRect.left, width: originRect.width, height: originRect.height, borderRadius: 22 }
+    : { top: target.top + target.height * 0.35, left: target.left + target.width * 0.35, width: target.width * 0.3, height: target.height * 0.3, borderRadius: 22, opacity: 0 };
+  const restShape = { top: target.top, left: target.left, width: target.width, height: target.height, borderRadius: 22, opacity: 1 };
+
   return (
     <AnimatePresence>
       {open && (
@@ -183,7 +224,7 @@ export const StagePanel: React.FC<{
           {/* Above the site header (fixed, z-[100]) so the drawer is not
               clipped by it. */}
           <motion.div
-            className="fixed inset-0 z-[110] bg-gray-900/50 backdrop-blur-sm"
+            className="fixed inset-0 z-[110] bg-gray-900/55 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -192,22 +233,27 @@ export const StagePanel: React.FC<{
             aria-hidden
           />
 
+          {/* Grows out of the card that opened it — its own rect on the
+              screen (measured just before this mounted) is the starting
+              shape, and it settles into the usual right-edge panel; closing
+              plays the same motion in reverse, back into the card. */}
           <motion.aside
             role="dialog"
             aria-modal="true"
             aria-label={stage.title}
-            className={`fixed inset-y-0 right-0 z-[120] flex w-full flex-col border-l border-gray-200 dark:border-gray-700/70 bg-white dark:bg-background-secondary shadow-2xl ${WIDTH[stage.width]}`}
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            style={{ position: 'fixed' }}
+            className="z-[120] flex flex-col overflow-hidden border border-gray-200/70 dark:border-gray-700/50 bg-white/95 dark:bg-background-secondary/95 shadow-[0_28px_80px_-20px_rgba(15,23,42,0.45)] backdrop-blur-2xl"
+            initial={cardShape}
+            animate={restShape}
+            exit={cardShape}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           >
-            <header className="flex items-start gap-4 border-b border-gray-200 dark:border-gray-700/70 px-5 py-4 sm:px-6">
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
+            <header className="flex items-start gap-4 border-b border-gray-200 dark:border-gray-700/60 px-5 py-5 sm:px-7">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-sm font-bold text-white shadow-[0_6px_16px_-4px_rgba(14,165,233,0.5)]">
                 {stage.step}
               </span>
               <div className="min-w-0 flex-1">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
                   {stage.title}
                 </h2>
                 <p className="mt-0.5 text-xs leading-relaxed text-gray-500 dark:text-gray-400">
@@ -219,7 +265,7 @@ export const StagePanel: React.FC<{
                   type="button"
                   onClick={onAskAi}
                   title="Let the assistant fill this from a plain-English description"
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-violet-500/40 px-2.5 py-1.5 text-[11px] font-semibold text-violet-700 dark:text-violet-300 transition-colors hover:bg-violet-500/10"
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg border border-secondary-500/30 bg-secondary-500/5 px-2.5 py-1.5 text-[11px] font-semibold text-secondary-700 dark:text-secondary-300 transition-colors hover:bg-secondary-500/10"
                 >
                   <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
                     <path d="M12 2.5 13.9 8.1 19.5 10 13.9 11.9 12 17.5 10.1 11.9 4.5 10l5.6-1.9L12 2.5Z" />
@@ -239,16 +285,16 @@ export const StagePanel: React.FC<{
               </button>
             </header>
 
-            <div ref={panelRef} className="flex-1 space-y-4 overflow-y-auto px-5 py-5 sm:px-6">
+            <div ref={panelRef} className="flex-1 space-y-5 overflow-y-auto px-5 py-6 sm:px-7">
               {children}
             </div>
 
-            <footer className="flex items-center gap-3 border-t border-gray-200 dark:border-gray-700/70 bg-gray-50/80 dark:bg-background-tertiary/50 px-5 py-3.5 sm:px-6">
+            <footer className="flex items-center gap-3 border-t border-gray-200 dark:border-gray-700/60 bg-gray-50/70 dark:bg-background-tertiary/40 px-5 py-4 sm:px-7">
               {onBack ? (
                 <button
                   type="button"
                   onClick={onBack}
-                  className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors hover:bg-white dark:hover:bg-background-secondary"
+                  className="rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors hover:bg-white dark:hover:bg-background-secondary"
                 >
                   Back
                 </button>
@@ -256,11 +302,19 @@ export const StagePanel: React.FC<{
                 <span />
               )}
               <div className="min-w-0 flex-1">{footerNote}</div>
+              <button
+                type="button"
+                onClick={onClose}
+                title="Close and return to the pipeline"
+                className="rounded-xl border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors hover:bg-white dark:hover:bg-background-secondary"
+              >
+                Done
+              </button>
               {onNext && (
                 <button
                   type="button"
                   onClick={onNext}
-                  className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                  className="rounded-xl bg-gradient-to-r from-primary-600 to-secondary-600 px-5 py-2 text-sm font-semibold text-white shadow-[0_8px_20px_-6px_rgba(14,165,233,0.5)] transition-all duration-200 hover:shadow-[0_10px_24px_-4px_rgba(14,165,233,0.6)] hover:-translate-y-0.5"
                 >
                   {nextLabel || 'Next'}
                 </button>

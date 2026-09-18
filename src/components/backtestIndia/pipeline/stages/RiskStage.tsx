@@ -95,7 +95,7 @@ export const RiskStage: React.FC<{
           onPick={(k) => set('risk', { ...RISK_PRESETS.find((p) => p.key === k)!.risk })}
         />
         {!activePreset && (
-          <p className="mt-2.5 text-[11px] text-blue-600 dark:text-blue-400">
+          <p className="mt-2.5 text-[11px] text-primary-600 dark:text-primary-400">
             Custom settings — pick a posture above to reset to a known-good starting point.
           </p>
         )}

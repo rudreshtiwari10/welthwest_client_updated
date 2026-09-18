@@ -79,7 +79,7 @@ export const ResultsView: React.FC<{ report: BacktestReport }> = ({ report }) =>
             onClick={() => setTab(t.key)}
             className={`-mb-px border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
               tab === t.key
-                ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
             }`}
           >
@@ -383,7 +383,7 @@ const Trades: React.FC<{ report: BacktestReport }> = ({ report }) => {
                 onClick={() => setFilter(f)}
                 className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
                   filter === f
-                    ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
+                    ? 'bg-primary-500/15 text-primary-700 dark:text-primary-300'
                     : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-background-tertiary'
                 }`}
               >

@@ -76,14 +76,14 @@ export const InputStage: React.FC<{
           {settings.symbols.map((s) => (
             <span
               key={s}
-              className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-xs font-medium text-blue-700 dark:text-blue-300"
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary-500/30 bg-primary-500/10 px-2.5 py-1 text-xs font-medium text-primary-700 dark:text-primary-300"
             >
               {s}
               <button
                 type="button"
                 aria-label={`Remove ${s}`}
                 onClick={() => set('symbols', settings.symbols.filter((x) => x !== s))}
-                className="text-blue-400 transition-colors hover:text-rose-500"
+                className="text-primary-400 transition-colors hover:text-rose-500"
               >
                 ×
               </button>
@@ -124,7 +124,7 @@ export const InputStage: React.FC<{
               disabled={settings.symbols.includes(u.symbol) || settings.symbols.length >= 8}
               onClick={() => addSymbol(u.symbol)}
               title={u.name}
-              className="rounded-full border border-gray-300 dark:border-gray-600 px-2 py-0.5 text-[11px] text-gray-600 dark:text-gray-300 transition-colors hover:border-blue-400 hover:text-blue-600 disabled:opacity-35 disabled:hover:border-gray-300 disabled:hover:text-gray-600"
+              className="rounded-full border border-gray-300 dark:border-gray-600 px-2 py-0.5 text-[11px] text-gray-600 dark:text-gray-300 transition-colors hover:border-primary-400 hover:text-primary-600 disabled:opacity-35 disabled:hover:border-gray-300 disabled:hover:text-gray-600"
             >
               + {u.symbol}
             </button>
@@ -191,8 +191,8 @@ export const InputStage: React.FC<{
               onClick={() => set('initial_capital', v)}
               className={`rounded-full border px-2.5 py-0.5 text-[11px] transition-colors ${
                 settings.initial_capital === v
-                  ? 'border-blue-500 bg-blue-500/10 text-blue-600 dark:text-blue-400'
-                  : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-blue-400'
+                  ? 'border-primary-500 bg-primary-500/10 text-primary-600 dark:text-primary-400'
+                  : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-primary-400'
               }`}
             >
               ₹{v >= 10000000 ? `${v / 10000000} Cr` : `${v / 100000} L`}
@@ -212,7 +212,7 @@ export const InputStage: React.FC<{
         />
 
         <details className="mt-3 group">
-          <summary className="cursor-pointer list-none text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
+          <summary className="cursor-pointer list-none text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline">
             Fine-tune the individual checks
           </summary>
           <div className="mt-2 space-y-1.5">

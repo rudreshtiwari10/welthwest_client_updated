@@ -1,5 +1,5 @@
 {
-  "optimizedAvailable": true,
+  "optimizedAvailable": false,
   "fallbacks": {
     "ai-analysis-poster.avif": "ai-analysis-poster.JPG",
     "ai-analysis-poster.webp": "ai-analysis-poster.JPG",
