@@ -192,7 +192,7 @@ export const STAGES: Record<StageId, StageMeta> = {
  * confluence point simultaneously, not one waiting for the other. Only once
  * both are done does the next phase (stage i+1) begin. */
 
-export const RUN_PHASE_DURATION_MS = 3000;
+export const RUN_PHASE_DURATION_MS = 1200;
 
 export const RUN_PHASE_TOTAL_MS = STAGE_ORDER.length * RUN_PHASE_DURATION_MS;
 

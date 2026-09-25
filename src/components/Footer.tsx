@@ -106,8 +106,8 @@ const Footer: React.FC = () => {
                     <Link to="/welth-ai-assistant" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
                       WelthAI Chat
                     </Link>
-                    <Link to="/backtest" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
-                      Backtesting
+                    <Link to="/welth-lab" onClick={handleLinkClick} className={`block text-left text-xs ${isAuthPage ? 'text-gray-300' : 'text-gray-600 dark:text-gray-400'} hover:text-primary-600 dark:hover:text-primary-400 transition-colors`}>
+                      Welth Lab
                     </Link>
                   </div>
                 )}

@@ -203,9 +203,9 @@ const AppWithRouter: React.FC = () => {
 
                 {/* PUBLIC ROUTES */}
                 <Route path="/stock" element={<StockPage />} />
-                {/* /backtest is the only backtesting route; /backtest-beta, /backtesting-beta,
-                    and /backtest-india 301-redirect here (see vercel.json) */}
-                <Route path="/backtest" element={<BacktestIndiaPage />} />
+                {/* /welth-lab is the only backtesting route; /backtest, /backtest-beta,
+                    /backtesting-beta, and /backtest-india 301-redirect here (see vercel.json) */}
+                <Route path="/welth-lab" element={<BacktestIndiaPage />} />
                 <Route path="/welth-ai-assistant" element={<NextGenChatPage />} />
                 <Route path="/ai-screener" element={<AIScreenerPage />} />
                 <Route path="/about" element={<AboutPage />} />

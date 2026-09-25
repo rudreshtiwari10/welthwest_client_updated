@@ -26,7 +26,7 @@ export const StrategyStage: React.FC<{
   catalogue, strategy, onChangeStrategy, strategyName, setStrategyName,
   onLoadPreset, activePresetKey, problems,
 }) => {
-  const [showBuilder, setShowBuilder] = useState(false);
+  const [showBuilder, setShowBuilder] = useState(true);
 
   const counts = [
     { n: (strategy.features || []).length, label: 'indicators' },

@@ -12,7 +12,7 @@ const MobileFooterNav: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/ai-screener') || path.startsWith('/backtest');
+    return path.startsWith('/ai-screener') || path.startsWith('/welth-lab');
   };
 
   const handleCloseMenu = () => {
@@ -128,7 +128,7 @@ const MobileFooterNav: React.FC = () => {
                 {/* Backtesting Card */}
                 <div className="w-full flex-shrink-0 p-2">
                   <Link
-                    to="/backtest"
+                    to="/welth-lab"
                     onClick={handleNavigation}
                     className="block p-5 rounded-2xl bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 hover:from-green-600 hover:via-emerald-600 hover:to-teal-600 shadow-2xl transition-all duration-500 hover:scale-[1.02] relative overflow-hidden group"
                     style={{ minHeight: '180px' }}
@@ -141,7 +141,7 @@ const MobileFooterNav: React.FC = () => {
                         </div>
                         <div>
                           <h5 className="text-base font-bold text-white drop-shadow-lg flex items-center gap-2">
-                            Backtesting
+                            Welth Lab
                             <span className="text-xs px-2 py-0.5 rounded-full bg-white/30 backdrop-blur-sm text-white border border-white/50">Beta</span>
                           </h5>
                           <p className="text-xs text-green-100">Test • Validate • Optimize</p>
@@ -272,7 +272,7 @@ const MobileFooterNav: React.FC = () => {
               </Link>
 
               <Link
-                to="/backtest"
+                to="/welth-lab"
                 className="flex items-center p-3 rounded-lg bg-gray-800/50"
                 onClick={handleNavigation}
               >
@@ -281,7 +281,7 @@ const MobileFooterNav: React.FC = () => {
                 </div>
                 <div className="flex-1">
                   <div className="font-medium text-white flex items-center gap-2">
-                    Backtesting
+                    Welth Lab
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-900/50 text-green-300 border border-green-700">Beta</span>
                   </div>
                   <div className="text-xs text-gray-400">Test & validate trading strategies</div>
@@ -352,14 +352,14 @@ const MobileFooterNav: React.FC = () => {
           </Link>
 
           <Link
-            to="/backtest"
+            to="/welth-lab"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className={`flex flex-col items-center justify-center ${
-              isActive('/backtest') ? 'text-primary-400' : 'text-gray-400'
+              isActive('/welth-lab') ? 'text-primary-400' : 'text-gray-400'
             }`}
           >
             <i className="fas fa-vial text-lg mb-1"></i>
-            <span className="text-xs">Backtest</span>
+            <span className="text-xs">Welth Lab</span>
           </Link>
 
           {/* WelthAI Button - Mobile center */}

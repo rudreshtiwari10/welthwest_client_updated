@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
   const isStockActive = () => location.pathname.startsWith('/stock');
   const isFeatureActive = () => {
     const path = location.pathname;
-    return path.startsWith('/ai-screener') || path.startsWith('/backtest');
+    return path.startsWith('/ai-screener') || path.startsWith('/welth-lab');
   };
 
 
@@ -115,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <div className="flex items-center space-x-12">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
-              <img src="/images/welthwest-logo.png" alt="WelthWest" className="h-9 w-9" />
+              <img src="/images/welthwest-logo.png" alt="WelthWest" className="h-11 w-11" />
               <span className="font-bold text-2xl text-gray-900 dark:text-white">WelthWest</span>
             </Link>
 
@@ -299,15 +299,15 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
               {/* Backtesting Link */}
               <Link
-                to="/backtest"
+                to="/welth-lab"
                 className={`flex items-center text-sm font-medium ${
-                  isActive('/backtest')
+                  isActive('/welth-lab')
                     ? 'text-primary-600 dark:text-primary-400'
                     : 'text-gray-700 dark:text-gray-100 hover:text-primary-600 dark:hover:text-primary-400'
                 }`}
               >
                 <BeakerIcon className="h-4 w-4 mr-1" />
-                <span>Backtesting</span>
+                <span>Welth Lab</span>
               </Link>
 
               {/* News & Blogs Link — points to the separate Next.js newsroom app */}

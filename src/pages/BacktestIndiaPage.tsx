@@ -1,7 +1,7 @@
 /**
  * Backtest India — WelthWest Realistic Hybrid Backtesting Engine (v2).
  *
- * Rendered at /backtest — the only backtesting page. The old Beta page,
+ * Rendered at /welth-lab — the only backtesting page. The old Beta page,
  * its engine (services/backtesting_engine.py), and its API endpoints were
  * retired in favor of this one.
  *
@@ -164,7 +164,7 @@ const BacktestIndiaPage: React.FC = () => {
   }, [running, livePhaseIndex]);
 
   useEffect(() => {
-    document.title = 'Backtest India — WelthWest';
+    document.title = 'Welth Lab — WelthWest';
   }, []);
 
   useEffect(() => {
@@ -449,7 +449,7 @@ const BacktestIndiaPage: React.FC = () => {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
         <motion.div {...fadeUp(0)}>
-          <Card title="Backtest India is unavailable">
+          <Card title="Welth Lab is unavailable">
             <p className="text-sm text-gray-600 dark:text-gray-300">{catalogueError}</p>
           </Card>
         </motion.div>
@@ -746,7 +746,7 @@ const PageHeader: React.FC<{ catalogue: Catalogue }> = ({ catalogue }) => {
       <motion.div {...fadeUp(0)} className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="bg-gradient-to-r from-gray-900 via-gray-900 to-gray-600 dark:from-white dark:via-white dark:to-gray-400 bg-clip-text text-[26px] font-bold tracking-tight text-transparent sm:text-3xl">
-            Backtest India
+            Welth Lab
           </h1>
           <Pill className="border-primary-500/30 bg-gradient-to-r from-primary-500/10 to-secondary-500/10 text-primary-700 dark:text-primary-400 font-semibold tracking-wide">
             Engine v{catalogue.engine_version}

@@ -6,9 +6,10 @@
     { "source": "/how-it-works", "destination": "/technical-overview", "statusCode": 301 },
     { "source": "/pricing", "destination": "/premium", "statusCode": 301 },
     { "source": "/news-and-blogs", "destination": "/news", "statusCode": 301 },
-    { "source": "/backtest-beta", "destination": "/backtest", "statusCode": 301 },
-    { "source": "/backtesting-beta", "destination": "/backtest", "statusCode": 301 },
-    { "source": "/backtest-india", "destination": "/backtest", "statusCode": 301 }
+    { "source": "/backtest-beta", "destination": "/welth-lab", "statusCode": 301 },
+    { "source": "/backtesting-beta", "destination": "/welth-lab", "statusCode": 301 },
+    { "source": "/backtest-india", "destination": "/welth-lab", "statusCode": 301 },
+    { "source": "/backtest", "destination": "/welth-lab", "statusCode": 301 }
   ],
   "rewrites": [
     { "source": "/news", "destination": "https://welthwestnews.vercel.app/news" },

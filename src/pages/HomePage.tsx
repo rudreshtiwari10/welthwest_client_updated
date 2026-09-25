@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
 
   // Words to animate through
   // const animatedWords = ['Stock', 'Indices', 'Global', 'Investment'];
-  const dynamicWords = useMemo(() => ['Forecasting', 'Backtesting', 'Analysis'], []);
+  const dynamicWords = useMemo(() => ['Forecasting', 'Welth Lab', 'Analysis'], []);
 
   // Testimonials data
   const testimonials = useMemo(() => [
@@ -356,15 +356,21 @@ const HomePage: React.FC = () => {
 
                 {/* Backtesting */}
                 <Link
-                  to="/backtest"
-                  className="group flex items-center bg-white dark:bg-dark-300 hover:bg-green-50 dark:hover:bg-green-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
+                  to="/welth-lab"
+                  className="market-regime-shine group relative flex items-center overflow-hidden bg-white dark:bg-dark-300 hover:bg-green-50 dark:hover:bg-green-900/20 border border-emerald-300/80 dark:border-emerald-600/60 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg scale-[1.03]"
+                  style={{ boxShadow: '0 0 10px 1px rgba(16,185,129,0.13)' }}
                 >
+                  {/* "New" badge */}
+                  <span className="absolute top-1.5 right-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gradient-to-r from-emerald-500 to-green-500 text-white leading-none">
+                    ✦ New
+                  </span>
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
                     <BeakerIcon className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Backtesting</h3>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth Lab</h3>
                     <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Test strategies</p>
+                    <span className="text-[10px] font-semibold text-emerald-500 dark:text-emerald-400">Try it now →</span>
                   </div>
                 </Link>
               </div>
@@ -749,7 +755,7 @@ const HomePage: React.FC = () => {
                     <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mr-3">
                       <BeakerIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Strategy Backtesting</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Welth Lab</h3>
                   </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-3 leading-relaxed text-sm">
                     Validate your trading strategies with comprehensive historical backtesting. Test multiple scenarios, analyze risk metrics, and optimize your approach using years of market data before committing real capital.
@@ -773,10 +779,10 @@ const HomePage: React.FC = () => {
                     </div>
                   </div>
                   <Link
-                    to="/backtest"
+                    to="/welth-lab"
                     className="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-all duration-300 w-fit group-hover:bg-green-700 group-hover:shadow-lg"
                   >
-                    Start Backtesting
+                    Start Welth Lab
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
