@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { RegimeIntro } from '../components/RegimeIntro';
+import AuthRequiredModal from '../components/AuthRequiredModal';
 import { useAuth } from '../contexts/AuthContext';
-import LoginModal from '../components/LoginModal';
 import { usePageMeta } from '../hooks/usePageMeta';
 import aiScreenerService, {
   ScreenerResult,
@@ -71,14 +72,32 @@ const barsAgoText = (barsAgo: number, tf: string): string => {
 /* ─── Component ─────────────────────────────────────────── */
 const AIScreenerPage: React.FC = () => {
   usePageMeta({
-    title: 'AI Stock Screener – Filter by Regime & Anomaly | WelthWest',
-    description: 'Screen Indian stocks using AI-driven market regime and anomaly scores. Find high-potential setups without writing code — powered by WelthWest.',
+    title: 'Welth Market Regime – Free AI Stock Screener for NSE & BSE | WelthWest',
+    description:
+      'Welth Market Regime screens NIFTY 50 and NSE/BSE stocks using AI to classify each into bull, bear or sideways regimes with volatility levels, detects price, volume and derivatives anomalies, and scores stocks with 40+ computed features. Free AI stock screener — no code required.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Welth Market Regime',
+      alternateName: 'AI Stock Screener',
+      url: 'https://www.welthwest.com/ai-screener',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      description:
+        'Welth Market Regime is a free AI-powered stock screener for NSE and BSE. Classifies each stock into a bull, bear or sideways market regime with volatility level, detects anomalies in price, volume and derivatives activity, and ranks stocks using 40+ computed technical and fundamental features.',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+      isPartOf: { '@type': 'Organization', name: 'WelthWest', url: 'https://www.welthwest.com' },
+    },
   });
 
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navQueryHandled = useRef(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  /* Purely cosmetic — plays once whenever this page mounts. Never gates or
+     delays the screener data, which loads underneath it independently. */
+  const [showIntro, setShowIntro] = useState(true);
 
   // screening
   const [screenData, setScreenData] = useState<ScreenResponse | null>(null);
@@ -341,6 +360,7 @@ const AIScreenerPage: React.FC = () => {
   /* ────────────────────── RENDER ────────────────────── */
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
+      <RegimeIntro show={showIntro} onDone={() => setShowIntro(false)} />
       {/* Anonymous Preview Banner */}
       {!user && (
         <div className="max-w-7xl mx-auto px-4 pt-4">
@@ -363,11 +383,12 @@ const AIScreenerPage: React.FC = () => {
         </div>
       )}
 
-      {/* Login Modal */}
-      <LoginModal
+      <AuthRequiredModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-        message="You've reached the free usage limit. Login to continue with unlimited access."
+        featureName="Welth Market Regime"
+        redirectPath="/ai-screener"
+        resumeNote="Your screen has already run — sign in and the full ranked list unlocks immediately, no need to re-run anything."
       />
 
       <div className="max-w-7xl mx-auto px-4 pt-6 pb-8 space-y-5">

@@ -191,6 +191,15 @@ const Overview: React.FC<{ report: BacktestReport }> = ({ report }) => {
       </Card>
 
       <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Benchmarks and controls" subtitle="A positive return proves nothing on its own. These are the alternatives it had to beat.">
+          <BaselineTable report={report} />
+        </Card>
+        <Card title="Full metric set" subtitle="Every headline number here is reconstructible from the trade and cash ledgers.">
+          <MetricsGrid metrics={report.metrics} />
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Drawdown" subtitle="Peak-to-trough decline of the net equity curve, at every point in time.">
           {dd.length ? (
             <LineChart
@@ -231,15 +240,6 @@ const Overview: React.FC<{ report: BacktestReport }> = ({ report }) => {
       >
         <MonthHeatmap data={report.monthly_returns || []} />
       </Card>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Benchmarks and controls" subtitle="A positive return proves nothing on its own. These are the alternatives it had to beat.">
-          <BaselineTable report={report} />
-        </Card>
-        <Card title="Full metric set" subtitle="Every headline number here is reconstructible from the trade and cash ledgers.">
-          <MetricsGrid metrics={report.metrics} />
-        </Card>
-      </div>
     </div>
   );
 };

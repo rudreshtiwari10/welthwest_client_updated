@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { authService } from '../services/api';
@@ -30,6 +30,12 @@ const RegisterPage: React.FC = () => {
 
   const { handleGoogleLogin, completeRegistration } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // An internal path (e.g. "/welth-lab") sends the user straight back to the
+  // feature they came from; anything else falls back to home.
+  const redirectTarget = searchParams.get('redirect');
+  const goAfterAuth = () => navigate(redirectTarget?.startsWith('/') ? redirectTarget : '/');
 
   // Countdown timer for OTP expiry
   useEffect(() => {
@@ -112,7 +118,7 @@ const RegisterPage: React.FC = () => {
       setError('');
       setIsLoading(true);
       await completeRegistration(email, username, password, confirmPassword);
-      navigate('/');
+      goAfterAuth();
     } catch (err: any) {
       const serverMessage = err?.response?.data?.error || err?.response?.data?.message || 'Failed to complete registration';
       setError(serverMessage);
@@ -407,7 +413,7 @@ const RegisterPage: React.FC = () => {
                 onSuccess={(credentialResponse) => {
                   if (credentialResponse.credential) {
                     handleGoogleLogin(credentialResponse.credential)
-                      .then(() => navigate('/'))
+                      .then(() => goAfterAuth())
                       .catch((err) => setError(err.message || 'Failed to register with Google'));
                   }
                 }}

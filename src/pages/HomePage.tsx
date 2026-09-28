@@ -17,9 +17,9 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const HomePage: React.FC = () => {
   usePageMeta({
-    title: 'WelthWest – AI-Powered Wealth Intelligence & Market Risk Signals',
+    title: 'WelthWest – Free AI Stock Screener, Backtesting & AI Chat for NSE/BSE | India',
     description:
-      'WelthWest uses AI to detect market regime shifts and anomalies in Indian equities. No-code backtesting, real-time risk signals, and an AI assistant — built for traders and fund managers.',
+      'WelthWest is a free AI platform for Indian stock markets. Welth Market Regime screens NSE/BSE stocks by bull/bear/sideways regime and anomaly score, Welth Lab backtests trading strategies on NIFTY, Bank NIFTY and 500+ stocks with no code, and Welth AI Assistant answers any market or finance question in real time. Built for traders, investors and fund managers.',
   });
 
   const [marketData, setMarketData] = useState<any>(null);
@@ -323,14 +323,20 @@ const HomePage: React.FC = () => {
                 {/* Welth AI Assistant */}
                 <Link
                   to="/welth-ai-assistant"
-                  className="group flex items-center bg-white dark:bg-dark-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 border border-gray-200 dark:border-gray-700 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg"
+                  className="market-regime-shine group relative flex items-center overflow-hidden bg-white dark:bg-dark-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 border border-purple-300/80 dark:border-purple-600/60 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg scale-[1.03]"
+                  style={{ boxShadow: '0 0 10px 1px rgba(147,51,234,0.13)' }}
                 >
+                  {/* "New" badge */}
+                  <span className="absolute top-1.5 right-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gradient-to-r from-purple-600 to-indigo-600 text-white leading-none">
+                    ✦ New
+                  </span>
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
                     <ChatBubbleLeftRightIcon className="h-6 w-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth AI Assistant</h3>
                     <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Chat with AI for insights</p>
+                    <span className="text-[10px] font-semibold text-purple-500 dark:text-purple-400">Try it now →</span>
                   </div>
                 </Link>
 
@@ -340,10 +346,6 @@ const HomePage: React.FC = () => {
                   className="market-regime-shine group relative flex items-center overflow-hidden bg-white dark:bg-dark-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-indigo-300/80 dark:border-indigo-600/60 rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-lg scale-[1.03]"
                   style={{ boxShadow: '0 0 10px 1px rgba(99,102,241,0.13)' }}
                 >
-                  {/* "New" badge */}
-                  <span className="absolute top-1.5 right-1.5 inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-gradient-to-r from-indigo-500 to-blue-500 text-white leading-none">
-                    ✦ New
-                  </span>
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 flex items-center justify-center mr-3 group-hover:scale-110 transition-transform duration-300 shadow-md flex-shrink-0">
                     <SparklesIcon className="h-6 w-6 text-white" />
                   </div>
@@ -369,7 +371,7 @@ const HomePage: React.FC = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-gray-900 dark:text-white text-base mb-0.5">Welth Lab</h3>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Test strategies</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1">Backtest yourstrategies</p>
                     <span className="text-[10px] font-semibold text-emerald-500 dark:text-emerald-400">Try it now →</span>
                   </div>
                 </Link>

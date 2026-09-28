@@ -13,7 +13,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import LoginModal from '../components/LoginModal';
+import AuthRequiredModal from '../components/AuthRequiredModal';
+import { savePendingResume, consumePendingResume } from '../utils/resumeAfterLogin';
+import { usePageMeta } from '../hooks/usePageMeta';
 import {
   AiFillResult, BacktestReport, Catalogue, RunRequest, StrategyGraph, backtestIndiaService,
 } from '../services/backtestIndia';
@@ -52,6 +54,8 @@ const BacktestIndiaPage: React.FC = () => {
   const [error, setError] = useState('');
   const [problems, setProblems] = useState<string[]>([]);
   const [showLogin, setShowLogin] = useState(false);
+  /** True for the one render right after a post-login resume restores state, so the follow-up effect can fire the run automatically. */
+  const [pendingAutoRun, setPendingAutoRun] = useState(false);
   const [view, setView] = useState<'builder' | 'results'>('builder');
   const [symbolInput, setSymbolInput] = useState('');
 
@@ -163,9 +167,24 @@ const BacktestIndiaPage: React.FC = () => {
     return () => cancelAnimationFrame(id);
   }, [running, livePhaseIndex]);
 
-  useEffect(() => {
-    document.title = 'Welth Lab — WelthWest';
-  }, []);
+  usePageMeta({
+    title: 'Welth Lab – Free No-Code Backtesting Engine for NIFTY, Bank NIFTY & NSE Stocks | WelthWest',
+    description:
+      'Welth Lab lets you backtest trading strategies on NIFTY 50, Bank NIFTY and 500+ NSE stocks across 10+ years of historical data — no coding required. Get Sharpe ratio, max drawdown, win rate, Monte Carlo simulation, walk-forward validation and full trade logs, completely free.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Welth Lab',
+      alternateName: 'WelthWest Backtesting Engine',
+      url: 'https://www.welthwest.com/welth-lab',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      description:
+        'Welth Lab is a free, no-code backtesting engine for the Indian stock market. Test trading strategies on NIFTY 50, Bank NIFTY, and 500+ individual NSE-listed stocks using 10+ years of historical OHLCV data. Supports moving average crossover, RSI, MACD, Bollinger Bands and custom indicator combinations, with Sharpe/Sortino/Calmar ratios, max drawdown, win rate, Monte Carlo simulation, and walk-forward validation.',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+      isPartOf: { '@type': 'Organization', name: 'WelthWest', url: 'https://www.welthwest.com' },
+    },
+  });
 
   useEffect(() => {
     backtestIndiaService
@@ -261,6 +280,13 @@ const BacktestIndiaPage: React.FC = () => {
     setError('');
     setProblems([]);
 
+    if (!isAuthenticated) {
+      savePendingResume('welth-lab', { settings, strategy, strategyName, presetKey });
+      setActiveStage(null);
+      setShowLogin(true);
+      return;
+    }
+
     const check = await backtestIndiaService.validate(strategy).catch(() => null);
     if (check && !check.valid) {
       setProblems(check.problems);
@@ -273,13 +299,25 @@ const BacktestIndiaPage: React.FC = () => {
       return;
     }
 
-    setRunning(true);
     // Close the drawer so the run-progress animation on the main page is
     // actually visible instead of sitting hidden behind it. Reopened to
     // 'execution' in the catch block below on failure, so every existing
     // error/login/quota message still surfaces exactly where it did before —
     // this only changes when the drawer is visually open, not what it shows.
     setActiveStage(null);
+    // Scroll stage 1 into view and let the smooth-scroll actually land
+    // BEFORE the run animation starts — otherwise phase 1 lighting up races
+    // an in-flight scroll and is essentially never seen. Deferred one frame
+    // first because the drawer's overflow lock (released in its own cleanup
+    // effect, which runs after this commits) is still in place immediately
+    // after setActiveStage(null) above.
+    await new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        document.querySelector('[data-stage-row="input"]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(resolve, 550);
+      });
+    });
+    setRunning(true);
     try {
       // Wait for whichever finishes last: the real response, or the full
       // choreography (config.ts) — a fast backend response never cuts the
@@ -300,20 +338,55 @@ const BacktestIndiaPage: React.FC = () => {
       setView('results');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e: any) {
-      openStage('execution');
       if (e.status === 401) {
+        // Session expired mid-run — same recovery path as the upfront check
+        // above: save the config, prompt sign-in, resume automatically after.
+        savePendingResume('welth-lab', { settings, strategy, strategyName, presetKey });
+        setActiveStage(null);
         setShowLogin(true);
-      } else if (e.status === 403) {
-        setError(e.payload?.message || 'This feature is not available on your plan.');
-      } else if (e.status === 429) {
-        setError(e.payload?.message || 'You have used your backtest quota for today.');
       } else {
-        setError(e.message || 'The backtest could not be completed.');
+        openStage('execution');
+        if (e.status === 403) {
+          setError(e.payload?.message || 'This feature is not available on your plan.');
+        } else if (e.status === 429) {
+          setError(e.payload?.message || 'You have used your backtest quota for today.');
+        } else {
+          setError(e.message || 'The backtest could not be completed.');
+        }
       }
     } finally {
       setRunning(false);
     }
   };
+
+  /* Resume a run that was interrupted by a login redirect. The modal below
+     sends the user to /login?redirect=/welth-lab&reason=resume after
+     savePendingResume() stashes the configured pipeline; once they're back
+     here authenticated, this restores it and fires the run automatically —
+     signing in never costs them their setup. */
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const pending = consumePendingResume<{
+      settings: RunSettings;
+      strategy: StrategyGraph;
+      strategyName: string;
+      presetKey: string | null;
+    }>('welth-lab');
+    if (!pending) return;
+    setSettings(pending.settings);
+    setStrategy(pending.strategy);
+    setStrategyName(pending.strategyName);
+    setPresetKey(pending.presetKey);
+    setPendingAutoRun(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!pendingAutoRun) return;
+    setPendingAutoRun(false);
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingAutoRun]);
 
   const estimatedWork = useMemo(() => {
     let passes = 1;
@@ -574,16 +647,6 @@ const BacktestIndiaPage: React.FC = () => {
             onOpen={openStage}
             livePhaseIndex={running ? livePhaseIndex : null}
           />
-
-          {catalogue.open_access && (
-            <motion.p
-              {...fadeUp(0.3)}
-              className="rounded-full border border-amber-500/30 bg-amber-500/5 px-4 py-2 text-center text-[11px] text-amber-700 dark:text-amber-300"
-            >
-              Sign-in is disabled on this page while it is being built — runs are unauthenticated
-              and unmetered.
-            </motion.p>
-          )}
         </div>
       )}
 
@@ -710,18 +773,12 @@ const BacktestIndiaPage: React.FC = () => {
         onApply={applyAiFill}
       />
 
-      {showLogin && (
-        <LoginModal
-          isOpen={showLogin}
-          onClose={() => setShowLogin(false)}
-          title="Sign in to run a backtest"
-          message="Backtesting runs against live market data and is metered per account."
-          onLoginSuccess={() => {
-            setShowLogin(false);
-            run();
-          }}
-        />
-      )}
+      <AuthRequiredModal
+        isOpen={showLogin}
+        onClose={() => setShowLogin(false)}
+        featureName="Welth Lab"
+        redirectPath="/welth-lab"
+      />
     </div>
   );
 };

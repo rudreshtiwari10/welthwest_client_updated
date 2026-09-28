@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+import { ChatIntro } from './components/ChatIntro';
 import { useAuth } from './contexts/AuthContext';
 import UsageIndicator from './components/UsageIndicator';
 import TrialExceededModal from './components/TrialExceededModal';
+import AuthRequiredModal from './components/AuthRequiredModal';
+import { savePendingResume, consumePendingResume } from './utils/resumeAfterLogin';
+import { usePageMeta } from './hooks/usePageMeta';
 import FinanceAIChart from './components/FinanceAIChart';
 import FinanceAIIndicators from './components/FinanceAIIndicators';
 import WelthMarketTicker from './components/WelthMarketTicker';
@@ -80,8 +84,32 @@ interface UsageInfo {
 const TRENDING = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'BAJFINANCE', 'ITC'];
 
 const NextGenChatPage: React.FC = () => {
+  usePageMeta({
+    title: 'Welth AI Assistant – Free AI Chatbot for Stock Market & Personal Finance | WelthWest',
+    description:
+      'Ask Welth AI Assistant anything about Indian stocks or personal finance. Get real-time stock analysis, interactive charts with RSI, MACD, Bollinger Bands and more, plus plain-English answers on SIPs, taxes, insurance and retirement planning — free AI chat for traders and investors.',
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'Welth AI Assistant',
+      alternateName: 'WelthAI',
+      url: 'https://www.welthwest.com/welth-ai-assistant',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      description:
+        'Welth AI Assistant is a free conversational AI chatbot for the Indian stock market. Analyses any stock in real time, generates interactive charts with RSI, MACD, Bollinger Bands, SMA, EMA, Stochastic, ATR, OBV and VWAP overlays, explains financial concepts from basics to advanced, and answers questions on budgeting, tax planning, mutual funds, SIPs, insurance and retirement planning.',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'INR' },
+      isPartOf: { '@type': 'Organization', name: 'WelthWest', url: 'https://www.welthwest.com' },
+    },
+  });
+
   const { user, getToken } = useAuth();
   const [messages, setMessages] = useSessionStorage<Message[]>('welth-ai-assistant-messages', []);
+
+  /* Purely cosmetic — plays once whenever this page mounts. Never gates or
+     delays the chat UI, which is already mounted underneath. */
+  const [showIntro, setShowIntro] = useState(true);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     console.log('[NextGenChatPage] Messages state updated:', messages.length, messages);
@@ -93,7 +121,6 @@ const NextGenChatPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [refreshUsage, setRefreshUsage] = useState(0);
-  const [anonymousUsesLeft, setAnonymousUsesLeft] = useState(5);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [isFooterVisible, setIsFooterVisible] = useState(false);
@@ -123,7 +150,8 @@ const NextGenChatPage: React.FC = () => {
     if (!textToSend || isLoading) return;
 
     if (!user) {
-      window.location.href = '/login';
+      savePendingResume('welth-ai-assistant', { pendingMessage: textToSend });
+      setShowAuthPrompt(true);
       return;
     }
 
@@ -200,10 +228,6 @@ const NextGenChatPage: React.FC = () => {
       let displayError = 'An error occurred';
 
       if (err.response?.status === 403) {
-        if (!user) {
-          setAnonymousUsesLeft(0);
-          window.location.href = '/login';
-        }
         if (err.response?.data?.error === 'trial_exceeded' || err.response?.data?.error?.includes('limit')) {
           setShowTrialModal(true);
           displayError = 'Free trial limit reached. Please sign in to continue.';
@@ -247,6 +271,17 @@ const NextGenChatPage: React.FC = () => {
     }
   };
 
+  /* Resume a message that was interrupted by a login redirect — sends it
+     automatically once the user is back here authenticated, so signing in
+     never costs them having to retype what they asked. */
+  useEffect(() => {
+    if (!user) return;
+    const pending = consumePendingResume<{ pendingMessage: string }>('welth-ai-assistant');
+    if (!pending?.pendingMessage) return;
+    sendMessage(pending.pendingMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
   const formatTimestamp = (timestamp: Date | string) => {
     const date = typeof timestamp === 'string' ? new Date(timestamp) : timestamp;
     return date.toLocaleTimeString('en-US', {
@@ -287,6 +322,7 @@ const NextGenChatPage: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen relative bg-light-bg-secondary dark:bg-dark-200 text-gray-900 dark:text-white">
+      <ChatIntro show={showIntro} onDone={() => setShowIntro(false)} />
       {user && (
         <UsageIndicator
           feature="welth-ai-assistant"
@@ -295,6 +331,13 @@ const NextGenChatPage: React.FC = () => {
           sessionId={currentSessionId}
         />
       )}
+
+      <AuthRequiredModal
+        isOpen={showAuthPrompt}
+        onClose={() => setShowAuthPrompt(false)}
+        featureName="Welth AI Assistant"
+        redirectPath="/welth-ai-assistant"
+      />
 
       <TrialExceededModal
         isOpen={showTrialModal}
@@ -328,7 +371,7 @@ const NextGenChatPage: React.FC = () => {
 
           {!user && (
             <button
-              onClick={() => window.location.href = '/login'}
+              onClick={() => setShowAuthPrompt(true)}
               className="font-mono text-xs uppercase tracking-widest px-4 py-2 rounded border border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white dark:hover:text-white transition-colors"
             >
               Sign in to use Welth
@@ -686,7 +729,7 @@ const NextGenChatPage: React.FC = () => {
                 {!user && error.includes('log in') && (
                   <div className="mt-3">
                     <button
-                      onClick={() => window.location.href = '/login'}
+                      onClick={() => setShowAuthPrompt(true)}
                       className="font-mono text-xs uppercase tracking-widest px-4 py-2 rounded border border-rose-600 text-rose-700 dark:text-rose-300 hover:bg-rose-600 hover:text-white transition-colors"
                     >
                       Log In to Continue

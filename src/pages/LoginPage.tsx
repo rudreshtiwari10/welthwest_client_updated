@@ -24,9 +24,12 @@ const LoginPage: React.FC = () => {
   const { login, handleGoogleLogin } = useAuth();
   const navigate = useNavigate();
 
-  // Get redirect parameter from URL (from side projects)
+  // Get redirect parameter from URL — either an internal path (a feature
+  // page sending the user back to itself, e.g. "/welth-lab") or one of the
+  // legacy side-project keys below.
   const redirectTarget = searchParams.get('redirect');
   const reason = searchParams.get('reason');
+  const isInternalRedirect = !!redirectTarget && redirectTarget.startsWith('/');
 
   // Helper function to redirect to side project after login
   const redirectToSideProject = (target: string) => {
@@ -57,6 +60,19 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  // After auth succeeds: an internal path goes straight back via the SPA
+  // router (so the feature page can pick its saved state back up); anything
+  // else falls through to the existing side-project handoff.
+  const goAfterAuth = () => {
+    if (!redirectTarget) {
+      navigate('/');
+    } else if (isInternalRedirect) {
+      navigate(redirectTarget);
+    } else {
+      redirectToSideProject(redirectTarget);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -70,12 +86,12 @@ const LoginPage: React.FC = () => {
       setIsLoading(true);
       await login(usernameOrEmail, password);
 
-      if (redirectTarget) {
+      if (redirectTarget && !isInternalRedirect) {
         setTimeout(() => {
           redirectToSideProject(redirectTarget);
         }, 100);
       } else {
-        navigate('/');
+        goAfterAuth();
       }
     } catch (err: any) {
       setError(err.response?.data?.detail || err.message || 'Failed to log in');
@@ -142,9 +158,17 @@ const LoginPage: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-sm text-primary-700 dark:text-primary-200">
-                  You'll be redirected to <strong className="capitalize">{redirectTarget}</strong> after signing in.
-                  {reason === 'auth' && ' (Login required for premium features)'}
-                  {reason === 'expired' && ' (Session expired)'}
+                  {reason === 'resume'
+                    ? "You'll be returned to exactly where you left off — nothing you configured will be lost."
+                    : isInternalRedirect
+                    ? "You'll be taken back to where you were after signing in."
+                    : (
+                      <>
+                        You'll be redirected to <strong className="capitalize">{redirectTarget}</strong> after signing in.
+                        {reason === 'auth' && ' (Login required for premium features)'}
+                        {reason === 'expired' && ' (Session expired)'}
+                      </>
+                    )}
                 </p>
               </div>
             </div>
@@ -297,10 +321,10 @@ const LoginPage: React.FC = () => {
                       setError('');
                       try {
                         await handleGoogleLogin(credentialResponse.credential);
-                        if (redirectTarget) {
+                        if (redirectTarget && !isInternalRedirect) {
                           redirectToSideProject(redirectTarget);
                         } else {
-                          navigate('/');
+                          goAfterAuth();
                         }
                       } catch (err: any) {
                         setError(err.message || 'Failed to log in with Google');
