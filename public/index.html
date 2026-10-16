@@ -27,8 +27,9 @@
     <meta name="twitter:description" content="Welth AI Assistant for stock analysis and financial education. Welth Market Regime for AI-driven market screening. Welth Lab for no-code backtesting. Expert news covering Indian and global markets, crypto, and more. Not a broker — for research only." />
     <meta name="twitter:image" content="https://www.welthwest.com/images/og-default.png" />
 
-    <!-- Canonical (updated per-page by usePageMeta hook) -->
-    <link rel="canonical" href="https://www.welthwest.com/" />
+    <!-- Canonical is injected per-page by the usePageMeta hook. Do NOT hardcode one here:
+         every SPA route is served this same HTML, so a static homepage canonical made Google
+         fold /stock, /premium and /welth-ai-assistant into the homepage. -->
 
     <!-- JSON-LD: Organisation + WebSite + SoftwareApplication -->
     <script type="application/ld+json">
