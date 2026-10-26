@@ -1,4 +1,4 @@
-/**
+                                                                                      /**
  * Full-screen entry transition for Welth AI Assistant — plays once whenever
  * the page mounts. Purely presentational: sits on top of the chat UI, which
  * is already mounted and rendering underneath, and never gates or delays
