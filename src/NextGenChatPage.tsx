@@ -299,7 +299,7 @@ const NextGenChatPage: React.FC = () => {
   const firstName = user?.first_name || user?.username || 'trader';
 
   return (
-    <div className="flex flex-col h-screen relative bg-light-bg-secondary dark:bg-dark-200 text-gray-900 dark:text-white">
+    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] relative bg-light-bg-secondary dark:bg-dark-200 text-gray-900 dark:text-white">
       <ChatIntro show={showIntro} onDone={() => setShowIntro(false)} />
       {user && (
         <UsageIndicator
@@ -364,8 +364,8 @@ const NextGenChatPage: React.FC = () => {
       {/* Body — self-contained scroll region. Only the output lives here; it
           scrolls beneath a fade gradient that sits right above the input bar. */}
       <div className="flex-1 relative min-h-0">
-        <div className="h-full overflow-y-auto scroll-smooth">
-        <div className="max-w-4xl mx-auto px-4 py-6 pb-12">
+        <div className="h-full overflow-y-auto scroll-smooth [scrollbar-gutter:stable_both-edges]">
+        <div className="max-w-3xl mx-auto px-4 py-6 pb-12">
 
           {/* Welcome / empty state */}
           {!hasMessages && (
