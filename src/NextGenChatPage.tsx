@@ -122,8 +122,6 @@ const NextGenChatPage: React.FC = () => {
   const [showTrialModal, setShowTrialModal] = useState(false);
   const [refreshUsage, setRefreshUsage] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -292,26 +290,6 @@ const NextGenChatPage: React.FC = () => {
 
   const hasMessages = messages.length > 0;
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsFooterVisible(entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
-
-    const currentFooterRef = footerRef.current;
-    if (currentFooterRef) {
-      observer.observe(currentFooterRef);
-    }
-
-    return () => {
-      if (currentFooterRef) {
-        observer.unobserve(currentFooterRef);
-      }
-    };
-  }, []);
-
   const greeting = (() => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';
@@ -383,9 +361,11 @@ const NextGenChatPage: React.FC = () => {
         <WelthMarketTicker />
       </div>
 
-      {/* Body */}
-      <div className={`flex-1 overflow-y-auto ${!hasMessages ? '' : 'pb-44'} scroll-smooth`}>
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      {/* Body — self-contained scroll region. Only the output lives here; it
+          scrolls beneath a fade gradient that sits right above the input bar. */}
+      <div className="flex-1 relative min-h-0">
+        <div className="h-full overflow-y-auto scroll-smooth">
+        <div className="max-w-4xl mx-auto px-4 py-6 pb-12">
 
           {/* Welcome / empty state */}
           {!hasMessages && (
@@ -742,15 +722,16 @@ const NextGenChatPage: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
         </div>
+        </div>
+
+        {/* Fade gradient — output dissolves into this strip just above the
+            input, so nothing ever reads as sitting "under" the command bar. */}
+        <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-light-bg-secondary dark:from-dark-200 to-transparent" />
       </div>
 
-      {/* Command bar input */}
-      <div
-        className={`${isFooterVisible ? 'absolute' : 'fixed'} ${
-          isFooterVisible ? 'bottom-24' : 'bottom-6'
-        } left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 transition-all duration-300 ease-in-out`}
-        style={{ zIndex: 100 }}
-      >
+      {/* Command bar input — pinned in normal flow at the bottom. Nothing is
+          rendered below it, and it never overlaps the scrolling output. */}
+      <div className="flex-shrink-0 w-full max-w-3xl mx-auto px-4 pb-6">
         <div className="rounded-md border border-gray-300 dark:border-dark-50/80 bg-white dark:bg-dark-100 shadow-2xl">
           {/* Hint row */}
           <div className="flex items-center justify-between px-4 py-1.5 border-b border-gray-200 dark:border-dark-50/60">
@@ -805,8 +786,6 @@ const NextGenChatPage: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <div ref={footerRef} className="h-1"></div>
     </div>
   );
 };
