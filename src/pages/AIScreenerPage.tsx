@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { RegimeIntro } from '../components/RegimeIntro';
+import WelthMarketTicker from '../components/WelthMarketTicker';
 import AuthRequiredModal from '../components/AuthRequiredModal';
 import { useAuth } from '../contexts/AuthContext';
 import { usePageMeta } from '../hooks/usePageMeta';
@@ -361,6 +362,10 @@ const AIScreenerPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors">
       <RegimeIntro show={showIntro} onDone={() => setShowIntro(false)} />
+
+      {/* Live market ticker strip */}
+      <WelthMarketTicker />
+
       {/* Anonymous Preview Banner */}
       {!user && (
         <div className="max-w-7xl mx-auto px-4 pt-4">

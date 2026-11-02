@@ -9,7 +9,6 @@ import { savePendingResume, consumePendingResume } from './utils/resumeAfterLogi
 import { usePageMeta } from './hooks/usePageMeta';
 import FinanceAIChart from './components/FinanceAIChart';
 import FinanceAIIndicators from './components/FinanceAIIndicators';
-import WelthMarketTicker from './components/WelthMarketTicker';
 import WelthThinking from './components/WelthThinking';
 import WelthPromptCard from './components/WelthPromptCard';
 import WelthResponse from './components/WelthResponse';
@@ -356,9 +355,6 @@ const NextGenChatPage: React.FC = () => {
             </button>
           )}
         </div>
-
-        {/* Live ticker */}
-        <WelthMarketTicker />
       </div>
 
       {/* Body — self-contained scroll region. Only the output lives here; it
