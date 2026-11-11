@@ -25,6 +25,47 @@ const path = require('path');
 const SITE_URL = 'https://www.welthwest.com';
 const BUILD_DIR = path.join(__dirname, '..', 'build');
 
+// Shared across every page that gets bodyContent/faq below -- see the
+// user's explicit instruction (2026-11-12): no real money, broker
+// accounts, or trade execution exist anywhere on the platform, now or
+// planned. Worded identically everywhere for consistency.
+const NO_REAL_MONEY_FAQ = {
+  q: 'Does this involve real trading or real money?',
+  a: "No. WelthWest is a research and education platform only — there's no broker account, no trade execution, and no real money involved anywhere on the platform, now or planned for the future.",
+};
+
+function renderBody({ bodyH1, bodyIntro, bodyFaq }) {
+  const paras = bodyIntro
+    .map((p) => `<p class="mb-4 text-gray-700 dark:text-gray-300 leading-relaxed">${p}</p>`)
+    .join('\n');
+  const faqItems = bodyFaq
+    .map(
+      ({ q, a }) => `<div class="mb-4">
+        <h3 class="font-semibold text-gray-900 dark:text-white mb-1">${q}</h3>
+        <p class="text-gray-700 dark:text-gray-300">${a}</p>
+      </div>`
+    )
+    .join('\n');
+  return `<main class="max-w-3xl mx-auto px-6 py-12">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">${bodyH1}</h1>
+    ${paras}
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mt-8 mb-4">Frequently Asked Questions</h2>
+    ${faqItems}
+  </main>`;
+}
+
+function faqJsonLd(faq) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faq.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  };
+}
+
 const PAGES = [
   {
     routes: ['/'],
@@ -37,24 +78,103 @@ const PAGES = [
     title: 'Stock Analysis – AI Market Intelligence | WelthWest',
     description:
       'Analyse Indian equity stocks with AI-powered regime detection and anomaly signals. Real-time NIFTY and NSE data on WelthWest.',
+    bodyFaq: [
+      {
+        q: 'What stock data is available?',
+        a: 'Real-time price data, AI regime classification, and anomaly detection for NSE and BSE listed stocks.',
+      },
+      {
+        q: 'Is live market data free?',
+        a: "Yes — top gainers/losers and major index levels (NIFTY, Sensex, Bank Nifty) are available at no cost.",
+      },
+      NO_REAL_MONEY_FAQ,
+    ],
+    bodyH1: 'Stock Analysis – AI Market Intelligence for NSE & BSE',
+    bodyIntro: [
+      'Look up any NSE or BSE stock for AI-powered regime detection, anomaly signals, and real-time price data in one place.',
+      "Alongside individual stock analysis, this page surfaces live NIFTY, Sensex, and Bank Nifty index levels and the day's top gainers and losers across NSE/BSE — a quick read on where the market stands before you dig into a specific stock.",
+    ],
   },
   {
     routes: ['/welth-lab'],
     title: 'Welth Lab – Free No-Code Backtesting Engine for NIFTY, Bank NIFTY & NSE Stocks | WelthWest',
     description:
       'Welth Lab lets you backtest trading strategies on NIFTY 50, Bank NIFTY and 500+ NSE stocks across 10+ years of historical data — no coding required. Get Sharpe ratio, max drawdown, win rate, Monte Carlo simulation, walk-forward validation and full trade logs, completely free.',
+    bodyH1: 'Welth Lab — Free No-Code Backtesting Engine for NSE & BSE',
+    bodyIntro: [
+      "Backtesting is how you find out whether a trading strategy's rules would have actually worked, by running them against years of real historical data to see the trades, drawdowns, and returns they would have produced. Welth Lab lets you do this on NIFTY 50, Bank NIFTY, and 500+ NSE stocks across 10+ years of historical data, with multi-timeframe simulation, and without writing a single line of code.",
+      'Pick an index or stock, choose a strategy built from standard technical indicators — RSI, MACD, Bollinger Bands, SMA/EMA crossovers, Stochastic, ATR, OBV, or VWAP — set your date range, and run it. Welth Lab returns Sharpe, Sortino, and Calmar ratios, maximum drawdown, win rate, a full trade-by-trade log, Monte Carlo simulation to stress-test how robust the result really is, and walk-forward validation to check it isn\'t just overfit to the past.',
+    ],
+    bodyFaq: [
+      {
+        q: 'What is backtesting?',
+        a: "Testing a trading strategy's rules against historical price data to see how it would have performed.",
+      },
+      { q: 'Is Welth Lab free?', a: 'Yes.' },
+      {
+        q: 'Do I need to know how to code?',
+        a: 'No — build and run a backtest entirely through the interface.',
+      },
+      {
+        q: 'Which Indian markets can I backtest?',
+        a: 'NIFTY, Bank NIFTY, and 500+ individual NSE stocks, with 10+ years of historical data and multi-timeframe simulation.',
+      },
+      NO_REAL_MONEY_FAQ,
+    ],
   },
   {
     routes: ['/welth-ai-assistant'],
     title: 'Welth AI Assistant – Free AI Chatbot for Stock Market & Personal Finance | WelthWest',
     description:
       'Ask Welth AI Assistant anything about Indian stocks or personal finance. Get real-time stock analysis, interactive charts with RSI, MACD, Bollinger Bands and more, plus plain-English answers on SIPs, taxes, insurance and retirement planning — free AI chat for traders and investors.',
+    bodyH1: 'Welth AI Assistant — Free AI Chatbot for Stock Market & Personal Finance',
+    bodyIntro: [
+      'Welth AI Assistant is a free AI chatbot built for Indian traders and investors — ask it about any stock and get real-time analysis with interactive charts (RSI, MACD, Bollinger Bands, SMA, EMA, Stochastic, ATR, OBV, VWAP), or ask it to explain a financial concept from basics to advanced.',
+      'It also answers everyday personal-finance questions: budgeting, tax planning, mutual funds, SIPs, insurance, and retirement planning.',
+    ],
+    bodyFaq: [
+      {
+        q: 'What can I ask it?',
+        a: 'Stock analysis questions, technical indicator explanations, and personal finance topics like SIPs, taxes, and retirement planning.',
+      },
+      { q: 'Is it free?', a: 'Yes.' },
+      {
+        q: 'Does it give investment advice?',
+        a: "No — WelthWest is not a broker and doesn't execute trades or provide investment advice. It's built for education and research.",
+      },
+      {
+        q: 'What charts can it generate?',
+        a: 'RSI, MACD, Bollinger Bands, SMA, EMA, Stochastic, ATR, and VWAP overlays, in real time for any stock you ask about.',
+      },
+      NO_REAL_MONEY_FAQ,
+    ],
   },
   {
     routes: ['/ai-screener'],
     title: 'Welth Market Regime – Free AI Stock Screener for NSE & BSE | WelthWest',
     description:
       'Welth Market Regime screens NIFTY 50 and NSE/BSE stocks using AI to classify each into bull, bear or sideways regimes with volatility levels, detects price, volume and derivatives anomalies, and scores stocks with 40+ computed features. Free AI stock screener — no code required.',
+    bodyH1: 'Welth Market Regime — Free AI Stock Screener for NSE & BSE',
+    bodyIntro: [
+      "Stocks don't move the same way in every market condition — a strategy that works in a strong uptrend can lose money in a choppy, sideways market. Welth Market Regime uses AI to classify NIFTY 50 and NSE/BSE stocks into bull, bear, or sideways regimes with a volatility read, so you know what kind of market you're actually trading in before you act.",
+      'The screener analyzes price, volume, and derivatives data across 40+ computed features per stock, flags statistically unusual behavior (anomalies) that could signal something\'s changed, and scores each stock\'s current regime and volatility level — all free, no coding required.',
+    ],
+    bodyFaq: [
+      {
+        q: 'What is a market regime?',
+        a: 'The underlying trend condition of a stock or index — bullish, bearish, or sideways/range-bound — which affects which strategies are likely to work.',
+      },
+      {
+        q: 'How does it detect anomalies?',
+        a: "By comparing current price, volume, and derivatives behavior against each stock's own statistical norms.",
+      },
+      { q: 'Is this free?', a: 'Yes.' },
+      {
+        q: 'Does it cover all of NSE/BSE, or just NIFTY 50?',
+        a: 'Both — NIFTY 50 and individual NSE/BSE stocks.',
+      },
+      NO_REAL_MONEY_FAQ,
+    ],
   },
   {
     routes: ['/about'],
@@ -140,7 +260,7 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function buildHtmlFor(baseHtml, { title, description, url }) {
+function buildHtmlFor(baseHtml, { title, description, url, bodyH1, bodyIntro, bodyFaq }) {
   const safeTitle = escapeHtml(title);
   const safeDesc = escapeHtml(description);
 
@@ -179,6 +299,23 @@ function buildHtmlFor(baseHtml, { title, description, url }) {
     html = html.replace('</head>', `<link rel="canonical" href="${url}"/></head>`);
   }
 
+  // Real page content for crawlers that don't execute JS, and for Google's
+  // fast first-pass crawl specifically -- confirmed directly that <div
+  // id="root"> ships completely empty otherwise. React's plain render()
+  // (not hydrate()) replaces this div's children on mount for users with
+  // JS enabled, same as it always has; this only changes what exists
+  // before that happens.
+  if (bodyH1 && bodyIntro && bodyFaq) {
+    const bodyHtml = renderBody({ bodyH1, bodyIntro, bodyFaq });
+    html = html.replace('<div id="root"></div>', `<div id="root">${bodyHtml}</div>`);
+
+    const ld = JSON.stringify(faqJsonLd(bodyFaq));
+    html = html.replace(
+      '</head>',
+      `<script type="application/ld+json">${ld}</script></head>`
+    );
+  }
+
   return html;
 }
 
@@ -194,7 +331,14 @@ function main() {
   for (const page of PAGES) {
     for (const route of page.routes) {
       const url = `${SITE_URL}${route}`;
-      const html = buildHtmlFor(baseHtml, { title: page.title, description: page.description, url });
+      const html = buildHtmlFor(baseHtml, {
+        title: page.title,
+        description: page.description,
+        url,
+        bodyH1: page.bodyH1,
+        bodyIntro: page.bodyIntro,
+        bodyFaq: page.bodyFaq,
+      });
       const dir = path.join(BUILD_DIR, route.replace(/^\//, ''));
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, 'index.html'), html);
