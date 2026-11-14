@@ -10,6 +10,8 @@ import QuickStartGuide from '../components/QuickStartGuide';
 import NetworkBackground from '../components/NetworkBackground';
 import AssistantWidget from '../components/AssistantWidget';
 import SnakeBorder from '../components/SnakeBorder';
+import ServicesSection from '../components/home/ServicesSection';
+import FounderSection from '../components/home/FounderSection';
 import { VIDEO_URLS, POSTER_URLS } from '../config/videoUrls';
 
 // Register Chart.js components
@@ -678,6 +680,9 @@ const HomePage: React.FC = () => {
 
         </section>
 
+        {/* Services + Founder */}
+        <ServicesSection />
+        <FounderSection />
 
         {/* Main Features Showcase */}
         <section className="mb-8 max-w-7xl mx-auto px-4">
